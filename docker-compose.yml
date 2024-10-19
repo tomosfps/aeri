@@ -1,0 +1,10 @@
+services:
+  anilist-api:
+    build: .
+    container_name: anilist-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    tty: true
+    stdin_open: true
