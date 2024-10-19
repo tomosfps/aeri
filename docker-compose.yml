@@ -1,25 +1,29 @@
 services:
   gateway:
+    container_name: "gateway"
     build:
       context: .
       target: gateway
-    restart: unless-stopped
     tty: true
     env_file:
       - .env
 
-  aeri-api:
+  api:
     build: .
-    container_name: aeri-api
+    container_name: api
     ports:
       - "8080:8080"
     tty: true
+    env_file:
+      - .env
   
   cache:
     container_name: cache
     image: eqalpha/keydb:alpine
     restart: unless-stopped
     tty: true
+    env_file:
+      - .env
     volumes:
       - cache-data:/data
       - ./config/cache/keydb.conf:/etc/keydb/keydb.conf

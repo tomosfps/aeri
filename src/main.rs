@@ -2,6 +2,7 @@ use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
 use dotenv::dotenv;
+use std::env;
 
 mod api;
 use api::media::{media_search, relations_search};
@@ -25,6 +26,10 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
     logger.info("Starting Anilist API Proxy", "Main");
+    let ip = env::var("API_IP").unwrap_or(String::from("0.0.0.0"));
+    let port = env::var("API_PORT").unwrap().parse::<u16>().unwrap_or(8080);
+    logger.info(&format!("Listening on {}:{}", ip, port), "Main");
+
     HttpServer::new(|| {
         App::new()
             .service(hello)
@@ -34,7 +39,7 @@ async fn main() -> std::io::Result<()> {
             .service(relations_search)
             .route("/hey", web::get().to(manual))
     })
-    .bind(("0.0.0.0", 8080))?
+    .bind((ip, port))?
     .run()
     .await
 }

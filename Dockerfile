@@ -8,25 +8,18 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder 
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
-COPY . /app
+COPY . .
 RUN cargo build --release --bin aeri-api
+RUN cargo build --release -p aeri-gateway
 
-FROM chef AS gateway
-WORKDIR /app/src/packages/gateway
-COPY . /app/src/packages/gateway
-RUN cargo chef prepare --recipe-path recipe.json
-RUN cargo chef cook --release --recipe-path recipe.json
-COPY . /app
-RUN cargo build --release --bin aeri-gateway
-
-FROM debian:bookworm-slim AS gateway-runtime
+FROM debian:bookworm-slim AS gateway
 WORKDIR /app
 RUN apt-get update && apt-get install -y libssl-dev ca-certificates tzdata
-COPY --from=gateway /app/target/release/aeri-gateway /usr/local/bin
-CMD ["/usr/local/bin/aeri-gateway"]
+COPY --from=builder /app/target/release/aeri-gateway /usr/local/bin
+ENTRYPOINT ["/usr/local/bin/aeri-gateway"]
 
-FROM debian:bookworm-slim AS runtime
+FROM debian:bookworm-slim AS api
 WORKDIR /app
 RUN apt-get update && apt-get install -y libssl-dev ca-certificates tzdata
 COPY --from=builder /app/target/release/aeri-api /usr/local/bin
-CMD ["/usr/local/bin/aeri-api"]
+ENTRYPOINT ["/usr/local/bin/aeri-api"]

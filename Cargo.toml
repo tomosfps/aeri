@@ -3,6 +3,11 @@ name = "aeri-api"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = [
+    "cache"
+]
+
 [dependencies]
 colourful-logger = "0.1.3"
 actix-web = "4"
