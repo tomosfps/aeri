@@ -1,9 +1,9 @@
 services:
-  gateway:
-    container_name: "gateway"
+  proxy:
+    container_name: "proxy"
     build:
       context: .
-      target: gateway
+      target: proxy
     tty: true
     env_file:
       - .env
