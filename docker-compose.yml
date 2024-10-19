@@ -1,16 +1,7 @@
 services:
-  proxy:
-    container_name: "proxy"
-    build:
-      context: .
-      target: proxy
-    tty: true
-    env_file:
-      - .env
-
-  api:
+  aeri:
     build: .
-    container_name: api
+    container_name: aeri
     ports:
       - "8080:8080"
     tty: true

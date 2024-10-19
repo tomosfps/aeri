@@ -14,7 +14,7 @@ pub struct Redis {
 impl Redis {
     pub fn new() -> Self {
         let redis_url = env::var("REDIS_URL").unwrap_or("redis://localhost:6379".to_string()).to_string();
-        logger.info("Created Client", "Redis");
+        logger.info(&format!("Created Client with URL : {}", redis_url), "Redis");
         Redis {
             client: Client::open(redis_url).unwrap(),
         }
@@ -24,8 +24,6 @@ impl Redis {
         logger.info("Getting Value", "Redis");
         let mut con = self.client.get_connection()?;
         let rv: String = con.get(key).unwrap();
-        
-        logger.info(format!("Got Value: {}", rv).as_str(), "Redis");
         Ok(rv)
         
     }
@@ -34,9 +32,6 @@ impl Redis {
         logger.info("Setting Value", "Redis");
         let mut con = self.client.get_connection()?;
         let _: () = con.set(key, value)?;
-
-        logger.info("Set Value", "Redis");
-
         Ok(())
     }
 }

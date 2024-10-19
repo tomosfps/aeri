@@ -9,17 +9,10 @@ FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-RUN cargo build --release --bin aeri-api
-RUN cargo build --release -p aeri-proxy
+RUN cargo build --release --bin aeri
 
-FROM debian:bookworm-slim AS proxy
+FROM debian:bookworm-slim AS aeri
 WORKDIR /app
 RUN apt-get update && apt-get install -y libssl-dev ca-certificates tzdata
-COPY --from=builder /app/target/release/aeri-proxy /usr/local/bin
-ENTRYPOINT ["/usr/local/bin/aeri-proxy"]
-
-FROM debian:bookworm-slim AS api
-WORKDIR /app
-RUN apt-get update && apt-get install -y libssl-dev ca-certificates tzdata
-COPY --from=builder /app/target/release/aeri-api /usr/local/bin
-ENTRYPOINT ["/usr/local/bin/aeri-api"]
+COPY --from=builder /app/target/release/aeri /usr/local/bin
+ENTRYPOINT ["/usr/local/bin/aeri"]

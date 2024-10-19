@@ -5,6 +5,7 @@ use dotenv::dotenv;
 use std::env;
 
 mod api;
+mod cache;
 use api::media::{media_search, relations_search};
 use api::user::{user_search, user_score};
 
@@ -26,11 +27,11 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
     logger.info("Starting Anilist API Proxy", "Main");
-    let ip = env::var("API_IP").unwrap_or(String::from("0.0.0.0"));
-    let port = env::var("API_PORT").unwrap().parse::<u16>().unwrap_or(8080);
+    let ip = env::var("AERI_IP").unwrap_or("0.0.0.0".to_string());
+    let port = env::var("AERI_PORT").unwrap().parse::<u16>().unwrap_or(8080);
     logger.info(&format!("Listening on {}:{}", ip, port), "Main");
-
-    HttpServer::new(|| {
+    
+    HttpServer::new(move || {
         App::new()
             .service(hello)
             .service(user_search)
