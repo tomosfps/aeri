@@ -1,3 +1,5 @@
 recipe.json
 target/
 Cargo.lock
+.env
+.vscode

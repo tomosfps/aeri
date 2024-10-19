@@ -8,11 +8,25 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder 
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
-COPY . .
-RUN cargo build --release --bin anilist-api
+COPY . /app
+RUN cargo build --release --bin aeri-api
+
+FROM chef AS gateway
+WORKDIR /app/src/packages/gateway
+COPY . /app/src/packages/gateway
+RUN cargo chef prepare --recipe-path recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
+COPY . /app
+RUN cargo build --release --bin aeri-gateway
+
+FROM debian:bookworm-slim AS gateway-runtime
+WORKDIR /app
+RUN apt-get update && apt-get install -y libssl-dev ca-certificates tzdata
+COPY --from=gateway /app/target/release/aeri-gateway /usr/local/bin
+CMD ["/usr/local/bin/aeri-gateway"]
 
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 RUN apt-get update && apt-get install -y libssl-dev ca-certificates tzdata
-COPY --from=builder /app/target/release/anilist-api /usr/local/bin
-ENTRYPOINT ["/usr/local/bin/anilist-api"]
+COPY --from=builder /app/target/release/aeri-api /usr/local/bin
+CMD ["/usr/local/bin/aeri-api"]
