@@ -4,10 +4,10 @@ use lazy_static::lazy_static;
 use dotenv::dotenv;
 use std::env;
 
-mod api;
+mod anilist;
 mod cache;
-use api::media::{media_search, relations_search};
-use api::user::{user_search, user_score};
+use anilist::media::{media_search, relations_search};
+use anilist::user::{user_search, user_score};
 
 lazy_static! {
     static ref logger: Logger = Logger::new();
