@@ -1,5 +1,11 @@
-recipe.json
 target/
+debug/
+
 Cargo.lock
+recipe.json
+**/*.rs.bk
+*.pdb
+
 .env
 .vscode
+Procfile
