@@ -1,5 +1,6 @@
 target/
 debug/
+env/
 
 Cargo.lock
 recipe.json
