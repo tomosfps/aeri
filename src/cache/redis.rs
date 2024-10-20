@@ -43,17 +43,34 @@ impl Redis {
     pub fn set<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, value: V) -> RedisResult<()> {
         logger.info(&format!("Setting Key with data {:?}", key).as_str(), "Redis");
         let mut con = self.client.get_connection()?;
-        // Possibily add a check for the value here
-        let _: () = con.set(key, value)?;
-        logger.info("Key and Value have been set", "Redis");
-        Ok(())
+        
+        let result: RedisResult<()> = con.set(key, value);
+        match result {
+            Ok(_) => {
+                logger.info("Key and Value have been set", "Redis");
+                return Ok(());
+            },
+            Err(e) => {
+                logger.error(&format!("Error setting key : {:?}", e).as_str(), "Redis");
+                return Err(e);
+            }
+        }
     }
 
     pub fn expire<T: ToRedisArgs + std::fmt::Debug>(&self, key: T, seconds: i64) -> RedisResult<()> {
         logger.info(&format!("Setting Key to expire in {} seconds : {:?}", seconds, key).as_str(), "Redis");
         let mut con = self.client.get_connection()?;
-        let _: () = con.expire(key, seconds)?;
-        logger.info("Key has been set to expire", "Redis");
-        Ok(())
+        let result: RedisResult<()> = con.expire(key, seconds);
+        
+        match result {
+            Ok(_) => {
+                logger.info("Key has been set to expire", "Redis");
+                return Ok(());
+            },
+            Err(e) => {
+                logger.error(&format!("Error setting key to expire : {:?}", e).as_str(), "Redis");
+                return Err(e);
+            }
+        }
     }
 }
