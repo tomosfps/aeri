@@ -57,8 +57,9 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
 #[post("/media")]
 pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
 
-    if req.media_id == 0 || req.media_type.len() == 0 {
-        logger.error("No media ID or type was included", "Media");
+    // No need for checking mediaID as it's a required field
+    if req.media_type.len() == 0 {
+        logger.error("No type was included", "Media");
         return HttpResponse::BadRequest().finish();
     }
 
