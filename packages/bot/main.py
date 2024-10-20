@@ -18,10 +18,10 @@ client = commands.AutoShardedBot(
 
 # Initialize cogs
 for folder in os.listdir('./src/cogs/'):
-    for filename in folder:
+    for filename in os.listdir(f'./src/cogs/{folder}'):
         if filename.endswith('.py'):
             try:
-                client.load_extension(f'cogs.{filename[:-3]}')
+                client.load_extension(f'src.cogs.{folder}.{filename[:-3]}')
             except Exception as e:
                 print(f'Failed to load cog {filename[:-3]}. Error: {e}')
 
