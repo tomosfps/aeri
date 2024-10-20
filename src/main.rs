@@ -1,7 +1,17 @@
-mod api;
-
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use crate::api::user::*;
+use colourful_logger::Logger as Logger;
+use lazy_static::lazy_static;
+use dotenv::dotenv;
+use std::env;
+
+mod api;
+mod cache;
+use api::media::{media_search, relations_search};
+use api::user::{user_search, user_score};
+
+lazy_static! {
+    static ref logger: Logger = Logger::new();
+}
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -14,13 +24,23 @@ async fn manual() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
+    dotenv().ok();
+
+    logger.info("Starting Anilist API Proxy", "Main");
+    let ip = env::var("AERI_IP").unwrap_or("0.0.0.0".to_string());
+    let port = env::var("AERI_PORT").unwrap().parse::<u16>().unwrap_or(8080);
+    logger.info(&format!("Listening on {}:{}", ip, port), "Main");
+    
+    HttpServer::new(move || {
         App::new()
             .service(hello)
-            .service(user)
+            .service(user_search)
+            .service(user_score)
+            .service(media_search)
+            .service(relations_search)
             .route("/hey", web::get().to(manual))
     })
-    .bind(("0.0.0.0", 8080))?
+    .bind((ip, port))?
     .run()
     .await
 }

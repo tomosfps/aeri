@@ -1,10 +1,36 @@
 services:
-  anilist-api:
+  aeri:
     build: .
-    container_name: anilist-api
+    container_name: aeri
     ports:
       - "8080:8080"
-    volumes:
-      - .:/app
     tty: true
-    stdin_open: true
+    env_file:
+      - .env
+  
+  cache:
+    container_name: cache
+    image: eqalpha/keydb:alpine
+    restart: unless-stopped
+    tty: true
+    env_file:
+      - .env
+    volumes:
+      - cache-data:/data
+      - ./config/cache/keydb.conf:/etc/keydb/keydb.conf
+  
+  database:
+    container_name: database
+    image: postgres:alpine
+    restart: unless-stopped
+    tty: true
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - database-data:/var/lib/postgresql/data
+
+volumes:
+  cache-data:
+  database-data:

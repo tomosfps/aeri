@@ -98,8 +98,8 @@ pub fn get_query(query_name: &str) -> String {
     }";
 
     let user_stats: &str = "
-    query ($userName: String, $mediaId: Int) {
-        MediaList(userName: $userName, mediaId: $mediaId) {
+    query ($userId: Int, $userName: String, $mediaId: Int) {
+        MediaList(userId: $userId, userName: $userName, mediaId: $mediaId) {
             progressVolumes
             status
             score(format: POINT_10)
