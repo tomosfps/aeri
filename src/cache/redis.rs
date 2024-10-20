@@ -2,7 +2,6 @@ use std::env;
 use redis::{Client, ToRedisArgs, RedisResult, Commands};
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
-use serde_json::json;
 
 lazy_static! {
     static ref logger: Logger = Logger::new();
@@ -29,7 +28,7 @@ impl Redis {
         match rv {
             Some(data) => {
                 let data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-                logger.info(&format!("Found value for key : {}", data.get("romaji").unwrap().to_string()), "Redis");
+                logger.info("Found value for key", "Redis");
 
                 let data = data.to_string();
                 return Ok(data);
@@ -44,6 +43,7 @@ impl Redis {
     pub fn set<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, value: V) -> RedisResult<()> {
         logger.info(&format!("Setting Key with data {:?}", key).as_str(), "Redis");
         let mut con = self.client.get_connection()?;
+        // Possibily add a check for the value here
         let _: () = con.set(key, value)?;
         logger.info("Key and Value have been set", "Redis");
         Ok(())

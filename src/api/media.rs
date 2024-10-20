@@ -55,7 +55,7 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
         Ok(data) => {
             logger.debug("Found media data in cache. Returning cached data", "Media");
             let mut media_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-            media_data["dataFrom"] = "Cache".into();
+            media_data["dataFrom"] = "cache".into();
             return HttpResponse::Ok().json(media_data);
         },
 
@@ -84,23 +84,15 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
     let media: serde_json::Value = response.json::<serde_json::Value>().await.unwrap();
     let media: serde_json::Value = wash_media_data(media).await;
 
-    match redis.get(media["id"].to_string()) {
-        Ok(_) => {
-            // This shouldn't be triggered, but just in case
-            logger.debug(&format!("{} has already been cached", media["romaji"]), "Media");
-        },
-        Err(_) => {
-            logger.debug(format!("Attempting first time caching for {}", media["romaji"]).as_str(), "Media");
-            let _ = redis.set(media["id"].to_string(), media.clone().to_string());
-            if media["airing"].as_array().unwrap().len() > 0 {
-                let time_until_airing = media["airing"][0]["timeUntilAiring"].as_i64().unwrap();
-                let time_with_extra = time_until_airing + 2 * 3600;
-                let _ = redis.expire(media["id"].to_string(), time_with_extra);
-            } else {
-                logger.info(&format!("{} is not releasing, keep data for a week.", media["romaji"]), "Media");
-                let _ = redis.expire(media["id"].to_string(), 86400);
-            }
-        }
+    let _ = redis.set(media["id"].to_string(), media.clone().to_string());
+    if media["airing"].as_array().unwrap().len() > 0 {
+        logger.info(&format!("{} is releasing, append an extra 2 hours for cache expire", media["romaji"]), "Media");
+        let time_until_airing = media["airing"][0]["timeUntilAiring"].as_i64().unwrap();
+        let add_hours = time_until_airing + 2 * 3600;
+        let _ = redis.expire(media["id"].to_string(), add_hours);
+    } else {
+        logger.info(&format!("{} is not releasing, keep data for a week.", media["romaji"]), "Media");
+        let _ = redis.expire(media["id"].to_string(), 86400);
     }
 
     HttpResponse::Ok().json(media)
@@ -148,6 +140,7 @@ async fn wash_relation_data(relation_data: serde_json::Value) -> serde_json::Val
             "native"    : rel["title"]["native"],
             "synonyms"  : rel["synonyms"],
             "type"      : rel["type"],
+            "dataFrom"  : "API"
         });
         relation_list.push(washed_relation);
     }
