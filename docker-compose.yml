@@ -1,7 +1,7 @@
 services:
-  aeri:
+  api:
     build: .
-    container_name: aeri
+    container_name: api
     ports:
       - "8080:8080"
     tty: true
