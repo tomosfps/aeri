@@ -12,7 +12,7 @@ lazy_static! {
     static ref redis:   Redis  = Redis::new();
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct ScoreRequest {
     user_id: i64,
     media_id: i64,
@@ -61,9 +61,13 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
     HttpResponse::Ok().json(user)
 }
 
-
 #[post("/user")]
 pub async fn user_search(username: String) -> impl Responder {
+
+    if username.len() == 0 {
+        logger.error("No username was included", "User");
+        return HttpResponse::BadRequest().finish();
+    }
 
     match redis.get(username.clone()) {
         Ok(data) => {
@@ -120,7 +124,6 @@ async fn wash_user_score(json_data: serde_json::Value) -> serde_json::Value {
     logger.debug("Data has been washed", "User Score");
     washed_data
 }
-
 
 async fn wash_user_data(json_data: serde_json::Value) -> serde_json::Value {
     logger.debug("Washing up data", "User");

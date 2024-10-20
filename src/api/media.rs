@@ -26,6 +26,12 @@ struct MediaRequest {
 
 #[post("/relations")]
 pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder {
+
+    if req.media_name.len() == 0 || req.media_type.len() == 0 {
+        logger.error("No media name or type was included", "Relations");
+        return HttpResponse::BadRequest().finish();
+    }
+
     let client: Client = reqwest::Client::new();
     let query:  String = get_query("relation_stats");
     let json:   serde_json::Value = json!({"query": query, "variables": {"search": req.media_name, "type": req.media_type.to_uppercase()}});
@@ -50,6 +56,11 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
 
 #[post("/media")]
 pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
+
+    if req.media_id == 0 || req.media_type.len() == 0 {
+        logger.error("No media ID or type was included", "Media");
+        return HttpResponse::BadRequest().finish();
+    }
 
     match redis.get(req.media_id.to_string()) {
         Ok(data) => {
