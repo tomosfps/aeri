@@ -23,7 +23,7 @@ Anilist API built in Rust to be fast and easy to use.
 
 The API is typically on `0.0.0.0:8080` but can be changed through the `.env` file.
 
-### Available Endpoints
+## Available Endpoints
 
 <details>
     <summary><strong>/relations</strong></summary>
@@ -125,4 +125,4 @@ Feel free to open a pull requests or issue.
 5. Create the pull request
 
 ## License
-This project uses the following license: [MIT LICENSE](https://github.com/devtomos/aeri-api/blob/main/LICENSE).
+This project uses the following license: [MIT LICENSE](https://github.com/devtomos/aeri-api/blob/main/LICENSE.md).
