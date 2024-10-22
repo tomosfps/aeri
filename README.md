@@ -1,5 +1,5 @@
 # Aeri
-A Discord bot made using the Anilist API, built in Python + Rust.
+A Discord bot made using the Anilist API, built in TypeScript and Rust.
 
 ### README Update Soon
 

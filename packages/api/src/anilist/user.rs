@@ -48,7 +48,8 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
     
     if response.status().as_u16() != 200 {
         logger.error(format!("Request returned {} when trying to fetch {}", response.status().as_str(), req.user_id).as_str(), "User Score");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
+        return HttpResponse::BadRequest().json(bad_json);
     }
 
     let user = response.json::<serde_json::Value>().await.unwrap();
@@ -66,7 +67,8 @@ pub async fn user_search(username: String) -> impl Responder {
 
     if username.len() == 0 {
         logger.error("No username was included", "User");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "No username was included"});
+        return HttpResponse::BadRequest().json(bad_json);
     }
 
     match redis.get(username.clone()) {
@@ -96,7 +98,8 @@ pub async fn user_search(username: String) -> impl Responder {
     
     if response.status().as_u16() != 200 {
         logger.error(format!("Request returned {} when trying to fetch {}", response.status().as_str(), username).as_str(), "User");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
+        return HttpResponse::BadRequest().json(bad_json);
     }
 
     let user = response.json::<serde_json::Value>().await.unwrap();

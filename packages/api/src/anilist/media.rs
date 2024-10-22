@@ -29,7 +29,14 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
 
     if req.media_name.len() == 0 || req.media_type.len() == 0 {
         logger.error("No media name or type was included", "Relations");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "No media name or type was included"});
+        return HttpResponse::BadRequest().json(bad_json);
+    }
+
+    if req.media_type.to_uppercase() != "ANIME" || req.media_type.to_uppercase() != "MANGA" {
+        logger.error("Invalid media type was included", "Relations");
+        let bad_json = json!({"error": "Invalid media type was included. Must be ANIME or MANGA"});
+        return HttpResponse::BadRequest().json(bad_json);
     }
 
     let client: Client = reqwest::Client::new();
@@ -46,7 +53,8 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
 
     if response.status().as_u16() != 200 {
         logger.error(format!("Request returned {} when trying to fetch data for {} with type {}", response.status().as_str(), req.media_name, req.media_type).as_str(), "Relations");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
+        return HttpResponse::BadRequest().json(bad_json);
     }
         
     let relations = response.json::<serde_json::Value>().await.unwrap();
@@ -60,7 +68,14 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
     // No need for checking mediaID as it's a required field
     if req.media_type.len() == 0 {
         logger.error("No type was included", "Media");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "No type was included"});
+        return HttpResponse::BadRequest().json(bad_json);
+    }
+
+    if req.media_type.to_uppercase() != "ANIME" || req.media_type.to_uppercase() != "MANGA" {
+        logger.error("Invalid media type was included", "Relations");
+        let bad_json = json!({"error": "Invalid media type was included. Must be ANIME or MANGA"});
+        return HttpResponse::BadRequest().json(bad_json);
     }
 
     match redis.get(req.media_id.to_string()) {
@@ -90,7 +105,8 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
 
     if response.status().as_u16() != 200 {
         logger.error(format!("Request returned {} when trying to fetch data for {} with type {}", response.status().as_str(), req.media_id, req.media_type).as_str(), "Media");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
+        return HttpResponse::BadRequest().json(bad_json);
     }
         
     let media: serde_json::Value = response.json::<serde_json::Value>().await.unwrap();

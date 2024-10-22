@@ -27,8 +27,8 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
     logger.info("Starting Anilist API Proxy", "Main");
-    let ip = env::var("AERI_IP").unwrap_or("0.0.0.0".to_string());
-    let port = env::var("AERI_PORT").unwrap().parse::<u16>().unwrap_or(8080);
+    let ip = env::var("API_IP").unwrap_or("0.0.0.0".to_string());
+    let port = env::var("API_PORT").unwrap().parse::<u16>().unwrap_or(8080);
     logger.info(&format!("Listening on {}:{}", ip, port), "Main");
     
     HttpServer::new(move || {
