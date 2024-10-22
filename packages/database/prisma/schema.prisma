@@ -1,0 +1,26 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "./gen/client"
+}
+
+datasource db {
+  provider      = "postgresql"
+  url           = env("POSTGRES_URL")
+}
+
+model User {
+  discord_id    BigInt  @id
+  username      String
+  anilist       Anilist?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
+
+model Anilist {
+  id            BigInt  @id
+  username      String
+  user_id       BigInt  @unique
+  user          User    @relation(fields: [user_id], references: [discord_id])
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}

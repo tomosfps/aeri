@@ -1,3 +1,0 @@
-nextcord==2.6.0
-python-dotenv==1.0.1
-aerialog==0.0.3
