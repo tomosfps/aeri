@@ -12,10 +12,16 @@ export async function createAnilistUser(
         data: {
             discord_id: discord_id,
             username: username,
-            anilist: {
-                create: {
-                    id: anilist_id,
-                    username: anilist_username,
+        },
+    });
+
+    await db.anilist.create({
+        data: {
+            id: anilist_id,
+            username: anilist_username,
+            user: {
+                connect: {
+                    discord_id: discord_id,
                 },
             },
         },

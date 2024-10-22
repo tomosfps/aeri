@@ -20,7 +20,7 @@ struct RelationRequest {
 
 #[derive(Deserialize)]
 struct MediaRequest {
-    media_id: i32,
+    media_id:   i32,
     media_type: String,
 }
 
@@ -30,12 +30,6 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
     if req.media_name.len() == 0 || req.media_type.len() == 0 {
         logger.error("No media name or type was included", "Relations");
         let bad_json = json!({"error": "No media name or type was included"});
-        return HttpResponse::BadRequest().json(bad_json);
-    }
-
-    if req.media_type.to_uppercase() != "ANIME" || req.media_type.to_uppercase() != "MANGA" {
-        logger.error("Invalid media type was included", "Relations");
-        let bad_json = json!({"error": "Invalid media type was included. Must be ANIME or MANGA"});
         return HttpResponse::BadRequest().json(bad_json);
     }
 
@@ -72,17 +66,12 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
         return HttpResponse::BadRequest().json(bad_json);
     }
 
-    if req.media_type.to_uppercase() != "ANIME" || req.media_type.to_uppercase() != "MANGA" {
-        logger.error("Invalid media type was included", "Relations");
-        let bad_json = json!({"error": "Invalid media type was included. Must be ANIME or MANGA"});
-        return HttpResponse::BadRequest().json(bad_json);
-    }
-
     match redis.get(req.media_id.to_string()) {
         Ok(data) => {
             logger.debug("Found media data in cache. Returning cached data", "Media");
             let mut media_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-            media_data["dataFrom"] = "cache".into();
+            media_data["dataFrom"] = "Cache".into();
+            media_data["leftUntilExpire"] = redis.ttl(req.media_id.to_string()).unwrap().into();
             return HttpResponse::Ok().json(media_data);
         },
 

@@ -26,7 +26,8 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
         Ok(data) => {
             logger.debug(&format!("Found data for {}, returning data for ID : {}", req.user_id, req.media_id), "User Score");
             let mut user_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-            user_data["dataFrom"] = "cache".into();
+            user_data["dataFrom"] = "Cache".into();
+            user_data["leftUntilExpire"] = redis.ttl(redis_key.to_string()).unwrap().into();
             return HttpResponse::Ok().json(user_data);
         },
         Err(_) => {
@@ -75,7 +76,8 @@ pub async fn user_search(username: String) -> impl Responder {
         Ok(data) => {
             logger.debug(&format!("Found {} data in cache. Returning cached data", username), "User");
             let mut user_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-            user_data["dataFrom"] = "cache".into();
+            user_data["dataFrom"] = "Cache".into();
+            user_data["leftUntilExpire"] = redis.ttl(username.to_string()).unwrap().into();
             return HttpResponse::Ok().json(user_data);
         },
         Err(_) => {
@@ -148,7 +150,7 @@ async fn wash_user_data(json_data: serde_json::Value) -> serde_json::Value {
         },
         "mangaStats": {
             "count"     : data["statistics"]["manga"]["count"],
-            "read"      : data["statistics"]["manga"]["chaptersRead"],
+            "chapters"  : data["statistics"]["manga"]["chaptersRead"],
             "volumes"   : data["statistics"]["manga"]["volumesRead"],
             "meanScore" : data["statistics"]["manga"]["meanScore"],
             "deviation" : data["statistics"]["manga"]["standardDeviation"],

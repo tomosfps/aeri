@@ -73,4 +73,21 @@ impl Redis {
             }
         }
     }
+
+    pub fn ttl<T: ToRedisArgs + std::fmt::Debug>(&self, key: T) -> RedisResult<i64> {
+        logger.info(&format!("Getting TTL for key : {:?}", key).as_str(), "Redis");
+        let mut con = self.client.get_connection()?;
+        let result: RedisResult<i64> = con.ttl(key);
+
+        match result {
+            Ok(data) => {
+                logger.info(&format!("TTL for key is : {}", data).as_str(), "Redis");
+                return Ok(data);
+            },
+            Err(e) => {
+                logger.error(&format!("Error getting TTL for key : {:?}", e).as_str(), "Redis");
+                return Err(e);
+            }
+        }
+    }
 }
