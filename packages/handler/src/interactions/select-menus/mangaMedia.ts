@@ -3,16 +3,17 @@ import { env } from "core";
 import { fetchAllUsers } from "database";
 import { Logger } from "log";
 import type { SelectMenu } from "../../services/commands.js";
+import { intervalTime } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 const invalidPatterns = [
     "null",
     "null/null/null",
-    "Dropped           :`\n \n",
-    "`Planning to Watch :`\n \n",
-    "`Paused            :`\n \n",
-    "`Completed         :`\n \n",
-    "`Currently Reading :`\n \n",
+    "`dropped            :`\n \n",
+    "`planning to read  :`\n \n",
+    "`paused            :`\n \n",
+    "`completed         :`\n \n",
+    "`currently reading :`\n \n",
 ];
 
 export const interaction: SelectMenu = {
@@ -39,6 +40,11 @@ export const interaction: SelectMenu = {
             logger.error("Error while parsing JSON data.", "Anilist", error);
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         });
+
+        if (result.error) {
+            logger.error("An Error Occured when trying to access the API", "Anilist", result);
+            return interaction.reply({ content: "An Error Occured when trying to access the API", ephemeral: true });
+        }
 
         const genresToShow = result.genres.slice(0, 3);
         const additionalGenresCount = result.genres.length - genresToShow.length;
@@ -110,11 +116,11 @@ export const interaction: SelectMenu = {
             `${inlineCode("end date          :")} ${result.endDate}\n`,
             `${inlineCode("duration          :")} ${result.duration}\n`,
             `${inlineCode("genres            :")} ${genresDisplay}\n\n`,
-            `${inlineCode("Completed         :")}\n ${userData.completed.join("")}\n`,
-            `${inlineCode("Current Watching  :")}\n ${userData.current.join("")}\n`,
-            `${inlineCode("Planning to Watch :")}\n ${userData.planning.join("")}\n`,
-            `${inlineCode("Dropped           :")}\n ${userData.dropped.join("")}\n`,
-            `${inlineCode("Paused            :")}\n ${userData.paused.join("")}\n\n`,
+            `${inlineCode("completed         :")}\n ${userData.completed.join("")}\n`,
+            `${inlineCode("currently reading :")}\n ${userData.current.join("")}\n`,
+            `${inlineCode("planning to read  :")}\n ${userData.planning.join("")}\n`,
+            `${inlineCode("dropped           :")}\n ${userData.dropped.join("")}\n`,
+            `${inlineCode("paused            :")}\n ${userData.paused.join("")}\n\n`,
         ];
 
         if (result.banner === "null") {
@@ -140,7 +146,7 @@ export const interaction: SelectMenu = {
             .setThumbnail(result.cover.extraLarge)
             .setDescription(filteredDescription.join(""))
             .setFooter({
-                text: `${result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${result.leftUntilExpire} seconds`}`,
+                text: `${result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${intervalTime(result.leftUntilExpire)}`}`,
             })
             .setColor(0x2f3136);
 

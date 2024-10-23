@@ -43,6 +43,14 @@ export const interaction: Command = {
                 return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
             });
 
+            if (result.error) {
+                logger.error("An Error Occured when trying to access the API", "Anilist", result);
+                return interaction.reply({
+                    content: `Unable to find ${username} within the Anilist API. `,
+                    ephemeral: true,
+                });
+            }
+
             createAnilistUser(
                 interaction.member_id,
                 interaction.member_name,

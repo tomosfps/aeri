@@ -3,16 +3,17 @@ import { env } from "core";
 import { fetchAllUsers } from "database";
 import { Logger } from "log";
 import type { SelectMenu } from "../../services/commands.js";
+import { intervalTime } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 const invalidPatterns = [
     "null",
     "null/null/null",
-    "Dropped           :`\n \n",
-    "`Planning to Watch :`\n \n",
-    "`Paused            :`\n \n",
-    "`Completed         :`\n \n",
-    "`Current Watching  :`\n \n",
+    "`dropped           :`\n \n",
+    "`planning to watch :`\n \n",
+    "`paused            :`\n \n",
+    "`completed         :`\n \n",
+    "`current watching  :`\n \n",
 ];
 
 export const interaction: SelectMenu = {
@@ -40,13 +41,18 @@ export const interaction: SelectMenu = {
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         });
 
+        if (result.error) {
+            logger.error("An Error Occured when trying to access the API", "Anilist", result);
+            return interaction.reply({ content: "An Error Occured when trying to access the API", ephemeral: true });
+        }
+
         const genresToShow = result.genres.slice(0, 3);
         const additionalGenresCount = result.genres.length - genresToShow.length;
         const genresDisplay =
             genresToShow.join(", ") + (additionalGenresCount > 0 ? ` + ${additionalGenresCount} more` : "");
 
-        const currentEpisode = result.airing[0].episode ? result.airing[0].episode - 1 : null;
-        const nextEpisode = result.airing[0].timeUntilAiring ? result.airing[0].timeUntilAiring : null;
+        const currentEpisode = result.airing[0] ? result.airing[0].episode - 1 : null;
+        const nextEpisode = result.airing[0] ? intervalTime(result.airing[0].timeUntilAiring) : null;
 
         const userData: {
             current: string[];
@@ -70,7 +76,7 @@ export const interaction: SelectMenu = {
         if (allUsers.length !== 0) {
             for (const member in allUsers) {
                 const userScore = await fetchUserData(Number(allUsers[member]), Number(interaction.menuValues[0]));
-                
+
                 switch (userScore.status) {
                     case "REPEATING":
                         userData.current.push(
@@ -114,11 +120,11 @@ export const interaction: SelectMenu = {
             `${inlineCode("end date          :")} ${result.endDate}\n`,
             `${inlineCode("duration          :")} ${result.duration}\n`,
             `${inlineCode("genres            :")} ${genresDisplay}\n\n`,
-            `${inlineCode("Completed         :")}\n ${userData.completed.join("")}\n`,
-            `${inlineCode("Current Wattching :")}\n ${userData.current.join("")}\n`,
-            `${inlineCode("Planning to Watch :")}\n ${userData.planning.join("")}\n`,
-            `${inlineCode("Dropped           :")}\n ${userData.dropped.join("")}\n`,
-            `${inlineCode("Paused            :")}\n ${userData.paused.join("")}\n\n`,
+            `${inlineCode("completed         :")}\n ${userData.completed.join("")}\n`,
+            `${inlineCode("current watching  :")}\n ${userData.current.join("")}\n`,
+            `${inlineCode("planning to watch :")}\n ${userData.planning.join("")}\n`,
+            `${inlineCode("dropped           :")}\n ${userData.dropped.join("")}\n`,
+            `${inlineCode("paused            :")}\n ${userData.paused.join("")}\n\n`,
         ];
 
         if (result.banner === "null") {
@@ -144,7 +150,7 @@ export const interaction: SelectMenu = {
             .setThumbnail(result.cover.extraLarge)
             .setDescription(filteredDescription.join(""))
             .setFooter({
-                text: `${result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${result.leftUntilExpire} seconds`}`,
+                text: `${result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${intervalTime(result.leftUntilExpire)}`}`,
             })
             .setColor(0x2f3136);
 
