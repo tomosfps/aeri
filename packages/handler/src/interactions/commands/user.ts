@@ -77,7 +77,7 @@ export const interaction: Command = {
         }
 
         const embed = new EmbedBuilder()
-            .setTitle(result.username)
+            .setTitle(result.name)
             .setURL(result.url)
             .setDescription(descriptionBuilder)
             .setThumbnail(result.avatar)

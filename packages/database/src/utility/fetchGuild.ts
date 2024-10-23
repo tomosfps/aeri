@@ -1,8 +1,16 @@
-import type { Guild } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export async function fetchGuild(guild_id: bigint): Promise<Guild | null> {
+export async function fetchGuild(guild_id: bigint, discord_id: bigint): Promise<any | null> {
     const db = await prisma;
-    const guild = (await db.guild.findUnique({ where: { id: guild_id }, include: { users: true } })) as Guild;
+    const guild = await db.guild.findUnique({
+        where: { id: guild_id },
+        select: {
+            users: {
+                where: { discord_id: discord_id },
+                select: { discord_id: true },
+            },
+        },
+    });
+
     return guild;
 }

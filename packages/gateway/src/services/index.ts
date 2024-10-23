@@ -11,7 +11,11 @@ const cache = await Cache.new("gateway:");
 
 const manager = new WebSocketManager({
     token: env.DISCORD_TOKEN,
-    intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages | GatewayIntentBits.MessageContent,
+    intents:
+        GatewayIntentBits.Guilds |
+        GatewayIntentBits.GuildMessages |
+        GatewayIntentBits.MessageContent |
+        GatewayIntentBits.GuildMembers,
     rest,
     shardCount: 2,
     buildIdentifyThrottler: async (manager) => {

@@ -16,9 +16,11 @@ export const interaction: Command = {
     data: new SlashCommandBuilder()
         .setName("manga")
         .setDescription("Find an Manga")
-        .addStringOption((option) => option.setName("manga").setDescription("Name of the manga").setRequired(true)),
+        .addStringOption((option) =>
+            option.setName("media_name").setDescription("Name of the manga").setRequired(true),
+        ),
     async execute(interaction): Promise<void> {
-        const manga = getCommandOption("manga", ApplicationCommandOptionType.String, interaction.options) || "";
+        const manga = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";
 
         const response = await fetch(`${env.API_URL}/relations`, {
             method: "POST",

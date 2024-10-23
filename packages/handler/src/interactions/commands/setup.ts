@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { env } from "core";
-import { createAnilistUser, fetchAnilistUser } from "database";
+import { createAnilistUser, fetchUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "log";
 import type { Command } from "../../services/commands.js";
@@ -17,7 +17,7 @@ export const interaction: Command = {
         ),
     async execute(interaction): Promise<void> {
         const username = getCommandOption("username", ApplicationCommandOptionType.String, interaction.options);
-        const isInDatabase = await fetchAnilistUser(interaction.member_id);
+        const isInDatabase = await fetchUser(interaction.member_id);
 
         if (isInDatabase === null) {
             const request = await fetch(`${env.API_URL}/user`, {
@@ -51,12 +51,19 @@ export const interaction: Command = {
                 });
             }
 
+            if (interaction.guild_id === undefined) {
+                return interaction.reply({
+                    content: "This command can only be used in a server.",
+                    ephemeral: true,
+                });
+            }
+
             createAnilistUser(
                 interaction.member_id,
                 interaction.member_name,
                 result.id,
                 result.name,
-                BigInt(Number(interaction.iGuild_id)),
+                BigInt(interaction.guild_id),
             );
 
             return interaction.reply({
@@ -64,8 +71,10 @@ export const interaction: Command = {
                 ephemeral: true,
             });
         }
+
         return interaction.reply({
-            content: "You already have an anilist account linked to your discord account.",
+            content:
+                "You already have an anilist account linked to your discord account. Use /unlink to unlink your account.",
             ephemeral: true,
         });
     },

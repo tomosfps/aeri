@@ -13,6 +13,7 @@ import {
 import { REST } from "@discordjs/rest";
 import { getRedis } from "core";
 import { env } from "core/dist/env.js";
+import { fetchGuild, fetchUser, removeFromGuild, updateGuild } from "database";
 import { Logger } from "log";
 import { ButtonInteraction } from "./classes/buttonInteraction.js";
 import { CommandInteraction } from "./classes/commandInteraction.js";
@@ -107,24 +108,99 @@ client.on(GatewayDispatchEvents.InteractionCreate, async ({ data: interaction, a
     interactionHandlers[type](interaction, api);
 });
 
-client.on(GatewayDispatchEvents.MessageCreate, async ({ data: message, api }) => {
+client.on(GatewayDispatchEvents.MessageCreate, async ({ data: message }) => {
     if (message.author.bot) return;
 
-    if (message.guild_id) {
-        const guild = await api.guilds.get(message.guild_id, { with_counts: true });
-        logger.infoSingle(
-            `Received message from author: ${message.author.id} in guild ${guild.name}: ${message.content}`,
-            "Handler",
-        );
-    } else {
-        logger.warn(`Message received without guild_id from author: ${message.author.id}`, "Handler");
+    if (message.guild_id === undefined) {
+        logger.warn("Guild ID is undefined", "Handler");
+        return;
+    }
+
+    if (!message.author) {
+        logger.warn("Member is undefined", "Handler");
+        return;
+    }
+
+    const memberId = BigInt(message.author.id);
+    const guildId = BigInt(message.guild_id);
+
+    if (guildId) {
+        const inDatabase = await fetchUser(memberId);
+
+        if (inDatabase) {
+            logger.debugSingle(`Member ${message.author.username} is already in the database`, "Handler");
+
+            const guildData = await fetchGuild(guildId, memberId);
+
+            if (guildData === null) {
+                logger.debugSingle(`Guild ${guildId} is not within the database`, "Handler");
+                return;
+            }
+            const checkGuild = guildData.users.some((user: { discord_id: bigint }) => user.discord_id === memberId);
+
+            if (!checkGuild) {
+                logger.debugSingle(`Member ${message.author.username} is not within the guild database`, "Handler");
+                await updateGuild(guildId, memberId, message.author.username);
+                logger.debugSingle(`Included ${message.author.username} to the database`, "Handler");
+            } else {
+                logger.debugSingle(`Member ${message.author.username} is already within the guild database`, "Handler");
+            }
+        }
     }
 });
 
-client.on(GatewayDispatchEvents.GuildCreate, async ({ data: guild }) => {
-    logger.infoSingle(`Joined guild: ${guild.name}`, "Handler");
+client.on(GatewayDispatchEvents.GuildMemberAdd, async ({ data: member }) => {
+    if (member.user?.bot) return;
+
+    if (member.user === undefined) {
+        logger.warn("Member is undefined", "Handler");
+        return;
+    }
+
+    const memberId = BigInt(member.user.id);
+    const inDatabase = await fetchUser(memberId);
+
+    if (inDatabase) {
+        logger.debugSingle(`Member ${member.user?.username} is already in the database`, "Handler");
+        const guildId = BigInt(member.guild_id);
+
+        const guildData = await fetchGuild(guildId, memberId);
+        const checkGuild = guildData.users.some((user: { discord_id: bigint }) => user.discord_id === memberId);
+
+        if (!checkGuild) {
+            logger.debugSingle(`Member ${member.user?.username} is not within the guild database`, "Handler");
+            await updateGuild(guildId, memberId, member.user.username);
+            logger.debugSingle(`Included ${member.user?.username} from the database`, "Handler");
+        } else {
+            logger.debugSingle(`Member ${member.user?.username} is already within the guild database`, "Handler");
+        }
+    }
 });
 
-client.on(GatewayDispatchEvents.GuildDelete, async ({ data: guild }) => {
-    logger.infoSingle(`Left guild: ${guild.id}`, "Handler");
+client.on(GatewayDispatchEvents.GuildMemberRemove, async ({ data: member }) => {
+    if (member.user?.bot) return;
+
+    if (member.user === undefined) {
+        logger.warn("Member is undefined", "Handler");
+        return;
+    }
+
+    const memberId = BigInt(member.user.id);
+    const inDatabase = await fetchUser(memberId);
+
+    if (inDatabase) {
+        logger.debugSingle(`Member ${member.user?.username} is already in the database`, "Handler");
+        const guildId = BigInt(member.guild_id);
+
+        const guildData = await fetchGuild(guildId, memberId);
+        const checkGuild = guildData.users.some((user: { discord_id: bigint }) => user.discord_id === memberId);
+
+        if (checkGuild) {
+            logger.debugSingle(`Member ${member.user?.username} is within the guild database`, "Handler");
+            await removeFromGuild(memberId, guildId);
+            logger.debugSingle(`Removed ${member.user?.username} from the database`, "Handler");
+        } else {
+            logger.debugSingle(`Member ${member.user?.username} is not within the guild database`, "Handler");
+        }
+    }
 });

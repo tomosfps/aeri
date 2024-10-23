@@ -8,10 +8,6 @@ export async function connectPrisma() {
         log: [
             {
                 emit: "event",
-                level: "query",
-            },
-            {
-                emit: "event",
                 level: "info",
             },
             {
@@ -23,10 +19,6 @@ export async function connectPrisma() {
                 level: "error",
             },
         ],
-    });
-
-    prisma.$on("query", (e: any) => {
-        logger.info("Query Created:", "Prisma", { duration: `${e.duration}ms`, timestamp: e.timestamp });
     });
 
     prisma.$on("info", (e: any) => {

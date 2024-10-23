@@ -35,11 +35,7 @@ export class BaseInteraction {
         return this.interaction.message?.id;
     }
 
-    get sGuild_id() {
-        return String(this.interaction.guild_id);
-    }
-
-    get iGuild_id() {
+    get guild_id() {
         return this.interaction.guild_id;
     }
 

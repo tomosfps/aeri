@@ -46,6 +46,10 @@ export const interaction: SelectMenu = {
             return interaction.reply({ content: "An Error Occured when trying to access the API", ephemeral: true });
         }
 
+        if (interaction.guild_id === undefined) {
+            return interaction.reply({ content: "This command can only be used in a server", ephemeral: true });
+        }
+
         const genresToShow = result.genres.slice(0, 3);
         const additionalGenresCount = result.genres.length - genresToShow.length;
         const genresDisplay =
@@ -65,7 +69,8 @@ export const interaction: SelectMenu = {
             paused: [],
         };
 
-        const allUsers = await fetchAllUsers().then((users) => {
+        const guildId = BigInt(interaction.guild_id);
+        const allUsers = await fetchAllUsers(guildId).then((users) => {
             logger.infoSingle(`Fetched ${users.length} users from the database`, "Anilist");
             return users.map((user: { anilist: any }) => user.anilist.id);
         });

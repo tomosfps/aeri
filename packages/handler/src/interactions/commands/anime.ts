@@ -16,9 +16,11 @@ export const interaction: Command = {
     data: new SlashCommandBuilder()
         .setName("anime")
         .setDescription("Find an Anime")
-        .addStringOption((option) => option.setName("anime").setDescription("Name of the anime").setRequired(true)),
+        .addStringOption((option) =>
+            option.setName("media_name").setDescription("Name of the anime").setRequired(true),
+        ),
     async execute(interaction): Promise<void> {
-        const anime = getCommandOption("anime", ApplicationCommandOptionType.String, interaction.options) || "";
+        const anime = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";
 
         const response = await fetch(`${env.API_URL}/relations`, {
             method: "POST",

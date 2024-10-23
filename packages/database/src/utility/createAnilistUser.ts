@@ -31,6 +31,11 @@ export async function createAnilistUser(
     await db.guild.upsert({
         create: {
             id: guild_id,
+            users: {
+                connect: {
+                    discord_id: discord_id,
+                },
+            },
         },
 
         update: {
