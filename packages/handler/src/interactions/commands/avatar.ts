@@ -34,11 +34,13 @@ export const interaction: Command = {
             .setLabel("Guild Avatar")
             .setDisabled(guildAvatar === null || guildAvatar === undefined)
             .setStyle(ButtonStyle.Primary);
+            
         const defaultButton = new ButtonBuilder()
             .setCustomId("to_default_avatar")
             .setLabel("Default Avatar")
             .setDisabled(guildAvatar === null || guildAvatar === undefined)
             .setStyle(ButtonStyle.Secondary);
+
         const row = new ActionRowBuilder().addComponents(defaultButton, guildButton);
 
         const userAvatar =
