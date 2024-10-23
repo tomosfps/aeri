@@ -10,6 +10,8 @@ RUN apk add --no-cache bash curl \
     && chown root:root /usr/sbin/wait-for-it \
     && chmod 755 /usr/sbin/wait-for-it
 
+EXPOSE 3000
+
 FROM base AS build
 COPY . /app
 WORKDIR /app

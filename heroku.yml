@@ -13,5 +13,5 @@ build:
       web: Dockerfile
       api: Dockerfile.api
 run:
-    web: bundle exec rails s -p $PORT
-    api: bundle exec rails s -p $PORT
+    web: node index.js
+    api: bundle exec rails s -b 0.0.0.0 -p $PORT
