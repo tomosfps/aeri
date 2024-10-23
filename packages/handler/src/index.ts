@@ -13,7 +13,7 @@ import {
 import { REST } from "@discordjs/rest";
 import { getRedis } from "core";
 import { env } from "core/dist/env.js";
-import { fetchGuild, fetchUser, removeFromGuild, updateGuild } from "database";
+import { createGuild, fetchGuild, fetchUser, removeFromGuild, updateGuild } from "database";
 import { Logger } from "log";
 import { ButtonInteraction } from "./classes/buttonInteraction.js";
 import { CommandInteraction } from "./classes/commandInteraction.js";
@@ -133,7 +133,8 @@ client.on(GatewayDispatchEvents.MessageCreate, async ({ data: message }) => {
             const guildData = await fetchGuild(guildId, memberId);
 
             if (guildData === null) {
-                logger.debugSingle(`Guild ${guildId} is not within the database`, "Handler");
+                logger.warnSingle(`Guild ${guildId} is not within the database`, "Handler");
+                await createGuild(guildId);
                 return;
             }
             const checkGuild = guildData.users.some((user: { discord_id: bigint }) => user.discord_id === memberId);

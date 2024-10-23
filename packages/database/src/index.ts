@@ -1,5 +1,6 @@
 import { connectPrisma } from "./sql.js";
 import { createAnilistUser } from "./utility/createAnilistUser.js";
+import { createGuild } from "./utility/createGuild.js";
 import { deleteAnilistUser } from "./utility/deleteAnilistUser.js";
 import { fetchAllUsers } from "./utility/fetchAllUsers.js";
 import { fetchAnilistUser } from "./utility/fetchAnilistUser.js";
@@ -17,6 +18,7 @@ export {
     fetchAnilistUser,
     removeFromGuild,
     deleteAnilistUser,
+    createGuild,
 };
 const prisma = connectPrisma();
 export default prisma;
