@@ -22,7 +22,10 @@ export const interaction: Command = {
         }
 
         if (member === null) {
-            await interaction.reply({ content: "Could not locate the member. Are they within the guild?", ephemeral: true });            
+            await interaction.reply({
+                content: "Could not locate the member. Are they within the guild?",
+                ephemeral: true,
+            });
             return;
         }
 
@@ -34,7 +37,7 @@ export const interaction: Command = {
             .setLabel("Guild Avatar")
             .setDisabled(guildAvatar === null || guildAvatar === undefined)
             .setStyle(ButtonStyle.Primary);
-            
+
         const defaultButton = new ButtonBuilder()
             .setCustomId("to_default_avatar")
             .setLabel("Default Avatar")
