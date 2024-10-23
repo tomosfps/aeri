@@ -1,0 +1,17 @@
+setup:
+  addons:
+    - plan: heroku-postgresql
+      as: DATABASE
+    - plan: heroku-redis
+      as: CACHE
+  config:
+    DATABASE_URL: ${{DATABASE_URL}}
+    CACHE_URL: ${{CACHE_URL}}
+
+build:
+    docker:
+      web: Dockerfile
+      api: Dockerfile.api
+run:
+    web: bundle exec rails s -p $PORT
+    api: bundle exec rails s -p $PORT
