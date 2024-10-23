@@ -51,7 +51,7 @@ export const interaction: Command = {
         });
 
         const descriptionBuilder =
-            `[${bold(result.name)}](${result.url})\n[${bold("Anime Information")}](${result.url}/animelist)\n\n` +
+            `[${bold(result.name)}](${result.url})\n\n[${bold("Anime Information")}](${result.url}/animelist)\n` +
             `${inlineCode("Anime Count        :")} ${result.animeStats.count}\n` +
             `${inlineCode("Mean Score         :")} ${result.animeStats.meanScore}\n` +
             `${inlineCode("Episodes Watched   :")} ${result.animeStats.watched}\n` +
@@ -66,10 +66,6 @@ export const interaction: Command = {
 
         if (result.banner === "null") {
             result.banner = null;
-        }
-
-        if (result.avatar === "null") {
-            result.avatar = null;
         }
 
         const embed = new EmbedBuilder()

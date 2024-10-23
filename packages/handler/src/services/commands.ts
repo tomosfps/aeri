@@ -7,6 +7,7 @@ import { Routes } from "discord-api-types/v10";
 import { Logger } from "log";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
 import type { CommandInteraction } from "../classes/commandInteraction.js";
+import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
 
 export interface Command {
     data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
@@ -16,6 +17,11 @@ export interface Command {
 export interface Button {
     custom_id: string;
     execute: (interaction: ButtonInteraction) => void;
+}
+
+export interface SelectMenu {
+    custom_id: string;
+    execute: (interaction: SelectMenuInteraction) => void;
 }
 
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
@@ -49,11 +55,12 @@ export async function deployCommands(commands: Map<string, Command>) {
 export enum FileType {
     Commands = "commands",
     Buttons = "buttons",
-    Modals = "modals",
+    SelectMenus = "select-menus",
 }
 
 export async function load<T = Command>(type: FileType.Commands): Promise<Map<string, T>>;
 export async function load<T = Button>(type: FileType.Buttons): Promise<Map<string, T>>;
+export async function load<T = SelectMenu>(type: FileType.SelectMenus): Promise<Map<string, T>>;
 export async function load<T>(type: FileType): Promise<Map<string, T>> {
     logger.infoSingle(`Started loading ${type} (📝) files.`, "Files");
 
@@ -84,7 +91,7 @@ export async function load<T>(type: FileType): Promise<Map<string, T>> {
     return files;
 }
 
-function getName(interaction: Command | Button): string {
+function getName(interaction: Command | Button | SelectMenu): string {
     if ("data" in interaction) return interaction.data.name;
     return interaction.custom_id;
 }

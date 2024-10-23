@@ -16,6 +16,7 @@ import { env } from "core/dist/env.js";
 import { Logger } from "log";
 import { ButtonInteraction } from "./classes/buttonInteraction.js";
 import { CommandInteraction } from "./classes/commandInteraction.js";
+import { SelectMenuInteraction } from "./classes/selectMenuInteraction.js";
 import { Gateway } from "./gateway.js";
 import { FileType, load } from "./services/commands.js";
 import { InteractType, determineInteractionType } from "./utility/interactionUtils.js";
@@ -23,6 +24,7 @@ import { InteractType, determineInteractionType } from "./utility/interactionUti
 const logger = new Logger();
 export const commands = await load(FileType.Commands);
 export const buttons = await load(FileType.Buttons);
+export const selectMenus = await load(FileType.SelectMenus);
 const redis = await getRedis();
 const rest = new REST().setToken(env.DISCORD_TOKEN);
 const gateway = new Gateway({ redis, env });
@@ -49,6 +51,22 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
             logger.error("Command execution error:", "Handler", error);
         }
     },
+    [InteractType.SelectMenu]: (interaction: APIMessageComponentSelectMenuInteraction, api) => {
+        logger.debugSingle(`Received select menu interaction: ${interaction.data.custom_id}`, "Handler");
+        const selectMenu = selectMenus.get(interaction.data.custom_id);
+
+        if (!selectMenu) {
+            logger.warn(`Select menu not found: ${interaction.data.custom_id}`, "Handler");
+            return;
+        }
+
+        try {
+            logger.infoSingle(`Executing select menu: ${selectMenu.custom_id}`, "Handler");
+            selectMenu.execute(new SelectMenuInteraction(interaction, api));
+        } catch (error: any) {
+            logger.error("Select menu execution error:", "Handler", error);
+        }
+    },
     [InteractType.UserContext]: (interaction: APIUserApplicationCommandInteraction) => {
         logger.debugSingle(`Received user context interaction: ${interaction.data.name}`, "Handler");
     },
@@ -71,9 +89,6 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
             logger.error("Button execution error:", "Handler", error);
         }
     },
-    [InteractType.SelectMenu]: (interaction: APIMessageComponentSelectMenuInteraction) => {
-        logger.debugSingle(`Received select menu interaction: ${interaction.data.custom_id}`, "Handler");
-    },
     [InteractType.Unknown]: (interaction: any) => {
         logger.warn(`Unknown interaction type: ${interaction.type}`, "Handler");
     },
@@ -90,4 +105,26 @@ client.on(GatewayDispatchEvents.Resumed, () => {
 client.on(GatewayDispatchEvents.InteractionCreate, async ({ data: interaction, api }) => {
     const type = determineInteractionType(interaction);
     interactionHandlers[type](interaction, api);
+});
+
+client.on(GatewayDispatchEvents.MessageCreate, async ({ data: message, api }) => {
+    if (message.author.bot) return;
+
+    if (message.guild_id) {
+        const guild = await api.guilds.get(message.guild_id, { with_counts: true });
+        logger.infoSingle(
+            `Received message from author: ${message.author.id} in guild ${guild.name}: ${message.content}`,
+            "Handler",
+        );
+    } else {
+        logger.warn(`Message received without guild_id from author: ${message.author.id}`, "Handler");
+    }
+});
+
+client.on(GatewayDispatchEvents.GuildCreate, async ({ data: guild }) => {
+    logger.infoSingle(`Joined guild: ${guild.name}`, "Handler");
+});
+
+client.on(GatewayDispatchEvents.GuildDelete, async ({ data: guild }) => {
+    logger.infoSingle(`Left guild: ${guild.id}`, "Handler");
 });

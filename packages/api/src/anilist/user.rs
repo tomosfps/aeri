@@ -123,6 +123,7 @@ async fn wash_user_score(json_data: serde_json::Value) -> serde_json::Value {
         "score"         : data["score"],
         "status"        : data["status"],
         "repeat"        : data["repeat"],
+        "user"          : data["user"]["name"],
         "dataFrom"      : "API"
     });
 
@@ -137,7 +138,7 @@ async fn wash_user_data(json_data: serde_json::Value) -> serde_json::Value {
         "id"        : data["id"],
         "name"      : data["name"],
         "avatar"    : data["avatar"]["large"].as_str().unwrap_or("https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png"),
-        "banner"    : data["bannerImage"].as_str().unwrap_or("null"),
+        "banner"    : data["bannerImage"],
         "about"     : data["about"],
         "url"       : data["siteUrl"],
         "animeStats": {

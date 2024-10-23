@@ -14,18 +14,18 @@ const logger = new Logger();
 
 export const interaction: Command = {
     data: new SlashCommandBuilder()
-        .setName("anime")
-        .setDescription("Find an Anime")
-        .addStringOption((option) => option.setName("anime").setDescription("Name of the anime").setRequired(true)),
+        .setName("manga")
+        .setDescription("Find an Manga")
+        .addStringOption((option) => option.setName("manga").setDescription("Name of the manga").setRequired(true)),
     async execute(interaction): Promise<void> {
-        const anime = getCommandOption("anime", ApplicationCommandOptionType.String, interaction.options) || "";
+        const manga = getCommandOption("manga", ApplicationCommandOptionType.String, interaction.options) || "";
 
         const response = await fetch(`${env.API_URL}/relations`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                media_name: anime,
-                media_type: "ANIME",
+                media_name: manga,
+                media_type: "MANGA",
             }),
         }).catch((error) => {
             logger.error("Error while fetching data from the API.", "Anilist", error);
@@ -51,7 +51,7 @@ export const interaction: Command = {
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId("choose_media_anime")
+            .setCustomId("choose_media_manga")
             .setPlaceholder("Choose A Media...")
             .setMinValues(1)
             .setMaxValues(1)

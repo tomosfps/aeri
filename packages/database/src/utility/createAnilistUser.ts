@@ -6,6 +6,7 @@ export async function createAnilistUser(
     username: string,
     anilist_id: bigint,
     anilist_username: string,
+    guild_id: bigint,
 ): Promise<User> {
     const db = await prisma;
     const user = await db.user.create({
@@ -24,6 +25,25 @@ export async function createAnilistUser(
                     discord_id: discord_id,
                 },
             },
+        },
+    });
+
+    await db.guild.upsert({
+        create: {
+            id: guild_id,
+        },
+
+        update: {
+            id: guild_id,
+            users: {
+                connect: {
+                    discord_id: discord_id,
+                },
+            },
+        },
+
+        where: {
+            id: guild_id,
         },
     });
 

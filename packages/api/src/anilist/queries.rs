@@ -105,6 +105,9 @@ pub fn get_query(query_name: &str) -> String {
             score(format: POINT_10)
             progress
             repeat
+            user {
+                name
+            }
         }
     }";
 

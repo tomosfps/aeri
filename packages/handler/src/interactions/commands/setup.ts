@@ -42,7 +42,15 @@ export const interaction: Command = {
                 logger.error("Error while parsing JSON data.", "Anilist", error);
                 return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
             });
-            createAnilistUser(interaction.member_id, interaction.member_name, result.id, result.name);
+
+            createAnilistUser(
+                interaction.member_id,
+                interaction.member_name,
+                result.id,
+                result.name,
+                BigInt(Number(interaction.iGuild_id)),
+            );
+
             return interaction.reply({
                 content: `Successfully linked ${result.name} to your discord account.`,
                 ephemeral: true,

@@ -14,6 +14,12 @@ model User {
   anilist       Anilist?
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
+  guilds        Guild[]  @relation("UserGuilds")
+}
+
+model Guild {
+  id            BigInt  @id
+  users         User[]  @relation("UserGuilds")
 }
 
 model Anilist {
