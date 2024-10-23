@@ -1,5 +1,5 @@
-# Aeri API
-Anilist API built in Rust to be fast and easy to use.
+# Aeri
+Aeri, a bot that uses the Anilist API to display, captuure and cache data.
 
 > [!IMPORTANT]
 > ### COMMANDS
@@ -20,7 +20,7 @@ Anilist API built in Rust to be fast and easy to use.
 3.  Install pnpm `npm install -g pnpm`
 4.  Run `pnpm all` and allow it to create and launch everything, seamlessly.
 
-## Contributing to the Aeri
+## Contributing to Aeri
 If you feel like Aeri is missing certain features, or would like to see more stuff implemented<br/>
 Feel free to open a pull requests or issue.
 
