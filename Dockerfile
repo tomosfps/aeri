@@ -15,7 +15,8 @@ EXPOSE 3000
 FROM base AS build
 COPY . /app
 WORKDIR /app
-RUN id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+COPY .env /app/packages/database
 RUN pnpm run --filter database generate
 RUN pnpm run -r build
 RUN pnpm deploy --filter=gateway --prod /prod/gateway
