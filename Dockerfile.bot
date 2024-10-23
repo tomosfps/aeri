@@ -1,8 +1,0 @@
-FROM python:3.10.15-slim AS aeri
-
-WORKDIR /app
-COPY packages/bot/requirements.txt .
-RUN pip install -r requirements.txt
-COPY packages/bot/ .
-COPY .env /app/.env
-CMD ["python", "main.py"]

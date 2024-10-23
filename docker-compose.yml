@@ -1,20 +1,51 @@
 services:
+
+  handler:
+    build:
+      context: .
+      target: handler
+    restart: unless-stopped
+    tty: true
+    env_file:
+      - .env
+    depends_on:
+      cache:
+        condition: service_started
+      database-setup:
+        condition: service_completed_successfully
+
+  gateway:
+    build:
+      context: .
+      target: gateway
+    restart: unless-stopped
+    tty: true
+    env_file:
+      - .env
+    depends_on:
+      cache:
+        condition: service_started
+      database-setup:
+        condition: service_completed_successfully
+
+  database-setup:
+    build:
+      context: .
+      target: database-setup
+    restart: "no"
+    tty: true
+    env_file:
+      - .env
+    depends_on:
+      database:
+        condition: service_started
+
   api:
     build:
       context: .
       dockerfile: Dockerfile.api
-    container_name: api
     ports:
       - "8080:8080"
-    tty: true
-    env_file:
-      - .env
-
-  bot:
-    build:
-      context: .
-      dockerfile: Dockerfile.bot
-    container_name: bot
     tty: true
     env_file:
       - .env

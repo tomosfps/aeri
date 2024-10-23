@@ -1,0 +1,24 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        "strict": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "exactOptionalPropertyTypes": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedIndexedAccess": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "module": "nodenext",
+        "resolveJsonModule": true,
+        "declaration": true,
+        "outDir": "./dist",
+        "sourceMap": true,
+        "verbatimModuleSyntax": true,
+        "target": "esnext",
+        "skipLibCheck": true
+    }
+}

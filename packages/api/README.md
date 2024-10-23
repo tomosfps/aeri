@@ -9,7 +9,7 @@ Anilist API built in Rust to be fast and easy to use.
 
 ## Features
 - [x] Cache scores for media, media itself and user information
-- [x] Dynamic caching for media (if they're airing it'll refresh the cache 2 afters the next episode aires.)
+- [x] Dynamic caching for media (caching data until next episode aires e.g.)
 - [x] Multiple endpoints with ease of use
 - [x] Extremely fast and built in logging
 - [x] Requires little to none setup

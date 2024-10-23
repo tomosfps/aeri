@@ -26,7 +26,8 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
         Ok(data) => {
             logger.debug(&format!("Found data for {}, returning data for ID : {}", req.user_id, req.media_id), "User Score");
             let mut user_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-            user_data["dataFrom"] = "cache".into();
+            user_data["dataFrom"] = "Cache".into();
+            user_data["leftUntilExpire"] = redis.ttl(redis_key.to_string()).unwrap().into();
             return HttpResponse::Ok().json(user_data);
         },
         Err(_) => {
@@ -48,7 +49,8 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
     
     if response.status().as_u16() != 200 {
         logger.error(format!("Request returned {} when trying to fetch {}", response.status().as_str(), req.user_id).as_str(), "User Score");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
+        return HttpResponse::BadRequest().json(bad_json);
     }
 
     let user = response.json::<serde_json::Value>().await.unwrap();
@@ -66,14 +68,16 @@ pub async fn user_search(username: String) -> impl Responder {
 
     if username.len() == 0 {
         logger.error("No username was included", "User");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "No username was included"});
+        return HttpResponse::BadRequest().json(bad_json);
     }
 
     match redis.get(username.clone()) {
         Ok(data) => {
             logger.debug(&format!("Found {} data in cache. Returning cached data", username), "User");
             let mut user_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-            user_data["dataFrom"] = "cache".into();
+            user_data["dataFrom"] = "Cache".into();
+            user_data["leftUntilExpire"] = redis.ttl(username.to_string()).unwrap().into();
             return HttpResponse::Ok().json(user_data);
         },
         Err(_) => {
@@ -96,7 +100,8 @@ pub async fn user_search(username: String) -> impl Responder {
     
     if response.status().as_u16() != 200 {
         logger.error(format!("Request returned {} when trying to fetch {}", response.status().as_str(), username).as_str(), "User");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
+        return HttpResponse::BadRequest().json(bad_json);
     }
 
     let user = response.json::<serde_json::Value>().await.unwrap();
@@ -118,6 +123,7 @@ async fn wash_user_score(json_data: serde_json::Value) -> serde_json::Value {
         "score"         : data["score"],
         "status"        : data["status"],
         "repeat"        : data["repeat"],
+        "user"          : data["user"]["name"],
         "dataFrom"      : "API"
     });
 
@@ -132,7 +138,7 @@ async fn wash_user_data(json_data: serde_json::Value) -> serde_json::Value {
         "id"        : data["id"],
         "name"      : data["name"],
         "avatar"    : data["avatar"]["large"].as_str().unwrap_or("https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png"),
-        "banner"    : data["bannerImage"].as_str().unwrap_or("null"),
+        "banner"    : data["bannerImage"],
         "about"     : data["about"],
         "url"       : data["siteUrl"],
         "animeStats": {
@@ -145,7 +151,7 @@ async fn wash_user_data(json_data: serde_json::Value) -> serde_json::Value {
         },
         "mangaStats": {
             "count"     : data["statistics"]["manga"]["count"],
-            "read"      : data["statistics"]["manga"]["chaptersRead"],
+            "chapters"  : data["statistics"]["manga"]["chaptersRead"],
             "volumes"   : data["statistics"]["manga"]["volumesRead"],
             "meanScore" : data["statistics"]["manga"]["meanScore"],
             "deviation" : data["statistics"]["manga"]["standardDeviation"],

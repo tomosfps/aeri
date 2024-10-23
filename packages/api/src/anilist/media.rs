@@ -20,7 +20,7 @@ struct RelationRequest {
 
 #[derive(Deserialize)]
 struct MediaRequest {
-    media_id: i32,
+    media_id:   i32,
     media_type: String,
 }
 
@@ -29,7 +29,8 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
 
     if req.media_name.len() == 0 || req.media_type.len() == 0 {
         logger.error("No media name or type was included", "Relations");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "No media name or type was included"});
+        return HttpResponse::BadRequest().json(bad_json);
     }
 
     let client: Client = reqwest::Client::new();
@@ -46,7 +47,8 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
 
     if response.status().as_u16() != 200 {
         logger.error(format!("Request returned {} when trying to fetch data for {} with type {}", response.status().as_str(), req.media_name, req.media_type).as_str(), "Relations");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
+        return HttpResponse::BadRequest().json(bad_json);
     }
         
     let relations = response.json::<serde_json::Value>().await.unwrap();
@@ -60,14 +62,16 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
     // No need for checking mediaID as it's a required field
     if req.media_type.len() == 0 {
         logger.error("No type was included", "Media");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "No type was included"});
+        return HttpResponse::BadRequest().json(bad_json);
     }
 
     match redis.get(req.media_id.to_string()) {
         Ok(data) => {
             logger.debug("Found media data in cache. Returning cached data", "Media");
             let mut media_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-            media_data["dataFrom"] = "cache".into();
+            media_data["dataFrom"] = "Cache".into();
+            media_data["leftUntilExpire"] = redis.ttl(req.media_id.to_string()).unwrap().into();
             return HttpResponse::Ok().json(media_data);
         },
 
@@ -90,7 +94,8 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
 
     if response.status().as_u16() != 200 {
         logger.error(format!("Request returned {} when trying to fetch data for {} with type {}", response.status().as_str(), req.media_id, req.media_type).as_str(), "Media");
-        return HttpResponse::BadRequest().finish();
+        let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
+        return HttpResponse::BadRequest().json(bad_json);
     }
         
     let media: serde_json::Value = response.json::<serde_json::Value>().await.unwrap();
@@ -98,10 +103,8 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
 
     let _ = redis.set(media["id"].to_string(), media.clone().to_string());
     if media["airing"].as_array().unwrap().len() > 0 {
-        logger.info(&format!("{} is releasing, append an extra 2 hours for cache expire", media["romaji"]), "Media");
-        let time_until_airing = media["airing"][0]["timeUntilAiring"].as_i64().unwrap();
-        let add_hours = time_until_airing + 2 * 3600;
-        let _ = redis.expire(media["id"].to_string(), add_hours);
+        logger.info(&format!("{} is releasing, expiring cache when next episode is aired.", media["romaji"]), "Media");
+        let _ = redis.expire(media["id"].to_string(), media["airing"][0]["timeUntilAiring"].as_i64().unwrap());
     } else {
         logger.info(&format!("{} is not releasing, keep data for a week.", media["romaji"]), "Media");
         let _ = redis.expire(media["id"].to_string(), 86400);
@@ -118,8 +121,8 @@ async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
         "romaji"        : data["title"]["romaji"],
         "airing"        : data["airingSchedule"]["nodes"],
         "averageScore"  : data["averageScore"],
-        "banner"        : data["bannerImage"].as_str().unwrap_or("null"),
-        "cover"         : data["coverImage"]["extraLarge"].as_str().unwrap_or("null"),
+        "banner"        : data["bannerImage"],
+        "cover"         : data["coverImage"],
         "duration"      : data["duration"],
         "episodes"      : data["episodes"],
         "chapters"      : data["chapters"],
@@ -129,8 +132,8 @@ async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
         "popularity"    : data["popularity"],
         "status"        : data["status"],
         "url"           : data["siteUrl"],
-        "endDate"       : format!("{}/{}/{}", data["endDate"]["day"].as_str().unwrap_or("0"), data["endDate"]["month"].as_str().unwrap_or("0"), data["endDate"]["year"].as_str().unwrap_or("0")),
-        "startDate"     : format!("{}/{}/{}", data["endDate"]["day"].as_str().unwrap_or("0"), data["endDate"]["month"].as_str().unwrap_or("0"), data["endDate"]["year"].as_str().unwrap_or("0")),
+        "endDate"       : format!("{}/{}/{}", data["endDate"]["day"], data["endDate"]["month"], data["endDate"]["year"]),
+        "startDate"     : format!("{}/{}/{}", data["endDate"]["day"], data["endDate"]["month"], data["endDate"]["year"]),
         "dataFrom"      : "API",
     });
 
