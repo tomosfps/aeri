@@ -121,6 +121,7 @@ async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
         "romaji"        : data["title"]["romaji"],
         "airing"        : data["airingSchedule"]["nodes"],
         "averageScore"  : data["averageScore"],
+        "meanScore"     : data["meanScore"],
         "banner"        : data["bannerImage"],
         "cover"         : data["coverImage"],
         "duration"      : data["duration"],
@@ -130,10 +131,11 @@ async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
         "format"        : data["format"],
         "genres"        : data["genres"],
         "popularity"    : data["popularity"],
+        "favourites"    : data["favourites"],
         "status"        : data["status"],
         "url"           : data["siteUrl"],
         "endDate"       : format!("{}/{}/{}", data["endDate"]["day"], data["endDate"]["month"], data["endDate"]["year"]),
-        "startDate"     : format!("{}/{}/{}", data["endDate"]["day"], data["endDate"]["month"], data["endDate"]["year"]),
+        "startDate"     : format!("{}/{}/{}", data["startDate"]["day"], data["startDate"]["month"], data["startDate"]["year"]),
         "dataFrom"      : "API",
     });
 
