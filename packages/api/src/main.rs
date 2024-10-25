@@ -10,7 +10,7 @@ use anilist::media::{media_search, relations_search};
 use anilist::user::{user_search, user_score};
 
 lazy_static! {
-    static ref logger: Logger = Logger::new();
+    static ref logger: Logger = Logger::default();
 }
 
 #[get("/")]
@@ -26,10 +26,10 @@ async fn manual() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
-    logger.info("Starting Anilist API Proxy", "Main");
+    logger.info_single("Starting Anilist API Proxy", "Main");
     let ip = env::var("API_HOST").unwrap_or("0.0.0.0".to_string());
     let port = env::var("API_PORT").unwrap().parse::<u16>().unwrap_or(8080);
-    logger.info(&format!("Listening on {}:{}", ip, port), "Main");
+    logger.info_single(&format!("Listening on {}:{}", ip, port), "Main");
     
     HttpServer::new(move || {
         App::new()
