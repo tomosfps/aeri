@@ -9,9 +9,10 @@ const logger = new Logger();
 const invalidPatterns = [
     "null",
     "null/null/null",
-    "`dropped            :`\n \n",
+    "`dropped           :`\n \n",
     "`planning to read  :`\n \n",
     "`paused            :`\n \n",
+    "`paused            :`\n \n\n",
     "`completed         :`\n \n",
     "`currently reading :`\n \n",
 ];
@@ -78,6 +79,7 @@ export const interaction: SelectMenu = {
         if (allUsers.length !== 0) {
             for (const member in allUsers) {
                 const userScore = await fetchUserData(Number(allUsers[member]), Number(interaction.menuValues[0]));
+                logger.debug("User information", "Anilist", userScore);
 
                 switch (userScore.status) {
                     case "REPEATING":
@@ -85,16 +87,20 @@ export const interaction: SelectMenu = {
                             `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 (${userScore.repeat}) `)}\n`,
                         );
                         break;
-                    case "CURRENT":
+                    case "CURRENT": {
+                        const userRepeats = userScore.repeat === 0 ? "" : `(${userScore.repeat})`;
                         userData.current.push(
-                            `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 `)}\n`,
+                            `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 ${userRepeats} `)}\n`,
                         );
                         break;
-                    case "COMPLETED":
+                    }
+                    case "COMPLETED": {
+                        const userRepeats = userScore.repeat === 0 ? "" : `(${userScore.repeat})`;
                         userData.completed.push(
-                            `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.score}/10 `)}\n`,
+                            `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.score}/10 ${userRepeats} `)}\n`,
                         );
                         break;
+                    }
                     case "PLANNING":
                         userData.planning.push(`> ${inlineCode(userScore.user)}\n`);
                         break;
@@ -115,11 +121,11 @@ export const interaction: SelectMenu = {
             `${inlineCode("volumes           :")} ${result.volumes}\n`,
             `${inlineCode("status            :")} ${capitalise(result.status)}\n`,
             `${inlineCode("average score     :")} ${result.averageScore}%\n`,
-            `${inlineCode("popularity        :")} ${result.popularity}\n`,
-            `${inlineCode("format            :")} ${result.format}\n`,
+            `${inlineCode("mean score        :")} ${result.meanScore}\n`,
+            `${inlineCode("popularity        :")} ${result.popularity.toLocaleString()}\n`,
+            `${inlineCode("favourites        :")} ${result.favourites.toLocaleString()}\n`,
             `${inlineCode("start date        :")} ${result.startDate}\n`,
             `${inlineCode("end date          :")} ${result.endDate}\n`,
-            `${inlineCode("duration          :")} ${result.duration}\n`,
             `${inlineCode("genres            :")} ${genresDisplay}\n\n`,
             `${inlineCode("completed         :")}\n ${userData.completed.join("")}\n`,
             `${inlineCode("currently reading :")}\n ${userData.current.join("")}\n`,

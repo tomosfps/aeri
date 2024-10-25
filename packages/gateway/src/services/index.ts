@@ -17,14 +17,14 @@ const manager = new WebSocketManager({
         GatewayIntentBits.MessageContent |
         GatewayIntentBits.GuildMembers,
     rest,
-    shardCount: 2,
+    shardCount: env.SHARD_COUNT,
     buildIdentifyThrottler: async (manager) => {
         const gatewayInformation = await manager.fetchGatewayInformation();
         return new SimpleIdentifyThrottler(gatewayInformation.session_start_limit.max_concurrency);
     },
     buildStrategy: (manager) => {
         return new WorkerShardingStrategy(manager, {
-            shardsPerWorker: 4,
+            shardsPerWorker: env.SHARDS_PER_WORKER,
             workerPath: `${import.meta.dirname}/worker.js`,
         });
     },
