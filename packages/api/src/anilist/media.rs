@@ -71,6 +71,9 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
             logger.debug_single("Found media data in cache. Returning cached data", "Media");
             let mut media_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
             media_data["dataFrom"] = "Cache".into();
+            if let Some(_airing) = media_data["airing"].as_array().and_then(|arr| arr.get(0)) {
+                media_data["airing"][0]["timeUntilAiring"] = redis.ttl(req.media_id.to_string()).unwrap().into();
+            }
             media_data["leftUntilExpire"] = redis.ttl(req.media_id.to_string()).unwrap().into();
             return HttpResponse::Ok().json(media_data);
         },

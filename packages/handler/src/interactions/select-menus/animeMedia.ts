@@ -57,7 +57,7 @@ export const interaction: SelectMenu = {
             genresToShow.join(", ") + (additionalGenresCount > 0 ? ` + ${additionalGenresCount} more` : "");
 
         const currentEpisode = result.airing[0] ? result.airing[0].episode - 1 : null;
-        const nextEpisode = result.airing[0] ? intervalTime(result.airing[0].timeUntilAiring) : null;
+        const nextEpisode = result.airing[0] ? intervalTime(result.airing[0].timeUntilAiring, 5) : null;
 
         const userData: {
             current: string[];
