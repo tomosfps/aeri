@@ -77,15 +77,17 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
     [InteractType.Button]: (interaction: APIMessageComponentButtonInteraction, api) => {
         logger.debugSingle(`Received button interaction: ${interaction.data.custom_id}`, "Handler");
 
-        const button = buttons.get(interaction.data.custom_id);
+        const [buttonId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
+        const button = buttons.get(buttonId);
+
         if (!button) {
-            logger.warn(`Button not found: ${interaction.data.custom_id}`, "Handler");
+            logger.warn(`Button not found: ${buttonId}`, "Handler");
             return;
         }
 
         try {
-            logger.infoSingle(`Executing button: ${button.custom_id}`, "Handler");
-            button.execute(new ButtonInteraction(interaction, api));
+            logger.infoSingle(`Executing button: ${buttonId}`, "Handler");
+            button.execute(new ButtonInteraction(interaction, api), button.parse?.(data));
         } catch (error: any) {
             logger.error("Button execution error:", "Handler", error);
         }

@@ -14,9 +14,10 @@ export interface Command {
     execute: (interaction: CommandInteraction) => void;
 }
 
-export interface Button {
+export interface Button<T = undefined> {
     custom_id: string;
-    execute: (interaction: ButtonInteraction) => void;
+    parse?: (data: string[]) => T;
+    execute: (interaction: ButtonInteraction, data: T) => void;
 }
 
 export interface SelectMenu {
