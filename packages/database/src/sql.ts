@@ -26,11 +26,11 @@ export async function connectPrisma() {
     });
 
     prisma.$on("warn", (e: any) => {
-        logger.info("Warn", "Prisma", { message: e.message, target: e.target, timestamp: e.timestamp });
+        logger.warn("Warn", "Prisma", { message: e.message, target: e.target, timestamp: e.timestamp });
     });
 
     prisma.$on("error", (e: any) => {
-        logger.info("Error", "Prisma", { message: e.message, target: e.target, timestamp: e.timestamp });
+        logger.error("Error", "Prisma", { message: e.message, target: e.target, timestamp: e.timestamp });
     });
 
     prisma.$connect();
