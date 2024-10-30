@@ -34,7 +34,7 @@ const client = new Client({ rest, gateway });
 
 const interactionHandlers: Record<InteractType, (interaction: any, api: API) => void> = {
     [InteractType.Autocomplete]: (interaction: APIApplicationCommandAutocompleteInteraction) => {
-        logger.infoSingle(`Received autocomplete interaction: ${interaction.data.name}`, "Handler");
+        logger.debugSingle(`Received autocomplete interaction: ${interaction.data.name}`, "Handler");
     },
     [InteractType.ChatInput]: (interaction: APIChatInputApplicationCommandInteraction, api) => {
         logger.debugSingle(`Received chat input interaction: ${interaction.data.name}`, "Handler");

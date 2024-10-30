@@ -24,6 +24,8 @@ export const interaction: Button = {
             url: `https://cdn.discordapp.com/guilds/${interaction.guild_id}/users/${member.id}/avatars/${guildMemberAvatar}.png?size=1024`,
         };
 
+        embedData.title = `${member.username}'s Guild Avatar`;
+
         await interaction.edit({
             embeds: [embedData],
         });

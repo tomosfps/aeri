@@ -75,7 +75,7 @@ export const interaction: SelectMenu = {
 
         const guildId = BigInt(interaction.guild_id);
         const allUsers = await fetchAllUsers(guildId).then((users) => {
-            logger.infoSingle(`Fetched ${users.length} users from the database`, "Anilist");
+            logger.debugSingle(`Fetched ${users.length} users from the database`, "Anilist");
             return users.map((user: { anilist: any }) => user.anilist.id);
         });
 

@@ -24,6 +24,8 @@ export const interaction: Button = {
             };
         }
 
+        embedData.title = `${member.username}'s Avatar`;
+    
         await interaction.edit({
             embeds: [embedData],
         });

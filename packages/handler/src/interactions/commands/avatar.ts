@@ -30,30 +30,33 @@ export const interaction: Command = {
         }
 
         const getMember = await interaction.guilds.getMember(interaction.guild_id, member);
-        const guildAvatar = (await interaction.guilds.getMember(interaction.guild_id, member)).avatar;
+        const guildAvatar = (await interaction.guilds.getMember(interaction.guild_id, member)).avatar?.toString();
 
         const guildButton = new ButtonBuilder()
             .setCustomId("to_server_avatar")
             .setLabel("Guild Avatar")
-            .setDisabled(guildAvatar === null || guildAvatar === undefined)
+            .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Primary);
 
         const defaultButton = new ButtonBuilder()
             .setCustomId("to_default_avatar")
             .setLabel("Default Avatar")
-            .setDisabled(guildAvatar === null || guildAvatar === undefined)
+            .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder().addComponents(defaultButton, guildButton);
 
-        const userAvatar =
-            getMember.avatar === null || getMember.avatar === undefined
-                ? `https://cdn.discordapp.com/embed/avatars/${(Number(member) >> 22) % 6}.png?size=1024`
-                : `https://cdn.discordapp.com/avatars/${getMember.user?.id}/${getMember.user?.avatar}.png?size=1024`;
+        logger.debug(`${getMember.user?.username} avatar hash`, "Avatar", { getMember });
 
-        logger.info(`Sending avatar for ${getMember.user?.username}`, "Avatar", { userAvatar });
+        const userAvatar =
+            getMember.user?.avatar !== null
+                ? `https://cdn.discordapp.com/avatars/${getMember.user?.id}/${getMember.user?.avatar}.png?size=1024`
+                : `https://cdn.discordapp.com/embed/avatars/${(Number(member) >> 22) % 6}.png?size=1024`
+
+        logger.debug(`Sending avatar for ${getMember.user?.username}`, "Avatar", { userAvatar });
 
         const embed = new EmbedBuilder().setTitle(`${getMember.user?.username}'s Avatar`).setImage(userAvatar);
         await interaction.reply({ embeds: [embed], components: [row] });
     },
 };
+
