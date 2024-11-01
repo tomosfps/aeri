@@ -150,16 +150,18 @@ export function isSelectMenuInteraction(
 export enum InteractType {
     Autocomplete = 0,
     ChatInput = 1,
-    UserContext = 2,
-    MessageContext = 3,
-    Button = 4,
-    SelectMenu = 5,
-    Unknown = 6,
+    Modal = 2,
+    UserContext = 3,
+    MessageContext = 4,
+    Button = 5,
+    SelectMenu = 6,
+    Unknown = 7,
 }
 
 export function determineInteractionType(interaction: APIInteraction): InteractType {
     if (isAutocompleteInteraction(interaction)) return InteractType.Autocomplete;
     if (isChatInputInteraction(interaction)) return InteractType.ChatInput;
+    if (isModalInteraction(interaction)) return InteractType.Modal;
     if (isUserContextInteraction(interaction)) return InteractType.UserContext;
     if (isMessageContextInteraction(interaction)) return InteractType.MessageContext;
     if (isButtonInteraction(interaction)) return InteractType.Button;

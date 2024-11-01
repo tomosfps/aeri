@@ -5,6 +5,7 @@ import {
     type APIMessageApplicationCommandInteraction,
     type APIMessageComponentButtonInteraction,
     type APIMessageComponentSelectMenuInteraction,
+    type APIModalSubmitInteraction,
     type APIUserApplicationCommandInteraction,
     Client,
     GatewayDispatchEvents,
@@ -17,6 +18,7 @@ import { createGuild, fetchGuild, fetchUser, removeFromGuild, updateGuild } from
 import { Logger } from "log";
 import { ButtonInteraction } from "./classes/buttonInteraction.js";
 import { CommandInteraction } from "./classes/commandInteraction.js";
+import { ModalInteraction } from "./classes/modalInteraction.js";
 import { SelectMenuInteraction } from "./classes/selectMenuInteraction.js";
 import { Gateway } from "./gateway.js";
 import { FileType, load } from "./services/commands.js";
@@ -26,6 +28,7 @@ const logger = new Logger();
 export const commands = await load(FileType.Commands);
 export const buttons = await load(FileType.Buttons);
 export const selectMenus = await load(FileType.SelectMenus);
+export const modals = await load(FileType.Modals);
 const redis = await getRedis();
 const rest = new REST().setToken(env.DISCORD_TOKEN);
 const gateway = new Gateway({ redis, env });
@@ -66,6 +69,25 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
             selectMenu.execute(new SelectMenuInteraction(interaction, api));
         } catch (error: any) {
             logger.error("Select menu execution error:", "Handler", error);
+        }
+    },
+    [InteractType.Modal]: (interaction: APIModalSubmitInteraction, api) => {
+        logger.debugSingle(`Received modal interaction: ${interaction.data.custom_id}`, "Handler");
+
+        const [modalId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
+
+        const modal = modals.get(modalId);
+
+        if (!modal) {
+            logger.warn(`Modal not found: ${modalId}`, "Handler");
+            return;
+        }
+
+        try {
+            logger.infoSingle(`Executing modal: ${modalId}`, "Handler");
+            modal.execute(new ModalInteraction(interaction, api), modal.parse?.(data));
+        } catch (error: any) {
+            logger.error("Modal execution error:", "Handler", error);
         }
     },
     [InteractType.UserContext]: (interaction: APIUserApplicationCommandInteraction) => {
