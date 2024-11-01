@@ -2,7 +2,7 @@ use reqwest::Response;
 use serde::Deserialize;
 use serde_json::json;
 use actix_web::{web, post, HttpResponse, Responder};
-use colourful_logger::Logger as Logger;
+use colourful_logger::Logger;
 use crate::anilist::queries::{get_query, QUERY_URL};
 use lazy_static::lazy_static;
 use crate::cache::redis::Redis;

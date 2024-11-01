@@ -2,7 +2,7 @@ use reqwest::{Client, Response};
 use serde::Deserialize;
 use serde_json::json;
 use actix_web::{web, post, HttpResponse, Responder};
-use colourful_logger::Logger as Logger;
+use colourful_logger::Logger;
 use crate::anilist::queries::{get_query, QUERY_URL};
 use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
@@ -53,6 +53,7 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
         
     let relations = response.json::<serde_json::Value>().await.unwrap();
     let relations = wash_relation_data(relations).await;
+    logger.debug("Returning relational data", "Relations", false, relations.clone());
     HttpResponse::Ok().json(relations)
 }
 
@@ -145,7 +146,6 @@ async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
     logger.debug_single("Data has been washed and being returned", "Media");
     washed_data
 }
-
 
 async fn wash_relation_data(relation_data: serde_json::Value) -> serde_json::Value {
     logger.debug_single("Washing up relational data", "Relations");
