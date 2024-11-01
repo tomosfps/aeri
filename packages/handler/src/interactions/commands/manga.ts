@@ -60,9 +60,9 @@ export const interaction: Command = {
             .addOptions(
                 result.relations.slice(0, 25).map((items: { native: any; english: any; romaji: any; id: any }) => {
                     return new StringSelectMenuOptionBuilder()
-                        .setLabel(`${(items.english === null ? items.romaji : items.english).slice(0, 100)}`)
+                        .setLabel(`${(items.english === null ? (items.native || items.romaji || '').slice(0, 100) : items.romaji.slice(0, 100))}`)
                         .setValue(`${items.id}`)
-                        .setDescription(`${(items.english === null ? items.native : items.romaji).slice(0, 100)}`);
+                        .setDescription(`${(items.english === null ? (items.native || items.romaji || '').slice(0, 100) : items.romaji.slice(0, 100))}`);
                 }),
             );
 
