@@ -7,6 +7,7 @@ import { Routes } from "discord-api-types/v10";
 import { Logger } from "log";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
 import type { CommandInteraction } from "../classes/commandInteraction.js";
+import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
 
 export interface Command {
@@ -23,6 +24,12 @@ export interface Button<T = undefined> {
 export interface SelectMenu {
     custom_id: string;
     execute: (interaction: SelectMenuInteraction) => void;
+}
+
+export interface Modal<T = undefined> {
+    custom_id: string;
+    parse?: (data: string[]) => T;
+    execute: (interaction: ModalInteraction, data: T) => void;
 }
 
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
@@ -57,11 +64,13 @@ export enum FileType {
     Commands = "commands",
     Buttons = "buttons",
     SelectMenus = "select-menus",
+    Modals = "modals",
 }
 
 export async function load<T = Command>(type: FileType.Commands): Promise<Map<string, T>>;
 export async function load<T = Button>(type: FileType.Buttons): Promise<Map<string, T>>;
 export async function load<T = SelectMenu>(type: FileType.SelectMenus): Promise<Map<string, T>>;
+export async function load<T = Modal>(type: FileType.Modals): Promise<Map<string, T>>;
 export async function load<T>(type: FileType): Promise<Map<string, T>> {
     logger.infoSingle(`Started loading ${type} (📝) files.`, "Files");
 

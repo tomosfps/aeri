@@ -72,6 +72,18 @@ services:
     volumes:
       - database-data:/var/lib/postgresql/data
 
+  piston:
+    container_name: piston
+    image: ghcr.io/engineer-man/piston
+    restart: unless-stopped
+    tty: true
+    privileged: true
+    ports:
+      - "2000:2000"
+    volumes:
+      - piston-data:/piston/packages
+
 volumes:
   cache-data:
   database-data:
+  piston-data:
