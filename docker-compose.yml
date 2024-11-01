@@ -4,6 +4,7 @@ services:
       context: .
       target: handler
     restart: unless-stopped
+    container_name: handler
     tty: true
     env_file:
       - .env
@@ -18,6 +19,7 @@ services:
       context: .
       target: gateway
     restart: unless-stopped
+    container_name: gateway
     tty: true
     env_file:
       - .env
@@ -32,6 +34,7 @@ services:
       context: .
       target: database-setup
     restart: "no"
+    container_name: setup
     tty: true
     env_file:
       - .env
@@ -43,6 +46,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
+    container_name: api
     ports:
       - "8080:8080"
     tty: true
