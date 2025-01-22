@@ -1,4 +1,4 @@
-name: Build And Push Docker Image
+name: Build And Push Docker images
 
 on:
   push:
@@ -6,34 +6,27 @@ on:
       - 'main'
 
 jobs:
-  build_docker:
-    name: Build and push Docker image
+  docker_login:
+    name: Login to docker
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
+      - name: Login to docker registry
+        uses: docker/login-action@v3
         with:
           registry: r2.ecchi.cloud
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push main image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: r2.ecchi.cloud/aeri
-
   build_handler:
-    name: Build And Push Handler
-    needs: build_docker
+    name: Build And Push Handler image
+    needs: docker_login
     runs-on: ubuntu-latest
     steps:
-      - name: Build and push handler
-        uses: docker/build-push-action@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -41,12 +34,15 @@ jobs:
           target: handler
 
   build_gateway:
-    name: Build And Push Gateway
-    needs: build_docker
+    name: Build And Push Gateway image
+    needs: docker_login
     runs-on: ubuntu-latest
     steps:
-      - name: Build and push gateway
-        uses: docker/build-push-action@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -54,30 +50,33 @@ jobs:
           target: gateway
 
   build_database_setup:
-    name: Build And Push Database Setup
-    needs: build_docker
+    name: Build And Push Database Setup image
+    needs: docker_login
     runs-on: ubuntu-latest
     steps:
-      - name: Build and push database setup
-        uses: docker/build-push-action@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: r2.ecchi.cloud/aeri_database-setup
           target: database-setup
-          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
     
   build_api:
-    name: Build And Push API
-    needs: build_docker
+    name: Build And Push API image
+    needs: docker_login
     runs-on: ubuntu-latest
     steps:
-      - name: Build and push API
-        uses: docker/build-push-action@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
           context: api
+          file: ./Dockerfile.api
           push: true
           tags: r2.ecchi.cloud/aeri_api
-          API_URL: ${{ secrets.API_URL }}
-          build-args: |
-            -f ./Dockerfile.api
