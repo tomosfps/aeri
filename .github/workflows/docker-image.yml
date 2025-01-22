@@ -24,7 +24,7 @@ jobs:
     name: Build And Push Handler
     uses: docker/build-push-action@v4
     needs: build_docker
-      with:
+    with:
         context: .
         push: true
         tags: r2.ecchi.cloud/aeri_handler
@@ -34,7 +34,7 @@ jobs:
     name: Build And Push Gateway
     uses: docker/build-push-action@v4
     needs: build_docker
-      with:
+    with:
         context: .
         push: true
         tags: r2.ecchi.cloud/aeri_gateway
@@ -44,7 +44,7 @@ jobs:
     name: Build And Push Database Setup
     uses: docker/build-push-action@v4
     needs: build_docker
-      with:
+    with:
         context: .
         push: true
         tags: r2.ecchi.cloud/aeri_database-setup
@@ -54,7 +54,7 @@ jobs:
     name: Build And Push API
     uses: docker/build-push-action@v4
     needs: build_docker
-      with:
+    with:
         context: api
         push: true
         tags: r2.ecchi.cloud/aeri_api
