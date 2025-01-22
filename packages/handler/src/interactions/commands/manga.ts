@@ -15,9 +15,9 @@ const logger = new Logger();
 export const interaction: Command = {
     data: new SlashCommandBuilder()
         .setName("manga")
-        .setDescription("Find an Manga")
+        .setDescription("Find An Manga")
         .addStringOption((option) =>
-            option.setName("media_name").setDescription("Name of the manga").setRequired(true),
+            option.setName("media_name").setDescription("Name Of The Manga").setRequired(true),
         ),
     async execute(interaction): Promise<void> {
         const manga = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";
@@ -53,16 +53,20 @@ export const interaction: Command = {
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId("choose_media_manga")
+            .setCustomId("media_selection:manga")
             .setPlaceholder("Choose A Media...")
             .setMinValues(1)
             .setMaxValues(1)
             .addOptions(
                 result.relations.slice(0, 25).map((items: { native: any; english: any; romaji: any; id: any }) => {
                     return new StringSelectMenuOptionBuilder()
-                        .setLabel(`${(items.english === null ? (items.native || items.romaji || '').slice(0, 100) : items.romaji.slice(0, 100))}`)
+                        .setLabel(
+                            `${items.english === null ? (items.native || items.romaji || "").slice(0, 100) : items.romaji.slice(0, 100)}`,
+                        )
                         .setValue(`${items.id}`)
-                        .setDescription(`${(items.english === null ? (items.native || items.romaji || '').slice(0, 100) : items.romaji.slice(0, 100))}`);
+                        .setDescription(
+                            `${items.english === null ? (items.native || items.romaji || "").slice(0, 100) : items.romaji.slice(0, 100)}`,
+                        );
                 }),
             );
 

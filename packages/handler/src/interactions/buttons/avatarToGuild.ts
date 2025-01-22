@@ -20,13 +20,11 @@ export const interaction: Button<ButtonData> = {
         if (!embedData) {
             return;
         }
-
         if (!guild_id) {
             return;
         }
 
         const member = await interaction.guilds.getMember(guild_id, data.userId);
-
         if (!member) {
             return;
         }

@@ -6,6 +6,7 @@ type ButtonData = {
 
 export const interaction: Button<ButtonData> = {
     custom_id: "default",
+
     parse(data) {
         if (!data[0]) {
             throw new Error("Invalid button data");
@@ -20,12 +21,14 @@ export const interaction: Button<ButtonData> = {
         if (!embedData) {
             return;
         }
-
         if (!guild_id) {
             return;
         }
 
         const member = await interaction.guilds.getMember(guild_id, data.userId);
+        if (!member) {
+            return;
+        }
 
         const userAvatar =
             member.user?.avatar !== null
