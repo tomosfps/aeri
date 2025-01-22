@@ -76,7 +76,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: api
+          context: .
           file: ./Dockerfile.api
           push: true
           tags: r2.ecchi.cloud/aeri_api
