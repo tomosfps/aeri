@@ -65,6 +65,7 @@ jobs:
           push: true
           tags: r2.ecchi.cloud/aeri_database-setup
           target: database-setup
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
     
   build_api:
     name: Build And Push API
@@ -77,5 +78,6 @@ jobs:
           context: api
           push: true
           tags: r2.ecchi.cloud/aeri_api
+          API_URL: ${{ secrets.API_URL }}
           build-args: |
             -f ./Dockerfile.api
