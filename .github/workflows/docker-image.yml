@@ -19,44 +19,63 @@ jobs:
           registry: r2.ecchi.cloud
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-  
+
+      - name: Build and push main image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: r2.ecchi.cloud/aeri
+
   build_handler:
     name: Build And Push Handler
-    uses: docker/build-push-action@v4
     needs: build_docker
-      with:
-        context: .
-        push: true
-        tags: r2.ecchi.cloud/aeri_handler
-        target: handler
-  
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and push handler
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: r2.ecchi.cloud/aeri_handler
+          target: handler
+
   build_gateway:
     name: Build And Push Gateway
-    uses: docker/build-push-action@v4
     needs: build_docker
-      with:
-        context: .
-        push: true
-        tags: r2.ecchi.cloud/aeri_gateway
-        target: gateway
-          
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and push gateway
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: r2.ecchi.cloud/aeri_gateway
+          target: gateway
+
   build_database_setup:
     name: Build And Push Database Setup
-    uses: docker/build-push-action@v4
     needs: build_docker
-      with:
-        context: .
-        push: true
-        tags: r2.ecchi.cloud/aeri_database-setup
-        target: database-setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and push database setup
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: r2.ecchi.cloud/aeri_database-setup
+          target: database-setup
     
   build_api:
     name: Build And Push API
-    uses: docker/build-push-action@v4
     needs: build_docker
-      with:
-        context: api
-        push: true
-        tags: r2.ecchi.cloud/aeri_api
-        build-args: |
-          -f ./Dockerfile.api
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and push API
+        uses: docker/build-push-action@v4
+        with:
+          context: api
+          push: true
+          tags: r2.ecchi.cloud/aeri_api
+          build-args: |
+            -f ./Dockerfile.api
