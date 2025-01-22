@@ -6,26 +6,29 @@ import type { SelectMenu } from "../../services/commands.js";
 import { intervalTime } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
-const invalidPatterns = [
-    "null",
-    "null/null/null",
-    "`dropped           :`\n \n",
-    "`planning to watch :`\n \n",
-    "`paused            :`\n \n",
-    "`paused            :`\n \n\n",
-    "`completed         :`\n \n",
-    "`current watching  :`\n \n",
-];
 
-export const interaction: SelectMenu = {
-    custom_id: "choose_media_anime",
-    async execute(interaction): Promise<void> {
+type SelectMenuData = {
+    custom_id: string;
+};
+
+export const interaction: SelectMenu<SelectMenuData> = {
+    custom_id: "media_selection",
+    parse(data) {
+        if (!data[0]) {
+            throw new Error("Invalid Select Menu Data");
+        }
+
+        return { custom_id: data[0] };
+    },
+    async execute(interaction, data): Promise<void> {
+        const mediaType = data.custom_id === "anime" ? "ANIME" : "MANGA";
+
         const response = await fetch(`${env.API_URL}/media`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 media_id: Number(interaction.menuValues[0]),
-                media_type: "ANIME",
+                media_type: mediaType,
             }),
         }).catch((error) => {
             logger.error("Error while fetching data from the API.", "Anilist", error);
@@ -74,7 +77,7 @@ export const interaction: SelectMenu = {
         };
 
         const guildId = BigInt(interaction.guild_id);
-        const allUsers = await fetchAllUsers(guildId).then((users) => {
+        const allUsers = await fetchAllUsers(guildId).then((users: any) => {
             logger.debugSingle(`Fetched ${users.length} users from the database`, "Anilist");
             return users.map((user: { anilist: any }) => user.anilist.id);
         });
@@ -108,10 +111,14 @@ export const interaction: SelectMenu = {
                         userData.planning.push(`> ${inlineCode(userScore.user)}\n`);
                         break;
                     case "DROPPED":
-                        userData.dropped.push(`> ${inlineCode(userScore.user)}\n`);
+                        userData.dropped.push(
+                            `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 `)}\n`,
+                        );
                         break;
                     case "PAUSED":
-                        userData.paused.push(`> ${inlineCode(userScore.user)}\n`);
+                        userData.paused.push(
+                            `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 `)}\n`,
+                        );
                         break;
                     default:
                         break;
@@ -119,10 +126,15 @@ export const interaction: SelectMenu = {
             }
         }
 
+        const isReading = mediaType === "MANGA" ? "current reading " : "current watching";
+        const isPlanning = mediaType === "MANGA" ? "planning to read " : "planning to watch";
+
         const descriptionBuilder = [
             `${inlineCode("total episodes    :")} ${result.episodes}\n`,
             `${inlineCode("current episode   :")} ${currentEpisode}\n`,
             `${inlineCode("next airing       :")} ${nextEpisode}\n`,
+            `${inlineCode("chapters          :")} ${result.chapters}\n`,
+            `${inlineCode("volumes           :")} ${result.volumes}\n`,
             `${inlineCode("status            :")} ${capitalise(result.status)}\n`,
             `${inlineCode("average score     :")} ${result.averageScore}%\n`,
             `${inlineCode("mean score        :")} ${result.meanScore}%\n`,
@@ -132,26 +144,37 @@ export const interaction: SelectMenu = {
             `${inlineCode("end date          :")} ${result.endDate}\n`,
             `${inlineCode("genres            :")} ${genresDisplay}\n\n`,
             `${inlineCode("completed         :")}\n ${userData.completed.join("")}\n`,
-            `${inlineCode("current watching  :")}\n ${userData.current.join("")}\n`,
-            `${inlineCode("planning to watch :")}\n ${userData.planning.join("")}\n`,
+            `${inlineCode(`${isReading}  :`)}\n ${userData.current.join("")}\n`,
+            `${inlineCode(`${isPlanning} :`)}\n ${userData.planning.join("")}\n`,
             `${inlineCode("dropped           :")}\n ${userData.dropped.join("")}\n`,
             `${inlineCode("paused            :")}\n ${userData.paused.join("")}\n\n`,
         ];
 
+        logger.debug("Description Builder", "Media Selection", descriptionBuilder);
+
         if (result.banner === "null") {
             result.banner = null;
         }
-
         if (result.cover === "null") {
             result.cover = null;
         }
 
-        if (result.stauts === "Not_Yet_Released") {
+        if (result.status === "Not_Yet_Released") {
             result.status = "Not Yet Released";
         }
 
         const filteredDescription = descriptionBuilder.filter((line) => {
-            return !invalidPatterns.some((pattern) => line.includes(pattern));
+            return !(
+                /^\s*$/.test(line) ||
+                /null/.test(line) ||
+                line === "`completed         :`\n \n" ||
+                line === "`current watching  :`\n \n" ||
+                line === "`current reading   :`\n \n" ||
+                line === "`planning to watch :`\n \n" ||
+                line === "`planning to read  :`\n \n" ||
+                line === "`dropped           :`\n \n" ||
+                line === "`paused            :`\n \n\n"
+            );
         });
 
         const embed = new EmbedBuilder()

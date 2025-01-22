@@ -34,6 +34,7 @@ RUN corepack install
 CMD [ "pnpm", "--silent", "start" ]
 
 FROM base AS handler
+RUN apk add --no-cache openssl
 COPY --from=build /prod/handler /prod/handler
 WORKDIR /prod/handler
 RUN corepack install
