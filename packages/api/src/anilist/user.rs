@@ -8,7 +8,7 @@ use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
 
 lazy_static! {
-    static ref logger:  Logger = Logger::default();
+    static ref logger: Logger = Logger::default();
     static ref redis:   Redis  = Redis::new();
 }
 
@@ -16,6 +16,11 @@ lazy_static! {
 struct ScoreRequest {
     user_id: i64,
     media_id: i64,
+}
+
+#[derive(Deserialize)]
+struct UserRequest {
+    user_id: String,
 }
 
 #[post("/user/score")]
@@ -112,6 +117,25 @@ pub async fn user_search(username: String) -> impl Responder {
 
     logger.debug_single(format!("Returning JSON data for user: {}", username).as_str(), "User");
     HttpResponse::Ok().json(user)
+}
+
+#[post("/expire-user")]
+async fn expire(req: web::Json<UserRequest>) -> impl Responder {
+    
+    match redis.expire_user(&req.user_id).await {
+        Ok(_) => {
+            HttpResponse::Ok().json(json!({
+                "status": "success",
+                "message": "Removed all user data"
+            }))
+        },
+        Err(e) => {
+            HttpResponse::InternalServerError().json(json!({
+                "status": "error",
+                "message": e.to_string()
+            }))
+        }
+    }
 }
 
 async fn wash_user_score(json_data: serde_json::Value) -> serde_json::Value {

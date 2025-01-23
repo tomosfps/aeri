@@ -13,6 +13,7 @@ type SelectMenuData = {
 
 export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "media_selection",
+    cooldown: 8,
     parse(data) {
         if (!data[0]) {
             throw new Error("Invalid Select Menu Data");
@@ -149,8 +150,6 @@ export const interaction: SelectMenu<SelectMenuData> = {
             `${inlineCode("dropped           :")}\n ${userData.dropped.join("")}\n`,
             `${inlineCode("paused            :")}\n ${userData.paused.join("")}\n\n`,
         ];
-
-        logger.debug("Description Builder", "Media Selection", descriptionBuilder);
 
         if (result.banner === "null") {
             result.banner = null;

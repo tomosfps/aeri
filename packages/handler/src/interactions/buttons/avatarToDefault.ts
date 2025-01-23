@@ -6,7 +6,6 @@ type ButtonData = {
 
 export const interaction: Button<ButtonData> = {
     custom_id: "default",
-
     parse(data) {
         if (!data[0]) {
             throw new Error("Invalid button data");
