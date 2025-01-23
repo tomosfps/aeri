@@ -3,6 +3,7 @@ import { env } from "core";
 import type { Command } from "../../services/commands.js";
 
 export const interaction: Command = {
+    // Update help with a argument to show more information for a command
     data: new SlashCommandBuilder().setName("help").setDescription("View all available commands"),
     async execute(interaction): Promise<void> {
         const commands = await interaction.api.applicationCommands.getGlobalCommands(env.DISCORD_APPLICATION_ID);

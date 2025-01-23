@@ -6,7 +6,7 @@ use std::env;
 
 mod anilist;
 mod cache;
-use anilist::media::{media_search, relations_search};
+use anilist::media::{media_search, relations_search, recommend};
 use anilist::user::{user_search, user_score, expire};
 use cache::redis::Redis;
 
@@ -41,6 +41,7 @@ async fn main() -> std::io::Result<()> {
             .service(media_search)
             .service(relations_search)
             .service(expire)
+            .service(recommend)
             .route("/hey", web::get().to(manual))
     })
     .bind((ip, port))?

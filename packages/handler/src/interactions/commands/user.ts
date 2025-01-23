@@ -9,6 +9,7 @@ import { getCommandOption, intervalTime } from "../../utility/interactionUtils.j
 const logger = new Logger();
 
 export const interaction: Command = {
+    cooldown: 8,
     data: new SlashCommandBuilder()
         .setName("user")
         .setDescription("View a user's anilist account")

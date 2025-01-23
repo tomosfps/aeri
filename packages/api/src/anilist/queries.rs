@@ -147,12 +147,40 @@ pub fn get_query(query_name: &str) -> String {
     }
     ";
 
+    let recommendation_amount: &str =  "
+        query ($page: Int, $perPage: Int) {
+        Page(page: $page, perPage: $perPage) {
+            pageInfo {
+                hasNextPage,
+                lastPage,
+            }
+            media {
+                id
+            }
+        }
+        }";
+
+    let recommendation: &str =  "
+        query ($genres: [String], $type: MediaType, $page: Int, $perPage: Int) {
+        Page(page: $page, perPage: $perPage) {
+            pageInfo {
+                hasNextPage,
+                lastPage,
+            }
+            media(type: $type, genre_in: $genres, sort: ID) {
+                id
+            }
+            }
+        }";
+
     match query_name {
         "search" => search.to_string(),
         "user_stats" => user_stats.to_string(),
         "relation_stats" => relation_stats.to_string(),
         "user" => user.to_string(),
         "affinity" => affinity.to_string(),
+        "recommendation" => recommendation.to_string(),
+        "recommendation_amount" => recommendation_amount.to_string(),
         _ => panic!("Invalid Query Name"),
     }
 }
