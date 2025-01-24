@@ -23,12 +23,12 @@ export const interaction: SelectMenu<SelectMenuData> = {
         const result = await fetchRecommendation(mediaType, interaction.menuValues);
         const media = await fetchAnilistMedia(mediaType, Number(result), interaction);
 
-        if (!result) {
+        if (result === null) {
             logger.errorSingle("Problem trying to fetch data in result", "genreSelection");
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
 
-        if (!media) {
+        if (media === null) {
             logger.errorSingle("Problem trying to fetch data in media", "genreSelection");
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
@@ -43,6 +43,11 @@ export const interaction: SelectMenu<SelectMenuData> = {
                 text: `${media.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${intervalTime(media.result.leftUntilExpire)}`}`,
             })
             .setColor(0x2f3136);
-        await interaction.edit({ embeds: [embed] });
+
+        try {
+            await interaction.edit({ embeds: [embed] });
+        } catch (error: any) {
+            await interaction.reply({ embeds: [embed], ephemeral: true });
+        }
     },
 };
