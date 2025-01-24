@@ -10,7 +10,7 @@ use rand::Rng;
 use crate::cache::proxy::{get_random_proxy, remove_proxy};
 
 lazy_static! {
-    static ref logger: Logger = Logger::new(colourful_logger::LogLevel::Debug, Some(""));
+    static ref logger: Logger = Logger::default();
     static ref redis:  Redis  = Redis::new();
 }
 

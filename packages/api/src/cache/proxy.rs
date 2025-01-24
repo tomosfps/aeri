@@ -5,7 +5,7 @@ use redis::{Client as RedisClient, Commands};
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref logger: Logger = Logger::new(colourful_logger::LogLevel::Debug, Some(""));
+    static ref logger: Logger = Logger::default();
 }
 
 async fn fetch_proxies(url: &String) -> Result<Vec<String>, Box<dyn Error>> {
