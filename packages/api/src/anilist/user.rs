@@ -1,4 +1,4 @@
-use reqwest::Response;
+use reqwest::{Client, Response};
 use serde::Deserialize;
 use serde_json::json;
 use actix_web::{web, post, HttpResponse, Responder};
@@ -6,6 +6,7 @@ use colourful_logger::Logger;
 use crate::anilist::queries::{get_query, QUERY_URL};
 use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
+use crate::cache::proxy::{get_random_proxy, remove_proxy};
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -40,7 +41,9 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
         }
     }
 
-    let client = reqwest::Client::new();
+    let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
+    let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
+    let client = Client::builder().proxy(proxy).build().unwrap();
     let user_query = get_query("user_stats");
     let json = json!({"query": user_query, "variables": {"userId": req.user_id, "mediaId": req.media_id}});
     logger.debug_single(format!("Sending request to client with JSON query").as_str(), "User Score");
@@ -53,6 +56,10 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
                 .unwrap();
     
     if response.status().as_u16() != 200 {
+        if response.status().as_u16() == 403 {
+            let _ = remove_proxy(&redis.get_client(), get_proxy.as_str()).await;
+        }
+
         logger.error_single(format!("Request returned {} when trying to fetch {}", response.status().as_str(), req.user_id).as_str(), "User Score");
         let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
         return HttpResponse::BadRequest().json(bad_json);
@@ -92,7 +99,9 @@ pub async fn user_search(username: String) -> impl Responder {
         }
     }
 
-    let client = reqwest::Client::new();
+    let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
+    let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
+    let client = Client::builder().proxy(proxy).build().unwrap();
     let user_query = get_query("user");
     let json = json!({"query": user_query, "variables": {"name": username}});
     logger.debug_single(format!("Sending request to client with JSON query").as_str(), "User");
@@ -105,6 +114,10 @@ pub async fn user_search(username: String) -> impl Responder {
                 .unwrap();
     
     if response.status().as_u16() != 200 {
+        if response.status().as_u16() == 403 {
+            let _ = remove_proxy(&redis.get_client(), get_proxy.as_str()).await;
+        }
+        
         logger.error_single(format!("Request returned {} when trying to fetch {}", response.status().as_str(), username).as_str(), "User");
         let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
         return HttpResponse::BadRequest().json(bad_json);

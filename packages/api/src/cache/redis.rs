@@ -20,6 +20,10 @@ impl Redis {
         }
     }
 
+    pub fn get_client(&self) -> Client {
+        self.client.clone()
+    }
+
     pub fn get<T: ToRedisArgs + std::fmt::Debug>(&self, key: T) -> RedisResult<String> {
         logger.debug_single(&format!("Trying to grab key : {:?}", key), "Redis");
         let mut con = self.client.get_connection()?;

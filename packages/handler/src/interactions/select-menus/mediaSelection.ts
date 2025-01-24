@@ -8,7 +8,7 @@ type SelectMenuData = {
 
 export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "media_selection",
-    cooldown: 10,
+    cooldown: 1,
     parse(data) {
         if (!data[0]) {
             throw new Error("Invalid Select Menu Data");

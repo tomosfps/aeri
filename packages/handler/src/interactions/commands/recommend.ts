@@ -46,7 +46,7 @@ const genreList = [
 ];
 
 export const interaction: Command = {
-    cooldown: 10,
+    cooldown: 1,
     data: new SlashCommandBuilder()
         .setName("recommend")
         .setDescription("Get recommended an anime or manga based on genre or your scores.")

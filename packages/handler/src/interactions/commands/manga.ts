@@ -12,7 +12,7 @@ import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 export const interaction: Command = {
-    cooldown: 10,
+    cooldown: 1,
     data: new SlashCommandBuilder()
         .setName("manga")
         .setDescription("Find An Manga")
