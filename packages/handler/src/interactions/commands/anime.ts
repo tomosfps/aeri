@@ -70,7 +70,6 @@ export const interaction: Command = {
                         );
                 }),
             );
-
         const row = new ActionRowBuilder().addComponents(select);
         await interaction.reply({ components: [row] });
     },

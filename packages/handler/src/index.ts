@@ -234,7 +234,7 @@ client.on(GatewayDispatchEvents.GuildMemberRemove, async ({ data: member }) => {
     onGuild(true, member.user, member);
 });
 
-async function checkRedis(redisKey: string, command: any, memberID: string) {
+async function checkRedis(redisKey: string, command: any, memberID: string): Promise<number> {
     if (await redis.exists(redisKey)) {
         logger.debugSingle(`${redisKey} already exists in Redis`, "Handler");
         return 1;
@@ -249,7 +249,7 @@ async function checkRedis(redisKey: string, command: any, memberID: string) {
     return 0;
 }
 
-async function onGuild(isLeft: boolean, user: APIUser, member: any) {
+async function onGuild(isLeft: boolean, user: APIUser, member: any): Promise<void> {
     const memberId = BigInt(user.id);
     const inDatabase = await fetchUser(memberId);
 
