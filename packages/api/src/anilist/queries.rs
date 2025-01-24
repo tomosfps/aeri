@@ -55,6 +55,7 @@ pub fn get_query(query_name: &str) -> String {
         siteUrl
         updatedAt
         bannerImage
+        about
         avatar {
             large
             medium

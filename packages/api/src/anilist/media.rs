@@ -9,7 +9,7 @@ use crate::cache::redis::Redis;
 use rand::Rng;
 
 lazy_static! {
-    static ref logger: Logger = Logger::new(colourful_logger::LogLevel::Debug, Some(""));
+    static ref logger: Logger = Logger::default();
     static ref redis:  Redis  = Redis::new();
 }
 
@@ -33,7 +33,6 @@ struct RecommendRequest {
 
 #[post("/relations")]
 pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder {
-
     if req.media_name.len() == 0 || req.media_type.len() == 0 {
         logger.error_single("No media name or type was included", "Relations");
         let bad_json = json!({"error": "No media name or type was included"});
@@ -98,7 +97,6 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     let recommend_amount = response.json::<serde_json::Value>().await.unwrap();
     let data = &recommend_amount["data"]["Page"];
     let last_page = data["pageInfo"]["lastPage"].as_i64().unwrap_or(1);
-
     logger.debug_single(&format!("Last Page set to : {}", last_page), "Recommend");
 
     let pages = rng.gen_range(1..last_page);

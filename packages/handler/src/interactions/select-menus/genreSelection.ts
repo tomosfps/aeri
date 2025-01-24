@@ -1,8 +1,7 @@
 import { EmbedBuilder } from "@discordjs/builders";
-import { env } from "core";
 import { Logger } from "log";
 import type { SelectMenu } from "../../services/commands.js";
-import { fetchMedia, intervalTime } from "../../utility/interactionUtils.js";
+import { fetchAnilistMedia, fetchRecommendation, intervalTime } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 
@@ -12,7 +11,7 @@ type SelectMenuData = {
 
 export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "genre_selection",
-    cooldown: 20,
+    cooldown: 10,
     parse(data) {
         if (!data[0]) {
             throw new Error("Invalid Select Menu Data");
@@ -21,34 +20,16 @@ export const interaction: SelectMenu<SelectMenuData> = {
     },
     async execute(interaction, data): Promise<void> {
         const mediaType = data.custom_id === "ANIME" ? "ANIME" : "MANGA";
-        const response = await fetch(`${env.API_URL}/recommend`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                media: mediaType,
-                genres: interaction.menuValues,
-            }),
-        }).catch((error) => {
-            logger.error("Error while fetching data from the API.", "Anilist", error);
-            return null;
-        });
+        const result = await fetchRecommendation(mediaType, interaction.menuValues);
+        const media = await fetchAnilistMedia(mediaType, Number(result), interaction);
 
-        if (response === null) {
-            logger.error("Request returned null", "Anilist");
+        if (!result) {
+            logger.errorSingle("Problem trying to fetch data in result", "genreSelection");
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
-
-        const result = await response.json().catch((error) => {
-            logger.error("Error while parsing JSON data.", "Anilist", error);
-            return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
-        });
-
-        if (result === null) {
-            return interaction.reply({ content: "Could not find a recommendation based on genres.", ephemeral: true });
-        }
-        const media = await fetchMedia(mediaType, Number(result), interaction);
 
         if (!media) {
+            logger.errorSingle("Problem trying to fetch data in media", "genreSelection");
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
 

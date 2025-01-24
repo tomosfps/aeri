@@ -1,4 +1,4 @@
-import { inlineCode } from "@discordjs/builders";
+import { bold, inlineCode } from "@discordjs/builders";
 import {
     type APIApplicationCommandAutocompleteInteraction,
     type APIApplicationCommandInteractionDataBasicOption,
@@ -203,7 +203,7 @@ export function intervalTime(seconds: number, granularity = 2): string {
     return result.slice(0, granularity).join(", ");
 }
 
-export async function fetchMedia(mediaType: string, mediaID: number, interaction: any): Promise<any> {
+export async function fetchAnilistMedia(mediaType: string, mediaID: number, interaction: any): Promise<any> {
     const response = await fetch(`${env.API_URL}/media`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -385,4 +385,88 @@ async function fetchUserData(user: number, media: number) {
 
 function capitalise(message: string) {
     return message.charAt(0).toUpperCase() + message.toLowerCase().slice(1);
+}
+
+export async function fetchAnilistUserData(username: string, interaction: any): Promise<any> {
+    const request = await fetch(`${env.API_URL}/user`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: username,
+    }).catch((error) => {
+        logger.error("Error while fetching data from the API.", "Anilist", error);
+        return null;
+    });
+
+    if (request === null) {
+        return interaction.reply({
+            content: `Unable to find ${username} within the Anilist API. `,
+            ephemeral: true,
+        });
+    }
+
+    const result = await request.json().catch((error) => {
+        logger.error("Error while parsing JSON data.", "Anilist", error);
+        return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
+    });
+
+    if (result.error) {
+        logger.error("An Error Occured when trying to access the API", "Anilist", result);
+        return interaction.reply({
+            content: "There was an error when trying to access the Anilist API.\nTry again later.",
+            ephemeral: true,
+        });
+    }
+
+    const descriptionBuilder =
+        `[${bold("Anime Information")}](${result.url}/animelist)\n` +
+        `${inlineCode("Anime Count        :")} ${result.animeStats.count}\n` +
+        `${inlineCode("Mean Score         :")} ${result.animeStats.meanScore}\n` +
+        `${inlineCode("Episodes Watched   :")} ${result.animeStats.watched}\n` +
+        `${inlineCode("Watch Time         :")} ${intervalTime(result.animeStats.minutes * 60)}\n\n` +
+        `[${bold("Manga Information")}](${result.url}/mangalist)\n` +
+        `${inlineCode("Manga Count        :")} ${result.mangaStats.count}\n` +
+        `${inlineCode("Mean Score         :")} ${result.mangaStats.meanScore}\n` +
+        `${inlineCode("Chapters Read      :")} ${result.mangaStats.chapters}\n` +
+        `${inlineCode("Volumes Read       :")} ${result.mangaStats.volumes}\n`;
+
+    if (result.banner === "null") {
+        result.banner = null;
+    }
+
+    return {
+        result: result,
+        description: descriptionBuilder,
+    };
+}
+
+export async function fetchRecommendation(mediaType: string, genres: string[]): Promise<any> {
+    const response = await fetch(`${env.API_URL}/recommend`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            media: mediaType,
+            genres: genres,
+        }),
+    }).catch((error) => {
+        logger.error("Error while fetching data from the API.", "Anilist", error);
+        return null;
+    });
+
+    if (response === null) {
+        logger.error("Request returned null", "Anilist");
+        return null;
+    }
+
+    const result = await response.json().catch((error) => {
+        logger.error("Error while parsing JSON data.", "Anilist", error);
+        return null;
+    });
+
+    if (result === null) {
+        logger.errorSingle("Request returned null", "Anilist");
+        return null;
+    }
+    return result;
 }
