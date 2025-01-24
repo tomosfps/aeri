@@ -41,7 +41,6 @@ async fn main() -> std::io::Result<()> {
     }
 
     logger.info_single(&format!("Listening on {}:{}", ip, port), "Main");
-
     tokio::spawn(async move {
         let mut attempts: u8 = 0;
         while attempts < 5 {
