@@ -19,7 +19,7 @@ export const interaction: Command = {
             username = (await fetchAnilistUser(interaction.member_id)).username;
 
             if (!username) {
-                return interaction.followUp({
+                return interaction.edit({
                     content: "Please provide a username or link your Anilist account",
                     ephemeral: true,
                 });
@@ -30,7 +30,7 @@ export const interaction: Command = {
         logger.debug(`Fetching user: ${username}`, "User");
         const userFetch = await fetchAnilistUserData(username, interaction);
         if (!userFetch) {
-            return interaction.followUp({ content: "User not found", ephemeral: true });
+            return interaction.edit({ content: "User not found", ephemeral: true });
         }
 
         logger.debug("Gained user data", "User", userFetch.result);

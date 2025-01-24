@@ -112,7 +112,6 @@ export class BaseInteraction {
         } = {},
     ) {
         const flags: number = options.ephemeral ? MessageFlags.Ephemeral : 0;
-
         await this.api.interactions.followUp(env.DISCORD_APPLICATION_ID, this.token, {
             content: options.content,
             embeds: options.embeds?.map((embed) => {

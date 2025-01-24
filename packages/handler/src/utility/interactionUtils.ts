@@ -216,7 +216,7 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         return undefined;
     });
 
-    if (response === null || response === undefined) {
+    if (!response || response === undefined) {
         logger.error("Request returned null", "Anilist");
         return undefined;
     }
@@ -371,7 +371,7 @@ async function fetchUserData(user: number, media: number) {
         return null;
     });
 
-    if (response === null) {
+    if (!response) {
         logger.error("Request returned null", "Anilist");
         return;
     }
@@ -399,7 +399,7 @@ export async function fetchAnilistUserData(username: string, interaction: any): 
         return null;
     });
 
-    if (request === null) {
+    if (!request) {
         return interaction.reply({
             content: `Unable to find ${username} within the Anilist API. `,
             ephemeral: true,
@@ -454,7 +454,7 @@ export async function fetchRecommendation(mediaType: string, genres: string[]): 
         return null;
     });
 
-    if (response === null) {
+    if (!response) {
         logger.error("Request returned null", "Anilist");
         return null;
     }
@@ -464,7 +464,7 @@ export async function fetchRecommendation(mediaType: string, genres: string[]): 
         return null;
     });
 
-    if (result === null) {
+    if (!result) {
         logger.errorSingle("Request returned null", "Anilist");
         return null;
     }

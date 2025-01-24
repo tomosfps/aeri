@@ -78,17 +78,17 @@ export const interaction: Command = {
         const score = getCommandOption("score", ApplicationCommandOptionType.Boolean, interaction.options) || false;
 
         if (genre && score) {
-            return interaction.followUp({ content: "Please select only one option", ephemeral: true });
+            return interaction.followUp({ content: "Please select only one option" });
         }
 
         if (!genre && !score) {
-            return interaction.followUp({ content: "Please select an option", ephemeral: true });
+            return interaction.followUp({ content: "Please select an option" });
         }
 
         if (genre) {
             const select = new StringSelectMenuBuilder()
                 .setCustomId(`genre_selection:${media}`)
-                .setPlaceholder("Choose A Genre...")
+                .setPlaceholder("Choose Some Genres...")
                 .setMinValues(1)
                 .setMaxValues(24)
                 .addOptions(
@@ -116,7 +116,7 @@ export const interaction: Command = {
 
         const userFetch = await fetchAnilistUserData(username, interaction);
         if (!userFetch) {
-            return interaction.followUp({ content: "User not found", ephemeral: true });
+            return interaction.followUp({ content: "User not found" });
         }
         logger.debug("Gained user data", "Recommend", userFetch.result);
 
@@ -130,13 +130,13 @@ export const interaction: Command = {
         logger.debug("Got top 5 genres", "Recommend", topGenres);
         if (topGenres.length === 0) {
             logger.error("User genres are undefined or empty", "Recommend");
-            return interaction.followUp({ content: "Error: User genres are undefined or empty", ephemeral: true });
+            return interaction.followUp({ content: "Error: User genres are undefined or empty" });
         }
 
         const recommendation = await fetchRecommendation(media, topGenres);
         if (!recommendation) {
             logger.errorSingle("Problem trying to fetch data in result", "recommend");
-            return interaction.followUp({ content: "Problem trying to fetch data", ephemeral: true });
+            return interaction.followUp({ content: "Problem trying to fetch data" });
         }
 
         const result = await fetchAnilistMedia(mediaType, Number(recommendation), interaction);

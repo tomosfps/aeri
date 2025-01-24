@@ -20,7 +20,7 @@ export const interaction: Command = {
         const username = getCommandOption("username", ApplicationCommandOptionType.String, interaction.options);
         const isInDatabase = await fetchUser(interaction.member_id);
 
-        if (isInDatabase === null) {
+        if (!isInDatabase) {
             const request = await fetch(`${env.API_URL}/user`, {
                 method: "POST",
                 headers: {
@@ -32,7 +32,7 @@ export const interaction: Command = {
                 return null;
             });
 
-            if (request === null) {
+            if (!request) {
                 return interaction.reply({
                     content: `Unable to find ${username} within the Anilist API. `,
                     ephemeral: true,
@@ -72,7 +72,6 @@ export const interaction: Command = {
                 ephemeral: true,
             });
         }
-
         return interaction.reply({
             content:
                 "You already have an anilist account linked to your discord account. Use /unlink to unlink your account.",
