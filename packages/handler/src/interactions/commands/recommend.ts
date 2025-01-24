@@ -81,7 +81,7 @@ export const interaction: Command = {
             return interaction.followUp({ content: "Please select only one option" });
         }
 
-        if (!genre && !score) {
+        if (genre === null && score === null) {
             return interaction.followUp({ content: "Please select an option" });
         }
 
@@ -105,11 +105,11 @@ export const interaction: Command = {
             return await interaction.followUp({ components: [row] });
         }
 
-        const username = (await fetchAnilistUser(interaction.member_id)).username;
-        if (!username) {
+        const username = (await fetchAnilistUser(interaction.member_id)).username ?? null;
+        if (username === null) {
             return interaction.followUp({
                 content:
-                    "You need to link your Anilist account to use this feature. Please use the /setup command to link your account.",
+                    "Could not find your Anilist account. If you haven't please link your account using the `/setup` command.",
                 ephemeral: true,
             });
         }
@@ -134,7 +134,7 @@ export const interaction: Command = {
         }
 
         const recommendation = await fetchRecommendation(media, topGenres);
-        if (!recommendation) {
+        if (recommendation === null) {
             logger.errorSingle("Problem trying to fetch data in result", "recommend");
             return interaction.followUp({ content: "Problem trying to fetch data" });
         }

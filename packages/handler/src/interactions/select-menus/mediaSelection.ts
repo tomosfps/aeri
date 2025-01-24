@@ -17,10 +17,9 @@ export const interaction: SelectMenu<SelectMenuData> = {
     },
     async execute(interaction, data): Promise<void> {
         const mediaType = data.custom_id === "anime" ? "ANIME" : "MANGA";
-
         const media = await fetchAnilistMedia(mediaType, Number(interaction.menuValues[0]), interaction);
 
-        if (!media) {
+        if (media === null) {
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
 
@@ -34,6 +33,11 @@ export const interaction: SelectMenu<SelectMenuData> = {
                 text: `${media.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${intervalTime(media.result.leftUntilExpire)}`}`,
             })
             .setColor(0x2f3136);
-        await interaction.edit({ embeds: [embed] });
+
+        try {
+            await interaction.edit({ embeds: [embed] });
+        } catch (error: any) {
+            await interaction.reply({ embeds: [embed], ephemeral: true });
+        }
     },
 };

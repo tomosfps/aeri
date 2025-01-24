@@ -14,7 +14,7 @@ export const interaction: Command = {
         const userID = anilistUser ? anilistUser.id : null;
         logger.debug(`User ID: ${userID}`, "Force-Update");
 
-        if (!userID) {
+        if (userID === null) {
             return interaction.reply({
                 content:
                     "You must link your Anilist account to use this command. You can do so by using the `/setup` command.",
@@ -33,7 +33,7 @@ export const interaction: Command = {
             return null;
         });
 
-        if (!response) {
+        if (response === null) {
             logger.error("Request returned null", "Anilist");
             return interaction.reply({ content: "Problem trying to remove cache", ephemeral: true });
         }
@@ -43,7 +43,7 @@ export const interaction: Command = {
             return interaction.reply({ content: "Problem trying to remove cache", ephemeral: true });
         });
 
-        if (!result) {
+        if (result === null) {
             return interaction.reply({ content: "Problem trying to remove cache", ephemeral: true });
         }
 

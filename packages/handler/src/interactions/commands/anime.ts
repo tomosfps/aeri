@@ -34,7 +34,7 @@ export const interaction: Command = {
             return null;
         });
 
-        if (!response) {
+        if (response === null) {
             logger.error("Request returned null", "Anilist");
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
@@ -44,7 +44,7 @@ export const interaction: Command = {
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         });
 
-        if (!result) {
+        if (result === null) {
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
 
