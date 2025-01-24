@@ -3,11 +3,9 @@ use colourful_logger::Logger;
 use reqwest::{Client, StatusCode};
 use redis::{Client as RedisClient, Commands};
 use lazy_static::lazy_static;
-use std::env;
-use dotenv::dotenv;
 
 lazy_static! {
-    static ref logger: Logger = Logger::default();
+    static ref logger: Logger = Logger::new(colourful_logger::LogLevel::Debug, Some(""));
 }
 
 async fn fetch_proxies(url: &String) -> Result<Vec<String>, Box<dyn Error>> {
