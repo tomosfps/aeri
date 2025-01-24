@@ -7,10 +7,8 @@ import type { Command } from "../../services/commands.js";
 const logger = new Logger();
 
 export const interaction: Command = {
-    cooldown: 600,
-    data: new SlashCommandBuilder()
-        .setName("force-update")
-        .setDescription("Remove your scores from the cache so that they may be updated again!"),
+    cooldown: 300,
+    data: new SlashCommandBuilder().setName("force-update").setDescription("Remove your scores from the cache!"),
     async execute(interaction): Promise<void> {
         const anilistUser = await fetchAnilistUser(interaction.member_id);
         const userID = anilistUser ? anilistUser.id : null;

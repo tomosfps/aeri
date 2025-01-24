@@ -7,7 +7,7 @@ import { fetchAnilistUserData, getCommandOption, intervalTime } from "../../util
 
 const logger = new Logger();
 export const interaction: Command = {
-    cooldown: 10,
+    cooldown: 1,
     data: new SlashCommandBuilder()
         .setName("user")
         .setDescription("View a user's anilist account")

@@ -7,6 +7,7 @@ use crate::anilist::queries::{get_query, QUERY_URL};
 use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
 use rand::Rng;
+use crate::cache::proxy::{get_random_proxy, remove_proxy};
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -39,10 +40,12 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
         return HttpResponse::BadRequest().json(bad_json);
     }
 
-    let client: Client = reqwest::Client::new();
+    let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
+    let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
+    let client = Client::builder().proxy(proxy).build().unwrap();
     let query:  String = get_query("relation_stats");
     let json:   serde_json::Value = json!({"query": query, "variables": {"search": req.media_name, "type": req.media_type.to_uppercase()}});
-    logger.debug("Sending request with relational data", "Relations", false, json.clone());
+    logger.debug_single("Sending request with relational data", "Relations");
 
     let response: Response = client
             .post(QUERY_URL)
@@ -50,8 +53,12 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
             .send()
             .await
             .unwrap();
-
+    
     if response.status().as_u16() != 200 {
+        if response.status().as_u16() == 403 {
+            let _ = remove_proxy(&redis.get_client(), get_proxy.as_str()).await;
+        }
+
         logger.error_single(format!("Request returned {} when trying to fetch data for {} with type {}", response.status().as_str(), req.media_name, req.media_type).as_str(), "Relations");
         let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
         return HttpResponse::BadRequest().json(bad_json);
@@ -59,7 +66,7 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
         
     let relations = response.json::<serde_json::Value>().await.unwrap();
     let relations = wash_relation_data(relations).await;
-    logger.debug("Returning relational data", "Relations", false, relations.clone());
+    logger.debug_single("Returning relational data", "Relations");
     HttpResponse::Ok().json(relations)
 }
 
@@ -68,7 +75,9 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     let genres = req.genres.clone().unwrap_or(vec![]);
     let mut rng = rand::thread_rng();
 
-    let client = reqwest::Client::new();
+    let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
+    let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
+    let client = Client::builder().proxy(proxy).build().unwrap();
     let recommendation_amount_query = get_query("recommendation_amount");
     let json = json!({
         "query": recommendation_amount_query,
@@ -87,6 +96,10 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
         .unwrap();
     
     if response.status().as_u16() != 200 {
+        if response.status().as_u16() == 403 {
+            let _ = remove_proxy(&redis.get_client(), get_proxy.as_str()).await;
+        }
+
         let status = response.status();
         let response_text = response.text().await.unwrap();
         logger.error_single(format!("First request returned {} : {:?}", status, response_text).as_str(), "Recommend");
@@ -136,10 +149,12 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
         }
     }
 
-    let client: Client = reqwest::Client::new();
+    let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
+    let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
+    let client = Client::builder().proxy(proxy).build().unwrap();
     let query:  String = get_query("search");
     let json:   serde_json::Value = json!({"query": query, "variables": {"id": req.media_id, "type": req.media_type.to_uppercase()}});
-    logger.debug("Sending request with relational data", "Media", false, json.clone());
+    logger.debug_single("Sending request with relational data", "Media");
 
     let response: Response = client
             .post(QUERY_URL)
@@ -149,6 +164,10 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
             .unwrap();
 
     if response.status().as_u16() != 200 {
+        if response.status().as_u16() == 403 {
+            let _ = remove_proxy(&redis.get_client(), get_proxy.as_str()).await;
+        }
+
         logger.error_single(format!("Request returned {} when trying to fetch data for {} with type {}", response.status().as_str(), req.media_id, req.media_type).as_str(), "Media");
         let bad_json = json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
         return HttpResponse::BadRequest().json(bad_json);
@@ -171,7 +190,9 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
 
 async fn get_recommendation(pages: i64, genres: Vec<String>, media: String) -> serde_json::Value {
     let mut rng = rand::thread_rng();
-    let client = reqwest::Client::new();
+    let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
+    let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
+    let client = Client::builder().proxy(proxy).build().unwrap();
 
     let recommendation_query = get_query("recommendation");
     let json = json!({
@@ -192,6 +213,10 @@ async fn get_recommendation(pages: i64, genres: Vec<String>, media: String) -> s
                 .unwrap();
     
     if response.status().as_u16() != 200 {
+        if response.status().as_u16() == 403 {
+            let _ = remove_proxy(&redis.get_client(), get_proxy.as_str()).await;
+        }
+
         let status = response.status();
         let response_text = response.text().await.unwrap();
         logger.error_single(format!("Second request returned {} : {:?}", status, response_text).as_str(), "Recommend");
