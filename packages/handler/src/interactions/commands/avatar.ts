@@ -18,7 +18,7 @@ export const interaction: Command = {
             return;
         }
 
-        if (member === null) {
+        if (!member) {
             await interaction.reply({
                 content: "Could not locate the member. Are they within the guild?",
                 ephemeral: true,

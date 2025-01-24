@@ -10,17 +10,20 @@ import type { CommandInteraction } from "../classes/commandInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
 export interface Command {
     data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
+    cooldown?: number;
     execute: (interaction: CommandInteraction) => void;
 }
 
 export interface Button<T = undefined> {
     custom_id: string;
+    cooldown?: number;
     parse?: (data: string[]) => T;
     execute: (interaction: ButtonInteraction, data: T) => void;
 }
 
 export interface SelectMenu<T = undefined> {
     custom_id: string;
+    cooldown?: number;
     parse?: (data: string[]) => T;
     execute: (interaction: SelectMenuInteraction, data: T) => void;
 }

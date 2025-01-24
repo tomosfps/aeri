@@ -9,12 +9,14 @@ import {
     type APIUserApplicationCommandInteraction,
     Client,
     GatewayDispatchEvents,
+    MessageFlags,
 } from "@discordjs/core";
 
 import { REST } from "@discordjs/rest";
 import { getRedis } from "core";
 import { env } from "core/dist/env.js";
 import { createGuild, fetchGuild, fetchUser, removeFromGuild, updateGuild } from "database";
+import type { APIUser } from "discord-api-types/v10";
 import { Logger } from "log";
 import { ButtonInteraction } from "./classes/buttonInteraction.js";
 import { CommandInteraction } from "./classes/commandInteraction.js";
@@ -37,12 +39,30 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
     [InteractType.Autocomplete]: (interaction: APIApplicationCommandAutocompleteInteraction) => {
         logger.debugSingle(`Received autocomplete interaction: ${interaction.data.name}`, "Handler");
     },
-    [InteractType.ChatInput]: (interaction: APIChatInputApplicationCommandInteraction, api) => {
+    [InteractType.ChatInput]: async (interaction: APIChatInputApplicationCommandInteraction, api) => {
         logger.debugSingle(`Received chat input interaction: ${interaction.data.name}`, "Handler");
 
         const command = commands.get(interaction.data.name);
+        const memberId = interaction.member?.user.id;
+
         if (!command) {
             logger.warn(`Command not found: ${interaction.data.name}`, "Handler");
+            return;
+        }
+
+        if (!memberId) {
+            logger.warnSingle("Member was not found", "Handler");
+            return;
+        }
+
+        const redisKey = `${interaction.data.name}_${memberId}`;
+        if (await checkRedis(redisKey, command, memberId)) {
+            const redisTTL = await redis.ttl(redisKey);
+            const expirationTime = Date.now() + redisTTL * 1000;
+            api.interactions.reply(interaction.id, interaction.token, {
+                content: `This command is currently on cooldown and can be used <t:${Math.round(expirationTime / 1000)}:R> `,
+                flags: MessageFlags.Ephemeral,
+            });
             return;
         }
 
@@ -53,14 +73,32 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
             logger.error("Command execution error:", "Handler", error);
         }
     },
-    [InteractType.SelectMenu]: (interaction: APIMessageComponentSelectMenuInteraction, api) => {
+    [InteractType.SelectMenu]: async (interaction: APIMessageComponentSelectMenuInteraction, api) => {
         logger.debugSingle(`Received select menu interaction: ${interaction.data.custom_id}`, "Handler");
 
         const [selectId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
         const selectMenu = selectMenus.get(selectId);
+        const memberId = interaction.member?.user.id;
 
         if (!selectMenu) {
-            logger.warn(`Select menu not found: ${selectId}`, "Handler");
+            logger.warnSingle(`Select menu not found: ${selectId}`, "Handler");
+            return;
+        }
+
+        if (!memberId) {
+            logger.warnSingle("Member was not found", "Handler");
+            return;
+        }
+
+        const redisKey = `${selectId}_${memberId}`;
+        if (await checkRedis(redisKey, selectMenu, memberId)) {
+            const redisTTL = await redis.ttl(redisKey);
+            const expirationTime = Date.now() + redisTTL * 1000;
+            api.interactions.reply(interaction.id, interaction.token, {
+                content: `This action is currently on cooldown and can be used <t:${Math.round(expirationTime / 1000)}:R> `,
+                flags: MessageFlags.Ephemeral,
+            });
+
             return;
         }
 
@@ -80,14 +118,31 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
     [InteractType.MessageContext]: (interaction: APIMessageApplicationCommandInteraction) => {
         logger.debugSingle(`Received message context interaction: ${interaction.data.name}`, "Handler");
     },
-    [InteractType.Button]: (interaction: APIMessageComponentButtonInteraction, api) => {
+    [InteractType.Button]: async (interaction: APIMessageComponentButtonInteraction, api) => {
         logger.debugSingle(`Received button interaction: ${interaction.data.custom_id}`, "Handler");
 
         const [buttonId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
         const button = buttons.get(buttonId);
+        const memberId = interaction.member?.user.id;
 
         if (!button) {
-            logger.warn(`Button not found: ${buttonId}`, "Handler");
+            logger.warnSingle(`Button not found: ${buttonId}`, "Handler");
+            return;
+        }
+
+        if (!memberId) {
+            logger.warnSingle("Member was not found", "Handler");
+            return;
+        }
+
+        const redisKey = `${buttonId}_${memberId}`;
+        if (await checkRedis(redisKey, button, memberId)) {
+            const redisTTL = await redis.ttl(redisKey);
+            const expirationTime = Date.now() + redisTTL * 1000;
+            api.interactions.reply(interaction.id, interaction.token, {
+                content: `This action is currently on cooldown and can be used <t:${Math.round(expirationTime / 1000)}:R> `,
+                flags: MessageFlags.Ephemeral,
+            });
             return;
         }
 
@@ -99,7 +154,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
         }
     },
     [InteractType.Unknown]: (interaction: any) => {
-        logger.warn(`Unknown interaction type: ${interaction.type}`, "Handler");
+        logger.warnSingle(`Unknown interaction type: ${interaction.type}`, "Handler");
     },
 };
 
@@ -120,31 +175,24 @@ client.on(GatewayDispatchEvents.MessageCreate, async ({ data: message }) => {
     if (message.author.bot) return;
 
     if (message.guild_id === undefined) {
-        logger.warn("Guild ID is undefined", "Handler");
+        logger.warnSingle("Guild ID is undefined", "Handler");
         return;
     }
 
     if (!message.author) {
-        logger.warn("Member is undefined", "Handler");
+        logger.warnSingle("Member is undefined", "Handler");
         return;
     }
 
     const memberId = BigInt(message.author.id);
     const guildId = BigInt(message.guild_id);
+    const inDatabase = await fetchUser(memberId);
 
-    if (guildId) {
-        const inDatabase = await fetchUser(memberId);
+    if (inDatabase) {
+        logger.debugSingle(`Member ${message.author.username} is already in the database`, "Handler");
+        const guildData = await fetchGuild(guildId, memberId);
 
-        if (inDatabase) {
-            logger.debugSingle(`Member ${message.author.username} is already in the database`, "Handler");
-
-            const guildData = await fetchGuild(guildId, memberId);
-
-            if (guildData === null) {
-                logger.warnSingle(`Guild ${guildId} is not within the database`, "Handler");
-                await createGuild(guildId);
-                return;
-            }
+        if (guildData !== null) {
             const checkGuild = guildData.users.some((user: { discord_id: bigint }) => user.discord_id === memberId);
 
             if (!checkGuild) {
@@ -154,7 +202,13 @@ client.on(GatewayDispatchEvents.MessageCreate, async ({ data: message }) => {
             } else {
                 logger.debugSingle(`Member ${message.author.username} is already within the guild database`, "Handler");
             }
+
+            return;
         }
+
+        logger.warnSingle(`Guild ${guildId} is not within the database`, "Handler");
+        await createGuild(guildId);
+        return;
     }
 });
 
@@ -162,54 +216,58 @@ client.on(GatewayDispatchEvents.GuildMemberAdd, async ({ data: member }) => {
     if (member.user?.bot) return;
 
     if (member.user === undefined) {
-        logger.warn("Member is undefined", "Handler");
+        logger.warnSingle("Member is undefined", "Handler");
         return;
     }
 
-    const memberId = BigInt(member.user.id);
-    const inDatabase = await fetchUser(memberId);
-
-    if (inDatabase) {
-        logger.debugSingle(`Member ${member.user?.username} is already in the database`, "Handler");
-        const guildId = BigInt(member.guild_id);
-
-        const guildData = await fetchGuild(guildId, memberId);
-        const checkGuild = guildData.users.some((user: { discord_id: bigint }) => user.discord_id === memberId);
-
-        if (!checkGuild) {
-            logger.debugSingle(`Member ${member.user?.username} is not within the guild database`, "Handler");
-            await updateGuild(guildId, memberId, member.user.username);
-            logger.debugSingle(`Included ${member.user?.username} from the database`, "Handler");
-        } else {
-            logger.debugSingle(`Member ${member.user?.username} is already within the guild database`, "Handler");
-        }
-    }
+    onGuild(false, member.user, member);
 });
 
 client.on(GatewayDispatchEvents.GuildMemberRemove, async ({ data: member }) => {
     if (member.user?.bot) return;
 
     if (member.user === undefined) {
-        logger.warn("Member is undefined", "Handler");
+        logger.warnSingle("Member is undefined", "Handler");
         return;
     }
 
-    const memberId = BigInt(member.user.id);
+    onGuild(true, member.user, member);
+});
+
+async function checkRedis(redisKey: string, command: any, memberID: string): Promise<number> {
+    if (await redis.exists(redisKey)) {
+        logger.debugSingle(`${redisKey} already exists in Redis`, "Handler");
+        return 1;
+    }
+
+    if (command.cooldown) {
+        logger.debugSingle(`Adding ${redisKey} to REDIS with expiration: ${command.cooldown}`, "Handler");
+        redis.set(redisKey, memberID);
+        redis.expire(redisKey, command.cooldown);
+    }
+
+    return 0;
+}
+
+async function onGuild(isLeft: boolean, user: APIUser, member: any): Promise<void> {
+    const memberId = BigInt(user.id);
     const inDatabase = await fetchUser(memberId);
 
     if (inDatabase) {
-        logger.debugSingle(`Member ${member.user?.username} is already in the database`, "Handler");
+        logger.debugSingle(`Member ${user.username} is already in the database`, "Handler");
         const guildId = BigInt(member.guild_id);
 
         const guildData = await fetchGuild(guildId, memberId);
         const checkGuild = guildData.users.some((user: { discord_id: bigint }) => user.discord_id === memberId);
 
         if (checkGuild) {
-            logger.debugSingle(`Member ${member.user?.username} is within the guild database`, "Handler");
-            await removeFromGuild(memberId, guildId);
-            logger.debugSingle(`Removed ${member.user?.username} from the database`, "Handler");
+            logger.debugSingle(`Member ${user.username} is within the guild database`, "Handler");
+            isLeft
+                ? await removeFromGuild(memberId, guildId)
+                : await updateGuild(guildId, memberId, member.user.username);
+            logger.debugSingle(`Removed ${user.username} from the database`, "Handler");
         } else {
-            logger.debugSingle(`Member ${member.user?.username} is not within the guild database`, "Handler");
+            logger.debugSingle(`Member ${user.username} is not within the guild database`, "Handler");
         }
     }
-});
+}

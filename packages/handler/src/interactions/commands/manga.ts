@@ -11,8 +11,8 @@ import type { Command } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
-
 export const interaction: Command = {
+    cooldown: 10,
     data: new SlashCommandBuilder()
         .setName("manga")
         .setDescription("Find An Manga")
@@ -34,7 +34,7 @@ export const interaction: Command = {
             return null;
         });
 
-        if (response === null) {
+        if (!response) {
             logger.error("Request returned null", "Anilist");
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
@@ -44,7 +44,7 @@ export const interaction: Command = {
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         });
 
-        if (result === null) {
+        if (!result) {
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
 

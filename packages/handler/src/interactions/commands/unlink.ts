@@ -7,7 +7,7 @@ export const interaction: Command = {
     async execute(interaction): Promise<void> {
         const isInDatabase = await fetchUser(interaction.member_id);
 
-        if (isInDatabase === null) {
+        if (!isInDatabase) {
             return interaction.reply({
                 content: "You don't have an anilist account linked to your discord account.",
                 ephemeral: true,
@@ -15,7 +15,6 @@ export const interaction: Command = {
         }
 
         const deleteAccount = await deleteAnilistUser(interaction.member_id);
-
         if (deleteAccount) {
             return interaction.reply({
                 content: "Your anilist account has been unlinked.",

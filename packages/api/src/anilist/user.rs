@@ -8,14 +8,19 @@ use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
 
 lazy_static! {
-    static ref logger:  Logger = Logger::default();
-    static ref redis:   Redis  = Redis::new();
+    static ref logger: Logger = Logger::default();
+    static ref redis:  Redis  = Redis::new();
 }
 
 #[derive(Deserialize, Debug)]
 struct ScoreRequest {
     user_id: i64,
     media_id: i64,
+}
+
+#[derive(Deserialize)]
+struct UserRequest {
+    user_id: String,
 }
 
 #[post("/user/score")]
@@ -54,6 +59,8 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
     }
 
     let user = response.json::<serde_json::Value>().await.unwrap();
+    logger.debug("Washing up user score data", "User Score", false, user.clone());
+
     let user = wash_user_score(user).await;
 
     redis.set(redis_key.clone(), user.to_string()).unwrap();
@@ -88,7 +95,6 @@ pub async fn user_search(username: String) -> impl Responder {
     let client = reqwest::Client::new();
     let user_query = get_query("user");
     let json = json!({"query": user_query, "variables": {"name": username}});
-    
     logger.debug_single(format!("Sending request to client with JSON query").as_str(), "User");
 
     let response: Response = client
@@ -105,6 +111,7 @@ pub async fn user_search(username: String) -> impl Responder {
     }
 
     let user = response.json::<serde_json::Value>().await.unwrap();
+    logger.debug("Washing up user score data", "User Score", false, user.clone());
     let user = wash_user_data(user).await;
 
     redis.set(username.clone(), user.to_string()).unwrap();
@@ -112,6 +119,25 @@ pub async fn user_search(username: String) -> impl Responder {
 
     logger.debug_single(format!("Returning JSON data for user: {}", username).as_str(), "User");
     HttpResponse::Ok().json(user)
+}
+
+#[post("/expire-user")]
+async fn expire(req: web::Json<UserRequest>) -> impl Responder {
+    
+    match redis.expire_user(&req.user_id).await {
+        Ok(_) => {
+            HttpResponse::Ok().json(json!({
+                "status": "success",
+                "message": "Removed all user data"
+            }))
+        },
+        Err(e) => {
+            HttpResponse::InternalServerError().json(json!({
+                "status": "error",
+                "message": e.to_string()
+            }))
+        }
+    }
 }
 
 async fn wash_user_score(json_data: serde_json::Value) -> serde_json::Value {
@@ -146,8 +172,8 @@ async fn wash_user_data(json_data: serde_json::Value) -> serde_json::Value {
             "watched"   : data["statistics"]["anime"]["episodesWatched"],
             "minutes"   : data["statistics"]["anime"]["minutesWatched"],
             "meanScore" : data["statistics"]["anime"]["meanScore"],
-            "genres"    : data["favourites"]["anime"]["genres"],
-            "scores"    : data["favourites"]["anime"]["scores"]
+            "genres"    : data["statistics"]["anime"]["genres"],
+            "scores"    : data["statistics"]["anime"]["scores"]
         },
         "mangaStats": {
             "count"     : data["statistics"]["manga"]["count"],
@@ -155,13 +181,14 @@ async fn wash_user_data(json_data: serde_json::Value) -> serde_json::Value {
             "volumes"   : data["statistics"]["manga"]["volumesRead"],
             "meanScore" : data["statistics"]["manga"]["meanScore"],
             "deviation" : data["statistics"]["manga"]["standardDeviation"],
-            "genres"    : data["favourites"]["manga"]["genres"],
-            "scores"    : data["favourites"]["manga"]["scores"]
+            "genres"    : data["statistics"]["manga"]["genres"],
+            "scores"    : data["statistics"]["manga"]["scores"]
         },
         "lastUpdated"   : data["updatedAt"],
         "dataFrom"      : "API"
     });
     
+    logger.debug("Washed data", "User", false, users.clone());
     logger.debug_single("Data has been washed and being returned", "User");
     users
 }

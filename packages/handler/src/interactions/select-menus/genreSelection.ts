@@ -1,13 +1,16 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { Logger } from "log";
 import type { SelectMenu } from "../../services/commands.js";
-import { fetchAnilistMedia, intervalTime } from "../../utility/interactionUtils.js";
+import { fetchAnilistMedia, fetchRecommendation, intervalTime } from "../../utility/interactionUtils.js";
+
+const logger = new Logger();
 
 type SelectMenuData = {
     custom_id: string;
 };
 
 export const interaction: SelectMenu<SelectMenuData> = {
-    custom_id: "media_selection",
+    custom_id: "genre_selection",
     cooldown: 10,
     parse(data) {
         if (!data[0]) {
@@ -16,11 +19,17 @@ export const interaction: SelectMenu<SelectMenuData> = {
         return { custom_id: data[0] };
     },
     async execute(interaction, data): Promise<void> {
-        const mediaType = data.custom_id === "anime" ? "ANIME" : "MANGA";
+        const mediaType = data.custom_id === "ANIME" ? "ANIME" : "MANGA";
+        const result = await fetchRecommendation(mediaType, interaction.menuValues);
+        const media = await fetchAnilistMedia(mediaType, Number(result), interaction);
 
-        const media = await fetchAnilistMedia(mediaType, Number(interaction.menuValues[0]), interaction);
+        if (!result) {
+            logger.errorSingle("Problem trying to fetch data in result", "genreSelection");
+            return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
+        }
 
         if (!media) {
+            logger.errorSingle("Problem trying to fetch data in media", "genreSelection");
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
 

@@ -6,10 +6,11 @@ use colourful_logger::Logger;
 use crate::anilist::queries::{get_query, QUERY_URL};
 use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
+use rand::Rng;
 
 lazy_static! {
-    static ref logger:  Logger = Logger::default();
-    static ref redis:   Redis  = Redis::new();
+    static ref logger: Logger = Logger::default();
+    static ref redis:  Redis  = Redis::new();
 }
 
 #[derive(Deserialize)]
@@ -24,9 +25,14 @@ struct MediaRequest {
     media_type: String,
 }
 
+#[derive(Deserialize)]
+struct RecommendRequest {
+    media:      String,
+    genres:     Option<Vec<String>>,
+}
+
 #[post("/relations")]
 pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder {
-
     if req.media_name.len() == 0 || req.media_type.len() == 0 {
         logger.error_single("No media name or type was included", "Relations");
         let bad_json = json!({"error": "No media name or type was included"});
@@ -55,6 +61,52 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
     let relations = wash_relation_data(relations).await;
     logger.debug("Returning relational data", "Relations", false, relations.clone());
     HttpResponse::Ok().json(relations)
+}
+
+#[post("/recommend")]
+async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
+    let genres = req.genres.clone().unwrap_or(vec![]);
+    let mut rng = rand::thread_rng();
+
+    let client = reqwest::Client::new();
+    let recommendation_amount_query = get_query("recommendation_amount");
+    let json = json!({
+        "query": recommendation_amount_query,
+        "variables": {
+            "page": 1,
+            "perPage": 50
+        }
+    });
+
+    logger.debug_single(format!("Sending request to client with JSON query").as_str(), "Recommend");
+    let response: Response = client
+        .post(QUERY_URL)
+        .json(&json)
+        .send()
+        .await
+        .unwrap();
+    
+    if response.status().as_u16() != 200 {
+        let status = response.status();
+        let response_text = response.text().await.unwrap();
+        logger.error_single(format!("First request returned {} : {:?}", status, response_text).as_str(), "Recommend");
+        let bad_json = json!({"error": "Request returned an error", "errorCode": status.as_u16(), "response": response_text});
+        return HttpResponse::BadRequest().json(bad_json);
+    }
+
+    let recommend_amount = response.json::<serde_json::Value>().await.unwrap();
+    let data = &recommend_amount["data"]["Page"];
+    let last_page = data["pageInfo"]["lastPage"].as_i64().unwrap_or(1);
+    logger.debug_single(&format!("Last Page set to : {}", last_page), "Recommend");
+
+    let pages = rng.gen_range(1..last_page);
+    let mut recommend = get_recommendation(pages, genres.clone(), req.media.clone()).await;
+    if recommend.get("error").is_some() {
+        logger.debug_single("Bad JSON received, setting pages to 1 and retrying", "Recommend");
+        recommend = get_recommendation(1, genres, req.media.clone()).await;
+    }
+    
+    HttpResponse::Ok().json(recommend)
 }
 
 #[post("/media")]
@@ -115,6 +167,57 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
     }
 
     HttpResponse::Ok().json(media)
+}
+
+async fn get_recommendation(pages: i64, genres: Vec<String>, media: String) -> serde_json::Value {
+    let mut rng = rand::thread_rng();
+    let client = reqwest::Client::new();
+
+    let recommendation_query = get_query("recommendation");
+    let json = json!({
+        "query": recommendation_query, 
+        "variables": {
+            "type": media, 
+            "genres": genres, 
+            "page": pages, 
+            "perPage": 50
+    }});
+
+    logger.debug_single(format!("Sending request to client with JSON query:").as_str(), "Recommend");
+    let response: Response = client
+                .post(QUERY_URL)
+                .json(&json)
+                .send()
+                .await
+                .unwrap();
+    
+    if response.status().as_u16() != 200 {
+        let status = response.status();
+        let response_text = response.text().await.unwrap();
+        logger.error_single(format!("Second request returned {} : {:?}", status, response_text).as_str(), "Recommend");
+        let bad_json = json!({"error": "Request returned an error", "errorCode": status.as_u16(), "response": response_text});
+        return bad_json;
+    }
+
+    let recommeneded_ids = response.json::<serde_json::Value>().await.unwrap();
+    let recommeneded_ids = &recommeneded_ids["data"]["Page"]["media"];
+
+    logger.debug("Returning recommendations", "Recommend", false, recommeneded_ids.clone());
+
+    let mut ids = Vec::new();
+    for media in recommeneded_ids.as_array().unwrap() {
+        if let Some(id) = media["id"].as_i64() {
+            ids.push(id);
+        }
+    }
+
+    if ids.len() == 0 {
+        logger.error_single("No recommendations found", "Recommend");
+        let bad_json = json!({"error": "No recommendations found"});
+        return bad_json;
+    }
+    let random_choice = rng.gen_range(0..ids.len());
+    json!(ids[random_choice])
 }
 
 async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
