@@ -8,7 +8,7 @@ use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
 
 lazy_static! {
-    static ref logger: Logger = Logger::new(colourful_logger::LogLevel::Debug, Some(""));
+    static ref logger: Logger = Logger::default();
     static ref redis:  Redis  = Redis::new();
 }
 
