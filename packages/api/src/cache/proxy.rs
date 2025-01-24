@@ -4,15 +4,15 @@ use reqwest::{Client, StatusCode};
 use redis::{Client as RedisClient, Commands};
 use lazy_static::lazy_static;
 use std::env;
+use dotenv::dotenv;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
 }
 
-async fn fetch_proxies() -> Result<Vec<String>, Box<dyn Error>> {
+async fn fetch_proxies(url: &String) -> Result<Vec<String>, Box<dyn Error>> {
     logger.debug_single("Fetching fresh proxies", "Proxy");
     let client = Client::new();
-    let url = env::var("PROXY_URL").unwrap();
     let response = client.get(url).send().await?;
     
     if response.status() != StatusCode::OK {
@@ -62,11 +62,11 @@ async fn remove_all_proxies(redis_client: &RedisClient) -> Result<(), Box<dyn Er
     Ok(())
 }
 
-pub async fn update_proxy_list(redis_client: &RedisClient) -> Result<(), Box<dyn Error>> {
+pub async fn update_proxy_list(redis_client: &RedisClient, url: &String) -> Result<(), Box<dyn Error>> {
     loop {
         let _: () = remove_all_proxies(redis_client).await?;
         logger.debug_single("Updating proxy list", "Proxy");
-        let proxies = fetch_proxies().await?;
+        let proxies = fetch_proxies(url).await?;
         let mut con = redis_client.get_connection()?;
 
         logger.debug_single("Updating redis with new proxies", "Proxies");

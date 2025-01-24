@@ -45,7 +45,7 @@ async fn main() -> std::io::Result<()> {
     tokio::spawn(async move {
         let mut attempts: u8 = 0;
         while attempts < 5 {
-            if let Err(e) = update_proxy_list(&redis.get_client()).await {
+            if let Err(e) = update_proxy_list(&redis.get_client(), &check_proxy).await {
                 logger.error_single(&format!("Failed to update proxy list (attempt {}): {:?}", attempts + 1, e), "Main");
                 thread::sleep(std::time::Duration::from_secs(5));
                 attempts += 1;
