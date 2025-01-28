@@ -1,10 +1,9 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { Logger } from "log";
 import type { SelectMenu } from "../../services/commands.js";
-import { fetchAnilistMedia, fetchRecommendation, intervalTime } from "../../utility/interactionUtils.js";
+import { fetchAnilistMedia, fetchRecommendation, intervalTime } from "../../utility/anilistUtil.js";
 
 const logger = new Logger();
-
 type SelectMenuData = {
     custom_id: string;
 };
@@ -47,7 +46,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
         try {
             await interaction.edit({ embeds: [embed] });
         } catch (error: any) {
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed] });
         }
     },
 };

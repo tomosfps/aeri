@@ -21,7 +21,6 @@ export const interaction: Command = {
         ),
     async execute(interaction): Promise<void> {
         const anime = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";
-
         const response = await fetch(`${env.API_URL}/relations`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },

@@ -13,10 +13,10 @@ import {
     fetchAnilistMedia,
     fetchAnilistUserData,
     fetchRecommendation,
-    getCommandOption,
     intervalTime,
-} from "../../utility/interactionUtils.js";
+} from "../../utility/anilistUtil.js";
 
+import { getCommandOption } from "../../utility/interactionUtils.js";
 const logger = new Logger();
 const genreList = [
     "Action",

@@ -186,7 +186,9 @@ async fn wash_user_data(json_data: serde_json::Value) -> serde_json::Value {
             "minutes"   : data["statistics"]["anime"]["minutesWatched"],
             "meanScore" : data["statistics"]["anime"]["meanScore"],
             "genres"    : data["statistics"]["anime"]["genres"],
-            "scores"    : data["statistics"]["anime"]["scores"]
+            "scores"    : data["statistics"]["anime"]["scores"],
+            "formats"   : data["statistics"]["anime"]["formats"],
+            "status"    : data["statistics"]["anime"]["statuses"],
         },
         "mangaStats": {
             "count"     : data["statistics"]["manga"]["count"],

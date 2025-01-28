@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import type { SelectMenu } from "../../services/commands.js";
-import { fetchAnilistMedia, intervalTime } from "../../utility/interactionUtils.js";
+import { fetchAnilistMedia, intervalTime } from "../../utility/anilistUtil.js";
 
 type SelectMenuData = {
     custom_id: string;
@@ -37,7 +37,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
         try {
             await interaction.edit({ embeds: [embed] });
         } catch (error: any) {
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed] });
         }
     },
 };
