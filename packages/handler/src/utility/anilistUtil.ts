@@ -138,8 +138,8 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         `${inlineCode("total episodes    :")} ${result.episodes.toLocaleString()}\n`,
         `${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString()}\n`,
         `${inlineCode("next airing       :")} ${nextEpisode}\n`,
-        `${inlineCode("chapters          :")} ${result.chapters.toLocaleString()}\n`,
-        `${inlineCode("volumes           :")} ${result.volumes}\n`,
+        `${inlineCode("chapters          :")} ${result.chapters?.toLocaleString()}\n`,
+        `${inlineCode("volumes           :")} ${result.volumes?.toLocaleString()}\n`,
         `${inlineCode("status            :")} ${capitalise(result.status)}\n`,
         `${inlineCode("average score     :")} ${result.averageScore}%\n`,
         `${inlineCode("mean score        :")} ${result.meanScore}%\n`,
@@ -287,7 +287,7 @@ export async function fetchAnilistUserData(username: string, interaction: any): 
         `[${bold("Anime Information")}](${result.url}/animelist)\n` +
         `${inlineCode("Anime Count        :")} ${result.animeStats.count.toLocaleString()}\n` +
         `${inlineCode("Mean Score         :")} ${result.animeStats.meanScore}\n` +
-        `${inlineCode("Episodes Watched   :")} ${result.animeStats.watched}\n` +
+        `${inlineCode("Episodes Watched   :")} ${result.animeStats.watched.toLocaleString()}\n` +
         `${inlineCode("Watch Time         :")} ${intervalTime(result.animeStats.minutes * 60)}\n\n` +
         `[${bold("Manga Information")}](${result.url}/mangalist)\n` +
         `${inlineCode("Manga Count        :")} ${result.mangaStats.count.toLocaleString()}\n` +
