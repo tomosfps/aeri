@@ -135,10 +135,10 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
     const isPlanning = mediaType === "MANGA" ? "planning to read " : "planning to watch";
 
     const descriptionBuilder = [
-        `${inlineCode("total episodes    :")} ${result.episodes}\n`,
-        `${inlineCode("current episode   :")} ${currentEpisode}\n`,
+        `${inlineCode("total episodes    :")} ${result.episodes.toLocaleString()}\n`,
+        `${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString()}\n`,
         `${inlineCode("next airing       :")} ${nextEpisode}\n`,
-        `${inlineCode("chapters          :")} ${result.chapters}\n`,
+        `${inlineCode("chapters          :")} ${result.chapters.toLocaleString()}\n`,
         `${inlineCode("volumes           :")} ${result.volumes}\n`,
         `${inlineCode("status            :")} ${capitalise(result.status)}\n`,
         `${inlineCode("average score     :")} ${result.averageScore}%\n`,
@@ -285,17 +285,17 @@ export async function fetchAnilistUserData(username: string, interaction: any): 
 
     const descriptionBuilder =
         `[${bold("Anime Information")}](${result.url}/animelist)\n` +
-        `${inlineCode("Anime Count        :")} ${result.animeStats.count}\n` +
+        `${inlineCode("Anime Count        :")} ${result.animeStats.count.toLocaleString()}\n` +
         `${inlineCode("Mean Score         :")} ${result.animeStats.meanScore}\n` +
         `${inlineCode("Episodes Watched   :")} ${result.animeStats.watched}\n` +
         `${inlineCode("Watch Time         :")} ${intervalTime(result.animeStats.minutes * 60)}\n\n` +
         `[${bold("Manga Information")}](${result.url}/mangalist)\n` +
-        `${inlineCode("Manga Count        :")} ${result.mangaStats.count}\n` +
+        `${inlineCode("Manga Count        :")} ${result.mangaStats.count.toLocaleString()}\n` +
         `${inlineCode("Mean Score         :")} ${result.mangaStats.meanScore}\n` +
-        `${inlineCode("Chapters Read      :")} ${result.mangaStats.chapters}\n` +
-        `${inlineCode("Volumes Read       :")} ${result.mangaStats.volumes}\n\n` +
+        `${inlineCode("Chapters Read      :")} ${result.mangaStats.chapters.toLocaleString()}\n` +
+        `${inlineCode("Volumes Read       :")} ${result.mangaStats.volumes.toLocaleString()}\n\n` +
         `[${bold("Other Statistics")}](${result.url}/stats/anime/overview)\n` +
-        `${inlineCode("Total Entries      :")} ${result.animeStats.count + result.mangaStats.count}\n` +
+        `${inlineCode("Total Entries      :")} ${(result.animeStats.count + result.mangaStats.count).toLocaleString()}\n` +
         `${inlineCode("Top Genre          :")} ${combinedGenres}\n` +
         `${inlineCode("Favourite Format   :")} ${favouriteFormat}\n` +
         `${inlineCode("Completion Rate    :")} ${completionPercentage}%\n`;
