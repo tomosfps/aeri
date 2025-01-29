@@ -44,11 +44,27 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
     [InteractType.ChatInput]: async (interaction: APIChatInputApplicationCommandInteraction, api) => {
         logger.debugSingle(`Received chat input interaction: ${interaction.data.name}`, "Handler");
 
+        const [commandId, ...data] = interaction.data.name.split(":") as [string, ...string[]];
         const command = commands.get(interaction.data.name);
         const memberId = interaction.member?.user.id;
+        const toggable = command?.toggable ?? true;
+
+        if (!memberId) {
+            logger.warnSingle("Member was not found", "Handler");
+            return;
+        }
+
+        if (!toggable && !data.includes(memberId)) {
+            logger.warnSingle("Command is not toggable and member was not found in data", "Handler");
+            api.interactions.reply(interaction.id, interaction.token, {
+                content: "You are not allowed to interact with this command",
+                flags: MessageFlags.Ephemeral,
+            });
+            return;
+        }
 
         if (!command) {
-            logger.warn(`Command not found: ${interaction.data.name}`, "Handler");
+            logger.warn(`Command not found: ${commandId}`, "Handler");
             return;
         }
 
@@ -57,7 +73,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
             return;
         }
 
-        const redisKey = `${interaction.data.name}_${memberId}`;
+        const redisKey = `${commandId}_${memberId}`;
         if (await checkRedis(redisKey, command, memberId)) {
             const redisTTL = await redis.ttl(redisKey);
             const expirationTime = Date.now() + redisTTL * 1000;
@@ -70,7 +86,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
 
         try {
             logger.infoSingle(`Executing command: ${command.data.name}`, "Handler");
-            command.execute(new CommandInteraction(interaction, api));
+            command.execute(new CommandInteraction(interaction, api), command.parse?.(data));
         } catch (error: any) {
             logger.error("Command execution error:", "Handler", error);
         }

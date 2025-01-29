@@ -9,15 +9,18 @@ import type { ButtonInteraction } from "../classes/buttonInteraction.js";
 import type { CommandInteraction } from "../classes/commandInteraction.js";
 import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
-export interface Command {
+export interface Command<T = undefined> {
     data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
     cooldown?: number;
-    execute: (interaction: CommandInteraction) => void;
+    toggable?: boolean;
+    parse?: (data: string[]) => T;
+    execute: (interaction: CommandInteraction, data: T) => void;
 }
 
 export interface Button<T = undefined> {
     custom_id: string;
     cooldown?: number;
+    toggable?: boolean;
     parse?: (data: string[]) => T;
     execute: (interaction: ButtonInteraction, data: T) => void;
 }
@@ -25,6 +28,7 @@ export interface Button<T = undefined> {
 export interface SelectMenu<T = undefined> {
     custom_id: string;
     cooldown?: number;
+    toggable?: boolean;
     parse?: (data: string[]) => T;
     execute: (interaction: SelectMenuInteraction, data: T) => void;
 }
