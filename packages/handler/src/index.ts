@@ -43,7 +43,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
     },
     [InteractType.ChatInput]: async (interaction: APIChatInputApplicationCommandInteraction, api) => {
         logger.debugSingle(`Received chat input interaction: ${interaction.data.name}`, "Handler");
-        
+
         const command = commands.get(interaction.data.name);
         const memberId = interaction.member?.user.id;
 
