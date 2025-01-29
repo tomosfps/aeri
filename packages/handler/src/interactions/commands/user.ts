@@ -29,7 +29,10 @@ export const interaction: Command = {
         logger.debug(`Fetching user: ${username}`, "User");
         const userFetch = await fetchAnilistUserData(username, interaction);
         if (userFetch === null) {
-            return interaction.reply({ content: "User could not be found. Are you sure you have the correct username?", ephemeral: true });
+            return interaction.reply({
+                content: "User could not be found. Are you sure you have the correct username?",
+                ephemeral: true,
+            });
         }
 
         const footer = `${userFetch.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${intervalTime(userFetch.result.leftUntilExpire)}`}`;
