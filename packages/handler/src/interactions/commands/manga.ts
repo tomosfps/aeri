@@ -53,7 +53,7 @@ export const interaction: Command = {
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId("media_selection:manga")
+            .setCustomId(`media_selection:manga:${interaction.member_id}`)
             .setPlaceholder("Choose A Media...")
             .setMinValues(1)
             .setMaxValues(1)

@@ -43,37 +43,21 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
     },
     [InteractType.ChatInput]: async (interaction: APIChatInputApplicationCommandInteraction, api) => {
         logger.debugSingle(`Received chat input interaction: ${interaction.data.name}`, "Handler");
-
-        const [commandId, ...data] = interaction.data.name.split(":") as [string, ...string[]];
+        
         const command = commands.get(interaction.data.name);
         const memberId = interaction.member?.user.id;
-        const toggable = command?.toggable ?? true;
 
         if (!memberId) {
             logger.warnSingle("Member was not found", "Handler");
-            return;
-        }
-
-        if (!toggable && !data.includes(memberId)) {
-            logger.warnSingle("Command is not toggable and member was not found in data", "Handler");
-            api.interactions.reply(interaction.id, interaction.token, {
-                content: "You are not allowed to interact with this command",
-                flags: MessageFlags.Ephemeral,
-            });
             return;
         }
 
         if (!command) {
-            logger.warn(`Command not found: ${commandId}`, "Handler");
+            logger.warn(`Command not found: ${interaction.data.name}`, "Handler");
             return;
         }
 
-        if (!memberId) {
-            logger.warnSingle("Member was not found", "Handler");
-            return;
-        }
-
-        const redisKey = `${commandId}_${memberId}`;
+        const redisKey = `${interaction.data.name}_${memberId}`;
         if (await checkRedis(redisKey, command, memberId)) {
             const redisTTL = await redis.ttl(redisKey);
             const expirationTime = Date.now() + redisTTL * 1000;
@@ -86,7 +70,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
 
         try {
             logger.infoSingle(`Executing command: ${command.data.name}`, "Handler");
-            command.execute(new CommandInteraction(interaction, api), command.parse?.(data));
+            command.execute(new CommandInteraction(interaction, api));
         } catch (error: any) {
             logger.error("Command execution error:", "Handler", error);
         }
@@ -97,14 +81,25 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
         const [selectId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
         const selectMenu = selectMenus.get(selectId);
         const memberId = interaction.member?.user.id;
-
-        if (!selectMenu) {
-            logger.warnSingle(`Select menu not found: ${selectId}`, "Handler");
-            return;
-        }
+        const toggable = selectMenu?.toggable ?? false;
 
         if (!memberId) {
             logger.warnSingle("Member was not found", "Handler");
+            return;
+        }
+
+        logger.debug("Checking if command is toggable", "Handler", { toggable, memberId, data });
+        if (toggable && !data.includes(memberId)) {
+            logger.warnSingle("Command is toggable and member was not found in data", "Handler");
+            api.interactions.reply(interaction.id, interaction.token, {
+                content: "Only the user who toggled this command can use it",
+                flags: MessageFlags.Ephemeral,
+            });
+            return;
+        }
+
+        if (!selectMenu) {
+            logger.warnSingle(`Select menu not found: ${selectId}`, "Handler");
             return;
         }
 
@@ -157,6 +152,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
         const [buttonId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
         const button = buttons.get(buttonId);
         const memberId = interaction.member?.user.id;
+        const toggable = button?.toggable ?? false;
 
         if (!button) {
             logger.warnSingle(`Button not found: ${buttonId}`, "Handler");
@@ -165,6 +161,16 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
 
         if (!memberId) {
             logger.warnSingle("Member was not found", "Handler");
+            return;
+        }
+
+        logger.debug("Checking if command is toggable", "Handler", { toggable, memberId, data });
+        if (toggable && !data.includes(memberId)) {
+            logger.warnSingle("Command is toggable and member was not found in data", "Handler");
+            api.interactions.reply(interaction.id, interaction.token, {
+                content: "Only the user who toggled this command can use it",
+                flags: MessageFlags.Ephemeral,
+            });
             return;
         }
 

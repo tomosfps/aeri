@@ -6,16 +6,18 @@ import { fetchAnilistMedia, fetchRecommendation, intervalTime } from "../../util
 const logger = new Logger();
 type SelectMenuData = {
     custom_id: string;
+    userId: string;
 };
 
 export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "genre_selection",
     cooldown: 1,
+    toggable: true,
     parse(data) {
-        if (!data[0]) {
+        if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");
         }
-        return { custom_id: data[0] };
+        return { custom_id: data[0], userId: data[1] };
     },
     async execute(interaction, data): Promise<void> {
         const mediaType = data.custom_id === "ANIME" ? "ANIME" : "MANGA";

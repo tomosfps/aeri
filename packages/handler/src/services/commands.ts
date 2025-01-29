@@ -9,12 +9,10 @@ import type { ButtonInteraction } from "../classes/buttonInteraction.js";
 import type { CommandInteraction } from "../classes/commandInteraction.js";
 import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
-export interface Command<T = undefined> {
+export interface Command {
     data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
     cooldown?: number;
-    toggable?: boolean;
-    parse?: (data: string[]) => T;
-    execute: (interaction: CommandInteraction, data: T) => void;
+    execute: (interaction: CommandInteraction) => void;
 }
 
 export interface Button<T = undefined> {
