@@ -229,61 +229,24 @@ export async function fetchAnilistUserData(username: string, interaction: any): 
     });
 
     if (!request) {
-        return interaction.reply({
+        interaction.reply({
             content: `Unable to find ${username} within the Anilist API. `,
             ephemeral: true,
         });
+        return null;
     }
 
     const result = await request.json().catch((error) => {
         logger.error("Error while parsing JSON data.", "Anilist", error);
-        return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
+        return null;
     });
 
     if (result.error) {
         logger.error("An Error Occured when trying to access the API", "Anilist", result);
-        return interaction.reply({
-            content: "User could not be found. Are you sure you have the correct username?",
-            ephemeral: true,
-        });
+        return null;
     }
 
     logger.debug("Result from API", "Anilist", result);
-    const animeGenres = result.animeStats.genres
-        .sort((a: any, b: any) => b.count - a.count)
-        .map((genre: any) => {
-            return { genre: genre.genre, count: genre.count };
-        });
-
-    const mangaGenres = result.mangaStats.genres
-        .sort((a: any, b: any) => b.count - a.count)
-        .map((genre: any) => {
-            return { genre: genre.genre, count: genre.count };
-        });
-
-    const combinedGenres = [...animeGenres, ...mangaGenres]
-        .reduce((acc: any, genre: any) => {
-            const existingGenre = acc.find((g: any) => g.genre === genre.genre);
-            if (existingGenre) {
-                existingGenre.count += genre.count;
-            } else {
-                acc.push({ genre: genre.genre, count: genre.count });
-            }
-            return acc;
-        }, [])
-        .sort((a: any, b: any) => b.count - a.count)
-        .map((genre: any) => genre.genre)[0];
-
-    const favouriteFormat = result.animeStats.formats
-        .sort((a: any, b: any) => b.count - a.count)
-        .map((format: any) => {
-            return format.format.length > 3 ? capitalise(format.format) : format.format;
-        })[0];
-
-    const completedEntries = result.animeStats.status.find((status: any) => status.status === "COMPLETED")?.count || 0;
-    const nonPlanningEntries = result.animeStats.status.reduce((acc: number, status: any) => acc + status.count, 0);
-    const completionPercentage = Math.ceil((completedEntries / nonPlanningEntries) * 100);
-
     const descriptionBuilder =
         `[${bold("Anime Information")}](${result.url}/animelist)\n` +
         `${inlineCode("Anime Count        :")} ${result.animeStats.count?.toLocaleString()}\n` +
@@ -296,10 +259,10 @@ export async function fetchAnilistUserData(username: string, interaction: any): 
         `${inlineCode("Chapters Read      :")} ${result.mangaStats.chapters?.toLocaleString()}\n` +
         `${inlineCode("Volumes Read       :")} ${result.mangaStats.volumes?.toLocaleString()}\n\n` +
         `[${bold("Other Statistics")}](${result.url}/stats/anime/overview)\n` +
-        `${inlineCode("Total Entries      :")} ${(result.animeStats.count + result.mangaStats.count)?.toLocaleString()}\n` +
-        `${inlineCode("Top Genre          :")} ${combinedGenres}\n` +
-        `${inlineCode("Favourite Format   :")} ${favouriteFormat}\n` +
-        `${inlineCode("Completion Rate    :")} ${completionPercentage}%\n`;
+        `${inlineCode("Total Entries      :")} ${result.totalEntries?.toLocaleString()}\n` +
+        `${inlineCode("Top Genre          :")} ${result.topGenre}\n` +
+        `${inlineCode("Favourite Format   :")} ${result.favouriteFormat}\n` +
+        `${inlineCode("Completion Rate    :")} ${result.completionPercentage}%\n`;
 
     if (result.banner === "null") {
         result.banner = null;

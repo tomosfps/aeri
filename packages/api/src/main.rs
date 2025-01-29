@@ -50,7 +50,6 @@ async fn main() -> std::io::Result<()> {
                 attempts += 1;
             }
         }
-
         if attempts == 5 {
             logger.error_single("Failed to update proxy list after 5 attempts", "Main");
         }
