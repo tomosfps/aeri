@@ -10,7 +10,7 @@ export const interaction: Command = {
         .addStringOption((option) => option.setName("command").setDescription("The command you want to view")),
     async execute(interaction): Promise<void> {
         const option = getCommandOption("command", ApplicationCommandOptionType.String, interaction.options);
-        const commands = interaction.client.getCommands;
+        const commands = interaction.client.commands;
         const maxLength = Math.max(...Array.from(commands.values()).map((command) => command.data.name.length));
 
         if (option) {
@@ -21,7 +21,7 @@ export const interaction: Command = {
                 const commandOptions = command.data.options;
                 let choiceDetails = "";
                 const optionDetails = commandOptions
-                    .map((option) => {
+                    .map((option: any) => {
                         const opt = option.toJSON();
                         const details = `> ${inlineCode(opt.name)}    : ${opt.description} ${bold(opt.required ? "<Required>" : "<Optional>")}`;
 
@@ -57,10 +57,3 @@ export const interaction: Command = {
         await interaction.reply({ embeds: [embed] });
     },
 };
-
-/*
-
-
-if ('choices' in opt && opt.choices?.length > 0) {
-                        details += `\n**Choices:** ${opt.choices.map((choice: any) => `${choice.name}`).join(", ")}`;
-                    }*/

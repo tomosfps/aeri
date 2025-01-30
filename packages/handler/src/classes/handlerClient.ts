@@ -1,17 +1,16 @@
-import { Client } from "@discordjs/core";
+import { Client, type ClientOptions } from "@discordjs/core";
 import type { Command } from "../services/commands.js";
 
+export interface HandlerClientOptions extends ClientOptions {
+    commands: Map<string, Command>;
+}
+
 export class HandlerClient extends Client {
-    commands: Map<string, Command> = new Map();
-    constructor(public client: Client) {
-        super(client);
-    }
+    public commands: Map<string, Command>;
 
-    get getCommands() {
-        return this.commands;
-    }
+    constructor(public options: HandlerClientOptions) {
+        super(options);
 
-    get getCooldown() {
-        return this.client;
+        this.commands = options.commands;
     }
 }

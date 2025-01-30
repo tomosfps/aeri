@@ -1,10 +1,10 @@
-import type { API, APIMessageComponentInteraction } from "@discordjs/core";
+import type { API, APIMessageComponentButtonInteraction } from "@discordjs/core";
 import { BaseInteraction } from "./baseInteraction.js";
 import type { HandlerClient } from "./handlerClient.js";
 
 export class ButtonInteraction extends BaseInteraction {
     constructor(
-        public override interaction: APIMessageComponentInteraction,
+        public override interaction: APIMessageComponentButtonInteraction,
         api: API,
         client: HandlerClient,
     ) {

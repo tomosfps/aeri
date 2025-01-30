@@ -26,3 +26,19 @@ export async function getRedis(options?: RedisOptions): Promise<Redis> {
 
     return redis;
 }
+
+export async function checkRedis(redisKey: string, command: any, memberID: string): Promise<number> {
+    const redis = await getRedis();
+
+    if (await redis.exists(redisKey)) {
+        const redisTTL = await redis.ttl(redisKey);
+        const expirationTime = Date.now() + redisTTL * 1000;
+        return Math.round(expirationTime / 1000);
+    }
+
+    if (command.cooldown) {
+        redis.set(redisKey, memberID);
+        redis.expire(redisKey, command.cooldown);
+    }
+    return 0;
+}
