@@ -7,9 +7,9 @@ import { getCommandOption } from "../../utility/interactionUtils.js";
 export const interaction: Command = {
     data: new SlashCommandBuilder()
         .setName("avatar")
-        .setDescription("View someones avatar")
+        .setDescription("View a users or bots avatar")
         .addUserOption((option) =>
-            option.setName("target").setDescription("The user's avatar to view").setRequired(true),
+            option.setName("target").setDescription("The user/bot to view their avatar").setRequired(true),
         ),
     async execute(interaction): Promise<void> {
         const member = getCommandOption("target", ApplicationCommandOptionType.User, interaction.options);

@@ -20,6 +20,7 @@ import type { APIUser } from "discord-api-types/v10";
 import { Logger } from "log";
 import { ButtonInteraction } from "./classes/buttonInteraction.js";
 import { CommandInteraction } from "./classes/commandInteraction.js";
+import { HandlerClient } from "./classes/handlerClient.js";
 import { ModalInteraction } from "./classes/modalInteraction.js";
 import { SelectMenuInteraction } from "./classes/selectMenuInteraction.js";
 import { Gateway } from "./gateway.js";
@@ -36,6 +37,8 @@ const rest = new REST().setToken(env.DISCORD_TOKEN);
 const gateway = new Gateway({ redis, env });
 await gateway.connect();
 const client = new Client({ rest, gateway });
+const handlerClient = new HandlerClient(client);
+handlerClient.commands = commands;
 
 const interactionHandlers: Record<InteractType, (interaction: any, api: API) => void> = {
     [InteractType.Autocomplete]: (interaction: APIApplicationCommandAutocompleteInteraction) => {
@@ -46,6 +49,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
 
         const command = commands.get(interaction.data.name);
         const memberId = interaction.member?.user.id;
+        //commands.forEach((command) => { logger.debug(`Custom Command`, "Handler", command); });
 
         if (!memberId) {
             logger.warnSingle("Member was not found", "Handler");
@@ -70,7 +74,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
 
         try {
             logger.infoSingle(`Executing command: ${command.data.name}`, "Handler");
-            command.execute(new CommandInteraction(interaction, api));
+            command.execute(new CommandInteraction(interaction, api, handlerClient));
         } catch (error: any) {
             logger.error("Command execution error:", "Handler", error);
         }
@@ -117,7 +121,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
 
         try {
             logger.infoSingle(`Executing select menu: ${selectId}`, "Handler");
-            selectMenu.execute(new SelectMenuInteraction(interaction, api), selectMenu.parse?.(data));
+            selectMenu.execute(new SelectMenuInteraction(interaction, api, handlerClient), selectMenu.parse?.(data));
         } catch (error: any) {
             logger.error("Select menu execution error:", "Handler", error);
         }
@@ -135,7 +139,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
 
         try {
             logger.infoSingle(`Executing modal: ${modalId}`, "Handler");
-            modal.execute(new ModalInteraction(interaction, api), modal.parse?.(data));
+            modal.execute(new ModalInteraction(interaction, api, handlerClient), modal.parse?.(data));
         } catch (error: any) {
             logger.error("Modal execution error:", "Handler", error);
         }
@@ -187,7 +191,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API) => 
 
         try {
             logger.infoSingle(`Executing button: ${buttonId}`, "Handler");
-            button.execute(new ButtonInteraction(interaction, api), button.parse?.(data));
+            button.execute(new ButtonInteraction(interaction, api, handlerClient), button.parse?.(data));
         } catch (error: any) {
             logger.error("Button execution error:", "Handler", error);
         }

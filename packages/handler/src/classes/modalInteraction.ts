@@ -1,12 +1,14 @@
 import type { API, APIModalSubmitInteraction } from "@discordjs/core";
 import { BaseInteraction } from "./baseInteraction.js";
+import type { HandlerClient } from "./handlerClient.js";
 
 export class ModalInteraction extends BaseInteraction {
     constructor(
         public override interaction: APIModalSubmitInteraction,
         api: API,
+        client: HandlerClient,
     ) {
-        super(interaction, api);
+        super(interaction, api, client);
     }
 
     get custom_id() {

@@ -49,25 +49,19 @@ export const interaction: Command = {
     cooldown: 1,
     data: new SlashCommandBuilder()
         .setName("recommend")
-        .setDescription("Get recommended an anime or manga based on genre or your scores.")
+        .setDescription("Recommend an anime or manga based on genre(s) or score")
         .addStringOption((option) =>
             option
                 .setName("media")
-                .setDescription("anime or manga")
+                .setDescription("Choose a media type")
                 .setRequired(true)
                 .addChoices({ name: "Anime", value: "ANIME" }, { name: "Manga", value: "MANGA" }),
         )
         .addBooleanOption((option) =>
-            option
-                .setName("genre")
-                .setDescription("Would you like to base the recommendation on genre")
-                .setRequired(false),
+            option.setName("genre").setDescription("Base recommendation on genre(s)").setRequired(false),
         )
         .addBooleanOption((option) =>
-            option
-                .setName("score")
-                .setDescription("Would you like to base the recommendation on your scores")
-                .setRequired(false),
+            option.setName("score").setDescription("Base recommendation on scores").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         await interaction.defer();

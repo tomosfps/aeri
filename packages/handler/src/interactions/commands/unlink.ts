@@ -3,7 +3,7 @@ import { deleteAnilistUser, fetchUser } from "database";
 import type { Command } from "../../services/commands.js";
 
 export const interaction: Command = {
-    data: new SlashCommandBuilder().setName("unlink").setDescription("Unlink your anilist account!"),
+    data: new SlashCommandBuilder().setName("unlink").setDescription("Unlink your anilist account from the bot"),
     async execute(interaction): Promise<void> {
         const isInDatabase = await fetchUser(interaction.member_id);
 

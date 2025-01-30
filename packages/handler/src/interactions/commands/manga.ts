@@ -15,9 +15,9 @@ export const interaction: Command = {
     cooldown: 1,
     data: new SlashCommandBuilder()
         .setName("manga")
-        .setDescription("Find An Manga")
+        .setDescription("Find an manga based on the name")
         .addStringOption((option) =>
-            option.setName("media_name").setDescription("Name Of The Manga").setRequired(true),
+            option.setName("media_name").setDescription("The name of the manga").setRequired(true),
         ),
     async execute(interaction): Promise<void> {
         const manga = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";

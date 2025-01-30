@@ -12,9 +12,9 @@ export const interaction: Command = {
     cooldown: 1,
     data: new SlashCommandBuilder()
         .setName("setup")
-        .setDescription("Setup your anilist account!")
+        .setDescription("Connect your anilist account with the bot")
         .addStringOption((option) =>
-            option.setName("username").setDescription("Your anilist username").setRequired(true),
+            option.setName("username").setDescription("Your Anilist username").setRequired(true),
         ),
     async execute(interaction): Promise<void> {
         const username = getCommandOption("username", ApplicationCommandOptionType.String, interaction.options);
