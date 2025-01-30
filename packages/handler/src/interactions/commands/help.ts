@@ -1,9 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder, bold, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
-import { Logger } from "log";
 import type { Command } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
-const logger = new Logger();
 
 export const interaction: Command = {
     data: new SlashCommandBuilder()
@@ -19,7 +17,6 @@ export const interaction: Command = {
             const command = commands.get(option);
 
             if (command) {
-                logger.debugSingle("Command Found!", command.data.name);
                 const cooldownTimer = command.cooldown && command.cooldown > 1 ? `${command.cooldown} seconds` : "None";
                 const commandOptions = command.data.options;
                 let choiceDetails = "";
