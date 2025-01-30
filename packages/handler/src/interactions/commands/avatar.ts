@@ -13,7 +13,6 @@ export const interaction: Command = {
         ),
     async execute(interaction): Promise<void> {
         const member = getCommandOption("target", ApplicationCommandOptionType.User, interaction.options);
-        
 
         if (interaction.guild_id === undefined) {
             return;
