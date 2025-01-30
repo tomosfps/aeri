@@ -18,9 +18,12 @@ export const interaction: Command = {
         .setDescription("Find An Anime")
         .addStringOption((option) =>
             option.setName("media_name").setDescription("Name Of The Anime").setRequired(true),
-        ),
+        )
+        ,
     async execute(interaction): Promise<void> {
-        const anime = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";
+        const anime = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options)          || "";
+        
+
         const response = await fetch(`${env.API_URL}/relations`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },

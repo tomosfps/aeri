@@ -18,9 +18,11 @@ export const interaction: Command = {
         .setDescription("Find An Manga")
         .addStringOption((option) =>
             option.setName("media_name").setDescription("Name Of The Manga").setRequired(true),
-        ),
+        )
+        ,
     async execute(interaction): Promise<void> {
-        const manga = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";
+        const manga = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options)          || "";
+        
 
         const response = await fetch(`${env.API_URL}/relations`, {
             method: "POST",
@@ -52,6 +54,7 @@ export const interaction: Command = {
             return interaction.reply({ content: "No relations were found", ephemeral: true });
         }
 
+        
         const select = new StringSelectMenuBuilder()
             .setCustomId(`media_selection:manga:${interaction.member_id}`)
             .setPlaceholder("Choose A Media...")

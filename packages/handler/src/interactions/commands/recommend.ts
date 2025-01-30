@@ -68,14 +68,16 @@ export const interaction: Command = {
                 .setName("score")
                 .setDescription("Would you like to base the recommendation on your scores")
                 .setRequired(false),
-        ),
+        )
+        ,
     async execute(interaction): Promise<void> {
         await interaction.defer();
 
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";
         const mediaType = media === "ANIME" ? "ANIME" : "MANGA";
-        const genre = getCommandOption("genre", ApplicationCommandOptionType.Boolean, interaction.options) || false;
-        const score = getCommandOption("score", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+        const genre = getCommandOption("genre", ApplicationCommandOptionType.Boolean, interaction.options)              || false;
+        const score = getCommandOption("score", ApplicationCommandOptionType.Boolean, interaction.options)              || false;
+        
 
         if (genre && score) {
             return interaction.followUp({ content: "Please select only one option" });
@@ -86,8 +88,9 @@ export const interaction: Command = {
         }
 
         if (genre) {
+            
             const select = new StringSelectMenuBuilder()
-                .setCustomId(`genre_selection:${media}`)
+                .setCustomId(`genre_selection:${media}:${interaction.member_id}`)
                 .setPlaceholder("Choose Some Genres...")
                 .setMinValues(1)
                 .setMaxValues(24)
@@ -100,7 +103,7 @@ export const interaction: Command = {
                     }),
                 );
 
-            logger.debug("Select Menu Created", "Recommend", select);
+            logger.debugSingle("Select Menu Created", "Recommend");
             const row = new ActionRowBuilder().addComponents(select);
             return await interaction.followUp({ components: [row] });
         }

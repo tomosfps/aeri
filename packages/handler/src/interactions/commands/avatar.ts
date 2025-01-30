@@ -13,6 +13,7 @@ export const interaction: Command = {
         ),
     async execute(interaction): Promise<void> {
         const member = getCommandOption("target", ApplicationCommandOptionType.User, interaction.options);
+        
 
         if (interaction.guild_id === undefined) {
             return;
@@ -35,13 +36,13 @@ export const interaction: Command = {
                 : `https://cdn.discordapp.com/embed/avatars/${(Number(member) >> 22) % 6}.png?size=1024`;
 
         const guildButton = new ButtonBuilder()
-            .setCustomId(`server:${member}:${interaction.member_id}`)
+            .setCustomId(`server:${member}:${interaction.guild_id}`)
             .setLabel("Guild Avatar")
             .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Primary);
 
         const defaultButton = new ButtonBuilder()
-            .setCustomId(`default:${member}:${interaction.member_id}`)
+            .setCustomId(`default:${member}:${interaction.guild_id}`)
             .setLabel("Default Avatar")
             .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Secondary);

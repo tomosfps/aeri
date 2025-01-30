@@ -4,6 +4,7 @@ import { fetchAnilistMedia, intervalTime } from "../../utility/anilistUtil.js";
 
 type SelectMenuData = {
     custom_id: string;
+    userId: string;
 };
 
 export const interaction: SelectMenu<SelectMenuData> = {
@@ -11,10 +12,10 @@ export const interaction: SelectMenu<SelectMenuData> = {
     cooldown: 1,
     toggable: true,
     parse(data) {
-        if (!data[0]) {
+        if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");
         }
-        return { custom_id: data[0] };
+        return { custom_id: data[0], userId: data[1] };
     },
     async execute(interaction, data): Promise<void> {
         const mediaType = data.custom_id === "anime" ? "ANIME" : "MANGA";
