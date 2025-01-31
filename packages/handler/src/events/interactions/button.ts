@@ -3,7 +3,6 @@ import { checkRedis } from "core";
 import { Logger } from "log";
 import { ButtonInteraction } from "../../classes/buttonInteraction.js";
 import type { HandlerClient } from "../../classes/handlerClient.js";
-import { buttons } from "../../index.js";
 
 const logger = new Logger();
 
@@ -11,7 +10,7 @@ export const handler = async (interaction: APIMessageComponentButtonInteraction,
     logger.debugSingle(`Received button interaction: ${interaction.data.custom_id}`, "Handler");
 
     const [buttonId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
-    const button = buttons.get(buttonId);
+    const button = client.buttons.get(buttonId);
     const memberId = interaction.member?.user.id;
     const toggable = button?.toggable ?? false;
 

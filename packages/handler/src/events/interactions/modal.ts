@@ -2,7 +2,6 @@ import type { API, APIModalSubmitInteraction } from "@discordjs/core";
 import { Logger } from "log";
 import type { HandlerClient } from "../../classes/handlerClient.js";
 import { ModalInteraction } from "../../classes/modalInteraction.js";
-import { modals } from "../../index.js";
 
 const logger = new Logger();
 
@@ -10,7 +9,7 @@ export const handler = async (interaction: APIModalSubmitInteraction, api: API, 
     logger.debugSingle(`Received modal interaction: ${interaction.data.custom_id}`, "Handler");
 
     const [modalId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
-    const modal = modals.get(modalId);
+    const modal = client.modals.get(modalId);
 
     if (!modal) {
         logger.warn(`Modal not found: ${modalId}`, "Handler");

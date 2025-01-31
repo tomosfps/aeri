@@ -9,13 +9,13 @@ import { registerEvents } from "./services/events.js";
 const redis = await getRedis();
 const rest = new REST().setToken(env.DISCORD_TOKEN);
 
-export const commands = await load(FileType.Commands);
-export const buttons = await load(FileType.Buttons);
-export const selectMenus = await load(FileType.SelectMenus);
-export const modals = await load(FileType.Modals);
+const commands = await load(FileType.Commands);
+const buttons = await load(FileType.Buttons);
+const selectMenus = await load(FileType.SelectMenus);
+const modals = await load(FileType.Modals);
 
-const gateway = new Gateway({ redis, env });
-const client = new HandlerClient({ rest, gateway, commands });
+const gateway = new Gateway({ redis, env, commands });
+const client = new HandlerClient({ rest, gateway, commands, buttons, selectMenus, modals });
 
 await gateway.connect();
 await registerEvents(client);

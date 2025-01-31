@@ -4,8 +4,7 @@ import type { Environment } from "core/dist/env.js";
 import type { GatewayDispatchPayload, GatewaySendPayload } from "discord-api-types/v10";
 import type { Redis } from "ioredis";
 import { Logger } from "log";
-import { commands } from "./index.js";
-import { deployCommands } from "./services/commands.js";
+import { type Command, deployCommands } from "./services/commands.js";
 
 const logger = new Logger();
 
@@ -17,17 +16,20 @@ type eventPayload = {
 export type gatewayOptions = {
     redis: Redis;
     env: Environment;
+    commands: Map<string, Command>;
 };
 
 export class Gateway extends EventEmitter {
-    private pubSubBroker: PubSubRedisBroker<Record<string, any>>;
-    private env: Environment;
+    private readonly pubSubBroker: PubSubRedisBroker<Record<string, any>>;
+    private readonly env: Environment;
+    private readonly commands: Map<string, Command>;
 
-    constructor({ redis, env }: gatewayOptions) {
+    constructor({ redis, env, commands }: gatewayOptions) {
         super();
 
         this.env = env;
         this.pubSubBroker = new PubSubRedisBroker({ redisClient: redis });
+        this.commands = commands;
 
         this.pubSubBroker.on("dispatch", ({ data, ack }: eventPayload) => {
             this.emit("dispatch", data);
@@ -35,7 +37,7 @@ export class Gateway extends EventEmitter {
         });
 
         this.pubSubBroker.on("deploy", async ({ ack }: eventPayload) => {
-            await deployCommands(commands);
+            await deployCommands(this.commands);
             void ack();
         });
 

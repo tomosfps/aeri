@@ -3,7 +3,6 @@ import { checkRedis } from "core";
 import { Logger } from "log";
 import { CommandInteraction } from "../../classes/commandInteraction.js";
 import type { HandlerClient } from "../../classes/handlerClient.js";
-import { commands } from "../../index.js";
 
 const logger = new Logger();
 
@@ -14,7 +13,7 @@ export const handler = async (
 ) => {
     logger.debugSingle(`Received chat input interaction: ${interaction.data.name}`, "Handler");
 
-    const command = commands.get(interaction.data.name);
+    const command = client.commands.get(interaction.data.name);
     const memberId = interaction.member?.user.id;
 
     if (!memberId) {

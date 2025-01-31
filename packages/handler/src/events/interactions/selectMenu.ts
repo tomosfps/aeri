@@ -3,7 +3,6 @@ import { checkRedis } from "core";
 import { Logger } from "log";
 import type { HandlerClient } from "../../classes/handlerClient.js";
 import { SelectMenuInteraction } from "../../classes/selectMenuInteraction.js";
-import { selectMenus } from "../../index.js";
 
 const logger = new Logger();
 
@@ -15,7 +14,7 @@ export const handler = async (
     logger.debugSingle(`Received select menu interaction: ${interaction.data.custom_id}`, "Handler");
 
     const [selectId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
-    const selectMenu = selectMenus.get(selectId);
+    const selectMenu = client.selectMenus.get(selectId);
     const memberId = interaction.member?.user.id;
     const toggable = selectMenu?.toggable ?? false;
 
