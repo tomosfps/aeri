@@ -36,7 +36,7 @@ manager.on(WebSocketShardEvents.Resumed, (shardId) => {
     logger.debugSingle(`Shard ${shardId} resumed.`, "Gateway");
 });
 
-manager.on(WebSocketShardEvents.Ready, (shardId) => {
+manager.on(WebSocketShardEvents.Ready, (_data, shardId) => {
     logger.infoSingle(`Shard ${shardId} ready.`, "Gateway");
 });
 

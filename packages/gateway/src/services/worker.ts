@@ -32,7 +32,7 @@ void bootstrapper.bootstrap({
                 data: event,
             });
 
-            logger.debugSingle(`Shard ${shard.id} received event ${event.t}`, "Gateway");
+            logger.debugSingle(`Shard ${shard.id} received event ${event.t}`, `Gateway worker ${workerId}`);
         });
     },
 });
