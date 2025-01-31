@@ -1,7 +1,7 @@
 import { EventEmitter } from "node:events";
 import { PubSubRedisBroker } from "@discordjs/brokers";
-import type { Environment } from "core/dist/env.js";
 import type { GatewayDispatchPayload, GatewaySendPayload, Gateway as IGateway } from "@discordjs/core";
+import type { Environment } from "core/dist/env.js";
 import type { Redis } from "ioredis";
 import { Logger } from "log";
 import { type Command, deployCommands } from "./services/commands.js";
@@ -31,7 +31,7 @@ export class Gateway extends EventEmitter implements IGateway {
         this.pubSubBroker = new PubSubRedisBroker(redis, { group: "handler" });
         this.commands = commands;
 
-        this.pubSubBroker.on("dispatch", ({ data, ack }: eventPayload & { data: { shardId: number }}) => {
+        this.pubSubBroker.on("dispatch", ({ data, ack }: eventPayload & { data: { shardId: number } }) => {
             this.emit("dispatch", data.data, data.shardId);
             void ack();
         });
