@@ -134,6 +134,10 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
     const isReading = mediaType === "MANGA" ? "current reading " : "current watching";
     const isPlanning = mediaType === "MANGA" ? "planning to read " : "planning to watch";
 
+    if (result.status === "Not_Yet_Released") {
+        result.status = "Not Yet Released";
+    }
+
     const descriptionBuilder = [
         `${inlineCode("total episodes    :")} ${result.episodes?.toLocaleString()}\n`,
         `${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString()}\n`,
@@ -160,10 +164,6 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
     }
     if (result.cover === "null") {
         result.cover = null;
-    }
-
-    if (result.status === "Not_Yet_Released") {
-        result.status = "Not Yet Released";
     }
 
     const filteredDescription = descriptionBuilder.filter((line) => {

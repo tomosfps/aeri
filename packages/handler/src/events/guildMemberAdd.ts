@@ -15,5 +15,5 @@ export default event(Events.GuildMemberAdd, async ({ data: member }) => {
         return;
     }
 
-    await onGuild(false, member.user, member);
+    await onGuild(true, member.user, member);
 });

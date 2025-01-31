@@ -47,8 +47,8 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
         logger.debug(`Event (📝) file: ${file}`, "Files");
 
         try {
+            logger.debugSingle(`Importing event module: ${file}`, "Files");
             const eventModule = await import(`../events/${file}`);
-            logger.debug(`Imported event module: ${file}`, "Files", eventModule);
 
             const event = eventModule.default as Event<GatewayDispatchEvents>;
             logger.debug(`Parsed event: ${file}`, "Files", event);
@@ -62,6 +62,7 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
             }
 
             client.on(event.name, (data: MappedEvents[GatewayDispatchEvents][0]) => {
+                logger.debug(`Received event: ${event.name}`, "Files", data);
                 event.on({ ...data, client });
             });
             logger.info("Registered event (📝)", "Files", { event: event.name });
@@ -69,6 +70,5 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
             logger.error(`Failed to load event (📝) file: ${file}`, "Files", error);
         }
     }
-
     logger.info("Successfully registered events (📝)", "Files");
 }
