@@ -257,8 +257,8 @@ async fn wash_user_data(json_data: serde_json::Value) -> serde_json::Value {
     let users: serde_json::Value = json!({
         "id"                    : data["id"],
         "name"                  : data["name"],
-        "avatar"                : data["avatar"]["large"].as_str().unwrap_or("https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png"),
-        "banner"                : data["bannerImage"],
+        "avatar"                : Some(data["avatar"]["large"].clone()),
+        "banner"                : Some(data["bannerImage"].clone()),
         "about"                 : data["about"],
         "url"                   : data["siteUrl"],
         "animeStats": {

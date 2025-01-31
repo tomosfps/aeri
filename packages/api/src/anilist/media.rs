@@ -143,7 +143,6 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
             media_data["leftUntilExpire"] = redis.ttl(req.media_id.to_string()).unwrap().into();
             return HttpResponse::Ok().json(media_data);
         },
-
         Err(_) => {
             logger.debug_single("No media data found in cache", "Media");
         }
@@ -247,15 +246,20 @@ async fn get_recommendation(pages: i64, genres: Vec<String>, media: String) -> s
 
 async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
     logger.debug_single("Washing up media data", "Media");
-    let data: &serde_json::Value = &media_data["data"]["Media"];
+    let mut data = media_data["data"]["Media"].clone();
+
+    if data["status"] == "NOT_YET_RELEASED" {
+        data["status"] = "Not Yet Released".into();
+    }
+
     let washed_data: serde_json::Value = json!({
         "id"            : data["id"],
         "romaji"        : data["title"]["romaji"],
         "airing"        : data["airingSchedule"]["nodes"],
         "averageScore"  : data["averageScore"],
         "meanScore"     : data["meanScore"],
-        "banner"        : data["bannerImage"],
-        "cover"         : data["coverImage"],
+        "banner"        : Some(data["bannerImage"].clone()),
+        "cover"         : Some(data["coverImage"].clone()),
         "duration"      : data["duration"],
         "episodes"      : data["episodes"],
         "chapters"      : data["chapters"],

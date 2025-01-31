@@ -59,6 +59,8 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         return undefined;
     }
 
+    logger.debug("Result from API", "Anilist", result);
+
     const genresToShow = result.genres.slice(0, 3);
     const additionalGenresCount = result.genres.length - genresToShow.length;
     const genresDisplay =
@@ -134,10 +136,6 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
     const isReading = mediaType === "MANGA" ? "current reading " : "current watching";
     const isPlanning = mediaType === "MANGA" ? "planning to read " : "planning to watch";
 
-    if (result.status === "Not_Yet_Released") {
-        result.status = "Not Yet Released";
-    }
-
     const descriptionBuilder = [
         `${inlineCode("total episodes    :")} ${result.episodes?.toLocaleString()}\n`,
         `${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString()}\n`,
@@ -158,13 +156,6 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         `${inlineCode("dropped           :")}\n ${userData.dropped.join("")}\n`,
         `${inlineCode("paused            :")}\n ${userData.paused.join("")}\n\n`,
     ];
-
-    if (result.banner === "null") {
-        result.banner = null;
-    }
-    if (result.cover === "null") {
-        result.cover = null;
-    }
 
     const filteredDescription = descriptionBuilder.filter((line) => {
         return !(
@@ -213,7 +204,11 @@ async function fetchUserData(user: number, media: number) {
 }
 
 function capitalise(message: string) {
-    return message.charAt(0).toUpperCase() + message.toLowerCase().slice(1);
+    return message
+        .toLowerCase()
+        .split(" ")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
 }
 
 export async function fetchAnilistUserData(username: string, interaction: any): Promise<any> {
@@ -263,10 +258,6 @@ export async function fetchAnilistUserData(username: string, interaction: any): 
         `${inlineCode("Top Genre          :")} ${result.topGenre}\n` +
         `${inlineCode("Favourite Format   :")} ${result.favouriteFormat}\n` +
         `${inlineCode("Completion Rate    :")} ${result.completionPercentage}%\n`;
-
-    if (result.banner === "null") {
-        result.banner = null;
-    }
 
     return {
         result: result,

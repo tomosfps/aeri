@@ -33,7 +33,10 @@ async fn main() -> std::io::Result<()> {
     logger.info_single("Starting Anilist API Proxy", "Main");
     let ip = env::var("API_HOST").unwrap_or("0.0.0.0".to_string());
     let port = env::var("API_PORT").unwrap().parse::<u16>().unwrap_or(8080);
-    let check_proxy = env::var("API_PROXY").unwrap_or("false".to_string());
+    let check_proxy = env::var("API_PROXY").map_err(|_| {
+        logger.error_single("API_PROXY environment variable not set", "Main");
+        std::io::Error::new(std::io::ErrorKind::Other, "API_PROXY environment variable not set")
+    })?;
 
     if check_proxy == "false" {
         logger.error_single("No proxy URL provided, unable to make requests.", "Main");
