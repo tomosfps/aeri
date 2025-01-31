@@ -15,6 +15,7 @@ import {
 const logger = new Logger();
 
 export default event(Events.InteractionCreate, async ({ data: interaction, api, client }) => {
+    logger.debug(`Received interaction: ${interaction.id}`, "Handler");
     const type = determineInteractionType(interaction);
     interactionHandlers[type](interaction, api, client);
 });
@@ -25,7 +26,9 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API, cli
     [InteractType.SelectMenu]: selectMenuHandler,
     [InteractType.Modal]: modalHandler,
     [InteractType.UserContext]: userContextHandler,
-    [InteractType.MessageContext]: () => {},
+    [InteractType.MessageContext]: () => {
+        logger.warnSingle("Message context interactions are not supported", "Handler");
+    },
     [InteractType.Button]: buttonHandler,
     [InteractType.Unknown]: (interaction: any) => {
         logger.warnSingle(`Unknown interaction type: ${interaction.type}`, "Handler");

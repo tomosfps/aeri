@@ -15,7 +15,6 @@ interface MappedEvents extends OriginalMappedEvents {
     VOICE_CHANNEL_EFFECT_SEND: any;
 }
 
-
 export interface Event<T extends GatewayDispatchEvents> {
     name: T;
     on: (data: MappedEvents[T][0] & { client: HandlerClient }) => Promise<void>;
@@ -43,12 +42,29 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
     }
 
     const jsFiles = allFiles.filter((file) => file.endsWith(".js"));
+
     for (const file of jsFiles) {
+        logger.debug(`Event (📝) file: ${file}`, "Files");
+
         try {
-            const event = (await import(`../events/${file}`)).event as Event<GatewayDispatchEvents>;
+            const eventModule = await import(`../events/${file}`);
+            logger.debug(`Imported event module: ${file}`, "Files", eventModule);
+
+            const event = eventModule.default as Event<GatewayDispatchEvents>;
+            logger.debug(`Parsed event: ${file}`, "Files", event);
+
+            if (!event || !event.name || !event.on) {
+                logger.error(`Failed to load event (📝) file: ${file}`, "Files", {
+                    eventModule: eventModule,
+                    event: event,
+                });
+                continue;
+            }
+
             client.on(event.name, (data: MappedEvents[GatewayDispatchEvents][0]) => {
                 event.on({ ...data, client });
             });
+            logger.info("Registered event (📝)", "Files", { event: event.name });
         } catch (error: any) {
             logger.error(`Failed to load event (📝) file: ${file}`, "Files", error);
         }
