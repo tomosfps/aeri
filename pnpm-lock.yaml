@@ -111,13 +111,13 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       '@discordjs/builders':
-        specifier: ^1.10.0
+        specifier: ^1.8.2
         version: 1.10.0
       '@discordjs/core':
-        specifier: ^2.0.1
+        specifier: ^2.0.0
         version: 2.0.1(bufferutil@4.0.9)
       '@discordjs/rest':
-        specifier: ^2.4.2
+        specifier: ^2.3.0
         version: 2.4.2
       core:
         specifier: workspace:*
@@ -126,20 +126,20 @@ importers:
         specifier: workspace:*
         version: link:../database
       discord-api-types:
-        specifier: ^0.37.118
+        specifier: ^0.37.97
         version: 0.37.118
       ioredis:
-        specifier: ^5.4.2
+        specifier: ^5.4.1
         version: 5.4.2
       log:
         specifier: workspace:*
         version: link:../logger
       zod:
-        specifier: ^3.24.1
+        specifier: ^3.23.8
         version: 3.24.1
     devDependencies:
       '@types/node':
-        specifier: ^22.12.0
+        specifier: ^22.5.0
         version: 22.12.0
 
   packages/logger:
