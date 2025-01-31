@@ -62,7 +62,7 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
             }
 
             client.on(event.name, (data: MappedEvents[GatewayDispatchEvents][0]) => {
-                logger.debug(`Received event: ${event.name}`, "Files", data);
+                logger.debugSingle(`Received event: ${event.name}`, "Files");
                 event.on({ ...data, client });
             });
             logger.info("Registered event (📝)", "Files", { event: event.name });
@@ -70,5 +70,5 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
             logger.error(`Failed to load event (📝) file: ${file}`, "Files", error);
         }
     }
-    logger.info("Successfully registered events (📝)", "Files");
+    logger.infoSingle("Successfully registered events (📝)", "Files");
 }

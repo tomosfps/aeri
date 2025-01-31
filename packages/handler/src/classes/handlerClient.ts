@@ -15,7 +15,10 @@ export class HandlerClient extends Client {
     public selectMenus: Map<string, SelectMenu>;
 
     constructor(public options: HandlerClientOptions) {
-        super(options);
+        super({
+            rest: options.rest,
+            gateway: options.gateway,
+        });
 
         this.commands = options.commands;
         this.buttons = options.buttons;

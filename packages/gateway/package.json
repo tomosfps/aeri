@@ -9,9 +9,9 @@
     },
     "license": "GPL-3.0",
     "dependencies": {
-        "@discordjs/brokers": "^0.3.0",
+        "@discordjs/brokers": "^1.0.0",
         "@discordjs/rest": "^2.4.2",
-        "@discordjs/ws": "^1.2.0",
+        "@discordjs/ws": "^2.0.1",
         "bufferutil": "^4.0.9",
         "cache": "workspace:*",
         "core": "workspace:*",

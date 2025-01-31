@@ -9,7 +9,7 @@
     },
     "license": "GPL-3.0",
     "devDependencies": {
-        "@discordjs/ws": "^1.2.0",
+        "@discordjs/ws": "^2.0.1",
         "@types/node": "^22.12.0",
         "core": "workspace:*",
         "ioredis": "^5.4.2"

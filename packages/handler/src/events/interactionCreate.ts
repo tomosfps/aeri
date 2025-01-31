@@ -15,7 +15,7 @@ import {
 const logger = new Logger();
 
 export default event(Events.InteractionCreate, async ({ data: interaction, api, client }) => {
-    logger.debug(`Received interaction: ${interaction.id}`, "Handler");
+    logger.debugSingle(`Received interaction: ${interaction.id}`, "Handler");
     const type = determineInteractionType(interaction);
     interactionHandlers[type](interaction, api, client);
 });

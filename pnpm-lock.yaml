@@ -24,8 +24,8 @@ importers:
   packages/cache:
     devDependencies:
       '@discordjs/ws':
-        specifier: ^1.2.0
-        version: 1.2.0(bufferutil@4.0.9)
+        specifier: ^2.0.1
+        version: 2.0.1(bufferutil@4.0.9)
       '@types/node':
         specifier: ^22.12.0
         version: 22.12.0
@@ -62,26 +62,26 @@ importers:
         version: link:../logger
     devDependencies:
       '@prisma/client':
-        specifier: 5.19.1
-        version: 5.19.1(prisma@5.22.0)
+        specifier: 6.3.0
+        version: 6.3.0(prisma@6.3.0(typescript@5.7.3))(typescript@5.7.3)
       '@types/node':
         specifier: ^22.12.0
         version: 22.12.0
       prisma:
-        specifier: ^5.22.0
-        version: 5.22.0
+        specifier: ^6.3.0
+        version: 6.3.0(typescript@5.7.3)
 
   packages/gateway:
     dependencies:
       '@discordjs/brokers':
-        specifier: ^0.3.0
-        version: 0.3.0
+        specifier: ^1.0.0
+        version: 1.0.0
       '@discordjs/rest':
         specifier: ^2.4.2
         version: 2.4.2
       '@discordjs/ws':
-        specifier: ^1.2.0
-        version: 1.2.0(bufferutil@4.0.9)
+        specifier: ^2.0.1
+        version: 2.0.1(bufferutil@4.0.9)
       bufferutil:
         specifier: ^4.0.9
         version: 4.0.9
@@ -108,14 +108,14 @@ importers:
   packages/handler:
     dependencies:
       '@discordjs/brokers':
-        specifier: ^0.3.0
-        version: 0.3.0
+        specifier: ^1.0.0
+        version: 1.0.0
       '@discordjs/builders':
         specifier: ^1.8.2
         version: 1.10.0
       '@discordjs/core':
         specifier: ^2.0.0
-        version: 2.0.1(bufferutil@4.0.9)
+        version: 2.0.1
       '@discordjs/rest':
         specifier: ^2.3.0
         version: 2.4.2
@@ -210,9 +210,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@discordjs/brokers@0.3.0':
-    resolution: {integrity: sha512-pfOYBOln304d8UHyZ055/F+EAqL0gAW30PeN0qiPBDjcd4PEphM6i7mUMBoVNsa7lfhI8TJBdmh7Mm2uICuMEA==}
-    engines: {node: '>=18'}
+  '@discordjs/brokers@1.0.0':
+    resolution: {integrity: sha512-cZnkTnmsIlW4G4j5i+h6N/j96uWypVE6QYNckodlp/gTd4EHUZAMRrSsLGuqPra7A1ZXdGlmgf8R7UMttPCRtA==}
+    engines: {node: '>=20'}
 
   '@discordjs/builders@1.10.0':
     resolution: {integrity: sha512-ikVZsZP+3shmVJ5S1oM+7SveUCK3L9fTyfA8aJ7uD9cNQlTqF+3Irbk2Y22KXTb3C3RNUahRkSInClJMkHrINg==}
@@ -238,10 +238,6 @@ packages:
     resolution: {integrity: sha512-eddz6UnOBEB1oITPinyrB2Pttej49M9FZQY8NxgEvc3tq6ZICZ19m70RsmzRdDHk80O9NoYN/25AqJl8vPVf/g==}
     engines: {node: '>=18'}
 
-  '@discordjs/ws@1.2.0':
-    resolution: {integrity: sha512-QH5CAFe3wHDiedbO+EI3OOiyipwWd+Q6BdoFZUw/Wf2fw5Cv2fgU/9UEtJRmJa9RecI+TAhdGPadMaEIur5yJg==}
-    engines: {node: '>=16.11.0'}
-
   '@discordjs/ws@2.0.1':
     resolution: {integrity: sha512-5etVbXdwThIT5+KfU+uiBh358Ql58f2vf1W9B5ZXxaZuIlpiX/VC/G0Lr/xuEcs6cL+/HZtEIUf0p9dQfEDang==}
     engines: {node: '>=20'}
@@ -253,29 +249,32 @@ packages:
     resolution: {integrity: sha512-LZYWBmrkKO0quyjnJCeSaqHOcsuZUvE+hlIYRqFc0qI27dLnsOdnv8Fsj2cyitzQTJZmCPm53vZ/P8QTH7E84A==}
     engines: {node: '>= 18'}
 
-  '@prisma/client@5.19.1':
-    resolution: {integrity: sha512-x30GFguInsgt+4z5I4WbkZP2CGpotJMUXy+Gl/aaUjHn2o1DnLYNTA+q9XdYmAQZM8fIIkvUiA2NpgosM3fneg==}
-    engines: {node: '>=16.13'}
+  '@prisma/client@6.3.0':
+    resolution: {integrity: sha512-BY3Fi28PUSk447Bpv22LhZp4HgNPo7NsEN+EteM1CLDnLjig5863jpW+3c3HHLFmml+nB/eJv1CjSriFZ8z7Cg==}
+    engines: {node: '>=18.18'}
     peerDependencies:
       prisma: '*'
+      typescript: '>=5.1.0'
     peerDependenciesMeta:
       prisma:
         optional: true
+      typescript:
+        optional: true
 
-  '@prisma/debug@5.22.0':
-    resolution: {integrity: sha512-AUt44v3YJeggO2ZU5BkXI7M4hu9BF2zzH2iF2V5pyXT/lRTyWiElZ7It+bRH1EshoMRxHgpYg4VB6rCM+mG5jQ==}
+  '@prisma/debug@6.3.0':
+    resolution: {integrity: sha512-m1lQv//0Rc5RG8TBpNUuLCxC35Ghi5XfpPmL83Gh04/GICHD2J5H2ndMlaljrUNaQDF9dOxIuFAYP1rE9wkXkg==}
 
-  '@prisma/engines-version@5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2':
-    resolution: {integrity: sha512-2PTmxFR2yHW/eB3uqWtcgRcgAbG1rwG9ZriSvQw+nnb7c4uCr3RAcGMb6/zfE88SKlC1Nj2ziUvc96Z379mHgQ==}
+  '@prisma/engines-version@6.3.0-17.acc0b9dd43eb689cbd20c9470515d719db10d0b0':
+    resolution: {integrity: sha512-R/ZcMuaWZT2UBmgX3Ko6PAV3f8//ZzsjRIG1eKqp3f2rqEqVtCv+mtzuH2rBPUC9ujJ5kCb9wwpxeyCkLcHVyA==}
 
-  '@prisma/engines@5.22.0':
-    resolution: {integrity: sha512-UNjfslWhAt06kVL3CjkuYpHAWSO6L4kDCVPegV6itt7nD1kSJavd3vhgAEhjglLJJKEdJ7oIqDJ+yHk6qO8gPA==}
+  '@prisma/engines@6.3.0':
+    resolution: {integrity: sha512-RXqYhlZb9sx/xkUfYIZuEPn7sT0WgTxNOuEYQ7AGw3IMpP9QGVEDVsluc/GcNkM8NTJszeqk8AplJzI9lm7Jxw==}
 
-  '@prisma/fetch-engine@5.22.0':
-    resolution: {integrity: sha512-bkrD/Mc2fSvkQBV5EpoFcZ87AvOgDxbG99488a5cexp5Ccny+UM6MAe/UFkUC0wLYD9+9befNOqGiIJhhq+HbA==}
+  '@prisma/fetch-engine@6.3.0':
+    resolution: {integrity: sha512-GBy0iT4f1mH31ePzfcpVSUa7JLRTeq4914FG2vR3LqDwRweSm4ja1o5flGDz+eVIa/BNYfkBvRRxv4D6ve6Eew==}
 
-  '@prisma/get-platform@5.22.0':
-    resolution: {integrity: sha512-pHhpQdr1UPFpt+zFfnPazhulaZYCUqeIcPpJViYoq9R+D/yw4fjE+CtnsnKzPYm0ddUbeXUzjGVGIRVgPDCk4Q==}
+  '@prisma/get-platform@6.3.0':
+    resolution: {integrity: sha512-V8zZ1d0xfyi6FjpNP4AcYuwSpGcdmu35OXWnTPm8IW594PYALzKXHwIa9+o0f+Lo9AecFWrwrwaoYe56UNfTtQ==}
 
   '@sapphire/async-queue@1.5.5':
     resolution: {integrity: sha512-cvGzxbba6sav2zZkH8GPf2oGk9yYoD5qrNWdu9fRehifgnFZJMV+nuy2nON2roRO4yQQ+v7MK/Pktl/HgfsUXg==}
@@ -488,10 +487,15 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
 
-  prisma@5.22.0:
-    resolution: {integrity: sha512-vtpjW3XuYCSnMsNVBjLMNkTj6OZbudcPPTPYHqX0CJfpcdWciI1dM8uHETwmDxxiqEwCIE6WvXucWUetJgfu/A==}
-    engines: {node: '>=16.13'}
+  prisma@6.3.0:
+    resolution: {integrity: sha512-y+Zh3Qg+xGCWyyrNUUNaFW/OltaV/yXYuTa0WRgYkz5LGyifmAsgpv94I47+qGRocZrMGcbF2A/78/oO2zgifA==}
+    engines: {node: '>=18.18'}
     hasBin: true
+    peerDependencies:
+      typescript: '>=5.1.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   redis-errors@1.2.0:
     resolution: {integrity: sha512-1qny3OExCf0UvUV/5wpYKf2YwPcOqXzkwKKSmKHiE6ZMQs5heeE/c8eXK+PNllPvmjgAbfnsbpkGZWy8cBpn9w==}
@@ -595,7 +599,7 @@ snapshots:
   '@biomejs/cli-win32-x64@1.9.4':
     optional: true
 
-  '@discordjs/brokers@0.3.0':
+  '@discordjs/brokers@1.0.0':
     dependencies:
       '@msgpack/msgpack': 3.0.0-beta3
       '@vladfrangu/async_event_emitter': 2.4.6
@@ -615,7 +619,7 @@ snapshots:
 
   '@discordjs/collection@2.1.1': {}
 
-  '@discordjs/core@2.0.1(bufferutil@4.0.9)':
+  '@discordjs/core@2.0.1':
     dependencies:
       '@discordjs/rest': 2.4.2
       '@discordjs/util': 1.1.1
@@ -645,21 +649,6 @@ snapshots:
 
   '@discordjs/util@1.1.1': {}
 
-  '@discordjs/ws@1.2.0(bufferutil@4.0.9)':
-    dependencies:
-      '@discordjs/collection': 2.1.1
-      '@discordjs/rest': 2.4.2
-      '@discordjs/util': 1.1.1
-      '@sapphire/async-queue': 1.5.5
-      '@types/ws': 8.5.14
-      '@vladfrangu/async_event_emitter': 2.4.6
-      discord-api-types: 0.37.118
-      tslib: 2.8.1
-      ws: 8.18.0(bufferutil@4.0.9)
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
   '@discordjs/ws@2.0.1(bufferutil@4.0.9)':
     dependencies:
       '@discordjs/collection': 2.1.1
@@ -679,30 +668,31 @@ snapshots:
 
   '@msgpack/msgpack@3.0.0-beta3': {}
 
-  '@prisma/client@5.19.1(prisma@5.22.0)':
+  '@prisma/client@6.3.0(prisma@6.3.0(typescript@5.7.3))(typescript@5.7.3)':
     optionalDependencies:
-      prisma: 5.22.0
+      prisma: 6.3.0(typescript@5.7.3)
+      typescript: 5.7.3
 
-  '@prisma/debug@5.22.0': {}
+  '@prisma/debug@6.3.0': {}
 
-  '@prisma/engines-version@5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2': {}
+  '@prisma/engines-version@6.3.0-17.acc0b9dd43eb689cbd20c9470515d719db10d0b0': {}
 
-  '@prisma/engines@5.22.0':
+  '@prisma/engines@6.3.0':
     dependencies:
-      '@prisma/debug': 5.22.0
-      '@prisma/engines-version': 5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2
-      '@prisma/fetch-engine': 5.22.0
-      '@prisma/get-platform': 5.22.0
+      '@prisma/debug': 6.3.0
+      '@prisma/engines-version': 6.3.0-17.acc0b9dd43eb689cbd20c9470515d719db10d0b0
+      '@prisma/fetch-engine': 6.3.0
+      '@prisma/get-platform': 6.3.0
 
-  '@prisma/fetch-engine@5.22.0':
+  '@prisma/fetch-engine@6.3.0':
     dependencies:
-      '@prisma/debug': 5.22.0
-      '@prisma/engines-version': 5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2
-      '@prisma/get-platform': 5.22.0
+      '@prisma/debug': 6.3.0
+      '@prisma/engines-version': 6.3.0-17.acc0b9dd43eb689cbd20c9470515d719db10d0b0
+      '@prisma/get-platform': 6.3.0
 
-  '@prisma/get-platform@5.22.0':
+  '@prisma/get-platform@6.3.0':
     dependencies:
-      '@prisma/debug': 5.22.0
+      '@prisma/debug': 6.3.0
 
   '@sapphire/async-queue@1.5.5': {}
 
@@ -881,11 +871,12 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  prisma@5.22.0:
+  prisma@6.3.0(typescript@5.7.3):
     dependencies:
-      '@prisma/engines': 5.22.0
+      '@prisma/engines': 6.3.0
     optionalDependencies:
       fsevents: 2.3.3
+      typescript: 5.7.3
 
   redis-errors@1.2.0: {}
 

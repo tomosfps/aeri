@@ -32,19 +32,19 @@ const manager = new WebSocketManager({
     updateSessionInfo: cache.gateway.saveSession.bind(cache.gateway),
 });
 
-manager.on(WebSocketShardEvents.Resumed, ({ shardId }) => {
+manager.on(WebSocketShardEvents.Resumed, (shardId) => {
     logger.debugSingle(`Shard ${shardId} resumed.`, "Gateway");
 });
 
-manager.on(WebSocketShardEvents.Ready, ({ shardId }) => {
+manager.on(WebSocketShardEvents.Ready, (shardId) => {
     logger.infoSingle(`Shard ${shardId} ready.`, "Gateway");
 });
 
-manager.on(WebSocketShardEvents.Closed, ({ shardId }) => {
+manager.on(WebSocketShardEvents.Closed, (shardId) => {
     logger.debugSingle(`Shard ${shardId} closed.`, "Gateway");
 });
 
-manager.on(WebSocketShardEvents.Error, ({ shardId, error }) => {
+manager.on(WebSocketShardEvents.Error, (error, shardId) => {
     logger.error(`Shard ${shardId} errored.`, "Gateway", error);
 });
 
