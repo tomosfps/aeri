@@ -73,7 +73,7 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
 #[post("/recommend")]
 async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     let genres = req.genres.clone().unwrap_or(vec![]);
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
     let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
@@ -112,7 +112,7 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     let last_page = data["pageInfo"]["lastPage"].as_i64().unwrap_or(1);
     logger.debug_single(&format!("Last Page set to : {}", last_page), "Recommend");
 
-    let pages = rng.gen_range(1..last_page);
+    let pages = rng.random_range(1..last_page);
     let mut recommend = get_recommendation(pages, genres.clone(), req.media.clone()).await;
     if recommend.get("error").is_some() {
         logger.debug_single("Bad JSON received, setting pages to 1 and retrying", "Recommend");
@@ -188,7 +188,7 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
 }
 
 async fn get_recommendation(pages: i64, genres: Vec<String>, media: String) -> serde_json::Value {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
     let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
     let client = Client::builder().proxy(proxy).build().unwrap();
@@ -240,7 +240,7 @@ async fn get_recommendation(pages: i64, genres: Vec<String>, media: String) -> s
         let bad_json = json!({"error": "No recommendations found"});
         return bad_json;
     }
-    let random_choice = rng.gen_range(0..ids.len());
+    let random_choice = rng.random_range(0..ids.len());
     json!(ids[random_choice])
 }
 

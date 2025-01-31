@@ -4,6 +4,7 @@ use lazy_static::lazy_static;
 use dotenv::dotenv;
 use std::env;
 use std::thread;
+extern crate num_cpus;
 
 mod anilist;
 mod cache;
@@ -69,6 +70,7 @@ async fn main() -> std::io::Result<()> {
             .service(recommend)
             .route("/hey", web::get().to(manual))
     })
+    .workers(num_cpus::get())
     .bind((ip, port))?
     .run()
     .await
