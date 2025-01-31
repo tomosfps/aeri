@@ -1,16 +1,11 @@
-import { type API, type APIMessageComponentSelectMenuInteraction, MessageFlags } from "@discordjs/core";
+import { MessageFlags } from "@discordjs/core";
 import { checkRedis } from "core";
 import { Logger } from "log";
-import type { HandlerClient } from "../../classes/handlerClient.js";
-import { SelectMenuInteraction } from "../../classes/selectMenuInteraction.js";
+import { type SelectMenuHandler, SelectMenuInteraction } from "../../classes/selectMenuInteraction.js";
 
 const logger = new Logger();
 
-export const handler = async (
-    interaction: APIMessageComponentSelectMenuInteraction,
-    api: API,
-    client: HandlerClient,
-) => {
+export const handler: SelectMenuHandler = async (interaction, api, client) => {
     logger.debugSingle(`Received select menu interaction: ${interaction.data.custom_id}`, "Handler");
 
     const [selectId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];

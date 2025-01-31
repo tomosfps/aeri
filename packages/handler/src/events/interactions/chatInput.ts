@@ -1,16 +1,11 @@
-import { type API, type APIChatInputApplicationCommandInteraction, MessageFlags } from "@discordjs/core";
+import { MessageFlags } from "@discordjs/core";
 import { checkRedis } from "core";
 import { Logger } from "log";
-import { CommandInteraction } from "../../classes/commandInteraction.js";
-import type { HandlerClient } from "../../classes/handlerClient.js";
+import { type ChatInputHandler, CommandInteraction } from "../../classes/commandInteraction.js";
 
 const logger = new Logger();
 
-export const handler = async (
-    interaction: APIChatInputApplicationCommandInteraction,
-    api: API,
-    client: HandlerClient,
-) => {
+export const handler: ChatInputHandler = async (interaction, api, client) => {
     logger.debugSingle(`Received chat input interaction: ${interaction.data.name}`, "Handler");
 
     const command = client.commands.get(interaction.data.name);

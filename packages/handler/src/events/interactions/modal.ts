@@ -1,11 +1,9 @@
-import type { API, APIModalSubmitInteraction } from "@discordjs/core";
 import { Logger } from "log";
-import type { HandlerClient } from "../../classes/handlerClient.js";
-import { ModalInteraction } from "../../classes/modalInteraction.js";
+import { type ModalHandler, ModalInteraction } from "../../classes/modalInteraction.js";
 
 const logger = new Logger();
 
-export const handler = async (interaction: APIModalSubmitInteraction, api: API, client: HandlerClient) => {
+export const handler: ModalHandler = async (interaction, api, client) => {
     logger.debugSingle(`Received modal interaction: ${interaction.data.custom_id}`, "Handler");
 
     const [modalId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];

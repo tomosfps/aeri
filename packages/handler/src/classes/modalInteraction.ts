@@ -2,6 +2,8 @@ import type { API, APIModalSubmitInteraction } from "@discordjs/core";
 import { BaseInteraction } from "./baseInteraction.js";
 import type { HandlerClient } from "./handlerClient.js";
 
+export type ModalHandler = (interaction: APIModalSubmitInteraction, api: API, client: HandlerClient) => Promise<void>;
+
 export class ModalInteraction extends BaseInteraction {
     constructor(
         public override interaction: APIModalSubmitInteraction,

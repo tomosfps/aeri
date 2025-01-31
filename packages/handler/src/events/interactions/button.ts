@@ -1,12 +1,11 @@
-import { type API, type APIMessageComponentButtonInteraction, MessageFlags } from "@discordjs/core";
+import { MessageFlags } from "@discordjs/core";
 import { checkRedis } from "core";
 import { Logger } from "log";
-import { ButtonInteraction } from "../../classes/buttonInteraction.js";
-import type { HandlerClient } from "../../classes/handlerClient.js";
+import { type ButtonHandler, ButtonInteraction } from "../../classes/buttonInteraction.js";
 
 const logger = new Logger();
 
-export const handler = async (interaction: APIMessageComponentButtonInteraction, api: API, client: HandlerClient) => {
+export const handler: ButtonHandler = async (interaction, api, client) => {
     logger.debugSingle(`Received button interaction: ${interaction.data.custom_id}`, "Handler");
 
     const [buttonId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];

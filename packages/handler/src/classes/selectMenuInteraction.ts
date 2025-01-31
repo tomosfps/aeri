@@ -2,6 +2,12 @@ import type { API, APIMessageComponentSelectMenuInteraction } from "@discordjs/c
 import { BaseInteraction } from "./baseInteraction.js";
 import type { HandlerClient } from "./handlerClient.js";
 
+export type SelectMenuHandler = (
+    interaction: APIMessageComponentSelectMenuInteraction,
+    api: API,
+    client: HandlerClient,
+) => Promise<void>;
+
 export class SelectMenuInteraction extends BaseInteraction {
     constructor(
         public override interaction: APIMessageComponentSelectMenuInteraction,
