@@ -11,7 +11,7 @@ use crate::cache::proxy::{get_random_proxy, remove_proxy};
 use crate::global::compare_strings::compare_strings;
 
 lazy_static! {
-    static ref logger: Logger = Logger::new(LogLevel::Debug, Some(""));
+    static ref logger: Logger = Logger::default();
     static ref redis:  Redis  = Redis::new();
 }
 
