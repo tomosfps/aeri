@@ -134,6 +134,12 @@ export const interaction: Command = {
         }
 
         const result = await fetchAnilistMedia(mediaType, Number(recommendation), interaction);
+
+        if (result.result === null) {
+            logger.errorSingle("Problem trying to fetch data in result", "recommend");
+            return interaction.followUp({ content: "Problem trying to fetch a media", ephemeral: true });
+        }
+
         const embed = new EmbedBuilder()
             .setTitle(result.result.romaji)
             .setURL(result.result.url)
