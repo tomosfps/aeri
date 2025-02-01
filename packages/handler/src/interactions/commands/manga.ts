@@ -53,24 +53,22 @@ export const interaction: Command = {
             .setMinValues(1)
             .setMaxValues(1)
             .addOptions(
-                result.relations
-                    .slice(0, 25)
-                    .map(
-                        (items: {
-                            native: string;
-                            english: string;
-                            romaji: string;
-                            id: number;
-                            synonyms: string[];
-                        }) => {
-                            return new StringSelectMenuOptionBuilder()
-                                .setLabel(`${items.english || items.romaji || items.native || ""}`.slice(0, 100))
-                                .setValue(`${items.id}`)
-                                .setDescription(
-                                    `${items.synonyms.join(", ") || items.romaji || items.native || ""}`.slice(0, 100),
-                                );
-                        },
-                    ),
+                result.relations.slice(0, 25).map(
+                    (items: {
+                        native: string;
+                        english: string;
+                        romaji: string;
+                        id: number;
+                        synonyms: string[];
+                    }) => {
+                        return new StringSelectMenuOptionBuilder()
+                            .setLabel(`${items.english || items.romaji || items.native || ""}`.slice(0, 100))
+                            .setValue(`${items.id}`)
+                            .setDescription(
+                                `${items.synonyms.join(", ") || items.romaji || items.native || ""}`.slice(0, 100),
+                            );
+                    },
+                ),
             );
         const row = new ActionRowBuilder().addComponents(select);
         await interaction.reply({ components: [row] });
