@@ -1,7 +1,6 @@
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
-use dotenv::dotenv;
 use std::env;
 use std::thread;
 extern crate num_cpus;
@@ -30,7 +29,7 @@ async fn manual() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv().ok();
+    dotenvy::dotenv().unwrap_or_default();
 
     logger.info_single("Starting Anilist API Proxy", "Main");
     let ip = env::var("API_HOST").unwrap_or("0.0.0.0".to_string());
