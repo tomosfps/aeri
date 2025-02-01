@@ -57,10 +57,10 @@ export class BaseInteraction {
             ["minutes", 60],
             ["seconds", 1],
         ];
-    
+
         const result: string[] = [];
         let secondsLeft = seconds;
-    
+
         for (const [name, count] of intervals) {
             const value = Math.floor(secondsLeft / count);
             if (value) {

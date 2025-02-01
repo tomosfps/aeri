@@ -8,11 +8,7 @@ import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "log";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
-import {
-    fetchAnilistMedia,
-    fetchAnilistUserData,
-    fetchRecommendation,
-} from "../../utility/anilistUtil.js";
+import { fetchAnilistMedia, fetchAnilistUserData, fetchRecommendation } from "../../utility/anilistUtil.js";
 
 import { getCommandOption } from "../../utility/interactionUtils.js";
 const logger = new Logger();

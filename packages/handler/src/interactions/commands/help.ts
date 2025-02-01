@@ -24,7 +24,9 @@ export const interaction: Command = {
 
             if (command) {
                 const cooldownTimer =
-                    command.cooldown && command.cooldown > 1 ? interaction.format_seconds(command.cooldown) : "No cooldown";
+                    command.cooldown && command.cooldown > 1
+                        ? interaction.format_seconds(command.cooldown)
+                        : "No cooldown";
                 const commandOptions = command.data.options;
                 let choiceDetails = "";
                 let exampleDetails = "";
