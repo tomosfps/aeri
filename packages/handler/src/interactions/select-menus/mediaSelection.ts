@@ -1,19 +1,21 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import type { SelectMenu } from "../../services/commands.js";
-import { fetchAnilistMedia, intervalTime } from "../../utility/interactionUtils.js";
+import { fetchAnilistMedia, intervalTime } from "../../utility/anilistUtil.js";
 
 type SelectMenuData = {
     custom_id: string;
+    userId: string;
 };
 
 export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "media_selection",
     cooldown: 1,
+    toggable: true,
     parse(data) {
-        if (!data[0]) {
+        if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");
         }
-        return { custom_id: data[0] };
+        return { custom_id: data[0], userId: data[1] };
     },
     async execute(interaction, data): Promise<void> {
         const mediaType = data.custom_id === "anime" ? "ANIME" : "MANGA";
@@ -37,7 +39,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
         try {
             await interaction.edit({ embeds: [embed] });
         } catch (error: any) {
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed] });
         }
     },
 };

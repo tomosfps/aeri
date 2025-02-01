@@ -8,7 +8,9 @@ const logger = new Logger();
 
 export const interaction: Command = {
     cooldown: 300,
-    data: new SlashCommandBuilder().setName("force-update").setDescription("Remove your scores from the cache!"),
+    data: new SlashCommandBuilder()
+        .setName("force-update")
+        .setDescription("Force update the cache and remove your scores"),
     async execute(interaction): Promise<void> {
         const anilistUser = await fetchAnilistUser(interaction.member_id);
         const userID = anilistUser ? anilistUser.id : null;

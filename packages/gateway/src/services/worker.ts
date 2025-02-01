@@ -8,7 +8,7 @@ import { Logger } from "log";
 const bootstrapper = new WorkerBootstrapper();
 const logger = new Logger();
 const redis = await getRedis();
-const broker = new PubSubRedisBroker({ redisClient: redis });
+const broker = new PubSubRedisBroker(redis, { group: "gateway" });
 
 const workerId = calculateWorkerId(workerData.shardIds, env.SHARDS_PER_WORKER);
 logger.info("Starting...", `Worker ${workerId}`, { shardIds: workerData.shardIds });
@@ -29,10 +29,10 @@ void bootstrapper.bootstrap({
         shard.on(WebSocketShardEvents.Dispatch, async (event) => {
             await broker.publish("dispatch", {
                 shardId: shard.id,
-                data: event.data,
+                data: event,
             });
 
-            logger.debugSingle(`Shard ${shard.id} received event ${event.data.t}`, "Gateway");
+            logger.debugSingle(`Shard ${shard.id} received event ${event.t}`, `Gateway worker ${workerId}`);
         });
     },
 });

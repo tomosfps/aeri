@@ -4,13 +4,15 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-colourful-logger = "2.0.0"
+colourful-logger = "2.0.1"
 actix-web = "4"
 reqwest = { version = "0.12.12", features = ["json"] }
-serde_json = "1.0.137"
+serde_json = "1.0.138"
 serde = { version = "1.0.210", features = ["derive"] }
 lazy_static = "1.5.0"
-dotenv = "0.15.0"
+dotenvy = "0.15.7"
 redis = { version = "0.28.2", features = ["json"] }
-tokio = { version = "1.43.0", features = ["full"] }
-rand = "0.8.5"
+tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros"] }
+rand = "0.9.0"
+num_cpus = "1.0"
+strsim = "0.11.1"

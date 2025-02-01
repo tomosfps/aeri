@@ -8,6 +8,7 @@ use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
 use rand::Rng;
 use crate::cache::proxy::{get_random_proxy, remove_proxy};
+use crate::global::compare_strings::compare_strings;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -65,7 +66,7 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
     }
         
     let relations = response.json::<serde_json::Value>().await.unwrap();
-    let relations = wash_relation_data(relations).await;
+    let relations = wash_relation_data(req.media_name.to_string(), relations).await;
     logger.debug_single("Returning relational data", "Relations");
     HttpResponse::Ok().json(relations)
 }
@@ -73,7 +74,7 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
 #[post("/recommend")]
 async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     let genres = req.genres.clone().unwrap_or(vec![]);
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
     let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
@@ -112,7 +113,7 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     let last_page = data["pageInfo"]["lastPage"].as_i64().unwrap_or(1);
     logger.debug_single(&format!("Last Page set to : {}", last_page), "Recommend");
 
-    let pages = rng.gen_range(1..last_page);
+    let pages = rng.random_range(1..last_page);
     let mut recommend = get_recommendation(pages, genres.clone(), req.media.clone()).await;
     if recommend.get("error").is_some() {
         logger.debug_single("Bad JSON received, setting pages to 1 and retrying", "Recommend");
@@ -125,7 +126,6 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
 #[post("/media")]
 pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
 
-    // No need for checking mediaID as it's a required field
     if req.media_type.len() == 0 {
         logger.error_single("No type was included", "Media");
         let bad_json = json!({"error": "No type was included"});
@@ -143,7 +143,6 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
             media_data["leftUntilExpire"] = redis.ttl(req.media_id.to_string()).unwrap().into();
             return HttpResponse::Ok().json(media_data);
         },
-
         Err(_) => {
             logger.debug_single("No media data found in cache", "Media");
         }
@@ -189,7 +188,7 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
 }
 
 async fn get_recommendation(pages: i64, genres: Vec<String>, media: String) -> serde_json::Value {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
     let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
     let client = Client::builder().proxy(proxy).build().unwrap();
@@ -241,21 +240,26 @@ async fn get_recommendation(pages: i64, genres: Vec<String>, media: String) -> s
         let bad_json = json!({"error": "No recommendations found"});
         return bad_json;
     }
-    let random_choice = rng.gen_range(0..ids.len());
+    let random_choice = rng.random_range(0..ids.len());
     json!(ids[random_choice])
 }
 
 async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
     logger.debug_single("Washing up media data", "Media");
-    let data: &serde_json::Value = &media_data["data"]["Media"];
+    let mut data = media_data["data"]["Media"].clone();
+
+    if data["status"] == "NOT_YET_RELEASED" {
+        data["status"] = "Not Yet Released".into();
+    }
+
     let washed_data: serde_json::Value = json!({
         "id"            : data["id"],
         "romaji"        : data["title"]["romaji"],
         "airing"        : data["airingSchedule"]["nodes"],
         "averageScore"  : data["averageScore"],
         "meanScore"     : data["meanScore"],
-        "banner"        : data["bannerImage"],
-        "cover"         : data["coverImage"],
+        "banner"        : Some(data["bannerImage"].clone()),
+        "cover"         : Some(data["coverImage"].clone()),
         "duration"      : data["duration"],
         "episodes"      : data["episodes"],
         "chapters"      : data["chapters"],
@@ -275,12 +279,30 @@ async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
     washed_data
 }
 
-async fn wash_relation_data(relation_data: serde_json::Value) -> serde_json::Value {
+async fn wash_relation_data(parsed_string: String, relation_data: serde_json::Value) -> serde_json::Value {
     logger.debug_single("Washing up relational data", "Relations");
     let data: &serde_json::Value = &relation_data["data"]["Page"]["media"];
     let mut relation_list: Vec<serde_json::Value> = Vec::new();
+    let parsed_string = &parsed_string.to_lowercase();
 
     for rel in data.as_array().unwrap() {
+        let romaji = &rel["title"]["romaji"].as_str().unwrap_or("").to_lowercase();
+        let english = &rel["title"]["english"].as_str().unwrap_or("").to_lowercase();
+        let native = &rel["title"]["native"].as_str().unwrap_or("").to_lowercase();
+
+        let empty_vec = vec![];
+        let synonyms = rel["synonyms"].as_array().unwrap_or(&empty_vec);
+
+        let result = compare_strings(parsed_string, vec![romaji, english, native]);
+        logger.debug("Similarity Score Given: ", "Wash Relation", false, result.clone());
+
+        let lowercase_synonyms: Vec<String> = synonyms.iter().map(|x| x.as_str().unwrap().to_lowercase()).collect();
+        let synonyms_result = compare_strings(parsed_string, lowercase_synonyms.iter().collect());
+        logger.debug("Similarity Score Given: ", "Wash Relation", false, synonyms_result.clone());
+
+        let combined = result.iter().chain(synonyms_result.iter());
+        let result = combined.max_by(|a, b| a.1.partial_cmp(&b.1).unwrap()).unwrap();
+
         let washed_relation = json!({
             "id"        : rel["id"],
             "romaji"    : rel["title"]["romaji"],
@@ -288,11 +310,15 @@ async fn wash_relation_data(relation_data: serde_json::Value) -> serde_json::Val
             "native"    : rel["title"]["native"],
             "synonyms"  : rel["synonyms"],
             "type"      : rel["type"],
-            "dataFrom"  : "API"
+            "similarity": result.1,
+            "dataFrom"  : "API",
         });
+
+        logger.debug("Washed Relation: ", "Wash Relation", false, washed_relation.clone());
         relation_list.push(washed_relation);
     }
 
+    relation_list.sort_by(|a, b| b["similarity"].as_f64().unwrap().partial_cmp(&a["similarity"].as_f64().unwrap()).unwrap());
     let data: serde_json::Value = json!({
         "relations": relation_list
     });

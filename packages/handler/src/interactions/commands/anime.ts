@@ -15,9 +15,9 @@ export const interaction: Command = {
     cooldown: 1,
     data: new SlashCommandBuilder()
         .setName("anime")
-        .setDescription("Find An Anime")
+        .setDescription("Find an anime based on the name")
         .addStringOption((option) =>
-            option.setName("media_name").setDescription("Name Of The Anime").setRequired(true),
+            option.setName("media_name").setDescription("The name of the anime").setRequired(true),
         ),
     async execute(interaction): Promise<void> {
         const anime = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";
@@ -53,21 +53,29 @@ export const interaction: Command = {
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId("media_selection:anime")
+            .setCustomId(`media_selection:anime:${interaction.member_id}`)
             .setPlaceholder("Choose A Media...")
             .setMinValues(1)
             .setMaxValues(1)
             .addOptions(
-                result.relations.slice(0, 25).map((items: { native: any; english: any; romaji: any; id: any }) => {
-                    return new StringSelectMenuOptionBuilder()
-                        .setLabel(
-                            `${items.english === null ? (items.native || items.romaji || "").slice(0, 100) : items.romaji.slice(0, 100)}`,
-                        )
-                        .setValue(`${items.id}`)
-                        .setDescription(
-                            `${items.english === null ? (items.native || items.romaji || "").slice(0, 100) : items.romaji.slice(0, 100)}`,
-                        );
-                }),
+                result.relations
+                    .slice(0, 25)
+                    .map(
+                        (items: {
+                            native: string;
+                            english: string;
+                            romaji: string;
+                            id: number;
+                            synonyms: string[];
+                        }) => {
+                            return new StringSelectMenuOptionBuilder()
+                                .setLabel(`${items.english || items.romaji || items.native || ""}`.slice(0, 100))
+                                .setValue(`${items.id}`)
+                                .setDescription(
+                                    `${items.synonyms.join(", ") || items.romaji || items.native || ""}`.slice(0, 100),
+                                );
+                        },
+                    ),
             );
         const row = new ActionRowBuilder().addComponents(select);
         await interaction.reply({ components: [row] });

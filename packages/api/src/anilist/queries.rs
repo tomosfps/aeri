@@ -69,12 +69,22 @@ pub fn get_query(query_name: &str) -> String {
                 scores {
                     score
                     count
+                    mediaIds
                 }
                 genres {
                     count
                     genre
                     meanScore
                     minutesWatched
+                }
+                formats {
+                    format
+                    count
+                }
+                statuses {
+                    status
+                    meanScore
+                    count
                 }
             }
             manga {
@@ -86,6 +96,7 @@ pub fn get_query(query_name: &str) -> String {
                 scores {
                     score
                     count
+                    mediaIds
                 }
                 genres {
                     count

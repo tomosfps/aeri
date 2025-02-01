@@ -1,18 +1,20 @@
 import { ActionRowBuilder, EmbedBuilder, ModalBuilder } from "@discordjs/builders";
-import type {
-    API,
-    APIActionRowComponent,
-    APIEmbed,
-    APIInteraction,
-    APIModalInteractionResponseCallbackData,
+import {
+    type API,
+    type APIActionRowComponent,
+    type APIEmbed,
+    type APIInteraction,
+    type APIModalInteractionResponseCallbackData,
+    MessageFlags,
 } from "@discordjs/core";
-import { MessageFlags } from "@discordjs/core";
 import { env } from "core";
+import type { HandlerClient } from "./handlerClient.js";
 
 export class BaseInteraction {
     constructor(
         public interaction: APIInteraction,
         public api: API,
+        public client: HandlerClient,
     ) {}
 
     get id() {

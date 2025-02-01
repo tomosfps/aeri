@@ -7,9 +7,9 @@ import { getCommandOption } from "../../utility/interactionUtils.js";
 export const interaction: Command = {
     data: new SlashCommandBuilder()
         .setName("avatar")
-        .setDescription("View someones avatar")
+        .setDescription("View a users or bots avatar")
         .addUserOption((option) =>
-            option.setName("target").setDescription("The user's avatar to view").setRequired(true),
+            option.setName("target").setDescription("The user/bot to view their avatar").setRequired(true),
         ),
     async execute(interaction): Promise<void> {
         const member = getCommandOption("target", ApplicationCommandOptionType.User, interaction.options);
@@ -35,13 +35,13 @@ export const interaction: Command = {
                 : `https://cdn.discordapp.com/embed/avatars/${(Number(member) >> 22) % 6}.png?size=1024`;
 
         const guildButton = new ButtonBuilder()
-            .setCustomId(`server:${member}`)
+            .setCustomId(`server:${member}:${interaction.guild_id}`)
             .setLabel("Guild Avatar")
             .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Primary);
 
         const defaultButton = new ButtonBuilder()
-            .setCustomId(`default:${member}`)
+            .setCustomId(`default:${member}:${interaction.guild_id}`)
             .setLabel("Default Avatar")
             .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Secondary);

@@ -1,17 +1,18 @@
 import type { Button } from "../../services/commands.js";
 
 type ButtonData = {
+    targetUserId: string;
     userId: string;
 };
 
 export const interaction: Button<ButtonData> = {
     custom_id: "default",
+    toggable: true,
     parse(data) {
-        if (!data[0]) {
+        if (!data[0] || !data[1]) {
             throw new Error("Invalid button data");
         }
-
-        return { userId: data[0] };
+        return { targetUserId: data[0], userId: data[1] };
     },
     async execute(interaction, data): Promise<void> {
         const embedData = interaction.embed_data;
@@ -24,7 +25,7 @@ export const interaction: Button<ButtonData> = {
             return;
         }
 
-        const member = await interaction.guilds.getMember(guild_id, data.userId);
+        const member = await interaction.guilds.getMember(guild_id, data.targetUserId);
         if (!member) {
             return;
         }

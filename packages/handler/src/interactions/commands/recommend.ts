@@ -13,10 +13,10 @@ import {
     fetchAnilistMedia,
     fetchAnilistUserData,
     fetchRecommendation,
-    getCommandOption,
     intervalTime,
-} from "../../utility/interactionUtils.js";
+} from "../../utility/anilistUtil.js";
 
+import { getCommandOption } from "../../utility/interactionUtils.js";
 const logger = new Logger();
 const genreList = [
     "Action",
@@ -49,25 +49,19 @@ export const interaction: Command = {
     cooldown: 1,
     data: new SlashCommandBuilder()
         .setName("recommend")
-        .setDescription("Get recommended an anime or manga based on genre or your scores.")
+        .setDescription("Recommend an anime or manga based on genre(s) or score")
         .addStringOption((option) =>
             option
                 .setName("media")
-                .setDescription("anime or manga")
+                .setDescription("Choose a media type")
                 .setRequired(true)
                 .addChoices({ name: "Anime", value: "ANIME" }, { name: "Manga", value: "MANGA" }),
         )
         .addBooleanOption((option) =>
-            option
-                .setName("genre")
-                .setDescription("Would you like to base the recommendation on genre")
-                .setRequired(false),
+            option.setName("genre").setDescription("Base recommendation on genre(s)").setRequired(false),
         )
         .addBooleanOption((option) =>
-            option
-                .setName("score")
-                .setDescription("Would you like to base the recommendation on your scores")
-                .setRequired(false),
+            option.setName("score").setDescription("Base recommendation on scores").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         await interaction.defer();
@@ -87,7 +81,7 @@ export const interaction: Command = {
 
         if (genre) {
             const select = new StringSelectMenuBuilder()
-                .setCustomId(`genre_selection:${media}`)
+                .setCustomId(`genre_selection:${media}:${interaction.member_id}`)
                 .setPlaceholder("Choose Some Genres...")
                 .setMinValues(1)
                 .setMaxValues(24)
@@ -100,7 +94,7 @@ export const interaction: Command = {
                     }),
                 );
 
-            logger.debug("Select Menu Created", "Recommend", select);
+            logger.debugSingle("Select Menu Created", "Recommend");
             const row = new ActionRowBuilder().addComponents(select);
             return await interaction.followUp({ components: [row] });
         }

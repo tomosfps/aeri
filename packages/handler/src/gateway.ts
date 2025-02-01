@@ -1,11 +1,10 @@
 import { EventEmitter } from "node:events";
 import { PubSubRedisBroker } from "@discordjs/brokers";
+import type { GatewayDispatchPayload, GatewaySendPayload, Gateway as IGateway } from "@discordjs/core";
 import type { Environment } from "core/dist/env.js";
-import type { GatewayDispatchPayload, GatewaySendPayload } from "discord-api-types/v10";
 import type { Redis } from "ioredis";
 import { Logger } from "log";
-import { commands } from "./index.js";
-import { deployCommands } from "./services/commands.js";
+import { type Command, deployCommands } from "./services/commands.js";
 
 const logger = new Logger();
 
@@ -17,25 +16,28 @@ type eventPayload = {
 export type gatewayOptions = {
     redis: Redis;
     env: Environment;
+    commands: Map<string, Command>;
 };
 
-export class Gateway extends EventEmitter {
-    private pubSubBroker: PubSubRedisBroker<Record<string, any>>;
-    private env: Environment;
+export class Gateway extends EventEmitter implements IGateway {
+    private readonly pubSubBroker: PubSubRedisBroker<Record<string, any>>;
+    private readonly env: Environment;
+    private readonly commands: Map<string, Command>;
 
-    constructor({ redis, env }: gatewayOptions) {
+    constructor({ redis, env, commands }: gatewayOptions) {
         super();
 
         this.env = env;
-        this.pubSubBroker = new PubSubRedisBroker({ redisClient: redis });
+        this.pubSubBroker = new PubSubRedisBroker(redis, { group: "handler" });
+        this.commands = commands;
 
-        this.pubSubBroker.on("dispatch", ({ data, ack }: eventPayload) => {
-            this.emit("dispatch", data);
+        this.pubSubBroker.on("dispatch", ({ data, ack }: eventPayload & { data: { shardId: number } }) => {
+            this.emit("dispatch", data.data, data.shardId);
             void ack();
         });
 
         this.pubSubBroker.on("deploy", async ({ ack }: eventPayload) => {
-            await deployCommands(commands);
+            await deployCommands(this.commands);
             void ack();
         });
 
@@ -45,7 +47,7 @@ export class Gateway extends EventEmitter {
     }
 
     async connect(): Promise<void> {
-        await this.pubSubBroker.subscribe("handler", ["dispatch", "deploy"]);
+        await this.pubSubBroker.subscribe(["dispatch", "deploy"]);
     }
 
     send = (_shardID: number, _payload: GatewaySendPayload): void => {};

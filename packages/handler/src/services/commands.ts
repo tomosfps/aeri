@@ -7,6 +7,7 @@ import { Routes } from "discord-api-types/v10";
 import { Logger } from "log";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
 import type { CommandInteraction } from "../classes/commandInteraction.js";
+import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
 export interface Command {
     data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
@@ -17,6 +18,7 @@ export interface Command {
 export interface Button<T = undefined> {
     custom_id: string;
     cooldown?: number;
+    toggable?: boolean;
     parse?: (data: string[]) => T;
     execute: (interaction: ButtonInteraction, data: T) => void;
 }
@@ -24,8 +26,15 @@ export interface Button<T = undefined> {
 export interface SelectMenu<T = undefined> {
     custom_id: string;
     cooldown?: number;
+    toggable?: boolean;
     parse?: (data: string[]) => T;
     execute: (interaction: SelectMenuInteraction, data: T) => void;
+}
+
+export interface Modal<T = undefined> {
+    custom_id: string;
+    parse?: (data: string[]) => T;
+    execute: (interaction: ModalInteraction, data: T) => void;
 }
 
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
@@ -60,11 +69,13 @@ export enum FileType {
     Commands = "commands",
     Buttons = "buttons",
     SelectMenus = "select-menus",
+    Modals = "modals",
 }
 
 export async function load<T = Command>(type: FileType.Commands): Promise<Map<string, T>>;
 export async function load<T = Button>(type: FileType.Buttons): Promise<Map<string, T>>;
 export async function load<T = SelectMenu>(type: FileType.SelectMenus): Promise<Map<string, T>>;
+export async function load<T = Modal>(type: FileType.Modals): Promise<Map<string, T>>;
 export async function load<T>(type: FileType): Promise<Map<string, T>> {
     logger.infoSingle(`Started loading ${type} (📝) files.`, "Files");
 
@@ -91,11 +102,10 @@ export async function load<T>(type: FileType): Promise<Map<string, T>> {
         files: Array.from(files.keys()),
         count: files.size,
     });
-
     return files;
 }
 
-function getName(interaction: Command | Button | SelectMenu): string {
+function getName(interaction: Command | Button | SelectMenu | Modal): string {
     if ("data" in interaction) return interaction.data.name;
     return interaction.custom_id;
 }
