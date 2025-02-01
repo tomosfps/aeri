@@ -2,15 +2,16 @@ use reqwest::{Client, Response};
 use serde::Deserialize;
 use serde_json::json;
 use actix_web::{web, post, HttpResponse, Responder};
-use colourful_logger::Logger;
+use colourful_logger::{Logger, LogLevel};
 use crate::anilist::queries::{get_query, QUERY_URL};
 use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
 use rand::Rng;
 use crate::cache::proxy::{get_random_proxy, remove_proxy};
+use crate::global::compare_strings::compare_strings;
 
 lazy_static! {
-    static ref logger: Logger = Logger::default();
+    static ref logger: Logger = Logger::new(LogLevel::Debug, Some(""));
     static ref redis:  Redis  = Redis::new();
 }
 
@@ -65,7 +66,7 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
     }
         
     let relations = response.json::<serde_json::Value>().await.unwrap();
-    let relations = wash_relation_data(relations).await;
+    let relations = wash_relation_data(req.media_name.to_string(), relations).await;
     logger.debug_single("Returning relational data", "Relations");
     HttpResponse::Ok().json(relations)
 }
@@ -125,7 +126,6 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
 #[post("/media")]
 pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
 
-    // No need for checking mediaID as it's a required field
     if req.media_type.len() == 0 {
         logger.error_single("No type was included", "Media");
         let bad_json = json!({"error": "No type was included"});
@@ -279,12 +279,30 @@ async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
     washed_data
 }
 
-async fn wash_relation_data(relation_data: serde_json::Value) -> serde_json::Value {
+async fn wash_relation_data(parsed_string: String, relation_data: serde_json::Value) -> serde_json::Value {
     logger.debug_single("Washing up relational data", "Relations");
     let data: &serde_json::Value = &relation_data["data"]["Page"]["media"];
     let mut relation_list: Vec<serde_json::Value> = Vec::new();
+    let parsed_string = &parsed_string.to_lowercase();
 
     for rel in data.as_array().unwrap() {
+        let romaji = &rel["title"]["romaji"].as_str().unwrap_or("").to_lowercase();
+        let english = &rel["title"]["english"].as_str().unwrap_or("").to_lowercase();
+        let native = &rel["title"]["native"].as_str().unwrap_or("").to_lowercase();
+
+        let empty_vec = vec![];
+        let synonyms = rel["synonyms"].as_array().unwrap_or(&empty_vec);
+
+        let result = compare_strings(parsed_string, vec![romaji, english, native]);
+        logger.debug("Similarity Score Given: ", "Wash Relation", false, result.clone());
+
+        let lowercase_synonyms: Vec<String> = synonyms.iter().map(|x| x.as_str().unwrap().to_lowercase()).collect();
+        let synonyms_result = compare_strings(parsed_string, lowercase_synonyms.iter().collect());
+        logger.debug("Similarity Score Given: ", "Wash Relation", false, synonyms_result.clone());
+
+        let combined = result.iter().chain(synonyms_result.iter());
+        let result = combined.max_by(|a, b| a.1.partial_cmp(&b.1).unwrap()).unwrap();
+
         let washed_relation = json!({
             "id"        : rel["id"],
             "romaji"    : rel["title"]["romaji"],
@@ -292,11 +310,15 @@ async fn wash_relation_data(relation_data: serde_json::Value) -> serde_json::Val
             "native"    : rel["title"]["native"],
             "synonyms"  : rel["synonyms"],
             "type"      : rel["type"],
-            "dataFrom"  : "API"
+            "similarity": result.1,
+            "dataFrom"  : "API",
         });
+
+        logger.debug("Washed Relation: ", "Wash Relation", false, washed_relation.clone());
         relation_list.push(washed_relation);
     }
 
+    relation_list.sort_by(|a, b| b["similarity"].as_f64().unwrap().partial_cmp(&a["similarity"].as_f64().unwrap()).unwrap());
     let data: serde_json::Value = json!({
         "relations": relation_list
     });

@@ -58,14 +58,14 @@ export const interaction: Command = {
             .setMinValues(1)
             .setMaxValues(1)
             .addOptions(
-                result.relations.slice(0, 25).map((items: { native: any; english: any; romaji: any; id: any }) => {
+                result.relations.slice(0, 25).map((items: { native: string; english: string; romaji: string; id: number, synonyms: string[] }) => {
                     return new StringSelectMenuOptionBuilder()
                         .setLabel(
-                            `${items.english === null ? (items.native || items.romaji || "").slice(0, 100) : items.romaji.slice(0, 100)}`,
+                            `${items.english || items.romaji || items.native || ""}`.slice(0, 100),
                         )
                         .setValue(`${items.id}`)
                         .setDescription(
-                            `${items.english === null ? (items.native || items.romaji || "").slice(0, 100) : items.romaji.slice(0, 100)}`,
+                            `${items.synonyms.join(", ") || items.romaji || items.native || ""}`.slice(0, 100),
                         );
                 }),
             );
