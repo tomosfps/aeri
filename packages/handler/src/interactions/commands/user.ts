@@ -3,7 +3,7 @@ import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "log";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
-import { fetchAnilistUserData, intervalTime } from "../../utility/anilistUtil.js";
+import { fetchAnilistUserData } from "../../utility/anilistUtil.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
@@ -39,7 +39,7 @@ export const interaction: Command = {
             });
         }
 
-        const footer = `${userFetch.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${intervalTime(userFetch.result.leftUntilExpire)}`}`;
+        const footer = `${userFetch.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${interaction.format_seconds(userFetch.result.leftUntilExpire)}`}`;
         const embed = new EmbedBuilder()
             .setTitle(userFetch.result.name)
             .setURL(userFetch.result.url)

@@ -4,32 +4,6 @@ import { fetchAllUsers } from "database";
 import { Logger } from "log";
 
 const logger = new Logger();
-export function intervalTime(seconds: number, granularity = 2): string {
-    const intervals: [string, number][] = [
-        ["weeks", 604800],
-        ["days", 86400],
-        ["hours", 3600],
-        ["minutes", 60],
-        ["seconds", 1],
-    ];
-
-    const result: string[] = [];
-    let secondsLeft = seconds;
-
-    for (const [name, count] of intervals) {
-        const value = Math.floor(secondsLeft / count);
-        if (value) {
-            secondsLeft -= value * count;
-            let formattedName = name;
-            if (value === 1) {
-                formattedName = name.slice(0, -1); // Remove 's' for singular
-            }
-            result.push(`${value} ${formattedName}`);
-        }
-    }
-
-    return result.slice(0, granularity).join(", ");
-}
 
 export async function fetchAnilistMedia(mediaType: string, mediaID: number, interaction: any): Promise<any> {
     const response = await fetch(`${env.API_URL}/media`, {
@@ -67,7 +41,7 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         genresToShow.join(", ") + (additionalGenresCount > 0 ? ` + ${additionalGenresCount} more` : "");
 
     const currentEpisode = result.airing[0] ? result.airing[0].episode - 1 : null;
-    const nextEpisode = result.airing[0] ? intervalTime(result.airing[0].timeUntilAiring) : null;
+    const nextEpisode = result.airing[0] ? interaction.format_seconds(result.airing[0].timeUntilAiring) : null;
 
     const userData: {
         current: string[];
@@ -247,7 +221,7 @@ export async function fetchAnilistUserData(username: string, interaction: any): 
         `${inlineCode("Anime Count        :")} ${result.animeStats.count?.toLocaleString()}\n` +
         `${inlineCode("Mean Score         :")} ${result.animeStats.meanScore}\n` +
         `${inlineCode("Episodes Watched   :")} ${result.animeStats.watched?.toLocaleString()}\n` +
-        `${inlineCode("Watch Time         :")} ${intervalTime(result.animeStats.minutes * 60)}\n\n` +
+        `${inlineCode("Watch Time         :")} ${interaction.format_seconds(result.animeStats.minutes * 60)}\n\n` +
         `[${bold("Manga Information")}](${result.url}/mangalist)\n` +
         `${inlineCode("Manga Count        :")} ${result.mangaStats.count?.toLocaleString()}\n` +
         `${inlineCode("Mean Score         :")} ${result.mangaStats.meanScore}\n` +

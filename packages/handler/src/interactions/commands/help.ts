@@ -1,7 +1,6 @@
 import { EmbedBuilder, bold, codeBlock, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
-import { intervalTime } from "../../utility/anilistUtil.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 export const interaction: Command = {
@@ -25,7 +24,7 @@ export const interaction: Command = {
 
             if (command) {
                 const cooldownTimer =
-                    command.cooldown && command.cooldown > 1 ? intervalTime(command.cooldown) : "No cooldown";
+                    command.cooldown && command.cooldown > 1 ? interaction.format_seconds(command.cooldown) : "No cooldown";
                 const commandOptions = command.data.options;
                 let choiceDetails = "";
                 let exampleDetails = "";

@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import type { SelectMenu } from "../../services/commands.js";
-import { fetchAnilistMedia, intervalTime } from "../../utility/anilistUtil.js";
+import { fetchAnilistMedia } from "../../utility/anilistUtil.js";
 
 type SelectMenuData = {
     custom_id: string;
@@ -9,7 +9,7 @@ type SelectMenuData = {
 
 export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "media_selection",
-    cooldown: 5,
+    cooldown: 1,
     toggable: true,
     parse(data) {
         if (!data[0] || !data[1]) {
@@ -32,7 +32,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
             .setThumbnail(media.result.cover.extraLarge)
             .setDescription(media.description.join(""))
             .setFooter({
-                text: `${media.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${intervalTime(media.result.leftUntilExpire)}`}`,
+                text: `${media.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${interaction.format_seconds(media.result.leftUntilExpire)}`}`,
             })
             .setColor(0x2f3136);
 

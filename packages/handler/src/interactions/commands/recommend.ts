@@ -12,7 +12,6 @@ import {
     fetchAnilistMedia,
     fetchAnilistUserData,
     fetchRecommendation,
-    intervalTime,
 } from "../../utility/anilistUtil.js";
 
 import { getCommandOption } from "../../utility/interactionUtils.js";
@@ -145,7 +144,7 @@ export const interaction: Command = {
             .setThumbnail(result.result.cover.extraLarge)
             .setDescription(result.description.join(""))
             .setFooter({
-                text: `${result.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${intervalTime(result.result.leftUntilExpire)}`}`,
+                text: `${result.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${interaction.format_seconds(result.result.leftUntilExpire)}`}`,
             })
             .setColor(0x2f3136);
 
