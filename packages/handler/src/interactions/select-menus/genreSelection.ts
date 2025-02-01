@@ -11,7 +11,7 @@ type SelectMenuData = {
 
 export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "genre_selection",
-    cooldown: 1,
+    cooldown: 5,
     toggable: true,
     parse(data) {
         if (!data[0] || !data[1]) {

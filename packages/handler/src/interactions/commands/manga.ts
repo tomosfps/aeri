@@ -7,10 +7,11 @@ import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 export const interaction: Command = {
-    cooldown: 1,
+    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("manga")
         .setDescription("Find an manga based on the name")
+        .addExample("/manga media_name:One Piece")
         .addStringOption((option) =>
             option.setName("media_name").setDescription("The name of the manga").setRequired(true),
         ),

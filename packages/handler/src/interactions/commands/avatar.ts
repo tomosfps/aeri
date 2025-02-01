@@ -8,6 +8,7 @@ export const interaction: Command = {
     data: new SlashCommandBuilder()
         .setName("avatar")
         .setDescription("View a users or bots avatar")
+        .addExample("/avatar target:@eira.py")
         .addUserOption((option) =>
             option.setName("target").setDescription("The user/bot to view their avatar").setRequired(true),
         ),

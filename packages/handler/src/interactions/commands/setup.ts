@@ -8,10 +8,11 @@ import { getCommandOption } from "../../utility/interactionUtils.js";
 const logger = new Logger();
 
 export const interaction: Command = {
-    cooldown: 1,
+    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("setup")
         .setDescription("Connect your anilist account with the bot")
+        .addExample("/setup username:anilist_username")
         .addStringOption((option) =>
             option.setName("username").setDescription("Your Anilist username").setRequired(true),
         ),

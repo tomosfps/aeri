@@ -45,10 +45,15 @@ const genreList = [
 ];
 
 export const interaction: Command = {
-    cooldown: 1,
+    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("recommend")
         .setDescription("Recommend an anime or manga based on genre(s) or score")
+        .addExample("/recommend media:Anime genre:true")
+        .addExample("/recommend media:Manga score:true")
+        .addExample("/recommend media:Anime score:true")
+        .addExample("/recommend media:Manga genre:true")
+        .addExample("You can not use both genre and score at the same time")
         .addStringOption((option) =>
             option
                 .setName("media")

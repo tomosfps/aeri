@@ -8,10 +8,12 @@ import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 export const interaction: Command = {
-    cooldown: 1,
+    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("user")
         .setDescription("View a user's anilist account")
+        .addExample("/user")
+        .addExample("/user username:anilist_username")
         .addStringOption((option) =>
             option.setName("username").setDescription("The targets anilist username").setRequired(false),
         ),

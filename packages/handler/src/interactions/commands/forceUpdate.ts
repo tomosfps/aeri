@@ -9,7 +9,9 @@ export const interaction: Command = {
     cooldown: 300,
     data: new SlashCommandBuilder()
         .setName("force-update")
-        .setDescription("Force update the cache and remove your scores"),
+        .setDescription("Force update the cache and remove your scores")
+        .addExample("/force-update")
+        .addExample("Must have used /setup before using this command"),
     async execute(interaction): Promise<void> {
         const anilistUser = await fetchAnilistUser(interaction.member_id);
         const userID = anilistUser ? anilistUser.id : null;
