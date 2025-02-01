@@ -1,7 +1,7 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, SlashCommandBuilder } from "@discordjs/builders";
+import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { ButtonStyle } from "@discordjs/core";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import type { Command } from "../../services/commands.js";
+import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 export const interaction: Command = {

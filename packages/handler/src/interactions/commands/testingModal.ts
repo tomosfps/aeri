@@ -2,11 +2,10 @@ import {
     ActionRowBuilder,
     type ModalActionRowComponentBuilder,
     ModalBuilder,
-    SlashCommandBuilder,
     TextInputBuilder,
 } from "@discordjs/builders";
 import { TextInputStyle } from "@discordjs/core";
-import type { Command } from "../../services/commands.js";
+import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 
 export const interaction: Command = {
     data: new SlashCommandBuilder().setName("testing-modal").setDescription("This is just a testing modal"),

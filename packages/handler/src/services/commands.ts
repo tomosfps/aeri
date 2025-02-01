@@ -1,19 +1,13 @@
 import { readdir } from "node:fs/promises";
 import { URL } from "node:url";
-import type { SlashCommandBuilder, SlashCommandOptionsOnlyBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
 import { env } from "core";
 import { Routes } from "discord-api-types/v10";
 import { Logger } from "log";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
-import type { CommandInteraction } from "../classes/commandInteraction.js";
 import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
-export interface Command {
-    data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
-    cooldown?: number;
-    execute: (interaction: CommandInteraction) => void;
-}
+import type { Command } from "../classes/slashCommandBuilder.js";
 
 export interface Button<T = undefined> {
     custom_id: string;

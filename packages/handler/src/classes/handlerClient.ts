@@ -1,5 +1,6 @@
 import { Client, type ClientOptions } from "@discordjs/core";
-import type { Button, Command, Modal, SelectMenu } from "../services/commands.js";
+import type { Button, Modal, SelectMenu } from "../services/commands.js";
+import type { Command } from "./slashCommandBuilder.js";
 
 export interface HandlerClientOptions extends ClientOptions {
     commands: Map<string, Command>;

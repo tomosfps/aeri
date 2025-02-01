@@ -1,9 +1,8 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
 import { env } from "core";
 import { createAnilistUser, fetchUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "log";
-import type { Command } from "../../services/commands.js";
+import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();

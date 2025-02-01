@@ -1,8 +1,8 @@
-import { EmbedBuilder, SlashCommandBuilder } from "@discordjs/builders";
+import { EmbedBuilder } from "@discordjs/builders";
 import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "log";
-import type { Command } from "../../services/commands.js";
+import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { fetchAnilistUserData, intervalTime } from "../../utility/anilistUtil.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 

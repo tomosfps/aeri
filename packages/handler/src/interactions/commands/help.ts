@@ -1,7 +1,10 @@
-import { EmbedBuilder, SlashCommandBuilder, bold, inlineCode } from "@discordjs/builders";
+import { EmbedBuilder, bold, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
-import type { Command } from "../../services/commands.js";
+import { Logger } from "log";
+import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
+
+const logger = new Logger();
 
 export const interaction: Command = {
     data: new SlashCommandBuilder()
@@ -12,6 +15,8 @@ export const interaction: Command = {
         const option = getCommandOption("command", ApplicationCommandOptionType.String, interaction.options);
         const commands = interaction.client.commands;
         const maxLength = Math.max(...Array.from(commands.values()).map((command) => command.data.name.length));
+
+        logger.debug("Help command executed", "Commands", commands);
 
         if (option) {
             const command = commands.get(option);

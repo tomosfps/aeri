@@ -1,8 +1,7 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
 import { env } from "core";
 import { fetchAnilistUser } from "database";
 import { Logger } from "log";
-import type { Command } from "../../services/commands.js";
+import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 
 const logger = new Logger();
 

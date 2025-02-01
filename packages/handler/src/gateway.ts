@@ -4,7 +4,8 @@ import type { GatewayDispatchPayload, GatewaySendPayload, Gateway as IGateway } 
 import type { Environment } from "core/dist/env.js";
 import type { Redis } from "ioredis";
 import { Logger } from "log";
-import { type Command, deployCommands } from "./services/commands.js";
+import type { Command } from "./classes/slashCommandBuilder.js";
+import { deployCommands } from "./services/commands.js";
 
 const logger = new Logger();
 

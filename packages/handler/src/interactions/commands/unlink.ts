@@ -1,6 +1,5 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
 import { deleteAnilistUser, fetchUser } from "database";
-import type { Command } from "../../services/commands.js";
+import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 
 export const interaction: Command = {
     data: new SlashCommandBuilder().setName("unlink").setDescription("Unlink your anilist account from the bot"),

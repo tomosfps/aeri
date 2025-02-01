@@ -1,14 +1,13 @@
 import {
     ActionRowBuilder,
     EmbedBuilder,
-    SlashCommandBuilder,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
 } from "@discordjs/builders";
 import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "log";
-import type { Command } from "../../services/commands.js";
+import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import {
     fetchAnilistMedia,
     fetchAnilistUserData,

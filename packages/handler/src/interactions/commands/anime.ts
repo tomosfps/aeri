@@ -1,13 +1,8 @@
-import {
-    ActionRowBuilder,
-    SlashCommandBuilder,
-    StringSelectMenuBuilder,
-    StringSelectMenuOptionBuilder,
-} from "@discordjs/builders";
+import { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
 import { env } from "core";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "log";
-import type { Command } from "../../services/commands.js";
+import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
@@ -16,6 +11,9 @@ export const interaction: Command = {
     data: new SlashCommandBuilder()
         .setName("anime")
         .setDescription("Find an anime based on the name")
+        .addExample("/anime media_name:Naruto")
+        .addExample("/anime media_name:One Piece")
+        .addExample("/anime media_name:Attack on Titan")
         .addStringOption((option) =>
             option.setName("media_name").setDescription("The name of the anime").setRequired(true),
         ),
