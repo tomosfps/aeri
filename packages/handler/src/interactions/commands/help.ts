@@ -1,4 +1,4 @@
-import { EmbedBuilder, bold, inlineCode, codeBlock } from "@discordjs/builders";
+import { EmbedBuilder, bold, codeBlock, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { intervalTime } from "../../utility/anilistUtil.js";
@@ -12,7 +12,11 @@ export const interaction: Command = {
         .addExample("/help command:anime")
         .addStringOption((option) => option.setName("command").setDescription("The command you want to view")),
     async execute(interaction): Promise<void> {
-        const option = getCommandOption("command", ApplicationCommandOptionType.String, interaction.options)?.toLowerCase();
+        const option = getCommandOption(
+            "command",
+            ApplicationCommandOptionType.String,
+            interaction.options,
+        )?.toLowerCase();
         const commands = interaction.client.commands;
         const maxLength = Math.max(...Array.from(commands.values()).map((command) => command.data.name.length));
 
@@ -25,7 +29,7 @@ export const interaction: Command = {
                 const commandOptions = command.data.options;
                 let choiceDetails = "";
                 let exampleDetails = "";
-                
+
                 if ("examples" in command.data) {
                     exampleDetails += command.data.examples.map((example: string) => `${example}`).join("\n\n");
                 }
@@ -53,10 +57,10 @@ export const interaction: Command = {
 
                 const filteredDescription = descriptionBuilder.filter((line) => {
                     return !(
-                        /^\s*$/.test(line)       || 
-                        /null/.test(line)        ||
-                        /undefined/.test(line)   ||
-                        line.trim() === ""       ||
+                        /^\s*$/.test(line) ||
+                        /null/.test(line) ||
+                        /undefined/.test(line) ||
+                        line.trim() === "" ||
                         line.includes(" \n\n\n") ||
                         line.includes("```js\n\n```")
                     );

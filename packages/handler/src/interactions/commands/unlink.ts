@@ -2,7 +2,10 @@ import { deleteAnilistUser, fetchUser } from "database";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 
 export const interaction: Command = {
-    data: new SlashCommandBuilder().setName("unlink").setDescription("Unlink your anilist account from the bot").addExample("/unlink"),
+    data: new SlashCommandBuilder()
+        .setName("unlink")
+        .setDescription("Unlink your anilist account from the bot")
+        .addExample("/unlink"),
     async execute(interaction): Promise<void> {
         const isInDatabase = await fetchUser(interaction.member_id);
 
