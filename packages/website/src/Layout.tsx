@@ -1,11 +1,11 @@
-import Navigation from "./components/ui/navigation"
+import Navigation from "./components/ui/navigation";
 
 function Layout() {
-  return (
-    <>
-      <Navigation />
-    </>
-  )
+    return (
+        <>
+            <Navigation />
+        </>
+    );
 }
 
-export default Layout
+export default Layout;

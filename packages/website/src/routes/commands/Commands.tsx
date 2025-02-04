@@ -3,5 +3,5 @@ export default function Commands() {
         <>
             <h1>Commands</h1>
         </>
-    )
-};
+    );
+}

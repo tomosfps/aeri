@@ -1,16 +1,14 @@
 import { env } from "core";
-import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { Logger } from "log";
+import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 
 const logger = new Logger();
-
 export const interaction: Command = {
     data: new SlashCommandBuilder()
         .setName("test-character")
         .setDescription("Testing character")
         .addExample("/test-character"),
     async execute(interaction): Promise<void> {
-
         const response = await fetch(`${env.API_URL}/character`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
