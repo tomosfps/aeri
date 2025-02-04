@@ -10,6 +10,14 @@ import {
 import { env } from "core";
 import type { HandlerClient } from "./handlerClient.js";
 
+const intervals: [string, number][] = [
+    ["weeks", 604800],
+    ["days", 86400],
+    ["hours", 3600],
+    ["minutes", 60],
+    ["seconds", 1],
+];
+
 export class BaseInteraction {
     constructor(
         public interaction: APIInteraction,
@@ -50,14 +58,6 @@ export class BaseInteraction {
     }
 
     public format_seconds(seconds: number, granularity = 2) {
-        const intervals: [string, number][] = [
-            ["weeks", 604800],
-            ["days", 86400],
-            ["hours", 3600],
-            ["minutes", 60],
-            ["seconds", 1],
-        ];
-
         const result: string[] = [];
         let secondsLeft = seconds;
 

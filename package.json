@@ -10,7 +10,8 @@
         "gateway": "pnpm --filter gateway build && dotenv -- pnpm --filter gateway start",
         "handler": "pnpm --filter handler build && dotenv -- pnpm --filter handler start",
         "database-setup": "pnpm --filter database build && dotenv -- pnpm --filter database generate && dotenv -- pnpm --filter database push",
-        "api": "dotenv -- cargo run --manifest-path ./packages/api/Cargo.toml"
+        "api": "dotenv -- cargo run --manifest-path ./packages/api/Cargo.toml",
+        "website": "pnpm --filter website build && dotenv -- pnpm --filter website dev"
     },
     "license": "GPL-3.0",
     "devDependencies": {

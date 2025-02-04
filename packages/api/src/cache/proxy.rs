@@ -67,18 +67,18 @@ pub async fn update_proxy_list(redis_client: &RedisClient, url: &String) -> Resu
 
         match proxies.len() {
             0 => {
-                logger.error_single("No proxies found", "Proxies");
+                logger.error_single("No proxies found", "Proxy");
                 tokio::time::sleep(tokio::time::Duration::from_secs(18000)).await; // 18000 seconds = 5 hours
                 continue;
             },
             _ => {
-                logger.debug_single(&format!("Found {} proxies", proxies.len()), "Proxies");
+                logger.debug_single(&format!("Found {} proxies", proxies.len()), "Proxy");
                 let _: () = remove_all_proxies(redis_client).await?;
             }
         }
         let mut con = redis_client.get_connection()?;
 
-        logger.debug_single("Updating redis with new proxies", "Proxies");
+        logger.debug_single("Updating redis with new proxies", "Proxy");
         for (index, proxy) in proxies.iter().enumerate() {
             let key = format!("proxy:{}", index);
             let value = format!("{}", proxy);

@@ -47,6 +47,112 @@ pub fn get_query(query_name: &str) -> String {
     }
     ";
 
+    let character: &str = "
+    query Character($search: String, $characterId: Int) {
+    Character(search: $search, id: $characterId) {
+        age
+        description
+        gender
+        id
+        siteUrl
+        image {
+            large
+        }
+        name {
+            full
+            first
+            last
+            middle
+            native
+            alternative
+        }
+        dateOfBirth {
+            day
+            month
+            year
+        }
+        media {
+        nodes {
+            siteUrl
+            title {
+                english
+                native
+                romaji
+            }
+            format
+        }
+        }
+    }
+    }";
+
+    let staff: &str = "
+    query Staff($staffId: Int, $search: String) {
+    Staff(id: $staffId, search: $search) {
+        age
+        dateOfBirth {
+            day
+            month
+            year
+        }
+        dateOfDeath {
+            day
+            month
+            year
+        }
+        gender
+        homeTown
+        id
+        image {
+            large
+        }
+        languageV2
+        name {
+            first
+            full
+            last
+            middle
+            native
+        }
+        siteUrl
+        staffMedia {
+            nodes {
+                title {
+                    romaji
+                    native
+                    english
+                }
+            siteUrl
+            type
+            }
+        }
+    }
+    }
+    ";
+
+    let studio: &str = "
+    query Studio($studioId: Int, $search: String) {
+     Studio(id: $studioId, search: $search) {
+        favourites
+        id
+        isAnimationStudio
+        name
+        siteUrl
+        media {
+            nodes {
+                title {
+                    english
+                    native
+                    romaji
+                }
+            siteUrl
+            type
+            id
+            }
+        }
+    }
+    }
+    ";
+
     let user: &str = "
     query ($id: Int, $name: String) {
     User(id: $id, name: $name) {
@@ -193,6 +299,9 @@ pub fn get_query(query_name: &str) -> String {
         "affinity" => affinity.to_string(),
         "recommendation" => recommendation.to_string(),
         "recommendation_amount" => recommendation_amount.to_string(),
+        "staff" => staff.to_string(),
+        "character" => character.to_string(),
+        "studio" => studio.to_string(),
         _ => panic!("Invalid Query Name"),
     }
 }

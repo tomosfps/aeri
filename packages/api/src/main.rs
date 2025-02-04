@@ -10,6 +10,7 @@ mod cache;
 mod global;
 use anilist::media::{media_search, relations_search, recommend};
 use anilist::user::{user_search, user_score, expire};
+use anilist::staff::{character_search, staff_search, studio_search};
 use cache::redis::Redis;
 use cache::proxy::update_proxy_list;
 
@@ -20,18 +21,18 @@ lazy_static! {
 
 #[get("/")]
 async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Welcome to Anilist API Proxy")
+    HttpResponse::Ok().body("Welcome to the Ani API!")
 }
 
 async fn manual() -> impl Responder {
-    HttpResponse::Ok().body("Anilist API Proxy")
+    HttpResponse::Ok().body("Ani API")
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().unwrap_or_default();
 
-    logger.info_single("Starting Anilist API Proxy", "Main");
+    logger.info_single("Starting The Ani API", "Main");
     let ip = env::var("API_HOST").unwrap_or("0.0.0.0".to_string());
     let port = env::var("API_PORT").unwrap().parse::<u16>().unwrap_or(8080);
     let check_proxy = env::var("API_PROXY").map_err(|_| {
@@ -68,6 +69,9 @@ async fn main() -> std::io::Result<()> {
             .service(relations_search)
             .service(expire)
             .service(recommend)
+            .service(character_search)
+            .service(staff_search)
+            .service(studio_search)
             .route("/hey", web::get().to(manual))
     })
     .workers(num_cpus::get())

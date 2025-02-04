@@ -1,5 +1,5 @@
 # Aeri API
-Anilist API built in Rust to be fast and easy to use.
+An API built in Rust to be fast and easy to use.
 
 > [!WARNING]
 > ### INTENDED USE
