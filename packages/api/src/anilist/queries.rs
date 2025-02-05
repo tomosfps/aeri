@@ -236,6 +236,8 @@ pub fn get_query(query_name: &str) -> String {
             id
             type
             synonyms
+            status
+            format
             title {
                 romaji
                 english

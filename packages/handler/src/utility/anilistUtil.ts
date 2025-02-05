@@ -1,9 +1,29 @@
 import { bold, inlineCode } from "@discordjs/builders";
-import { env } from "core";
+import { capitalise, env } from "core";
 import { fetchAllUsers } from "database";
 import { Logger } from "log";
 
 const logger = new Logger();
+
+async function checkResponse(response: any, type: string): Promise<any> {
+    if (response === null) {
+        logger.error(`Request returned null for type ${type}`, "Anilist");
+        return null;
+    }
+
+    const result = await response.json().catch((error: any) => {
+        logger.error(`Error while parsing JSON data for type ${type}`, "Anilist", error);
+        return null;
+    });
+
+    if (result === null) {
+        logger.errorSingle(`Request returned null for type ${type}`, "Anilist");
+        return null;
+    }
+
+    logger.debug(`Returning result for type: ${type}`, "Anilist", result);
+    return result;
+}
 
 export async function fetchAnilistMedia(mediaType: string, mediaID: number, interaction: any): Promise<any> {
     const response = await fetch(`${env.API_URL}/media`, {
@@ -18,21 +38,7 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         return undefined;
     });
 
-    if (response === null || response === undefined) {
-        logger.error("Request returned null", "Anilist");
-        return undefined;
-    }
-
-    const result = await response.json().catch((error) => {
-        logger.error("Error while parsing JSON data.", "Anilist", error);
-        return undefined;
-    });
-
-    if (result.error) {
-        logger.error("An Error Occured when trying to access the API", "Anilist", result);
-        return undefined;
-    }
-
+    const result = await checkResponse(response, "Media");
     logger.debug("Result from API", "Anilist", result);
 
     const genresToShow = result.genres.slice(0, 3);
@@ -107,9 +113,6 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         }
     }
 
-    const isReading = mediaType === "MANGA" ? "current reading " : "current watching";
-    const isPlanning = mediaType === "MANGA" ? "planning to read " : "planning to watch";
-
     const descriptionBuilder = [
         `${inlineCode("total episodes    :")} ${result.episodes?.toLocaleString()}\n`,
         `${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString()}\n`,
@@ -124,9 +127,9 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         `${inlineCode("start date        :")} ${result.startDate}\n`,
         `${inlineCode("end date          :")} ${result.endDate}\n`,
         `${inlineCode("genres            :")} ${genresDisplay}\n\n`,
-        `${inlineCode("completed         :")}\n ${userData.completed.join("")}\n`,
-        `${inlineCode(`${isReading}  :`)}\n ${userData.current.join("")}\n`,
-        `${inlineCode(`${isPlanning} :`)}\n ${userData.planning.join("")}\n`,
+        `${inlineCode("completed         :")} \n ${userData.completed.join("")}\n`,
+        `${inlineCode("current           :")} \n ${userData.current.join("")}\n`,
+        `${inlineCode("planning          :")} \n ${userData.planning.join("")}\n`,
         `${inlineCode("dropped           :")}\n ${userData.dropped.join("")}\n`,
         `${inlineCode("paused            :")}\n ${userData.paused.join("")}\n\n`,
     ];
@@ -137,10 +140,8 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
             /null/.test(line) ||
             /undefined/.test(line) ||
             line === "`completed         :`\n \n" ||
-            line === "`current watching  :`\n \n" ||
-            line === "`current reading   :`\n \n" ||
-            line === "`planning to watch :`\n \n" ||
-            line === "`planning to read  :`\n \n" ||
+            line === "`current           :`\n \n" ||
+            line === "`planning          :`\n \n" ||
             line === "`dropped           :`\n \n" ||
             line === "`paused            :`\n \n\n"
         );
@@ -165,28 +166,12 @@ async function fetchUserData(user: number, media: number) {
         return null;
     });
 
-    if (response === null) {
-        logger.error("Request returned null", "Anilist");
-        return;
-    }
-
-    const userScore = await response.json().catch((error) => {
-        logger.error("Error while parsing JSON data.", "Anilist", error);
-        return;
-    });
-    return userScore;
-}
-
-function capitalise(message: string) {
-    return message
-        .toLowerCase()
-        .split(" ")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
+    const result = await checkResponse(response, "User Score");
+    return result;
 }
 
 export async function fetchAnilistUserData(username: string, interaction: any): Promise<any> {
-    const request = await fetch(`${env.API_URL}/user`, {
+    const response = await fetch(`${env.API_URL}/user`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -197,25 +182,9 @@ export async function fetchAnilistUserData(username: string, interaction: any): 
         return null;
     });
 
-    if (!request) {
-        interaction.reply({
-            content: `Unable to find ${username} within the Anilist API. `,
-            ephemeral: true,
-        });
-        return null;
-    }
-
-    const result = await request.json().catch((error) => {
-        logger.error("Error while parsing JSON data.", "Anilist", error);
-        return null;
-    });
-
-    if (result.error) {
-        logger.error("An Error Occured when trying to access the API", "Anilist", result);
-        return null;
-    }
-
+    const result = await checkResponse(response, "User");
     logger.debug("Result from API", "Anilist", result);
+
     const descriptionBuilder =
         `[${bold("Anime Information")}](${result.url}/animelist)\n` +
         `${inlineCode("Anime Count        :")} ${result.animeStats.count?.toLocaleString()}\n` +
@@ -252,19 +221,91 @@ export async function fetchRecommendation(mediaType: string, genres: string[]): 
         return null;
     });
 
+    const result = await checkResponse(response, "Recommendation");
+    return result;
+}
+
+export async function fetchAnilistRelations(media_name: string, media_type: string): Promise<any> {
+    const response = await fetch(`${env.API_URL}/relations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            media_name: media_name,
+            media_type: media_type,
+        }),
+    }).catch((error) => {
+        logger.error("Error while fetching data from the API.", "Anilist", error);
+        return null;
+    });
+
     if (response === null) {
         logger.error("Request returned null", "Anilist");
         return null;
     }
 
-    const result = await response.json().catch((error) => {
-        logger.error("Error while parsing JSON data.", "Anilist", error);
+    const result = await checkResponse(response, "Relations");
+    return result.relations;
+}
+
+export async function fetchAnilistCharacter(character_name: string): Promise<any> {
+    const response = await fetch(`${env.API_URL}/character`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            character_name: character_name,
+        }),
+    }).catch((error) => {
+        logger.error("Error while fetching data from the API.", "Anilist", error);
         return null;
     });
 
-    if (result === null) {
-        logger.errorSingle("Request returned null", "Anilist");
+    if (response === null) {
+        logger.error("Request returned null", "Anilist");
         return null;
     }
+
+    const result = await checkResponse(response, "Character");
+    return result;
+}
+
+export async function fetchAnilistStaff(staff_name: string): Promise<any> {
+    const response = await fetch(`${env.API_URL}/staff`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            staff_name: staff_name,
+        }),
+    }).catch((error) => {
+        logger.error("Error while fetching data from the API.", "Anilist", error);
+        return null;
+    });
+
+    if (response === null) {
+        logger.error("Request returned null", "Anilist");
+        return null;
+    }
+
+    const result = await checkResponse(response, "Staff");
+    return result;
+}
+
+export async function fetchAnilistStudio(studio_name: string): Promise<any> {
+    const response = await fetch(`${env.API_URL}/studio`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            studio_name: studio_name,
+        }),
+    }).catch((error) => {
+        logger.error("Error while fetching data from the API.", "Anilist", error);
+        return null;
+    });
+
+    if (response === null) {
+        logger.error("Request returned null", "Anilist");
+        return null;
+    }
+
+    const result = await checkResponse(response, "Studio");
     return result;
 }

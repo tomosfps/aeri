@@ -62,7 +62,7 @@ impl Redis {
     }
 
     pub fn expire<T: ToRedisArgs + std::fmt::Debug>(&self, key: T, seconds: i64) -> RedisResult<()> {
-        logger.debug_single(&format!("Setting Key to expire in {} seconds : {:?}", seconds, key).as_str(), "Redis");
+        logger.debug_single(&format!("Setting Key to expire in {} seconds for key: {:?}", seconds, key).as_str(), "Redis");
         let mut con = self.client.get_connection()?;
         let result: RedisResult<()> = con.expire(key, seconds);
         

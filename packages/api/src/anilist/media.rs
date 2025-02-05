@@ -302,19 +302,28 @@ async fn wash_relation_data(parsed_string: String, relation_data: serde_json::Va
 
         let combined = result.iter().chain(synonyms_result.iter());
         let result = combined.max_by(|a, b| a.1.partial_cmp(&b.1).unwrap()).unwrap();
+        logger.debug("Overall Score Given: ", "Wash Relation", false, result.clone());
+
+        let status_text = match rel["status"].as_str() {
+            Some("RELEASING") => "Airing",
+            Some("NOT_YET_RELEASED") => "Upcoming",
+            _ => "",
+        };
 
         let washed_relation = json!({
-            "id"        : rel["id"],
-            "romaji"    : rel["title"]["romaji"],
-            "english"   : rel["title"]["english"],
-            "native"    : rel["title"]["native"],
-            "synonyms"  : rel["synonyms"],
-            "type"      : rel["type"],
-            "similarity": result.1,
-            "dataFrom"  : "API",
+            "id"            : rel["id"],
+            "romaji"        : rel["title"]["romaji"],
+            "english"       : rel["title"]["english"],
+            "native"        : rel["title"]["native"],
+            "synonyms"      : rel["synonyms"],
+            "type"          : rel["type"],
+            "format"        : rel["format"],
+            "airingType"    : status_text,
+            "similarity"    : result.1,
+            "dataFrom"      : "API",
         });
 
-        logger.debug("Washed Relation: ", "Wash Relation", false, washed_relation.clone());
+        logger.debug("Washed Relation: ", "Relations", false, washed_relation.clone());
         relation_list.push(washed_relation);
     }
 

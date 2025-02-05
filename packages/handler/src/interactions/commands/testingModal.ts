@@ -8,7 +8,7 @@ import { TextInputStyle } from "@discordjs/core";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 
 export const interaction: Command = {
-    data: new SlashCommandBuilder().setName("testing-modal").setDescription("This is just a testing modal"),
+    data: new SlashCommandBuilder().setName("modal").setDescription("This is just a testing modal"),
     async execute(interaction): Promise<void> {
         const modal = new ModalBuilder().setCustomId("test-modal").setTitle("create Post");
 
