@@ -139,9 +139,9 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
             /^\s*$/.test(line) ||
             /null/.test(line) ||
             /undefined/.test(line) ||
-            line === "`completed         :`\n \n" ||
-            line === "`current           :`\n \n" ||
-            line === "`planning          :`\n \n" ||
+            line === "`completed         :` \n \n" ||
+            line === "`current           :` \n \n" ||
+            line === "`planning          :` \n \n" ||
             line === "`dropped           :`\n \n" ||
             line === "`paused            :`\n \n\n"
         );

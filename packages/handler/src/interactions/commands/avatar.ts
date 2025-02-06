@@ -36,15 +36,14 @@ export const interaction: Command = {
                 : `https://cdn.discordapp.com/embed/avatars/${(Number(member) >> 22) % 6}.png?size=1024`;
 
         const guildButton = new ButtonBuilder()
-            .setCustomId(`server:${member}:${interaction.guild_id}`)
+            .setCustomId(`server:${member}:${interaction.member?.user.id}`)
             .setLabel("Guild Avatar")
             .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Primary);
 
         const defaultButton = new ButtonBuilder()
-            .setCustomId(`default:${member}:${interaction.guild_id}`)
+            .setCustomId(`default:${member}:${interaction.member?.user.id}`)
             .setLabel("Default Avatar")
-            .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder().addComponents(defaultButton, guildButton);

@@ -15,6 +15,7 @@
         "bufferutil": "^4.0.9",
         "cache": "workspace:*",
         "core": "workspace:*",
+        "handler": "workspace:*",
         "discord-api-types": "^0.37.118",
         "ioredis": "^5.4.2",
         "log": "workspace:*"

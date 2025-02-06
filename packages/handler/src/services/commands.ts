@@ -13,6 +13,7 @@ export interface Button<T = undefined> {
     custom_id: string;
     cooldown?: number;
     toggable?: boolean;
+    timeout: number;
     parse?: (data: string[]) => T;
     execute: (interaction: ButtonInteraction, data: T) => void;
 }
@@ -21,6 +22,7 @@ export interface SelectMenu<T = undefined> {
     custom_id: string;
     cooldown?: number;
     toggable?: boolean;
+    timeout: number;
     parse?: (data: string[]) => T;
     execute: (interaction: SelectMenuInteraction, data: T) => void;
 }

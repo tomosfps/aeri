@@ -8,6 +8,7 @@ type ButtonData = {
 export const interaction: Button<ButtonData> = {
     custom_id: "server",
     toggable: true,
+    timeout: 3600,
     parse(data) {
         if (!data[0] || !data[1]) {
             throw new Error("Invalid button data");

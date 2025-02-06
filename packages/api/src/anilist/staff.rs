@@ -7,6 +7,7 @@ use crate::anilist::queries::{get_query, QUERY_URL};
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
+use crate::anilist::washed::{wash_character_data, wash_staff_data, wash_studio_data};
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -168,67 +169,4 @@ pub async fn staff_search(req: web::Json<StaffRequest>) -> impl Responder {
 
     logger.debug_single("Returning staff data", "Staff");
     HttpResponse::Ok().json(staff)
-}
-
-
-async fn wash_staff_data(staff_data: serde_json::Value) -> serde_json::Value {
-    logger.debug_single("Washing up staff data", "Staff");
-    let data: &serde_json::Value = &staff_data["data"]["Staff"];
-
-    let washed_data = json!({
-        "id": data["id"],
-        "age": data["age"],
-        "gender": data["gender"],
-        "home": data["homeTown"],
-        "language": data["languageV2"],
-        "fullName": data["name"]["full"],
-        "nativeName": data["name"]["native"],
-        "dateOfBirth": format!("{}/{}/{}", data["dateOfBirth"]["day"], data["dateOfBirth"]["month"], data["dateOfBirth"]["year"]),
-        "dateOfDeath": format!("{}/{}/{}", data["dateOfDeath"]["day"], data["dateOfDeath"]["month"], data["dateOfDeath"]["year"]),
-        "url": data["siteUrl"],
-        "image": Some(data["image"]["large"].clone()),
-        "staffData": data["staffMedia"]["nodes"],
-        "dataFrom": "API",
-    });
-
-    washed_data
-}
-
-async fn wash_studio_data(studio_data: serde_json::Value) -> serde_json::Value {
-    logger.debug_single("Washing up studio data", "Studio");
-    let data: &serde_json::Value = &studio_data["data"]["Studio"];
-
-    let washed_data = json!({
-        "id": data["id"],
-        "favourites": data["favourites"],
-        "name": data["name"],
-        "url": data["siteUrl"],
-        "media": data["media"]["nodes"],
-        "isAnimationStudio": data["isAnimationStudio"],
-        "dataFrom": "API",
-    });
-
-    washed_data
-}
-
-async fn wash_character_data(character_data: serde_json::Value) -> serde_json::Value {
-    logger.debug_single("Washing up character data", "Character");
-    let data: &serde_json::Value = &character_data["data"]["Character"];
-
-    let washed_data = json!({
-        "id": data["id"],
-        "fullName": data["name"]["full"],
-        "nativeName": data["name"]["native"],
-        "url": data["siteUrl"],
-        "image": Some(data["image"]["large"].clone()),
-        "url": data["siteUrl"],
-        "age": data["age"],
-        "gender": data["gender"],
-        "dateOfBirth": format!("{}/{}/{}", data["dateOfBirth"]["day"], data["dateOfBirth"]["month"], data["dateOfBirth"]["year"]),
-        "media": data["media"]["nodes"],
-        "description": data["description"],
-        "dataFrom": "API",
-    });
-
-    washed_data
 }

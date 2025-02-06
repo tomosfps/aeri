@@ -1,5 +1,6 @@
 import { MessageFlags } from "@discordjs/core";
 import { checkRedis } from "core";
+import { env } from "core";
 import { Logger } from "log";
 import { type ChatInputHandler, CommandInteraction } from "../../classes/commandInteraction.js";
 
@@ -10,6 +11,15 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
 
     const command = client.commands.get(interaction.data.name);
     const memberId = interaction.member?.user.id;
+    const ownerOnly = command?.owner_only ?? false;
+
+    if (ownerOnly && memberId !== env.DISCORD_OWNER_ID) {
+        logger.warnSingle("Command is owner only", "Handler");
+        return api.interactions.reply(interaction.id, interaction.token, {
+            content: "This command is only available to the bot owner.",
+            flags: MessageFlags.Ephemeral,
+        });
+    }
 
     if (!memberId) {
         logger.warnSingle("Member was not found", "Handler");

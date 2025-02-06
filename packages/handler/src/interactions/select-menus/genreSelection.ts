@@ -13,6 +13,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "genre_selection",
     cooldown: 1,
     toggable: true,
+    timeout: 3600,
     parse(data) {
         if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");

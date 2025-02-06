@@ -16,8 +16,8 @@ export const interaction: Command = {
             option.setName("media_name").setDescription("The name of the manga").setRequired(true),
         ),
     async execute(interaction): Promise<void> {
-        const anime = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";
-        const relations = await fetchAnilistRelations(anime, "ANIME").catch((error: any) => {
+        const manga = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";
+        const relations = await fetchAnilistRelations(manga, "MANGA").catch((error: any) => {
             logger.error("Error while fetching data from the API.", "Anilist", error);
             return null;
         });
@@ -28,7 +28,7 @@ export const interaction: Command = {
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId(`media_selection:anime:${interaction.member_id}`)
+            .setCustomId(`media_selection:manga:${interaction.member_id}`)
             .setPlaceholder("Choose A Media...")
             .setMinValues(1)
             .setMaxValues(1)

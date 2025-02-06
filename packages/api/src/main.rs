@@ -9,7 +9,7 @@ mod anilist;
 mod cache;
 mod global;
 use anilist::media::{media_search, relations_search, recommend};
-use anilist::user::{user_search, user_score, expire};
+use anilist::user::{user_search, user_score, expire_user};
 use anilist::staff::{character_search, staff_search, studio_search};
 use cache::redis::Redis;
 use cache::proxy::update_proxy_list;
@@ -67,7 +67,7 @@ async fn main() -> std::io::Result<()> {
             .service(user_score)
             .service(media_search)
             .service(relations_search)
-            .service(expire)
+            .service(expire_user)
             .service(recommend)
             .service(character_search)
             .service(staff_search)

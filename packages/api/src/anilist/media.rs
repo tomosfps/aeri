@@ -8,7 +8,7 @@ use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
 use rand::Rng;
 use crate::cache::proxy::{get_random_proxy, remove_proxy};
-use crate::global::compare_strings::compare_strings;
+use crate::anilist::washed::{wash_media_data, wash_relation_data};
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -242,96 +242,4 @@ async fn get_recommendation(pages: i64, genres: Vec<String>, media: String) -> s
     }
     let random_choice = rng.random_range(0..ids.len());
     json!(ids[random_choice])
-}
-
-async fn wash_media_data(media_data: serde_json::Value) -> serde_json::Value {
-    logger.debug_single("Washing up media data", "Media");
-    let mut data = media_data["data"]["Media"].clone();
-
-    if data["status"] == "NOT_YET_RELEASED" {
-        data["status"] = "Not Yet Released".into();
-    }
-
-    let washed_data: serde_json::Value = json!({
-        "id"            : data["id"],
-        "romaji"        : data["title"]["romaji"],
-        "airing"        : data["airingSchedule"]["nodes"],
-        "averageScore"  : data["averageScore"],
-        "meanScore"     : data["meanScore"],
-        "banner"        : Some(data["bannerImage"].clone()),
-        "cover"         : Some(data["coverImage"].clone()),
-        "duration"      : data["duration"],
-        "episodes"      : data["episodes"],
-        "chapters"      : data["chapters"],
-        "volumes"       : data["volumes"],
-        "format"        : data["format"],
-        "genres"        : data["genres"],
-        "popularity"    : data["popularity"],
-        "favourites"    : data["favourites"],
-        "status"        : data["status"],
-        "url"           : data["siteUrl"],
-        "endDate"       : format!("{}/{}/{}", data["endDate"]["day"], data["endDate"]["month"], data["endDate"]["year"]),
-        "startDate"     : format!("{}/{}/{}", data["startDate"]["day"], data["startDate"]["month"], data["startDate"]["year"]),
-        "dataFrom"      : "API",
-    });
-
-    logger.debug_single("Data has been washed and being returned", "Media");
-    washed_data
-}
-
-async fn wash_relation_data(parsed_string: String, relation_data: serde_json::Value) -> serde_json::Value {
-    logger.debug_single("Washing up relational data", "Relations");
-    let data: &serde_json::Value = &relation_data["data"]["Page"]["media"];
-    let mut relation_list: Vec<serde_json::Value> = Vec::new();
-    let parsed_string = &parsed_string.to_lowercase();
-
-    for rel in data.as_array().unwrap() {
-        let romaji = &rel["title"]["romaji"].as_str().unwrap_or("").to_lowercase();
-        let english = &rel["title"]["english"].as_str().unwrap_or("").to_lowercase();
-        let native = &rel["title"]["native"].as_str().unwrap_or("").to_lowercase();
-
-        let empty_vec = vec![];
-        let synonyms = rel["synonyms"].as_array().unwrap_or(&empty_vec);
-
-        let result = compare_strings(parsed_string, vec![romaji, english, native]);
-        logger.debug("Similarity Score Given: ", "Wash Relation", false, result.clone());
-
-        let lowercase_synonyms: Vec<String> = synonyms.iter().map(|x| x.as_str().unwrap().to_lowercase()).collect();
-        let synonyms_result = compare_strings(parsed_string, lowercase_synonyms.iter().collect());
-        logger.debug("Similarity Score Given: ", "Wash Relation", false, synonyms_result.clone());
-
-        let combined = result.iter().chain(synonyms_result.iter());
-        let result = combined.max_by(|a, b| a.1.partial_cmp(&b.1).unwrap()).unwrap();
-        logger.debug("Overall Score Given: ", "Wash Relation", false, result.clone());
-
-        let status_text = match rel["status"].as_str() {
-            Some("RELEASING") => "Airing",
-            Some("NOT_YET_RELEASED") => "Upcoming",
-            _ => "",
-        };
-
-        let washed_relation = json!({
-            "id"            : rel["id"],
-            "romaji"        : rel["title"]["romaji"],
-            "english"       : rel["title"]["english"],
-            "native"        : rel["title"]["native"],
-            "synonyms"      : rel["synonyms"],
-            "type"          : rel["type"],
-            "format"        : rel["format"],
-            "airingType"    : status_text,
-            "similarity"    : result.1,
-            "dataFrom"      : "API",
-        });
-
-        logger.debug("Washed Relation: ", "Relations", false, washed_relation.clone());
-        relation_list.push(washed_relation);
-    }
-
-    relation_list.sort_by(|a, b| b["similarity"].as_f64().unwrap().partial_cmp(&a["similarity"].as_f64().unwrap()).unwrap());
-    let data: serde_json::Value = json!({
-        "relations": relation_list
-    });
-
-    logger.debug_single("Data has been washed and being returned ", "Relations");
-    data
 }

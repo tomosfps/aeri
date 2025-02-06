@@ -7,6 +7,7 @@ import { getCommandOption } from "../../utility/interactionUtils.js";
 const logger = new Logger();
 export const interaction: Command = {
     cooldown: 5,
+    owner_only: true,
     data: new SlashCommandBuilder()
         .setName("character")
         .setDescription("Find a character based on the name")

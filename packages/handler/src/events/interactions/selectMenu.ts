@@ -1,5 +1,5 @@
 import { MessageFlags } from "@discordjs/core";
-import { checkRedis } from "core";
+import { checkRedis, setExpireCommand } from "core";
 import { Logger } from "log";
 import { type SelectMenuHandler, SelectMenuInteraction } from "../../classes/selectMenuInteraction.js";
 
@@ -12,6 +12,7 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
     const selectMenu = client.selectMenus.get(selectId);
     const memberId = interaction.member?.user.id;
     const toggable = selectMenu?.toggable ?? false;
+    const timeout = selectMenu?.timeout ?? 3600;
 
     if (!memberId) {
         logger.warnSingle("Member was not found", "Handler");
@@ -40,6 +41,15 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
             content: `You may use this command again in <t:${check}:R>`,
             flags: MessageFlags.Ephemeral,
         });
+    }
+
+    const expireKey = `select:${selectId}:${memberId}`;
+    const setExpire = await setExpireCommand(expireKey, timeout, api, interaction);
+
+    if (!setExpire) {
+        logger.errorSingle(`${selectId} already exists in redis`, "Handler");
+    } else {
+        logger.debugSingle(`Set expire time for select menu: ${selectId}`, "Handler");
     }
 
     try {

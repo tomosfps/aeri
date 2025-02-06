@@ -41,6 +41,9 @@ importers:
       ioredis:
         specifier: ^5.4.2
         version: 5.4.2
+      log:
+        specifier: workspace:*
+        version: link:../logger
       pg:
         specifier: ^8.13.1
         version: 8.13.1
@@ -94,6 +97,9 @@ importers:
       discord-api-types:
         specifier: ^0.37.118
         version: 0.37.118
+      handler:
+        specifier: workspace:*
+        version: link:../handler
       ioredis:
         specifier: ^5.4.2
         version: 5.4.2

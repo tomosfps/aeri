@@ -1,5 +1,5 @@
 import { MessageFlags } from "@discordjs/core";
-import { checkRedis } from "core";
+import { checkRedis, setExpireCommand } from "core";
 import { Logger } from "log";
 import { type ButtonHandler, ButtonInteraction } from "../../classes/buttonInteraction.js";
 
@@ -12,6 +12,7 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
     const button = client.buttons.get(buttonId);
     const memberId = interaction.member?.user.id;
     const toggable = button?.toggable ?? false;
+    const timeout = button?.timeout ?? 3600;
 
     if (!button) {
         logger.warnSingle(`Button not found: ${buttonId}`, "Handler");
@@ -31,6 +32,15 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
             flags: MessageFlags.Ephemeral,
         });
         return;
+    }
+
+    const expireKey = `button:${buttonId}:${memberId}`;
+    const setExpire = await setExpireCommand(expireKey, timeout, api, interaction);
+
+    if (!setExpire) {
+        logger.errorSingle(`${buttonId} already exists in redis`, "Handler");
+    } else {
+        logger.debugSingle(`Set expire time for select menu: ${buttonId}`, "Handler");
     }
 
     const redisKey = `${buttonId}_${memberId}`;
