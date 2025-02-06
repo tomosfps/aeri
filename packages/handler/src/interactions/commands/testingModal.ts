@@ -9,6 +9,7 @@ import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBui
 
 export const interaction: Command = {
     data: new SlashCommandBuilder().setName("modal").setDescription("This is just a testing modal"),
+    owner_only: true,
     async execute(interaction): Promise<void> {
         const modal = new ModalBuilder().setCustomId("test-modal").setTitle("create Post");
 

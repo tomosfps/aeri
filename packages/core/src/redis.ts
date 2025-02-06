@@ -53,22 +53,21 @@ export async function setExpireCommand(redisKey: string, ttl: number, api: any, 
         return false;
     }
 
-    logger.debugSingle(`Setting expire time for select menu: ${redisKey}`, "Redis");
-    await redis.setex(redisKey, ttl, "");
-    setTimeout(async () => await handleSelectMenuExpiration(redisKey, api, interaction), ttl * 1000);
+    logger.debugSingle(`Setting expire time for component: ${redisKey}`, "Redis");
+    await redis.setex(redisKey, ttl, "", () => {
+        handleExpiration(redisKey, api, interaction);
+    });
     return true;
 }
 
-async function handleSelectMenuExpiration(redisKey: string, api: any, interaction: any) {
-    logger.infoSingle(`Select menu expired: ${redisKey}`, "Handler");
-
+async function handleExpiration(redisKey: string, api: any, interaction: any) {
     const message = await api.channels.getMessage(interaction.channel.id, interaction.message.id);
     if (message) {
         await api.channels.editMessage(interaction.channel.id, interaction.message.id, {
             components: [],
         });
-        logger.debugSingle(`Removed select menu from message: ${redisKey}`, "Redis");
+        logger.debugSingle(`Removed component from message: ${redisKey}`, "Redis");
     } else {
-        logger.warnSingle(`Message not found for select menu: ${redisKey}`, "Redis");
+        logger.warnSingle(`Message not found for component: ${redisKey}`, "Redis");
     }
 }
