@@ -43,8 +43,8 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
         });
     }
 
-    const expireKey = `select:${selectId}:${memberId}`;
-    const setExpire = await setExpireCommand(expireKey, timeout, api, interaction);
+    const expireKey = `select:${interaction.channel.id}:${interaction.message.id}`;
+    const setExpire = await setExpireCommand(expireKey, timeout);
 
     if (!setExpire) {
         logger.errorSingle(`${selectId} already exists in redis`, "Handler");

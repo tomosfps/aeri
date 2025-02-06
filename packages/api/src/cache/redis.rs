@@ -120,4 +120,22 @@ impl Redis {
 
         Ok(())
     }
+
+    pub async fn setexp<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, value: V, seconds: u64) -> RedisResult<()> {
+        logger.debug_single(&format!("Setting {:?} with data and expiring in {} seconds", key, seconds).as_str(), "Redis");
+        let mut con = self.client.get_connection()?;
+        
+        let result: RedisResult<()> = con.set_ex(key, value, seconds);
+        match result {
+            Ok(_) => {
+                logger.debug_single("Key and Value have been set", "Redis");
+                return Ok(());
+            },
+            Err(e) => {
+                logger.error_single(&format!("Error setting key : {:?}", e).as_str(), "Redis");
+                return Err(e);
+            }
+        }
+    }
+
 }

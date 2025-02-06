@@ -10,7 +10,7 @@ mod cache;
 mod global;
 use anilist::media::{media_search, relations_search, recommend};
 use anilist::user::{user_search, user_score, expire_user};
-use anilist::staff::{character_search, staff_search, studio_search};
+use anilist::search::{character_search, staff_search, studio_search};
 use cache::redis::Redis;
 use cache::proxy::update_proxy_list;
 

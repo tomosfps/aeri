@@ -1,9 +1,13 @@
+import { API } from "@discordjs/core";
+import { REST } from "@discordjs/rest";
 import { Redis, type RedisOptions } from "ioredis";
 import { Logger } from "log";
 import { env } from "./env.js";
 
 const logger = new Logger();
 const redisInstances: { [key: string]: Redis } = {};
+const rest = new REST().setToken(env.DISCORD_TOKEN);
+const api = new API(rest);
 
 export async function getRedis(options?: RedisOptions): Promise<Redis> {
     const optionsString = options ? JSON.stringify(options) : "default";
@@ -39,13 +43,12 @@ export async function checkRedis(redisKey: string, command: any, memberID: strin
     }
 
     if (command.cooldown) {
-        redis.set(redisKey, memberID);
-        redis.expire(redisKey, command.cooldown);
+        await redis.setex(redisKey, command.cooldown, memberID);
     }
     return 0;
 }
 
-export async function setExpireCommand(redisKey: string, ttl: number, api: any, interaction: any): Promise<any> {
+export async function setExpireCommand(redisKey: string, ttl: number): Promise<any> {
     const redis = await getRedis();
 
     if (await redis.exists(redisKey)) {
@@ -53,17 +56,29 @@ export async function setExpireCommand(redisKey: string, ttl: number, api: any, 
         return false;
     }
 
-    logger.debugSingle(`Setting expire time for component: ${redisKey}`, "Redis");
-    await redis.setex(redisKey, ttl, "", () => {
-        handleExpiration(redisKey, api, interaction);
-    });
+    logger.debugSingle(`Setting expire time for component: ${redisKey} to ${ttl}`, "Redis");
+    await redis.setex(redisKey, ttl, "");
     return true;
 }
 
-async function handleExpiration(redisKey: string, api: any, interaction: any) {
-    const message = await api.channels.getMessage(interaction.channel.id, interaction.message.id);
+export async function handleExpiration(redisKey: string): Promise<void> {
+    logger.debug(`Handling expiration for component: ${redisKey}`, "Redis");
+
+    const [prefix, channelId, messageId] = redisKey.split(":");
+    logger.debug(`Component keys: ${redisKey}`, "Redis", {
+        prefix,
+        channelId,
+        messageId,
+    });
+
+    if (!channelId || !messageId) {
+        logger.warnSingle(`Invalid interaction data: ${redisKey}`, "Redis");
+        return;
+    }
+
+    const message = await api.channels.getMessage(channelId, messageId);
     if (message) {
-        await api.channels.editMessage(interaction.channel.id, interaction.message.id, {
+        await api.channels.editMessage(channelId, messageId, {
             components: [],
         });
         logger.debugSingle(`Removed component from message: ${redisKey}`, "Redis");

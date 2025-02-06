@@ -4,7 +4,10 @@ export const envSchema = z.object({
     DISCORD_TOKEN: z.string(),
     DISCORD_APPLICATION_ID: z.string(),
     DISCORD_TEST_GUILD_ID: z.string().optional(),
-    DISCORD_OWNER_ID: z.string().optional().default(""),
+    DISCORD_OWNER_IDS: z
+        .string()
+        .transform((val) => val.split(","))
+        .optional(),
     POSTGRES_URL: z.string().optional(),
     POSTGRES_HOST: z.string().default("database"),
     POSTGRES_PORT: z.coerce.number().default(5432),

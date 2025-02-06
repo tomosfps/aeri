@@ -34,8 +34,8 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
         return;
     }
 
-    const expireKey = `button:${buttonId}:${memberId}`;
-    const setExpire = await setExpireCommand(expireKey, timeout, api, interaction);
+    const expireKey = `button:${interaction.channel.id}:${interaction.message.id}`;
+    const setExpire = await setExpireCommand(expireKey, timeout);
 
     if (!setExpire) {
         logger.errorSingle(`${buttonId} already exists in redis`, "Handler");

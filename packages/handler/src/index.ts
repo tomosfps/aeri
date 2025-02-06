@@ -5,6 +5,7 @@ import { HandlerClient } from "./classes/handlerClient.js";
 import { Gateway } from "./gateway.js";
 import { FileType, load } from "./services/commands.js";
 import { registerEvents } from "./services/events.js";
+import { registerRedisEvents } from "./services/redisEvents.js";
 
 const redis = await getRedis();
 const rest = new REST().setToken(env.DISCORD_TOKEN);
@@ -19,3 +20,4 @@ const client = new HandlerClient({ rest, gateway, commands, buttons, selectMenus
 
 await gateway.connect();
 await registerEvents(client);
+await registerRedisEvents();

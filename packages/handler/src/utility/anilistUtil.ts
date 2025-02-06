@@ -21,7 +21,6 @@ async function checkResponse(response: any, type: string): Promise<any> {
         return null;
     }
 
-    logger.debug(`Returning result for type: ${type}`, "Anilist", result);
     return result;
 }
 
@@ -39,7 +38,6 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
     });
 
     const result = await checkResponse(response, "Media");
-    logger.debug("Result from API", "Anilist", result);
 
     const genresToShow = result.genres.slice(0, 3);
     const additionalGenresCount = result.genres.length - genresToShow.length;
@@ -183,8 +181,6 @@ export async function fetchAnilistUserData(username: string, interaction: any): 
     });
 
     const result = await checkResponse(response, "User");
-    logger.debug("Result from API", "Anilist", result);
-
     const descriptionBuilder =
         `[${bold("Anime Information")}](${result.url}/animelist)\n` +
         `${inlineCode("Anime Count        :")} ${result.animeStats.count?.toLocaleString()}\n` +

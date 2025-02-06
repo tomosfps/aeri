@@ -47,7 +47,6 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
     for (const file of jsFiles) {
         try {
             const eventModule = await import(`../events/${file}`);
-
             const event = eventModule.default as Event<GatewayDispatchEvents>;
 
             if (!event || !event.name || !event.on) {

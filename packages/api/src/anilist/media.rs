@@ -125,7 +125,6 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
 
 #[post("/media")]
 pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
-
     if req.media_type.len() == 0 {
         logger.error_single("No type was included", "Media");
         let bad_json = json!({"error": "No type was included"});

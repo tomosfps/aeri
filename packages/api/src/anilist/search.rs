@@ -1,5 +1,6 @@
 use reqwest::{Client, Response};
 use crate::cache::proxy::{get_random_proxy, remove_proxy};
+use crate::global::compare_strings::normalize_name;
 use serde_json::json;
 use serde::Deserialize;
 use actix_web::{web, post, HttpResponse, Responder};
@@ -26,15 +27,32 @@ struct StaffRequest {
 
 #[derive(Deserialize)]
 struct StudioRequest {
-    studio_name: String
+    studio_name: String  
 }
 
 #[post("/character")]
 pub async fn character_search(req: web::Json<CharacterRequest>) -> impl Responder {
+    let character_name = normalize_name(&req.character_name);
+
     if req.character_name.is_empty() {
         logger.error_single("No Character name was parsed", "Character");
         let bad_json = json!({"error": "No character name was included in the request"});
         return HttpResponse::BadRequest().json(bad_json);
+    }
+
+    logger.debug_single("Checking for character cache", "Character");
+    let cache_key = format!("character:{}", character_name);
+    match redis.get(&cache_key) {
+        Ok(data) => {
+            logger.debug_single("Found character data in cache. Returning cached data", "Character");
+            let mut character_data: serde_json::Value = serde_json::from_str(&data).unwrap();
+            character_data["dataFrom"] = "Cache".into();
+            character_data["leftUntilExpire"] = redis.ttl(cache_key).unwrap().into();
+            return HttpResponse::Ok().json(character_data);
+        },
+        Err(_) => {
+            logger.debug_single("No character data found in cache", "Character");
+        }
     }
 
     let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
@@ -47,14 +65,12 @@ pub async fn character_search(req: web::Json<CharacterRequest>) -> impl Responde
             "search": req.character_name,
         }
     });
-
     let response: Response = client
         .post(QUERY_URL)
         .json(&json)
         .send()
         .await
         .unwrap();
-
 
     if response.status().as_u16() != 200 {
         if response.status().as_u16() == 403 {
@@ -71,11 +87,11 @@ pub async fn character_search(req: web::Json<CharacterRequest>) -> impl Responde
     let character: serde_json::Value = response.json::<serde_json::Value>().await.unwrap();
     let character: serde_json::Value = wash_character_data(character).await;
 
+    let _ = redis.setexp(&cache_key, character.to_string(), 3600).await;
     logger.debug_single("Returning character data", "Character");
     HttpResponse::Ok().json(character)
 
 }
-
 
 #[post("/studio")]
 pub async fn studio_search(req: web::Json<StudioRequest>) -> impl Responder {
@@ -83,6 +99,21 @@ pub async fn studio_search(req: web::Json<StudioRequest>) -> impl Responder {
         logger.error_single("No Studio name was parsed", "Studio");
         let bad_json = json!({"error": "No studio name was included in the request"});
         return HttpResponse::BadRequest().json(bad_json);
+    }
+
+    logger.debug_single("Checking for studio cache", "Character");
+    let cache_key = format!("studio:{}", req.studio_name);
+    match redis.get(&cache_key) {
+        Ok(data) => {
+            logger.debug_single("Found studio data in cache. Returning cached data", "Studio");
+            let mut studio_data: serde_json::Value = serde_json::from_str(&data).unwrap();
+            studio_data["dataFrom"] = "Cache".into();
+            studio_data["leftUntilExpire"] = redis.ttl(cache_key).unwrap().into();
+            return HttpResponse::Ok().json(studio_data);
+        },
+        Err(_) => {
+            logger.debug_single("No studio data found in cache", "Studio");
+        }
     }
 
     let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
@@ -119,6 +150,7 @@ pub async fn studio_search(req: web::Json<StudioRequest>) -> impl Responder {
     let studio: serde_json::Value = response.json::<serde_json::Value>().await.unwrap();
     let studio: serde_json::Value = wash_studio_data(studio).await;
 
+    let _ = redis.setexp(&cache_key, studio.to_string(), 3600).await;
     logger.debug_single("Returning studio data", "Studio");    
     HttpResponse::Ok().json(studio)
 
@@ -131,6 +163,21 @@ pub async fn staff_search(req: web::Json<StaffRequest>) -> impl Responder {
         logger.error_single("No Staff name was parsed", "Staff");
         let bad_json = json!({"error": "No staff name was included in the request"});
         return HttpResponse::BadRequest().json(bad_json);
+    }
+
+    logger.debug_single("Checking for staff cache", "Character");
+    let cache_key = format!("staff:{}", req.staff_name);
+    match redis.get(&cache_key) {
+        Ok(data) => {
+            logger.debug_single("Found staff data in cache. Returning cached data", "Staff");
+            let mut staff_data: serde_json::Value = serde_json::from_str(&data).unwrap();
+            staff_data["dataFrom"] = "Cache".into();
+            staff_data["leftUntilExpire"] = redis.ttl(cache_key).unwrap().into();
+            return HttpResponse::Ok().json(staff_data);
+        },
+        Err(_) => {
+            logger.debug_single("No staff data found in cache", "Staff");
+        }
     }
 
     let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
@@ -151,7 +198,6 @@ pub async fn staff_search(req: web::Json<StaffRequest>) -> impl Responder {
         .await
         .unwrap();
 
-
     if response.status().as_u16() != 200 {
         if response.status().as_u16() == 403 {
             let _ = remove_proxy(&redis.get_client(), get_proxy.as_str()).await;
@@ -167,6 +213,7 @@ pub async fn staff_search(req: web::Json<StaffRequest>) -> impl Responder {
     let staff: serde_json::Value = response.json::<serde_json::Value>().await.unwrap();
     let staff: serde_json::Value = wash_staff_data(staff).await;
 
+    let _ = redis.setexp(&cache_key, staff.to_string(), 3600).await;
     logger.debug_single("Returning staff data", "Staff");
     HttpResponse::Ok().json(staff)
 }

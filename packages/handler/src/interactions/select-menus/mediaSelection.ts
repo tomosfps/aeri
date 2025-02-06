@@ -1,9 +1,6 @@
 import { EmbedBuilder } from "@discordjs/builders";
-import { Logger } from "log";
 import type { SelectMenu } from "../../services/commands.js";
 import { fetchAnilistMedia } from "../../utility/anilistUtil.js";
-
-const logger = new Logger();
 
 type SelectMenuData = {
     custom_id: string;
@@ -14,7 +11,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "media_selection",
     cooldown: 1,
     toggable: true,
-    timeout: 3600,
+    timeout: 60,
     parse(data) {
         if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");
@@ -28,7 +25,6 @@ export const interaction: SelectMenu<SelectMenuData> = {
         if (media === null) {
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
-        logger.debug("Result information", "Test", media);
 
         const embed = new EmbedBuilder()
             .setTitle(media.result.romaji)

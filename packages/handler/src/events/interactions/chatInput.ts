@@ -13,17 +13,17 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
     const memberId = interaction.member?.user.id;
     const ownerOnly = command?.owner_only ?? false;
 
-    if (ownerOnly && memberId !== env.DISCORD_OWNER_ID) {
+    if (!memberId) {
+        logger.warnSingle("Member was not found", "Handler");
+        return;
+    }
+
+    if (ownerOnly && env.DISCORD_OWNER_IDS && !env.DISCORD_OWNER_IDS.includes(memberId)) {
         logger.warnSingle("Command is owner only", "Handler");
         return api.interactions.reply(interaction.id, interaction.token, {
             content: "This command is only available to the bot owner.",
             flags: MessageFlags.Ephemeral,
         });
-    }
-
-    if (!memberId) {
-        logger.warnSingle("Member was not found", "Handler");
-        return;
     }
 
     if (!command) {

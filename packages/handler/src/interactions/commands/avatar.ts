@@ -44,7 +44,6 @@ export const interaction: Command = {
         const defaultButton = new ButtonBuilder()
             .setCustomId(`default:${member}:${interaction.member?.user.id}`)
             .setLabel("Default Avatar")
-            .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder().addComponents(defaultButton, guildButton);
