@@ -42,7 +42,7 @@ pub async fn get_random_proxy(redis_client: &RedisClient) -> Result<String, Box<
     }
 
     let proxy_value = proxy.iter().next().unwrap().1;
-    logger.debug("Returning first proxy in redis", "Proxy", false, proxy_value.clone());
+    logger.debug("Returning random proxy in redis", "Proxy", false, proxy_value.clone());
     Ok(proxy_value.to_string())
 }
 

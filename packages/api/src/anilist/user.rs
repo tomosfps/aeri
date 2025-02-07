@@ -83,7 +83,7 @@ pub async fn user_search(username: String) -> impl Responder {
 
     if username.len() == 0 {
         logger.error_single("No username was included", "User");
-        let bad_json = json!({"error": "No username was included"});
+        let bad_json = json!({"error": "No username was included", "errorCode": 404});
         return HttpResponse::BadRequest().json(bad_json);
     }
 

@@ -77,11 +77,15 @@ export async function handleExpiration(redisKey: string): Promise<void> {
     }
 
     const message = await api.channels.getMessage(channelId, messageId);
-    if (message) {
-        await api.channels.editMessage(channelId, messageId, {
-            components: [],
-        });
-        logger.debugSingle(`Removed component from message: ${redisKey}`, "Redis");
+    if (message.id) {
+        try {
+            await api.channels.editMessage(channelId, messageId, {
+                components: [],
+            });
+            logger.debugSingle(`Removed component from message: ${redisKey}`, "Redis");
+        } catch (error: any) {
+            logger.error(`Error while removing component: ${redisKey}`, "Redis", error);
+        }
     } else {
         logger.warnSingle(`Message not found for component: ${redisKey}`, "Redis");
     }

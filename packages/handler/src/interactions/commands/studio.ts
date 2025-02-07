@@ -1,12 +1,14 @@
+import { EmbedBuilder } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
+import { fetchAnilistStudio } from "anilist";
 import { Logger } from "log";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
-import { fetchAnilistStudio } from "../../utility/anilistUtil.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 export const interaction: Command = {
     cooldown: 5,
+    owner_only: true,
     data: new SlashCommandBuilder()
         .setName("studio")
         .setDescription("Find a studio based on the name")
@@ -23,11 +25,23 @@ export const interaction: Command = {
         });
 
         if (studio === null) {
-            logger.debug("No studio found", "Anilist", studio);
-            return interaction.reply({ content: "No studio found", ephemeral: true });
+            logger.debugSingle("No studio found", "Anilist");
+            return interaction.reply({
+                content: `Could not find ${studio_name} within the Anilist API`,
+                ephemeral: true,
+            });
         }
 
-        logger.debug("Result information", "Test", studio);
-        await interaction.reply({ content: "Success", ephemeral: true });
+        const footer = `${studio.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${interaction.format_seconds(studio.result.leftUntilExpire)}`}`;
+        const embed = new EmbedBuilder()
+            .setTitle(studio.result.name)
+            .setURL(studio.result.url)
+            .setDescription(studio.description + studio.animeDescription)
+            .setFooter({ text: footer })
+            .setColor(0x2f3136);
+
+        return interaction.reply({
+            embeds: [embed],
+        });
     },
 };

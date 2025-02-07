@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { fetchAnilistMedia } from "anilist";
 import type { SelectMenu } from "../../services/commands.js";
-import { fetchAnilistMedia } from "../../utility/anilistUtil.js";
 
 type SelectMenuData = {
     custom_id: string;
@@ -31,16 +31,11 @@ export const interaction: SelectMenu<SelectMenuData> = {
             .setURL(media.result.url)
             .setImage(media.result.banner)
             .setThumbnail(media.result.cover.extraLarge)
-            .setDescription(media.description.join(""))
+            .setDescription(media.description)
             .setFooter({
                 text: `${media.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${interaction.format_seconds(media.result.leftUntilExpire)}`}`,
             })
             .setColor(0x2f3136);
-
-        try {
-            await interaction.edit({ embeds: [embed] });
-        } catch (error: any) {
-            await interaction.reply({ embeds: [embed] });
-        }
+        await interaction.edit({ embeds: [embed] });
     },
 };

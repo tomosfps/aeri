@@ -37,7 +37,7 @@ struct RecommendRequest {
 pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder {
     if req.media_name.len() == 0 || req.media_type.len() == 0 {
         logger.error_single("No media name or type was included", "Relations");
-        let bad_json = json!({"error": "No media name or type was included"});
+        let bad_json = json!({"error": "No media name or type was included", "errorCode": 404});
         return HttpResponse::BadRequest().json(bad_json);
     }
 
@@ -127,7 +127,7 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
 pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
     if req.media_type.len() == 0 {
         logger.error_single("No type was included", "Media");
-        let bad_json = json!({"error": "No type was included"});
+        let bad_json = json!({"error": "No type was included", "errorCode": 404});
         return HttpResponse::BadRequest().json(bad_json);
     }
 

@@ -22,7 +22,8 @@ struct CharacterRequest {
 
 #[derive(Deserialize)]
 struct StaffRequest {
-    staff_name: String
+    staff_name: String,
+    media_type: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -36,7 +37,7 @@ pub async fn character_search(req: web::Json<CharacterRequest>) -> impl Responde
 
     if req.character_name.is_empty() {
         logger.error_single("No Character name was parsed", "Character");
-        let bad_json = json!({"error": "No character name was included in the request"});
+        let bad_json = json!({"error": "No character name was included in the request", "errorCode": 404});
         return HttpResponse::BadRequest().json(bad_json);
     }
 
@@ -85,9 +86,15 @@ pub async fn character_search(req: web::Json<CharacterRequest>) -> impl Responde
     }
 
     let character: serde_json::Value = response.json::<serde_json::Value>().await.unwrap();
+
+    if character["data"]["Character"].is_null() {
+        let bad_json = json!({"error": "No character data was found", "errorCode": 404});
+        return HttpResponse::BadRequest().json(bad_json);
+    }
+
     let character: serde_json::Value = wash_character_data(character).await;
 
-    let _ = redis.setexp(&cache_key, character.to_string(), 3600).await;
+    let _ = redis.setexp(&cache_key, character.to_string(), 86400).await;
     logger.debug_single("Returning character data", "Character");
     HttpResponse::Ok().json(character)
 
@@ -97,7 +104,7 @@ pub async fn character_search(req: web::Json<CharacterRequest>) -> impl Responde
 pub async fn studio_search(req: web::Json<StudioRequest>) -> impl Responder {
     if req.studio_name.is_empty() {
         logger.error_single("No Studio name was parsed", "Studio");
-        let bad_json = json!({"error": "No studio name was included in the request"});
+        let bad_json = json!({"error": "No studio name was included in the request", "errorCode": 404});
         return HttpResponse::BadRequest().json(bad_json);
     }
 
@@ -148,9 +155,15 @@ pub async fn studio_search(req: web::Json<StudioRequest>) -> impl Responder {
     }
 
     let studio: serde_json::Value = response.json::<serde_json::Value>().await.unwrap();
+
+    if studio["data"]["Page"]["studios"].is_null() {
+        let bad_json = json!({"error": "No studio data was found", "errorCode": 404});
+        return HttpResponse::BadRequest().json(bad_json);
+    }
+
     let studio: serde_json::Value = wash_studio_data(studio).await;
 
-    let _ = redis.setexp(&cache_key, studio.to_string(), 3600).await;
+    let _ = redis.setexp(&cache_key, studio.to_string(), 86400).await;
     logger.debug_single("Returning studio data", "Studio");    
     HttpResponse::Ok().json(studio)
 
@@ -161,7 +174,7 @@ pub async fn studio_search(req: web::Json<StudioRequest>) -> impl Responder {
 pub async fn staff_search(req: web::Json<StaffRequest>) -> impl Responder {
     if req.staff_name.is_empty() {
         logger.error_single("No Staff name was parsed", "Staff");
-        let bad_json = json!({"error": "No staff name was included in the request"});
+        let bad_json = json!({"error": "No staff name was included in the request", "errorCode": 404});
         return HttpResponse::BadRequest().json(bad_json);
     }
 
@@ -180,17 +193,29 @@ pub async fn staff_search(req: web::Json<StaffRequest>) -> impl Responder {
         }
     }
 
+    let json;
+    let staff_query = get_query("staff");
+
+    if req.media_type.is_none() {
+        json = json!({
+            "query": staff_query,
+            "variables": {
+                "search": req.staff_name,
+            }
+        });
+    } else {
+        json = json!({
+            "query": staff_query,
+            "variables": {
+                "search": req.staff_name,
+                "mediaType": req.media_type.clone().unwrap()
+            }
+        });
+    }
+
     let get_proxy = get_random_proxy(&redis.get_client()).await.unwrap();
     let proxy = reqwest::Proxy::http(get_proxy.clone()).unwrap();
     let client = Client::builder().proxy(proxy).build().unwrap();
-    let staff_query = get_query("staff");
-    let json = json!({
-        "query": staff_query,
-        "variables": {
-            "search": req.staff_name,
-        }
-    });
-
     let response: Response = client
         .post(QUERY_URL)
         .json(&json)
@@ -211,9 +236,15 @@ pub async fn staff_search(req: web::Json<StaffRequest>) -> impl Responder {
     }
 
     let staff: serde_json::Value = response.json::<serde_json::Value>().await.unwrap();
+
+    if staff["data"]["Page"]["staff"].is_null() || staff["data"]["Page"]["staff"].as_array().unwrap().is_empty() {
+        let bad_json = json!({"error": "No staff data was found", "errorCode": 404});
+        return HttpResponse::BadRequest().json(bad_json);
+    }
+
     let staff: serde_json::Value = wash_staff_data(staff).await;
 
-    let _ = redis.setexp(&cache_key, staff.to_string(), 3600).await;
+    let _ = redis.setexp(&cache_key, staff.to_string(), 86400).await;
     logger.debug_single("Returning staff data", "Staff");
     HttpResponse::Ok().json(staff)
 }

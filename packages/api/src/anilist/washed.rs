@@ -68,9 +68,9 @@ pub async fn wash_relation_data(parsed_string: String, relation_data: serde_json
         logger.debug("Overall Score Given: ", "Wash Relation", false, result.clone());
 
         let status_text = match rel["status"].as_str() {
-            Some("RELEASING") => "Airing",
+            Some("RELEASING") => "Releasing",
             Some("NOT_YET_RELEASED") => "Upcoming",
-            Some("FINISHED") => "Finished Airing",
+            Some("FINISHED") => "Finished",
             Some("CANCELLED") => "Cancelled",
             Some("HIATUS") => "On Hiatus",
             _ => "Unknown",
@@ -104,41 +104,42 @@ pub async fn wash_relation_data(parsed_string: String, relation_data: serde_json
 
 pub async fn wash_staff_data(staff_data: serde_json::Value) -> serde_json::Value {
     logger.debug_single("Washing up staff data", "Staff");
-    let data: &serde_json::Value = &staff_data["data"]["Staff"];
+    let data: &serde_json::Value = &staff_data["data"]["Page"]["staff"][0];
+
+    logger.debug("Original staff data", "Staff", false, data.clone());
 
     let washed_data = json!({
-        "id": data["id"],
-        "age": data["age"],
-        "gender": data["gender"],
-        "home": data["homeTown"],
-        "language": data["languageV2"],
-        "fullName": data["name"]["full"],
-        "nativeName": data["name"]["native"],
-        "dateOfBirth": format!("{}/{}/{}", data["dateOfBirth"]["day"], data["dateOfBirth"]["month"], data["dateOfBirth"]["year"]),
-        "dateOfDeath": format!("{}/{}/{}", data["dateOfDeath"]["day"], data["dateOfDeath"]["month"], data["dateOfDeath"]["year"]),
-        "url": data["siteUrl"],
-        "image": Some(data["image"]["large"].clone()),
-        "staffData": data["staffMedia"]["nodes"],
-        "dataFrom": "API",
+        "id":               data["id"],
+        "age":              data["age"],
+        "gender":           data["gender"],
+        "home":             data["homeTown"],
+        "favourites":       data["favourites"],
+        "language":         data["languageV2"],
+        "fullName":         data["name"]["full"],
+        "nativeName":       data["name"]["native"],
+        "dateOfBirth":      format!("{}/{}/{}", data["dateOfBirth"]["day"], data["dateOfBirth"]["month"], data["dateOfBirth"]["year"]),
+        "dateOfDeath":      format!("{}/{}/{}", data["dateOfDeath"]["day"], data["dateOfDeath"]["month"], data["dateOfDeath"]["year"]),
+        "url":              data["siteUrl"],
+        "image":            Some(data["image"]["large"].clone()),
+        "staffData":        data["staffMedia"]["nodes"],
+        "dataFrom":         "API",
     });
-
     washed_data
 }
 
 pub async fn wash_studio_data(studio_data: serde_json::Value) -> serde_json::Value {
     logger.debug_single("Washing up studio data", "Studio");
-    let data: &serde_json::Value = &studio_data["data"]["Studio"];
+    let data: &serde_json::Value = &studio_data["data"]["Page"]["studios"][0];
 
     let washed_data = json!({
-        "id": data["id"],
-        "favourites": data["favourites"],
-        "name": data["name"],
-        "url": data["siteUrl"],
-        "media": data["media"]["nodes"],
-        "isAnimationStudio": data["isAnimationStudio"],
-        "dataFrom": "API",
+        "id":                   data["id"],
+        "favourites":           data["favourites"],
+        "name":                 data["name"],
+        "url":                  data["siteUrl"],
+        "media":                data["media"]["nodes"],
+        "isAnimationStudio":    data["isAnimationStudio"],
+        "dataFrom":             "API",
     });
-
     washed_data
 }
 
@@ -147,20 +148,22 @@ pub async fn wash_character_data(character_data: serde_json::Value) -> serde_jso
     let data: &serde_json::Value = &character_data["data"]["Character"];
 
     let washed_data = json!({
-        "id": data["id"],
-        "fullName": data["name"]["full"],
-        "nativeName": data["name"]["native"],
-        "url": data["siteUrl"],
-        "image": Some(data["image"]["large"].clone()),
-        "url": data["siteUrl"],
-        "age": data["age"],
-        "gender": data["gender"],
-        "dateOfBirth": format!("{}/{}/{}", data["dateOfBirth"]["day"], data["dateOfBirth"]["month"], data["dateOfBirth"]["year"]),
-        "media": data["media"]["nodes"],
-        "description": data["description"],
-        "dataFrom": "API",
+        "id":                   data["id"],
+        "fullName":             data["name"]["full"],
+        "nativeName":           data["name"]["native"],
+        "alternativeNames":     data["name"]["alternative"],
+        "url":                  data["siteUrl"],
+        "favourites":           data["favourites"],
+        "image":                Some(data["image"]["large"].clone()),
+        "url":                  data["siteUrl"],
+        "age":                  data["age"],
+        "gender":               data["gender"],
+        "dateOfBirth":          format!("{}/{}/{}", data["dateOfBirth"]["day"], data["dateOfBirth"]["month"], data["dateOfBirth"]["year"]),
+        "media":                data["media"]["nodes"],
+        "description":          data["description"],
+        "dataFrom":             "API",
+        
     });
-
     washed_data
 }
 

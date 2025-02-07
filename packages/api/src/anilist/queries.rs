@@ -54,6 +54,7 @@ pub fn get_query(query_name: &str) -> String {
         description
         gender
         id
+        favourites
         siteUrl
         image {
             large
@@ -86,52 +87,55 @@ pub fn get_query(query_name: &str) -> String {
     }";
 
     let staff: &str = "
-    query Staff($staffId: Int, $search: String) {
-    Staff(id: $staffId, search: $search) {
+    query Page($search: String, $mediaType: MediaType) {
+    Page {
+    staff(search: $search) {
         age
-        dateOfBirth {
-            day
-            month
-            year
-        }
-        dateOfDeath {
-            day
-            month
-            year
-        }
+        favourites
         gender
         homeTown
         id
         image {
             large
         }
+        dateOfBirth {
+          day
+          year
+          month
+        }
+        dateOfDeath {
+          day
+          year
+          month
+        }
         languageV2
         name {
-            first
             full
-            last
-            middle
             native
         }
         siteUrl
-        staffMedia {
+        staffMedia(type: $mediaType) {
             nodes {
+                id
+                format
+                type
+                siteUrl
                 title {
-                    romaji
-                    native
                     english
+                    native
+                    romaji
                 }
-            siteUrl
-            type
             }
+        }
         }
     }
     }
     ";
 
     let studio: &str = "
-    query Studio($studioId: Int, $search: String) {
-     Studio(id: $studioId, search: $search) {
+    query Page($search: String) {
+    Page {
+    studios(search: $search) {
         favourites
         id
         isAnimationStudio
@@ -139,15 +143,16 @@ pub fn get_query(query_name: &str) -> String {
         siteUrl
         media {
             nodes {
-                title {
-                    english
-                    native
-                    romaji
-                }
+            title {
+                native
+                english
+                romaji
+            }
+            format
             siteUrl
-            type
             id
             }
+        }
         }
     }
     }

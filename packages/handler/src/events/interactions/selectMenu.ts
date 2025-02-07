@@ -47,7 +47,7 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
     const setExpire = await setExpireCommand(expireKey, timeout);
 
     if (!setExpire) {
-        logger.errorSingle(`${selectId} already exists in redis`, "Handler");
+        logger.debugSingle(`${selectId} already exists in redis`, "Handler");
     } else {
         logger.debugSingle(`Set expire time for select menu: ${selectId}`, "Handler");
     }

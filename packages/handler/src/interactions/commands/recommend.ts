@@ -8,8 +8,8 @@ import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "log";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
-import { fetchAnilistMedia, fetchAnilistUserData, fetchRecommendation } from "../../utility/anilistUtil.js";
 
+import { fetchAnilistMedia, fetchAnilistUserData, fetchRecommendation } from "anilist";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 const logger = new Logger();
 const genreList = [
@@ -66,15 +66,15 @@ export const interaction: Command = {
         await interaction.defer();
 
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";
-        const mediaType = media === "ANIME" ? "ANIME" : "MANGA";
         const genre = getCommandOption("genre", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const score = getCommandOption("score", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+        const mediaType = media === "ANIME" ? "ANIME" : "MANGA";
 
         if (genre && score) {
             return interaction.followUp({ content: "Please select only one option" });
         }
 
-        if (genre === null && score === null) {
+        if (!genre && !score) {
             return interaction.followUp({ content: "Please select an option" });
         }
 
@@ -138,7 +138,7 @@ export const interaction: Command = {
             .setURL(result.result.url)
             .setImage(result.result.banner)
             .setThumbnail(result.result.cover.extraLarge)
-            .setDescription(result.description.join(""))
+            .setDescription(result.description)
             .setFooter({
                 text: `${result.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${interaction.format_seconds(result.result.leftUntilExpire)}`}`,
             })
