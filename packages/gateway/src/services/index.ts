@@ -40,8 +40,8 @@ manager.on(WebSocketShardEvents.Ready, (_data, shardId) => {
     logger.infoSingle(`Shard ${shardId} ready.`, "Gateway");
 });
 
-manager.on(WebSocketShardEvents.Closed, (shardId) => {
-    logger.debugSingle(`Shard ${shardId} closed.`, "Gateway");
+manager.on(WebSocketShardEvents.Closed, (code, shardId) => {
+    logger.debugSingle(`Shard ${shardId} closed (Code ${code}).`, "Gateway");
 });
 
 manager.on(WebSocketShardEvents.Error, (error, shardId) => {
