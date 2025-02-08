@@ -3,7 +3,6 @@ export { fetchAnilistStaff } from "./sub-commands/fetchStaff.js";
 export { fetchAnilistCharacter } from "./sub-commands/fetchCharacter.js";
 export { fetchAnilistMedia } from "./sub-commands/fetchMedia.js";
 export { fetchRecommendation } from "./sub-commands/fetchRecommendation.js";
-export { fetchAnilistRelations } from "./sub-commands/fetchRelations.js";
 export { fetchUserScores, fetchAnilistUserData } from "./sub-commands/fetchUserData.js";
 export {
     checkResponse,

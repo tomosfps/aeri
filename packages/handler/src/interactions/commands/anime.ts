@@ -13,9 +13,7 @@ export const interaction: Command = {
         .setName("anime")
         .setDescription("Find an anime based on the name")
         .addExample("/anime name:One Piece")
-        .addStringOption((option) =>
-            option.setName("name").setDescription("The name of the anime").setRequired(true),
-        ),
+        .addStringOption((option) => option.setName("name").setDescription("The name of the anime").setRequired(true)),
     async execute(interaction): Promise<void> {
         const anime = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
         const relations = await anilist.fetchRelations(anime, "ANIME").catch((error: any) => {
@@ -24,7 +22,10 @@ export const interaction: Command = {
         });
 
         if (relations === null) {
-            return interaction.reply({ content: "An error occurred while fetching data from the API", ephemeral: true });
+            return interaction.reply({
+                content: "An error occurred while fetching data from the API",
+                ephemeral: true,
+            });
         }
 
         if (relations.length === 0) {
@@ -38,14 +39,12 @@ export const interaction: Command = {
             .setMinValues(1)
             .setMaxValues(1)
             .addOptions(
-                relations.slice(0, 25).map(
-                    (relation) => {
-                        return new StringSelectMenuOptionBuilder()
-                            .setLabel(`${relation.english || relation.romaji || relation.native || ""}`.slice(0, 100))
-                            .setValue(`${relation.id}`)
-                            .setDescription(`${relation.format} - (${relation.airingType})`.slice(0, 100));
-                    },
-                ),
+                relations.slice(0, 25).map((relation) => {
+                    return new StringSelectMenuOptionBuilder()
+                        .setLabel(`${relation.english || relation.romaji || relation.native || ""}`.slice(0, 100))
+                        .setValue(`${relation.id}`)
+                        .setDescription(`${relation.format} - (${relation.airingType})`.slice(0, 100));
+                }),
             );
 
         const row = new ActionRowBuilder().addComponents(select);

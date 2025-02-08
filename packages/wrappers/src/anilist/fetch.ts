@@ -13,7 +13,7 @@ export interface RouteBodyMap {
 
 export async function anilistFetch<T extends Route>(route: T, body: RouteBodyMap[T]): Promise<Response> {
     return await fetch(`${env.API_URL}/${route}`, {
-        method: "GET",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
     });
