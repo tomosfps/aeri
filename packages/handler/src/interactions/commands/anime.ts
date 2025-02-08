@@ -1,7 +1,7 @@
 import { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
-import { anilist } from "wrappers";
+import { MediaType, Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
@@ -16,18 +16,25 @@ export const interaction: Command = {
         .addStringOption((option) => option.setName("name").setDescription("The name of the anime").setRequired(true)),
     async execute(interaction): Promise<void> {
         const anime = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
-        const relations = await anilist.fetchRelations(anime, "ANIME").catch((error: any) => {
-            logger.error("Error while fetching data from the API.", "Anilist", error);
-            return null;
-        });
 
-        if (relations === null) {
+        const data = await api
+            .fetch(Routes.Relations, {
+                media_name: anime,
+                media_type: MediaType.ANIME,
+            })
+            .catch((error: any) => {
+                logger.error("Error while fetching data from the API.", "Anilist", error);
+                return null;
+            });
+
+        if (data === null) {
             return interaction.reply({
                 content: "An error occurred while fetching data from the API",
                 ephemeral: true,
             });
         }
 
+        const relations = data.relations;
         if (relations.length === 0) {
             logger.debugSingle("No relations found", "Anilist");
             return interaction.reply({ content: "No anime found", ephemeral: true });

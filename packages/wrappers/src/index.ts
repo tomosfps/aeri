@@ -1,1 +1,1 @@
-export { api as anilist } from "./anilist/index.js";
+export { api, Routes } from "./anilist/index.js";
