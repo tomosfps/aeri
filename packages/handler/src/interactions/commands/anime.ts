@@ -1,30 +1,35 @@
 import { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
-import { fetchAnilistRelations } from "anilist";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
+import { anilist } from "wrappers";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
+
 export const interaction: Command = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("anime")
         .setDescription("Find an anime based on the name")
-        .addExample("/anime media_name:One Piece")
+        .addExample("/anime name:One Piece")
         .addStringOption((option) =>
-            option.setName("media_name").setDescription("The name of the anime").setRequired(true),
+            option.setName("name").setDescription("The name of the anime").setRequired(true),
         ),
     async execute(interaction): Promise<void> {
-        const anime = getCommandOption("media_name", ApplicationCommandOptionType.String, interaction.options) || "";
-        const relations = await fetchAnilistRelations(anime, "ANIME").catch((error: any) => {
+        const anime = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
+        const relations = await anilist.fetchRelations(anime, "ANIME").catch((error: any) => {
             logger.error("Error while fetching data from the API.", "Anilist", error);
             return null;
         });
 
         if (relations === null) {
-            logger.debug("No relations found", "Anilist", relations);
-            return interaction.reply({ content: "No relations found", ephemeral: true });
+            return interaction.reply({ content: "An error occurred while fetching data from the API", ephemeral: true });
+        }
+
+        if (relations.length === 0) {
+            logger.debugSingle("No relations found", "Anilist");
+            return interaction.reply({ content: "No anime found", ephemeral: true });
         }
 
         const select = new StringSelectMenuBuilder()
@@ -34,22 +39,17 @@ export const interaction: Command = {
             .setMaxValues(1)
             .addOptions(
                 relations.slice(0, 25).map(
-                    (items: {
-                        native: string;
-                        english: string;
-                        romaji: string;
-                        id: number;
-                        format: string;
-                        airingType: string;
-                    }) => {
+                    (relation) => {
                         return new StringSelectMenuOptionBuilder()
-                            .setLabel(`${items.english || items.romaji || items.native || ""}`.slice(0, 100))
-                            .setValue(`${items.id}`)
-                            .setDescription(`${items.format} - (${items.airingType})`.slice(0, 100));
+                            .setLabel(`${relation.english || relation.romaji || relation.native || ""}`.slice(0, 100))
+                            .setValue(`${relation.id}`)
+                            .setDescription(`${relation.format} - (${relation.airingType})`.slice(0, 100));
                     },
                 ),
             );
+
         const row = new ActionRowBuilder().addComponents(select);
+
         await interaction.reply({ components: [row] });
     },
 };
