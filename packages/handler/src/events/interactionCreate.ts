@@ -1,5 +1,5 @@
 import { type API, GatewayDispatchEvents as Events } from "@discordjs/core";
-import { Logger } from "log";
+import { Logger } from "logger";
 import type { HandlerClient } from "../classes/handlerClient.js";
 import { event } from "../services/events.js";
 import { InteractType, determineInteractionType } from "../utility/interactionUtils.js";

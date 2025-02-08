@@ -1,5 +1,5 @@
 import { GatewayDispatchEvents as Events } from "@discordjs/core";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { event } from "../services/events.js";
 import { onGuild } from "../utility/guildUtils.js";
 

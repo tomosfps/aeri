@@ -1,5 +1,5 @@
 import { env } from "core";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { checkResponse } from "../util/anilistUtil.js";
 
 const logger = new Logger();

@@ -3,7 +3,7 @@ import { PubSubRedisBroker } from "@discordjs/brokers";
 import type { GatewayDispatchPayload, GatewaySendPayload, Gateway as IGateway } from "@discordjs/core";
 import type { Environment } from "core/dist/env.js";
 import type { Redis } from "ioredis";
-import { Logger } from "log";
+import { Logger } from "logger";
 import type { Command } from "./classes/slashCommandBuilder.js";
 import { deployCommands } from "./services/commands.js";
 

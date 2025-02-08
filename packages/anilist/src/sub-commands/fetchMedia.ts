@@ -1,7 +1,7 @@
 import { inlineCode } from "@discordjs/builders";
 import { capitalise, env } from "core";
 import { fetchAllUsers } from "database";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { checkResponse, filteredDescription } from "../util/anilistUtil.js";
 import { fetchUserScores } from "./fetchUserData.js";
 

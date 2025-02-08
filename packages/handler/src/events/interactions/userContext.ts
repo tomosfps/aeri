@@ -1,5 +1,5 @@
 import type { APIUserApplicationCommandInteraction } from "discord-api-types/v10";
-import { Logger } from "log";
+import { Logger } from "logger";
 
 const logger = new Logger();
 

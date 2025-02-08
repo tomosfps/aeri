@@ -2,7 +2,7 @@ import { workerData } from "node:worker_threads";
 import { PubSubRedisBroker } from "@discordjs/brokers";
 import { WebSocketShardEvents, WorkerBootstrapper } from "@discordjs/ws";
 import { calculateWorkerId, env, getRedis } from "core";
-import { Logger } from "log";
+import { Logger } from "logger";
 
 const bootstrapper = new WorkerBootstrapper();
 const logger = new Logger();

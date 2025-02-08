@@ -1,6 +1,6 @@
 import { MessageFlags } from "@discordjs/core";
 import { checkRedis, setExpireCommand } from "core";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { type ButtonHandler, ButtonInteraction } from "../../classes/buttonInteraction.js";
 
 const logger = new Logger();

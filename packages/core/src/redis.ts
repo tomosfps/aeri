@@ -1,7 +1,7 @@
 import { API } from "@discordjs/core";
 import { REST } from "@discordjs/rest";
 import { Redis, type RedisOptions } from "ioredis";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { env } from "./env.js";
 
 const logger = new Logger();

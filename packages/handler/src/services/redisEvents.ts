@@ -1,6 +1,6 @@
 import { readdir } from "node:fs/promises";
 import { getRedis } from "core";
-import { Logger } from "log";
+import { Logger } from "logger";
 
 const subscriber = await getRedis({ lazyConnect: true });
 const logger = new Logger();

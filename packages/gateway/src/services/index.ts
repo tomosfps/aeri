@@ -3,7 +3,7 @@ import { SimpleIdentifyThrottler, WebSocketManager, WebSocketShardEvents, Worker
 import { Cache } from "cache";
 import { env } from "core";
 import { GatewayIntentBits } from "discord-api-types/v10";
-import { Logger } from "log";
+import { Logger } from "logger";
 
 const rest = new REST().setToken(env.DISCORD_TOKEN);
 const logger = new Logger();

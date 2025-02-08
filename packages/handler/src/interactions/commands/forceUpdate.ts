@@ -1,6 +1,6 @@
 import { env } from "core";
 import { fetchAnilistUser } from "database";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 
 const logger = new Logger();

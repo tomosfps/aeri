@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { fetchAnilistMedia, fetchRecommendation } from "anilist";
-import { Logger } from "log";
+import { Logger } from "logger";
 import type { SelectMenu } from "../../services/commands.js";
 
 const logger = new Logger();

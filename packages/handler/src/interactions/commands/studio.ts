@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
 import { fetchAnilistStudio } from "anilist";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 

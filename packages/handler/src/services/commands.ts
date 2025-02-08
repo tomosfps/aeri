@@ -3,7 +3,7 @@ import { URL } from "node:url";
 import { REST } from "@discordjs/rest";
 import { env } from "core";
 import { Routes } from "discord-api-types/v10";
-import { Logger } from "log";
+import { Logger } from "logger";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
 import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";

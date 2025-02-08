@@ -1,4 +1,4 @@
-import { Logger } from "log";
+import { Logger } from "logger";
 import { type ModalHandler, ModalInteraction } from "../../classes/modalInteraction.js";
 
 const logger = new Logger();

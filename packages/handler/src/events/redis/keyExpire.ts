@@ -1,5 +1,5 @@
 import { handleExpiration } from "core";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { redisEvent } from "../../services/redisEvents.js";
 
 const logger = new Logger();

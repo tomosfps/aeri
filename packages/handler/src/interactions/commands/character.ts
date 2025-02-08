@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
 import { fetchAnilistCharacter } from "anilist";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 

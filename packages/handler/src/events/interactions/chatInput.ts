@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
 import { checkRedis } from "core";
 import { env } from "core";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { type ChatInputHandler, CommandInteraction } from "../../classes/commandInteraction.js";
 
 const logger = new Logger();

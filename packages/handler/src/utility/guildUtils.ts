@@ -1,6 +1,6 @@
 import { fetchGuild, fetchUser, removeFromGuild, updateGuild } from "database";
 import type { APIUser } from "discord-api-types/v10";
-import { Logger } from "log";
+import { Logger } from "logger";
 
 const logger = new Logger();
 

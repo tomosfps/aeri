@@ -1,7 +1,7 @@
 import { fetchAnilistUserData } from "anilist";
 import { createAnilistUser, fetchUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 

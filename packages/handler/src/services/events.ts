@@ -1,6 +1,6 @@
 import { readdir } from "node:fs/promises";
 import type { GatewayDispatchEvents, MappedEvents as OriginalMappedEvents } from "@discordjs/core";
-import { Logger } from "log";
+import { Logger } from "logger";
 import type { HandlerClient } from "../classes/handlerClient.js";
 
 interface MappedEvents extends OriginalMappedEvents {

@@ -1,6 +1,6 @@
 import { MessageFlags } from "@discordjs/core";
 import { checkRedis, setExpireCommand } from "core";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { type SelectMenuHandler, SelectMenuInteraction } from "../../classes/selectMenuInteraction.js";
 
 const logger = new Logger();

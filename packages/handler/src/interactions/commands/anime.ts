@@ -1,7 +1,7 @@
 import { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
 import { fetchAnilistRelations } from "anilist";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import { Logger } from "log";
+import { Logger } from "logger";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
