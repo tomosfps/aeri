@@ -12,7 +12,7 @@
     "license": "GPL-3.0",
     "dependencies": {
         "core": "workspace:*",
-        "log": "workspace:*"
+        "logger": "workspace:*"
     },
     "devDependencies": {
         "@prisma/client": "6.3.0",

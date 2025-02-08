@@ -1,5 +1,5 @@
 {
-    "name": "log",
+    "name": "logger",
     "version": "1.0.0",
     "main": "dist/index.js",
     "type": "module",
@@ -10,7 +10,7 @@
     "license": "GPL-3.0",
     "dependencies": {
         "chalk": "^5.4.1",
-        "core": "workspace:*"
+        "zod": "^3.24.1"
     },
     "devDependencies": {
         "@types/node": "^22.12.0"

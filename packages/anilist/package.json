@@ -9,7 +9,7 @@
     },
     "license": "GPL-3.0",
     "dependencies": {
-        "log": "workspace:*",
+        "logger": "workspace:*",
         "core": "workspace:*",
         "database": "workspace:*",
         "@discordjs/builders": "^1.8.2"

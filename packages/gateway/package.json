@@ -18,7 +18,7 @@
         "handler": "workspace:*",
         "discord-api-types": "^0.37.118",
         "ioredis": "^5.4.2",
-        "log": "workspace:*"
+        "logger": "workspace:*"
     },
     "devDependencies": {
         "@types/node": "^22.12.0"

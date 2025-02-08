@@ -18,7 +18,7 @@
         "database": "workspace:*",
         "discord-api-types": "^0.37.97",
         "ioredis": "^5.4.1",
-        "log": "workspace:*",
+        "logger": "workspace:*",
         "zod": "^3.23.8"
     },
     "devDependencies": {

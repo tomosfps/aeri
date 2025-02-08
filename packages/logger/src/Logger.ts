@@ -1,6 +1,6 @@
 import { type InspectOptions, inspect } from "node:util";
 import chalk, { type ChalkInstance } from "chalk";
-import { env } from "core";
+import { env } from "./env.js";
 
 export enum LogLevel {
     Fatal = 0,
