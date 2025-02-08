@@ -42,6 +42,7 @@ pub fn get_query(query_name: &str) -> String {
             title{
                 romaji
                 native
+                english
             }
         }
     }
@@ -74,13 +75,14 @@ pub fn get_query(query_name: &str) -> String {
         }
         media {
         nodes {
+            id
             siteUrl
+            format
             title {
                 english
                 native
                 romaji
             }
-            format
         }
         }
     }
@@ -118,7 +120,6 @@ pub fn get_query(query_name: &str) -> String {
             nodes {
                 id
                 format
-                type
                 siteUrl
                 title {
                     english
@@ -143,16 +144,16 @@ pub fn get_query(query_name: &str) -> String {
         siteUrl
         media {
             nodes {
-            title {
-                native
-                english
-                romaji
+                title {
+                    native
+                    english
+                    romaji
+                }
+                format
+                siteUrl
+                id
+                }
             }
-            format
-            siteUrl
-            id
-            }
-        }
         }
     }
     }
@@ -201,7 +202,6 @@ pub fn get_query(query_name: &str) -> String {
             manga {
                 count
                 meanScore
-                standardDeviation
                 chaptersRead
                 volumesRead
                 scores {
@@ -305,7 +305,7 @@ pub fn get_query(query_name: &str) -> String {
         "user" => user.to_string(),
         "affinity" => affinity.to_string(),
         "recommendation" => recommendation.to_string(),
-        "recommendation_amount" => recommendation_amount.to_string(),
+        "recommendations" => recommendation_amount.to_string(),
         "staff" => staff.to_string(),
         "character" => character.to_string(),
         "studio" => studio.to_string(),

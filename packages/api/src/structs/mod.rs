@@ -1,0 +1,10 @@
+pub mod shared;
+pub mod media;
+pub mod user;
+pub mod affinity;
+pub mod character;
+pub mod staff;
+pub mod studio;
+pub mod recommendation;
+pub mod user_stats;
+pub mod relation;
