@@ -184,6 +184,7 @@ pub fn get_query(query_name: &str) -> String {
                     genre
                     meanScore
                     minutesWatched
+                    chaptersRead
                 }
                 formats {
                     format
@@ -210,6 +211,7 @@ pub fn get_query(query_name: &str) -> String {
                     genre
                     meanScore
                     minutesWatched
+                    chaptersRead
                 }
                 }
             }

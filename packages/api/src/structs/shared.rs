@@ -142,6 +142,8 @@ pub struct GenreDistribution {
     pub mean_score:      f32,
     #[serde(rename = "minutesWatched")]
     pub minutes_watched: i32,
+    #[serde(rename = "chaptersRead")]
+    pub chapters_read:   i32,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
