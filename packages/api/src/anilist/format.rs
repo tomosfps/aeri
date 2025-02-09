@@ -97,7 +97,6 @@ pub async fn format_relation_data(parsed_string: String, relation_data: Relation
             "format"        : rel.format.clone().unwrap_or_else(|| String::new()),
             "airingType"    : status_text,
             "similarity"    : result.1,
-            "dataFrom"      : "API",
         });
         relation_list.push(washed_relation);
     }

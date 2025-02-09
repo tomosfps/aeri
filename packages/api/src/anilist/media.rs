@@ -52,10 +52,10 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
         }
         return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
     }
-    let response:       Value = response.json().await.unwrap();
+    let response:       Value       = response.json().await.unwrap();
     let relations:      Relations   = serde_json::from_value(response["data"]["Page"].clone()).unwrap();
     let relations:      Value       = format_relation_data(req.media_name.to_string(), relations).await;
-    HttpResponse::Ok().json(relations)
+    HttpResponse::Ok().json(json!({"relations": relations, "dataFrom": "API"}))
 }
 
 #[post("/recommend")]
