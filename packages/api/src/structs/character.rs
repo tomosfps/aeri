@@ -1,17 +1,18 @@
 use super::shared::{MediaNodes, Avatar, Name, Date};
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Character {
-    id:             i32,
-    age:            Option<i32>,
-    description:    Option<String>,
-    gender:         Option<String>,
-    favourites:     Option<i32>,
-    site_url:       Option<String>,
-    image:          Avatar,
-    name:           Name,
-    date_of_birth:  Date,
-    date_of_death:  Date,
-    media:          Vec<MediaNodes>,
+    pub id:             Option<i32>,
+    pub age:            Option<String>,
+    pub description:    Option<String>,
+    pub gender:         Option<String>,
+    pub favourites:     Option<i32>,
+    #[serde(rename = "siteUrl")]
+    pub site_url:       Option<String>,
+    pub image:          Option<Avatar>,
+    pub name:           Option<Name>,
+    #[serde(rename = "dateOfBirth")]
+    pub date_of_birth:  Option<Date>,
+    pub media:          Option<MediaNodes>,
 }

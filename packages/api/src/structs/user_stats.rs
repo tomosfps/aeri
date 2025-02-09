@@ -1,16 +1,17 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct UserScores {
-    progress_volumes:   Option<i32>,
-    progress:           Option<i32>,
-    score:              Option<i32>,
-    status:             Option<String>,
-    repeat:             Option<i32>,
-    user:               UserScoresName,
+    #[serde(rename = "progressVolumes")]
+    pub progress_volumes:   Option<i32>,
+    pub progress:           Option<i32>,
+    pub score:              Option<i32>,
+    pub status:             Option<String>,
+    pub repeat:             Option<i32>,
+    pub user:               Option<UserScoresName>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct UserScoresName {
-    name:   Option<String>,
+    pub name:   String,
 }

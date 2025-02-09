@@ -9,8 +9,8 @@ lazy_static! {
 }
 
 pub struct Client {
-    pub client: reqwest::Client,
-    pub redis: Redis,
+    client: reqwest::Client,
+    redis: Redis,
     using_proxy: bool,
     current_proxy: String,
 }
@@ -42,8 +42,7 @@ impl Client {
 
     pub async fn post(&self, url: &str, json: &Value) -> Result<Response, Box<dyn std::error::Error>> {
         if self.using_proxy {
-            let client = self.with_proxy().await?.client;
-            let response = client.post(url)
+            let response = self.client.post(url)
                 .header("Content-Type", "application/json")
                 .json(json)
                 .send()

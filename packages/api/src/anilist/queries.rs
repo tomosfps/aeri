@@ -11,7 +11,6 @@ pub fn get_query(query_name: &str) -> String {
             chapters
             volumes
             duration
-            description
             status
             genres
             averageScore
@@ -74,16 +73,16 @@ pub fn get_query(query_name: &str) -> String {
             year
         }
         media {
-        nodes {
-            id
-            siteUrl
-            format
-            title {
-                english
-                native
-                romaji
+            nodes {
+                id
+                siteUrl
+                format
+                title {
+                    english
+                    native
+                    romaji
+                }
             }
-        }
         }
     }
     }";
@@ -130,13 +129,12 @@ pub fn get_query(query_name: &str) -> String {
         }
         }
     }
-    }
-    ";
+    }";
 
     let studio: &str = "
-    query Page($search: String) {
-    Page {
-    studios(search: $search) {
+    query Studio($search: String) {
+    Studio(search: $search) {
+
         favourites
         id
         isAnimationStudio
@@ -155,9 +153,7 @@ pub fn get_query(query_name: &str) -> String {
                 }
             }
         }
-    }
-    }
-    ";
+    }";
 
     let user: &str = "
     query ($id: Int, $name: String) {
@@ -254,18 +250,17 @@ pub fn get_query(query_name: &str) -> String {
 
     let affinity: &str = "
     query ($userName: String, $perChunk: Int, $type: MediaType) {
-        MediaListCollection(userName: $userName, perChunk: $perChunk, type: $type) {
-            user {
-                name
-                avatar { large }
-                siteUrl
-            }
-            lists {
-                entries {
-                    status
-                    score(format: POINT_100)
-                    mediaId
-
+    MediaListCollection(userName: $userName, perChunk: $perChunk, type: $type) {
+        user {
+            name
+            avatar { large }
+            siteUrl
+        }
+        lists {
+            entries {
+                status
+                score(format: POINT_100)
+                mediaId
                 }
             }
         }
@@ -300,7 +295,7 @@ pub fn get_query(query_name: &str) -> String {
 
     match query_name {
         "search" => search.to_string(),
-        "user_stats" => user_stats.to_string(),
+        "user_scores" => user_stats.to_string(),
         "relation_stats" => relation_stats.to_string(),
         "user" => user.to_string(),
         "affinity" => affinity.to_string(),

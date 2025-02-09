@@ -1,6 +1,6 @@
 use crate::{
     global::compare_strings::compare_strings,
-    structs::{media::Media, relation::Relations},
+    structs::{affinity::Affinity, character::Character, media::Media, relation::Relations, staff::Staff, studio::Studio, user::User, user_stats::UserScores},
 };
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
@@ -18,7 +18,18 @@ pub async fn format_media_data(media_data: Media) -> serde_json::Value {
             data.status = Some("Not Yet Released".to_string());
         }
     }
-    logger.debug("Original media data", "Media", false, data.clone());
+
+    let end_date = if let Some(end_date) = data.end_date.as_ref() {
+        format!("{}/{}/{}", end_date.day.unwrap_or(0), end_date.month.unwrap_or(0), end_date.year.unwrap_or(0))
+    } else {
+        String::new()
+    };
+
+    let start_date = if let Some(start_date) = data.start_date.as_ref() {
+        format!("{}/{}/{}", start_date.day.unwrap_or(0), start_date.month.unwrap_or(0), start_date.year.unwrap_or(0))
+    } else {
+        String::new()
+    };
 
     let washed_data: serde_json::Value = json!({
         "id"            : data.id,
@@ -38,8 +49,8 @@ pub async fn format_media_data(media_data: Media) -> serde_json::Value {
         "favourites"    : data.favourites,
         "status"        : data.status,
         "url"           : data.site_url,
-        "endDate"       : data.end_date,
-        "startDate"     : data.start_date,
+        "endDate"       : end_date,
+        "startDate"     : start_date,
         "dataFrom"      : "API",
     });
     washed_data
@@ -51,39 +62,21 @@ pub async fn format_relation_data(parsed_string: String, relation_data: Relation
     let parsed_string: &String = &parsed_string.to_lowercase();
 
     for rel in data.iter() {
-        let romaji:  &String =  &rel.title.as_ref().unwrap().romaji;
-        let english: &String =  rel.title.as_ref().unwrap().english.as_ref().unwrap();
-        let native:  &String =  &rel.title.as_ref().unwrap().native;
+        let romaji:   &String =  rel.title.as_ref().unwrap().romaji.as_ref().unwrap();
+        let english:  &String =  rel.title.as_ref().unwrap().english.as_ref().unwrap();
+        let native:   &String =  rel.title.as_ref().unwrap().native.as_ref().unwrap();
         let synonyms: &Vec<String> = rel.synonyms.as_ref().unwrap();
 
         let result = compare_strings(parsed_string, vec![romaji, english, native]);
-        logger.debug(
-            "Similarity Score Given: ",
-            "Wash Relation",
-            false,
-            result.clone(),
-        );
 
         let lowercase_synonyms: Vec<String> =
             synonyms.iter().map(|x| x.as_str().to_lowercase()).collect();
         let synonyms_result = compare_strings(parsed_string, lowercase_synonyms.iter().collect());
-        logger.debug(
-            "Similarity Score Given: ",
-            "Wash Relation",
-            false,
-            synonyms_result.clone(),
-        );
 
         let combined = result.iter().chain(synonyms_result.iter());
         let result = combined
             .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
             .unwrap();
-        logger.debug(
-            "Overall Score Given: ",
-            "Wash Relation",
-            false,
-            result.clone(),
-        );
 
         let status_text = match rel.status.as_ref().unwrap().as_str() {
             "RELEASING" => "Releasing",
@@ -119,121 +112,117 @@ pub async fn format_relation_data(parsed_string: String, relation_data: Relation
     json!(relation_list)
 }
 
-pub async fn format_staff_data(staff_data: serde_json::Value) -> serde_json::Value {
-    logger.debug_single("Washing up staff data", "Staff");
-    let data: &serde_json::Value = &staff_data["data"]["Page"]["staff"][0];
+pub async fn format_staff_data(staff_data: Staff) -> serde_json::Value {
+    let data = staff_data.clone();
+    
+    let date_of_birth = if let Some(date_of_birth) = data.date_of_birth.as_ref() {
+        format!("{}/{}/{}", date_of_birth.day.unwrap_or(0), date_of_birth.month.unwrap_or(0), date_of_birth.year.unwrap_or(0))
+    } else {
+        String::new()
+    };
 
-    logger.debug("Original staff data", "Staff", false, data.clone());
+    let date_of_death = if let Some(date_of_death) = data.date_of_death.as_ref() {
+        format!("{}/{}/{}", date_of_death.day.unwrap_or(0), date_of_death.month.unwrap_or(0), date_of_death.year.unwrap_or(0))
+    } else {
+        String::new()
+    };
 
     let washed_data = json!({
-        "id":               data["id"],
-        "age":              data["age"],
-        "gender":           data["gender"],
-        "home":             data["homeTown"],
-        "favourites":       data["favourites"],
-        "language":         data["languageV2"],
-        "fullName":         data["name"]["full"],
-        "nativeName":       data["name"]["native"],
-        "dateOfBirth":      format!("{}/{}/{}", data["dateOfBirth"]["day"], data["dateOfBirth"]["month"], data["dateOfBirth"]["year"]),
-        "dateOfDeath":      format!("{}/{}/{}", data["dateOfDeath"]["day"], data["dateOfDeath"]["month"], data["dateOfDeath"]["year"]),
-        "url":              data["siteUrl"],
-        "image":            Some(data["image"]["large"].clone()),
-        "staffData":        data["staffMedia"]["nodes"],
+        "id":               data.id,
+        "age":              data.age,
+        "gender":           data.gender,
+        "home":             data.home_town,
+        "favourites":       data.favourites,
+        "language":         data.language,
+        "fullName":         data.name.as_ref().unwrap().full,
+        "nativeName":       data.name.as_ref().unwrap().native,
+        "dateOfBirth":      date_of_birth,
+        "dateOfDeath":      date_of_death,
+        "url":              data.site_url,
+        "image":            data.image.unwrap().large,
+        "staffData":        data.staff_media,
         "dataFrom":         "API",
     });
     washed_data
 }
 
-pub async fn format_studio_data(studio_data: serde_json::Value) -> serde_json::Value {
-    logger.debug_single("Washing up studio data", "Studio");
-    let data: &serde_json::Value = &studio_data["data"]["Page"]["studios"][0];
+pub async fn format_studio_data(studio_data: Studio) -> serde_json::Value {
+    let data = studio_data.clone();
 
     let washed_data = json!({
-        "id":                   data["id"],
-        "favourites":           data["favourites"],
-        "name":                 data["name"],
-        "url":                  data["siteUrl"],
-        "media":                data["media"]["nodes"],
-        "isAnimationStudio":    data["isAnimationStudio"],
+        "id":                   data.id,
+        "favourites":           data.favourites,
+        "name":                 data.name,
+        "url":                  data.site_url,
+        "media":                data.media,
+        "isAnimationStudio":    data.is_animation,
         "dataFrom":             "API",
     });
     washed_data
 }
 
-pub async fn format_character_data(character_data: serde_json::Value) -> serde_json::Value {
-    logger.debug_single("Washing up character data", "Character");
-    let data: &serde_json::Value = &character_data["data"]["Character"];
+pub async fn format_character_data(character_data: Character) -> serde_json::Value {
+    let data = character_data.clone();
+
+    let date_of_birth = if let Some(date_of_birth) = data.date_of_birth.as_ref() {
+        format!("{}/{}/{}", date_of_birth.day.unwrap_or(0), date_of_birth.month.unwrap_or(0), date_of_birth.year.unwrap_or(0))
+    } else {
+        String::new()
+    };
 
     let washed_data = json!({
-        "id":                   data["id"],
-        "fullName":             data["name"]["full"],
-        "nativeName":           data["name"]["native"],
-        "alternativeNames":     data["name"]["alternative"],
-        "url":                  data["siteUrl"],
-        "favourites":           data["favourites"],
-        "image":                Some(data["image"]["large"].clone()),
-        "url":                  data["siteUrl"],
-        "age":                  data["age"],
-        "gender":               data["gender"],
-        "dateOfBirth":          format!("{}/{}/{}", data["dateOfBirth"]["day"], data["dateOfBirth"]["month"], data["dateOfBirth"]["year"]),
-        "media":                data["media"]["nodes"],
-        "description":          data["description"],
+        "id":                   data.id,
+        "fullName":             data.name.as_ref().unwrap().full,
+        "nativeName":           data.name.as_ref().unwrap().native,
+        "alternativeNames":     data.name.as_ref().unwrap().alternative,
+        "url":                  data.site_url,
+        "favourites":           data.favourites,
+        "image":                data.image.unwrap().large,
+        "age":                  data.age,
+        "gender":               data.gender,
+        "dateOfBirth":          date_of_birth,
+        "media":                data.media,
+        "description":          data.description,
         "dataFrom":             "API",
-
     });
     washed_data
 }
 
-pub async fn format_user_score(json_data: serde_json::Value) -> serde_json::Value {
-    logger.debug_single("Washing up score data", "User Score");
-    let data = &json_data["data"]["MediaList"];
+pub async fn format_user_score(user_score_data: UserScores) -> serde_json::Value {
+    let data = user_score_data.clone();
 
     let washed_data = json!({
-        "progress"      : data["progress"],
-        "volumes"       : data["progressVolumes"].as_str().unwrap_or("0"),
-        "score"         : data["score"],
-        "status"        : data["status"],
-        "repeat"        : data["repeat"],
-        "user"          : data["user"]["name"],
+        "progress"      : data.progress,
+        "volumes"       : data.progress_volumes,
+        "score"         : data.score,
+        "status"        : data.status,
+        "repeat"        : data.repeat,
+        "user"          : data.user.unwrap().name,
         "dataFrom"      : "API"
     });
-
-    logger.debug("Data has been washed", "User", false, washed_data.clone());
     washed_data
 }
 
-pub async fn format_user_data(json_data: serde_json::Value) -> serde_json::Value {
-    logger.debug_single("Washing up data", "User");
-    let data = &json_data["data"]["User"];
+pub async fn format_user_data(user_data: User) -> serde_json::Value {
+    let data = user_data.clone();
 
-    let mut anime_genres = data["statistics"]["anime"]["genres"]
-        .as_array()
-        .unwrap()
-        .clone();
+    let statistics = data.statistics.unwrap();
+    let mut anime_genres = statistics.anime.genres.clone();
     anime_genres.sort_by(|a, b| {
-        b["count"]
-            .as_i64()
-            .unwrap()
-            .cmp(&a["count"].as_i64().unwrap())
+        b.count.cmp(&a.count)
     });
 
-    let mut manga_genres = data["statistics"]["manga"]["genres"]
-        .as_array()
-        .unwrap()
-        .clone();
+    let mut manga_genres = statistics.manga.genres.clone();
     manga_genres.sort_by(|a, b| {
-        b["count"]
-            .as_i64()
-            .unwrap()
-            .cmp(&a["count"].as_i64().unwrap())
+        b.count.cmp(&a.count)
     });
 
     let anime_genres: Vec<serde_json::Value> = anime_genres
         .iter()
         .map(|genre| {
             json!({
-                "genre": genre["genre"].as_str().unwrap(),
-                "count": genre["count"].as_i64().unwrap()
+                "genre": genre.genre.as_ref().unwrap().as_str(),
+                "count": genre.count.as_ref().unwrap()
             })
         })
         .collect();
@@ -242,8 +231,8 @@ pub async fn format_user_data(json_data: serde_json::Value) -> serde_json::Value
         .iter()
         .map(|genre| {
             json!({
-                "genre": genre["genre"].as_str().unwrap(),
-                "count": genre["count"].as_i64().unwrap()
+                "genre": genre.genre.as_ref().unwrap().as_str(),
+                "count": genre.count.as_ref().unwrap()
             })
         })
         .collect();
@@ -263,12 +252,10 @@ pub async fn format_user_data(json_data: serde_json::Value) -> serde_json::Value
         .map(|(genre, _)| *genre)
         .unwrap_or("Unknown");
 
-    let favourite_format = data["statistics"]["anime"]["formats"]
-        .as_array()
-        .unwrap()
+    let favourite_format = statistics.anime.formats
         .iter()
         .map(|format| {
-            let format_str = format["format"].as_str().unwrap();
+            let format_str = format.format.as_ref().unwrap().as_str();
             let capitalized_format = if format_str.len() > 3 {
                 format_str
                     .chars()
@@ -284,25 +271,21 @@ pub async fn format_user_data(json_data: serde_json::Value) -> serde_json::Value
             } else {
                 format_str.to_string()
             };
-            (capitalized_format, format["count"].as_i64().unwrap())
+            (capitalized_format, format.count.unwrap())
         })
         .max_by_key(|&(_, count)| count)
         .map(|(format, _)| format)
         .unwrap_or(String::from("Unknown"));
 
-    let completed_entries = data["statistics"]["anime"]["statuses"]
-        .as_array()
-        .unwrap()
+    let completed_entries = statistics.anime.statuses
         .iter()
-        .find(|status| status["status"] == "COMPLETED")
-        .map_or(0, |status| status["count"].as_i64().unwrap_or(0));
+        .find(|status| status.status.as_ref().unwrap().as_str() == "COMPLETED")
+        .map_or(0, |status| status.count.unwrap_or(0));
 
-    let added_up_entries = data["statistics"]["anime"]["statuses"]
-        .as_array()
-        .unwrap()
+    let added_up_entries = statistics.anime.statuses
         .iter()
-        .map(|status| status["count"].as_i64().unwrap_or(0))
-        .sum::<i64>();
+        .map(|status| status.count.unwrap_or(0))
+        .sum::<i32>();
 
     let completion_percentage = if added_up_entries > 0 {
         ((completed_entries as f64 / added_up_entries as f64) * 100.0).ceil() as i64
@@ -311,41 +294,50 @@ pub async fn format_user_data(json_data: serde_json::Value) -> serde_json::Value
     };
 
     let users: serde_json::Value = json!({
-        "id"                    : data["id"],
-        "name"                  : data["name"],
-        "avatar"                : Some(data["avatar"]["large"].clone()),
-        "banner"                : Some(data["bannerImage"].clone()),
-        "about"                 : data["about"],
-        "url"                   : data["siteUrl"],
+        "id"                    : data.id,
+        "name"                  : data.name,
+        "avatar"                : data.avatar.unwrap().large,
+        "banner"                : data.banner_image,
+        "about"                 : data.about,
+        "url"                   : data.site_url,
         "animeStats": {
-            "count"             : data["statistics"]["anime"]["count"],
-            "watched"           : data["statistics"]["anime"]["episodesWatched"],
-            "minutes"           : data["statistics"]["anime"]["minutesWatched"],
-            "meanScore"         : data["statistics"]["anime"]["meanScore"],
-            "genres"            : data["statistics"]["anime"]["genres"],
-            "scores"            : data["statistics"]["anime"]["scores"],
-            "formats"           : data["statistics"]["anime"]["formats"],
-            "status"            : data["statistics"]["anime"]["statuses"],
+            "count"             : statistics.anime.count,
+            "watched"           : statistics.anime.episodes_watched,
+            "minutes"           : statistics.anime.minutes_watched,
+            "meanScore"         : statistics.anime.mean,
+            "genres"            : statistics.anime.genres,
+            "scores"            : statistics.anime.scores,
+            "formats"           : statistics.anime.formats,
+            "status"            : statistics.anime.statuses,
             "sortedGenres"      : anime_genres,
         },
         "mangaStats": {
-            "count"             : data["statistics"]["manga"]["count"],
-            "chapters"          : data["statistics"]["manga"]["chaptersRead"],
-            "volumes"           : data["statistics"]["manga"]["volumesRead"],
-            "meanScore"         : data["statistics"]["manga"]["meanScore"],
-            "deviation"         : data["statistics"]["manga"]["standardDeviation"],
-            "genres"            : data["statistics"]["manga"]["genres"],
-            "scores"            : data["statistics"]["manga"]["scores"],
+            "count"             : statistics.manga.count,
+            "chapters"          : statistics.manga.chapters_read,
+            "volumes"           : statistics.manga.volumes_read,
+            "meanScore"         : statistics.manga.mean,
+            "genres"            : statistics.manga.genres,
+            "scores"            : statistics.manga.scores,
             "sortedGenres"      : manga_genres,
         },
-        "totalEntries"          : data["statistics"]["manga"]["count"].as_i64().unwrap_or(0) + data["statistics"]["anime"]["count"].as_i64().unwrap_or(0),
+        "totalEntries"          : statistics.manga.count.unwrap_or(0) + statistics.anime.count.unwrap_or(0),
         "topGenre"              : top_genre,
         "favouriteFormat"       : favourite_format,
         "completionPercentage"  : completion_percentage,
-        "lastUpdated"           : data["updatedAt"],
+        "lastUpdated"           : data.updated_at,
         "dataFrom"              : "API"
     });
-
-    logger.debug("Data has been washed", "User", false, users.clone());
     users
+}
+
+
+pub async fn format_affinity_data(affinity_data: Affinity) -> serde_json::Value {
+    let data = affinity_data.clone();
+
+    let washed_data = json!({
+        "user":     data.user,
+        "entries":  data.lists,
+        "dataFrom": "API"
+    });
+    washed_data
 }

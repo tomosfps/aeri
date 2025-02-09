@@ -1,22 +1,29 @@
 use super::shared::Avatar;
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct AffinityLists {
-    status:     Option<String>,
-    score:      Option<i32>,
-    media_id:   Option<i32>,
+    pub entries:    Option<Vec<AffinityListData>>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct AffinityListData {
+    pub status:     Option<String>,
+    pub score:      Option<i32>,
+    #[serde(rename = "mediaId")]
+    pub media_id:   Option<i32>,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct AffinityUser {
-    name:       String,
-    site_url:   String,
-    avatar:     Avatar,
+    pub name:       Option<String>,
+    #[serde(rename = "siteUrl")]
+    pub site_url:   Option<String>,
+    pub avatar:     Option<Avatar>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Affinity {
-    user:      AffinityUser,
-    lists:     Vec<AffinityLists>,
+    pub user:      Option<AffinityUser>,
+    pub lists:     Option<Vec<AffinityLists>>,
 }

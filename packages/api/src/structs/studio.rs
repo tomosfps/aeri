@@ -1,12 +1,14 @@
 use super::shared::MediaNodes;
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Studio {
-    id:             i32,
-    is_animation:   bool,
-    name:           String,
-    site_url:       String,
-    favourites:     i32,
-    media:          Vec<MediaNodes>,
+    pub id:             i32,
+    #[serde(rename = "isAnimationStudio")]
+    pub is_animation:   bool,
+    pub name:           String,
+    #[serde(rename = "siteUrl")]
+    pub site_url:       String,
+    pub favourites:     i32,
+    pub media:          MediaNodes,
 }

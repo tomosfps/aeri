@@ -1,18 +1,24 @@
 use super::shared::{Date, Avatar, Name, StaffNodes};
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Staff {
-    id:             i32,
-    age:            Option<i32>,
-    gender:         Option<String>,
-    favourites:     Option<i32>,
-    home_town:      Option<String>,
-    image:          Avatar,
-    name:           Name,
-    date_of_birth:  Date,
-    date_of_death:  Date,
-    language_v2:    Option<String>,
-    site_url:       Option<String>,
-    staff_media:    Vec<StaffNodes>,
+    pub id:             i32,
+    pub age:            Option<i32>,
+    pub gender:         Option<String>,
+    pub favourites:     Option<i32>,
+    #[serde(rename = "homeTown")]
+    pub home_town:      Option<String>,
+    pub image:          Option<Avatar>,
+    pub name:           Option<Name>,
+    #[serde(rename = "dateOfBirth")]
+    pub date_of_birth:  Option<Date>,
+    #[serde(rename = "dateOfDeath")]
+    pub date_of_death:  Option<Date>,
+    #[serde(rename = "languageV2")]
+    pub language:       Option<String>,
+    #[serde(rename = "siteUrl")]
+    pub site_url:       Option<String>,
+    #[serde(rename = "staffMedia")]
+    pub staff_media:    StaffNodes,
 }

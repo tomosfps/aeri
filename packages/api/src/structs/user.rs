@@ -1,14 +1,16 @@
 use super::shared::{Avatar, Statistics};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct User {
-    id:             i32,
-    name:           String,
-    site_url:       String,
-    updated_at:     String,
-    banner_image:   String,
-    about:          String,
-    avatar:         Avatar,
-    statistics:     Statistics,
+    pub id:             Option<i32>,
+    pub name:           Option<String>,
+    #[serde(rename = "siteUrl")]
+    pub site_url:       Option<String>,
+    pub updated_at:     Option<String>,
+    #[serde(rename = "bannerImage")]
+    pub banner_image:   Option<String>,
+    pub about:          Option<String>,
+    pub avatar:         Option<Avatar>,
+    pub statistics:     Option<Statistics>,
 }

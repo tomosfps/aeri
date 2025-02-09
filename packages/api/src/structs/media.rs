@@ -1,4 +1,4 @@
-use super::shared::{Date, Title, CoverImage, AiringSchedule};
+use super::shared::{Date, Title, MediaCoverImage, AiringSchedule};
 use serde::{Serialize, Deserialize};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -10,18 +10,25 @@ pub struct Media {
     pub chapters:        Option<i32>,
     pub volumes:         Option<i32>,
     pub duration:        Option<i32>,
-    pub description:     Option<String>,
     pub status:          Option<String>,
     pub genres:          Option<Vec<String>>,
-    pub average_score:   Option<f32>,
-    pub mean_score:      Option<f32>,
+    #[serde(rename = "averageScore")]
+    pub average_score:   Option<i32>,
+    #[serde(rename = "meanScore")]
+    pub mean_score:      Option<i32>,
     pub popularity:      Option<i32>,
+    #[serde(rename = "siteUrl")]
     pub site_url:        Option<String>,
     pub favourites:      Option<i32>,
+    #[serde(rename = "bannerImage")]
     pub banner_image:    Option<String>,
+    #[serde(rename = "startDate")]
     pub start_date:      Option<Date>,
+    #[serde(rename = "endDate")]
     pub end_date:        Option<Date>,
+    #[serde(rename = "airingSchedule")]
     pub airing_schedule: Option<AiringSchedule>,
-    pub cover_image:     Option<CoverImage>,
+    #[serde(rename = "coverImage")]
+    pub cover_image:     Option<MediaCoverImage>,
     pub title:           Option<Title>,
 }

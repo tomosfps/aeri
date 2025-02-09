@@ -27,7 +27,8 @@ use anilist::user::{user_search,
 
 use anilist::search::{character_search, 
                     staff_search, 
-                    studio_search};
+                    studio_search,
+                    fetch_affinity};
 
 use cache::redis::Redis;
 use client::proxy::Proxy;
@@ -70,6 +71,7 @@ async fn main() -> std::io::Result<()> {
             }
             if attempts == 10 {
                 logger.error_single("Failed to update proxy list after 10 attempts", "Main");
+                std::process::exit(1);
             }
         });
     }
@@ -87,6 +89,7 @@ async fn main() -> std::io::Result<()> {
             .service(character_search)
             .service(staff_search)
             .service(studio_search)
+            .service(fetch_affinity)
             .route("/hey", web::get().to(manual))
     })
     .workers(num_cpus::get())

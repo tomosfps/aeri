@@ -41,7 +41,8 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
     if req.media_name.len() == 0 || req.media_type.len() == 0 {
         return HttpResponse::NotFound().json(json!({"error": "No Media Name or Type was included"}));
     }
-    let client:   Client    = Client::new();
+
+    let client:   Client    = Client::new().with_proxy().await.unwrap();
     let json:     Value     = json!({"query": get_query("relation_stats"), "variables": {"search": req.media_name, "type": req.media_type.to_uppercase()}});
     let response: Response  = client.post(QUERY_URL, &json).await.unwrap();
     
@@ -65,7 +66,7 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
 
     let genres:     Vec<String> = req.genres.clone().unwrap_or(vec![]);
     let mut rng:    rand::prelude::ThreadRng = rand::rng();
-    let client:     Client = Client::new();
+    let client:     Client = Client::new().with_proxy().await.unwrap();
     let json:       Value = json!({"query": get_query("recommendations"), "variables": { "page": 1, "perPage": 50 }});
     let response:   Response = client.post(QUERY_URL, &json).await.unwrap();
     
@@ -109,7 +110,7 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
         }
     }
 
-    let client:     Client = Client::new();
+    let client:     Client = Client::new().with_proxy().await.unwrap();
     let json:       serde_json::Value = json!({"query": get_query("search"), "variables": {"id": req.media_id, "type": req.media_type.to_uppercase()}});
     let response:   Response = client.post(QUERY_URL, &json).await.unwrap();
 
@@ -121,7 +122,6 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
     }
     
     let response:       Value = response.json().await.unwrap();
-    logger.debug_single(&format!("Response: {}", response), "Media");
     let media:          Media = match serde_json::from_value(response["data"]["Media"].clone()) {
         Ok(media) => media,
         Err(err) => {
@@ -132,19 +132,27 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
     let media: Value = format_media_data(media).await;
 
     let _ = redis.set(media["id"].to_string(), media.clone().to_string());
-    if !media["airing"].is_null() {
-        logger.debug_single(&format!("{} is releasing, expiring cache when next episode is aired.", media["romaji"]), "Media");
-        let _ = redis.expire(media["id"].to_string(), media["airing"]["nodes"][0]["timeUntilAiring"].as_i64().unwrap());
+    if let Some(nodes) = media["airing"]["nodes"].as_array() {
+        if !nodes.is_empty() {
+            logger.debug_single(&format!("{} is releasing, expiring cache when next episode is aired.", media["romaji"]), "Media");
+            if let Some(time_until_airing) = nodes[0]["timeUntilAiring"].as_i64() {
+                let _ = redis.expire(media["id"].to_string(), time_until_airing);
+            } else {
+                logger.error_single("Failed to get timeUntilAiring", "Media");
+            }
+        } else {
+            logger.debug_single(&format!("{} is not releasing, keep data for a week.", media["romaji"]), "Media");
+            let _ = redis.expire(media["id"].to_string(), 86400);
+        }
     } else {
-        logger.debug_single(&format!("{} is not releasing, keep data for a week.", media["romaji"]), "Media");
-        let _ = redis.expire(media["id"].to_string(), 86400);
+        logger.error_single("Failed to get airing nodes", "Media");
     }
     HttpResponse::Ok().json(media)
 }
 
 async fn get_recommendation(pages: i32, genres: Vec<String>, media: String) -> serde_json::Value {
     let mut rng:    rand::prelude::ThreadRng = rand::rng();
-    let client:     Client = Client::new();
+    let client:     Client = Client::new().with_proxy().await.unwrap();
     let json:       Value = json!({
         "query": get_query("recommendation"), 
         "variables": {
