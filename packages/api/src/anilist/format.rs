@@ -62,12 +62,12 @@ pub async fn format_relation_data(parsed_string: String, relation_data: Relation
     let parsed_string: &String = &parsed_string.to_lowercase();
 
     for rel in data.iter() {
-        let romaji:   &String =  rel.title.as_ref().unwrap().romaji.as_ref().unwrap();
-        let english:  &String =  rel.title.as_ref().unwrap().english.as_ref().unwrap();
-        let native:   &String =  rel.title.as_ref().unwrap().native.as_ref().unwrap();
-        let synonyms: &Vec<String> = rel.synonyms.as_ref().unwrap();
+        let romaji:   String =  rel.title.as_ref().unwrap().romaji.clone().unwrap_or_else(|| String::new());
+        let english:  String =  rel.title.as_ref().unwrap().english.clone().unwrap_or_else(|| String::new());
+        let native:   String =  rel.title.as_ref().unwrap().native.clone().unwrap_or_else(|| String::new());
+        let synonyms: Vec<String> = rel.synonyms.clone().unwrap_or_else(|| Vec::new());
 
-        let result = compare_strings(parsed_string, vec![romaji, english, native]);
+        let result = compare_strings(parsed_string, vec![&romaji, &english, &native]);
 
         let lowercase_synonyms: Vec<String> =
             synonyms.iter().map(|x| x.as_str().to_lowercase()).collect();
