@@ -22,9 +22,15 @@ struct ScoreRequest {
 }
 
 #[derive(Deserialize)]
-struct UserRequest {
+struct UserExpireRequest {
     user_id: String,
 }
+
+#[derive(Deserialize)]
+struct UserRequest {
+    username: String,
+}
+
 
 #[post("/user/score")]
 pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
@@ -68,26 +74,26 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
 }
 
 #[post("/user")]
-pub async fn user_search(username: String) -> impl Responder {
-    if username.len() == 0 {
+pub async fn user_search(req: web::Json<UserRequest>) -> impl Responder {
+    if req.username.len() == 0 {
         logger.error_single("No username was included", "User");
         return HttpResponse::NotFound().json(json!({"error": "No username was included", "errorCode": 404}));
     }
 
-    match redis.get(username.clone()) {
+    match redis.get(req.username.clone()) {
         Ok(data) => {
             let mut user_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
             user_data["dataFrom"] = "Cache".into();
-            user_data["leftUntilExpire"] = redis.ttl(username.to_string()).unwrap().into();
+            user_data["leftUntilExpire"] = redis.ttl(req.username.to_string()).unwrap().into();
             return HttpResponse::Ok().json(user_data);
         },
         Err(_) => {
-            logger.debug_single(&format!("{} was not found within the cache", username), "User");
+            logger.debug_single(&format!("{} was not found within the cache", req.username), "User");
         }
     }
 
     let client = Client::new().with_proxy().await.unwrap();
-    let json = json!({"query": get_query("user"), "variables": {"name": username}});
+    let json = json!({"query": get_query("user"), "variables": {"name": req.username}});
     let response = client.post(QUERY_URL, &json).await.unwrap();
     
     if response.status().as_u16() != 200 {
@@ -107,12 +113,12 @@ pub async fn user_search(username: String) -> impl Responder {
     };
     
     let user: Value = format_user_data(user).await;
-    let _ = redis.setexp(username.clone(), user.to_string(), 86400).await;
+    let _ = redis.setexp(req.username.clone(), user.to_string(), 86400).await;
     HttpResponse::Ok().json(user)
 }
 
 #[post("/expire-user")]
-async fn expire_user(req: web::Json<UserRequest>) -> impl Responder {
+async fn expire_user(req: web::Json<UserExpireRequest>) -> impl Responder {
     match redis.expire_user(&req.user_id).await {
         Ok(_) => {
             HttpResponse::Ok().json(json!({

@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Media {
-    pub id:              Option<i32>,
+    pub id:              i32,
     pub season:          Option<String>,
     pub format:          Option<String>,
     pub episodes:        Option<i32>,
@@ -23,12 +23,12 @@ pub struct Media {
     #[serde(rename = "bannerImage")]
     pub banner_image:    Option<String>,
     #[serde(rename = "startDate")]
-    pub start_date:      Option<Date>,
+    pub start_date:      Date,
     #[serde(rename = "endDate")]
-    pub end_date:        Option<Date>,
+    pub end_date:        Date,
     #[serde(rename = "airingSchedule")]
     pub airing_schedule: Option<AiringSchedule>,
     #[serde(rename = "coverImage")]
-    pub cover_image:     Option<MediaCoverImage>,
-    pub title:           Option<Title>,
+    pub cover_image:     MediaCoverImage,
+    pub title:           Title,
 }

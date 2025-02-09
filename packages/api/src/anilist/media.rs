@@ -42,8 +42,20 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
         return HttpResponse::NotFound().json(json!({"error": "No Media Name or Type was included"}));
     }
 
+    let media_name = req.media_name.clone().to_lowercase();
+    match redis.get(media_name.to_string()) {
+        Ok(data) => {
+            let mut media_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
+            media_data["dataFrom"] = "Cache".into();
+            return HttpResponse::Ok().json(json!({"relations": media_data, "leftUntilExpire": redis.ttl(&media_name).unwrap()}));
+        },
+        Err(_) => {
+            logger.debug_single("No data found in cache, fetching from Anilist", "Relations");
+        }
+    }
+
     let client:   Client    = Client::new().with_proxy().await.unwrap();
-    let json:     Value     = json!({"query": get_query("relation_stats"), "variables": {"search": req.media_name, "type": req.media_type.to_uppercase()}});
+    let json:     Value     = json!({"query": get_query("relation_stats"), "variables": {"search": &media_name, "type": req.media_type.to_uppercase()}});
     let response: Response  = client.post(QUERY_URL, &json).await.unwrap();
     
     if response.status().as_u16() != 200 {
@@ -52,9 +64,13 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
         }
         return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
     }
+
     let response:       Value       = response.json().await.unwrap();
     let relations:      Relations   = serde_json::from_value(response["data"]["Page"].clone()).unwrap();
-    let relations:      Value       = format_relation_data(req.media_name.to_string(), relations).await;
+    let relations:      Value       = format_relation_data(media_name.clone(), relations).await;
+
+    logger.debug_single(&format!("Relations for {} found, caching", media_name), "Relations");
+    let _                           = redis.setexp(media_name, relations.clone().to_string(), 86400);
     HttpResponse::Ok().json(json!({"relations": relations, "dataFrom": "API"}))
 }
 
@@ -63,7 +79,7 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     if req.media.len() == 0 {
         return HttpResponse::NotFound().json(json!({"error": "No Media Type was included"}));
     }
-
+    
     let genres:     Vec<String> = req.genres.clone().unwrap_or(vec![]);
     let mut rng:    rand::prelude::ThreadRng = rand::rng();
     let client:     Client = Client::new().with_proxy().await.unwrap();
@@ -76,6 +92,7 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
         }
         return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
     }
+
     let response:       Value              = response.json().await.unwrap();
     let relations:      Recommendation     = serde_json::from_value(response["data"]["Page"].clone()).unwrap();
 

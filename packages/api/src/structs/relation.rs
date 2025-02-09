@@ -9,8 +9,8 @@ pub struct Relations {
 
 #[derive(Deserialize, Serialize, Iterable, Debug)]
 pub struct RelationData {
-    pub id:              Option<i32>,
-    pub title:           Option<Title>,
+    pub id:              i32,
+    pub title:           Title,
     pub format:          Option<String>,
     pub r#type:          Option<String>,
     pub synonyms:        Option<Vec<String>>,

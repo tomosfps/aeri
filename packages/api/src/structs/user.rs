@@ -11,6 +11,6 @@ pub struct User {
     #[serde(rename = "bannerImage")]
     pub banner_image:   Option<String>,
     pub about:          Option<String>,
-    pub avatar:         Option<Avatar>,
-    pub statistics:     Option<Statistics>,
+    pub avatar:         Avatar,
+    pub statistics:     Statistics,
 }

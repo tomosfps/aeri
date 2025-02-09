@@ -9,12 +9,12 @@ pub struct Staff {
     pub favourites:     Option<i32>,
     #[serde(rename = "homeTown")]
     pub home_town:      Option<String>,
-    pub image:          Option<Avatar>,
-    pub name:           Option<Name>,
+    pub image:          Avatar,
+    pub name:           Name,
     #[serde(rename = "dateOfBirth")]
-    pub date_of_birth:  Option<Date>,
+    pub date_of_birth:  Date,
     #[serde(rename = "dateOfDeath")]
-    pub date_of_death:  Option<Date>,
+    pub date_of_death:  Date,
     #[serde(rename = "languageV2")]
     pub language:       Option<String>,
     #[serde(rename = "siteUrl")]

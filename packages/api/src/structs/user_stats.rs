@@ -8,7 +8,7 @@ pub struct UserScores {
     pub score:              Option<i32>,
     pub status:             Option<String>,
     pub repeat:             Option<i32>,
-    pub user:               Option<UserScoresName>,
+    pub user:               UserScoresName,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
