@@ -11,7 +11,7 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
     const [selectId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
     const selectMenu = client.selectMenus.get(selectId);
     const memberId = interaction.member?.user.id;
-    const toggable = selectMenu?.toggable ?? false;
+    const toggleable = selectMenu?.toggleable ?? false;
     const timeout = selectMenu?.timeout ?? 3600;
 
     if (!memberId) {
@@ -19,10 +19,9 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
         return;
     }
 
-    logger.debug("Checking if command is toggable", "Handler", { toggable, memberId, data });
-    if (toggable && !data.includes(memberId)) {
-        logger.warnSingle("Command is toggable and member was not found in data", "Handler");
-        api.interactions.reply(interaction.id, interaction.token, {
+    logger.debug("Checking if command is toggleable", "Handler", { toggleable, memberId, data });
+    if (toggleable && !data.includes(memberId)) {
+        await api.interactions.reply(interaction.id, interaction.token, {
             content: "Only the user who toggled this command can use it",
             flags: MessageFlags.Ephemeral,
         });

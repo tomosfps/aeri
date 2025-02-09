@@ -1,5 +1,5 @@
 import { inlineCode } from "@discordjs/builders";
-import { capitalise, env } from "core";
+import { capitalise, env, formatSeconds } from "core";
 import { fetchAllUsers } from "database";
 import { Logger } from "logger";
 import { checkResponse, filteredDescription } from "../util/anilistUtil.js";
@@ -31,7 +31,7 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         genresToShow.join(", ") + (additionalGenresCount > 0 ? ` + ${additionalGenresCount} more` : "");
 
     const currentEpisode = result.airing[0] ? result.airing[0].episode - 1 : null;
-    const nextEpisode = result.airing[0] ? interaction.format_seconds(result.airing[0].timeUntilAiring) : null;
+    const nextEpisode = result.airing[0] ? formatSeconds(result.airing[0].timeUntilAiring) : null;
 
     const userData: {
         current: string[];

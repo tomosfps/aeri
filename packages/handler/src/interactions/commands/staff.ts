@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
 import { fetchAnilistStaff } from "anilist";
+import { formatSeconds } from "core";
 import { Logger } from "logger";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
@@ -34,7 +35,7 @@ export const interaction: Command = {
         }
 
         const minDescriptionLength = 23;
-        const footer = `${staff.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${interaction.format_seconds(staff.result.leftUntilExpire)}`}`;
+        const footer = `${staff.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${formatSeconds(staff.result.leftUntilExpire)}`}`;
 
         const embed = new EmbedBuilder()
             .setTitle(staff.result.fullName)

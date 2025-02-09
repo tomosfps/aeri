@@ -12,7 +12,7 @@ import type { Command } from "../classes/slashCommandBuilder.js";
 export interface Button<T = undefined> {
     custom_id: string;
     cooldown?: number;
-    toggable?: boolean;
+    toggleable?: boolean;
     timeout: number;
     parse?: (data: string[]) => T;
     execute: (interaction: ButtonInteraction, data: T) => void;
@@ -21,7 +21,7 @@ export interface Button<T = undefined> {
 export interface SelectMenu<T = undefined> {
     custom_id: string;
     cooldown?: number;
-    toggable?: boolean;
+    toggleable?: boolean;
     timeout: number;
     parse?: (data: string[]) => T;
     execute: (interaction: SelectMenuInteraction, data: T) => void;

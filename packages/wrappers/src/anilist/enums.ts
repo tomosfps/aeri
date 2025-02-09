@@ -1,31 +1,39 @@
 export enum MediaFormat {
     TV = "TV",
-    TV_SHORT = "TV_SHORT",
-    MOVIE = "MOVIE",
-    SPECIAL = "SPECIAL",
+    TVShort = "TV_SHORT",
+    Movie = "MOVIE",
+    Special = "SPECIAL",
     OVA = "OVA",
     ONA = "ONA",
-    MUSIC = "MUSIC",
-    MANGA = "MANGA",
-    NOVEL = "NOVEL",
-    ONE_SHOT = "ONE_SHOT",
+    Music = "MUSIC",
+    Manga = "MANGA",
+    Novel = "NOVEL",
+    OneShot = "ONE_SHOT",
 }
 
 export enum DataFrom {
     API = "API",
-    CACHE = "CACHE",
+    Cache = "CACHE",
 }
 
-export enum AiringType {
-    Releasing = "Releasing",
-    Upcoming = "Upcoming",
-    Finished = "Finished",
-    Cancelled = "Cancelled",
-    OnHiatus = "On Hiatus",
-    Unknown = "Unknown",
+export enum MediaStatus {
+    Finished = "FINISHED",
+    Releasing = "RELEASING",
+    NotYetReleased = "NOT_YET_RELEASED",
+    Cancelled = "CANCELLED",
+    Hiatus = "HIATUS",
 }
 
 export enum MediaType {
-    ANIME = "ANIME",
-    MANGA = "MANGA",
+    Anime = "ANIME",
+    Manga = "MANGA",
+}
+
+export enum MediaListStatus {
+    Current = "CURRENT",
+    Planning = "PLANNING",
+    Completed = "COMPLETED",
+    Dropped = "DROPPED",
+    Paused = "PAUSED",
+    Repeating = "REPEATING",
 }

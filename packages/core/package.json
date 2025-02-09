@@ -7,7 +7,7 @@
         "build": "tsc",
         "start": "node dist/index.js"
     },
-    "license": "GPL-3.0",
+    "license": "MIT",
     "dependencies": {
         "ioredis": "^5.4.2",
         "pg": "^8.13.1",

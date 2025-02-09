@@ -13,7 +13,7 @@
         "api": "dotenv -- cargo run --manifest-path ./packages/api/Cargo.toml",
         "website": "pnpm --filter website build && dotenv -- pnpm --filter website dev"
     },
-    "license": "GPL-3.0",
+    "license": "MIT",
     "devDependencies": {
         "@biomejs/biome": "^1.9.4",
         "dotenv-cli": "^8.0.0",

@@ -1,7 +1,8 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
-import { fetchAnilistCharacter } from "anilist";
+import { formatSeconds } from "core";
 import { Logger } from "logger";
+import { Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
@@ -20,45 +21,52 @@ export const interaction: Command = {
         const character_name =
             getCommandOption("character_name", ApplicationCommandOptionType.String, interaction.options) || "";
 
-        const character = await fetchAnilistCharacter(character_name).catch((error: any) => {
+        const character = await api.fetch(Routes.Character, { character_name }).catch((error: any) => {
             logger.error("Error while fetching data from the API.", "Anilist", error);
-            return null;
+            return undefined;
         });
 
+        if (character === undefined) {
+            return interaction.reply({
+                content: "An error occurred while fetching data from the API",
+                ephemeral: true,
+            });
+        }
+
         if (character === null) {
-            logger.debug("Character could not be found within the Anilist API", "Anilist", character);
+            logger.debugSingle("Character could not be found within the Anilist API", "Anilist");
             return interaction.reply({
                 content: `Could not find ${inlineCode(character_name)} within the Anilist API`,
                 ephemeral: true,
             });
         }
+
         logger.debug("Character found", "Anilist", character);
 
-        const footer = `${character.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${interaction.format_seconds(character.result.leftUntilExpire)}`}`;
-        const description = character.description + character.addOnDescription;
+        const footer = `${character.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${formatSeconds(character.leftUntilExpire)}`}`;
         const minDescriptionLength = 23;
 
         const embed = new EmbedBuilder()
-            .setTitle(character.result.fullName)
-            .setURL(character.result.url)
-            .setDescription(description)
-            .setThumbnail(character.result.image)
+            .setTitle(character.fullName)
+            .setURL(character.siteUrl)
+            .setDescription(character.description + character.addOnDescription)
+            .setThumbnail(character.image)
             .setFooter({ text: footer })
             .setColor(0x2f3136);
 
         const descriptionButton = new ButtonBuilder()
-            .setCustomId(`characterDescriptonShow:${character_name}:${interaction.member?.user.id}`)
+            .setCustomId(`characterShow:${character_name}:DESCRIPTION:${interaction.member?.user.id}`)
             .setLabel("See Character Description")
             .setStyle(ButtonStyle.Primary);
 
         const animeButton = new ButtonBuilder()
-            .setCustomId(`characterAnimeShow:${character_name}:${interaction.member?.user.id}`)
+            .setCustomId(`characterShow:${character_name}:ANIME:${interaction.member?.user.id}`)
             .setLabel("See Anime Show Appearances")
             .setDisabled(character.animeDescription.length <= minDescriptionLength)
             .setStyle(ButtonStyle.Secondary);
 
         const mangaButton = new ButtonBuilder()
-            .setCustomId(`characterMangaShow:${character_name}:${interaction.member?.user.id}`)
+            .setCustomId(`characterShow:${character_name}:MANGA:${interaction.member?.user.id}`)
             .setLabel("See Manga Character Appearances")
             .setDisabled(character.mangaDescription.length <= minDescriptionLength)
             .setStyle(ButtonStyle.Secondary);

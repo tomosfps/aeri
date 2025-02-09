@@ -9,7 +9,7 @@
         "generate": "pnpx prisma generate",
         "push": "pnpx prisma db push --skip-generate"
     },
-    "license": "GPL-3.0",
+    "license": "MIT",
     "dependencies": {
         "core": "workspace:*",
         "logger": "workspace:*"

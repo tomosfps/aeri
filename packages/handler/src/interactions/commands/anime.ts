@@ -20,7 +20,7 @@ export const interaction: Command = {
         const data = await api
             .fetch(Routes.Relations, {
                 media_name: anime,
-                media_type: MediaType.ANIME,
+                media_type: MediaType.Anime,
             })
             .catch((error: any) => {
                 logger.error("Error while fetching data from the API.", "Anilist", error);
@@ -34,8 +34,7 @@ export const interaction: Command = {
             });
         }
 
-        const relations = data.relations;
-        if (relations.length === 0) {
+        if (data.relations.length === 0) {
             logger.debugSingle("No relations found", "Anilist");
             return interaction.reply({ content: "No anime found", ephemeral: true });
         }
@@ -46,7 +45,7 @@ export const interaction: Command = {
             .setMinValues(1)
             .setMaxValues(1)
             .addOptions(
-                relations.slice(0, 25).map((relation) => {
+                data.relations.slice(0, 25).map((relation) => {
                     return new StringSelectMenuOptionBuilder()
                         .setLabel(`${relation.english || relation.romaji || relation.native || ""}`.slice(0, 100))
                         .setValue(`${relation.id}`)

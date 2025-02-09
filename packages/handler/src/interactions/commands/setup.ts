@@ -1,7 +1,7 @@
-import { fetchAnilistUserData } from "anilist";
 import { createAnilistUser, fetchUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
+import { Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
@@ -21,10 +21,14 @@ export const interaction: Command = {
         const isInDatabase = await fetchUser(interaction.member_id);
 
         if (!isInDatabase) {
-            const result = await fetchAnilistUserData(username, interaction).catch((error: any) => {
+            const user = await api.fetch(Routes.User, { username }).catch((error: any) => {
                 logger.error("Error while fetching data from the API.", "Anilist", error);
-                return interaction.reply({ content: "An error occurred while fetching data from the API." });
+                return null;
             });
+
+            if (user === null) {
+                return interaction.reply({ content: "An error occurred while fetching data from the API." });
+            }
 
             if (interaction.guild_id === undefined) {
                 return interaction.reply({
@@ -33,16 +37,16 @@ export const interaction: Command = {
                 });
             }
 
-            createAnilistUser(
+            await createAnilistUser(
                 interaction.member_id,
                 interaction.member_name,
-                result.result.id,
-                result.result.name,
+                user.id,
+                user.name,
                 BigInt(interaction.guild_id),
             );
 
             return interaction.reply({
-                content: `Successfully linked ${result.result.name} to your discord account.`,
+                content: `Successfully linked ${user.name} to your discord account.`,
                 ephemeral: true,
             });
         }

@@ -1,6 +1,7 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
 import { fetchAnilistStudio } from "anilist";
+import { formatSeconds } from "core";
 import { Logger } from "logger";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
@@ -32,7 +33,7 @@ export const interaction: Command = {
             });
         }
 
-        const footer = `${studio.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${interaction.format_seconds(studio.result.leftUntilExpire)}`}`;
+        const footer = `${studio.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${formatSeconds(studio.result.leftUntilExpire)}`}`;
         const embed = new EmbedBuilder()
             .setTitle(studio.result.name)
             .setURL(studio.result.url)

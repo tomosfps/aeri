@@ -4,7 +4,7 @@ Aeri, a bot that uses the Anilist API to display, captuure and cache data.
 > [!IMPORTANT]
 > ### COMMANDS
 > If you want to use the bot, I'm currently hosting one which you can [invite from this link](https://discord.com/oauth2/authorize?client_id=795916241193140244)<br/>
-> You can find all of the commands at [aeri's website - Coming Soon](https://devtomos.github.io)
+> You can find all of the commands at [aeri's website - Coming Soon](https://ehiraa.github.io)
 > If you want to use any of the packages, ensure that you follow the Licencse of that package.
 > And read the README for anything important
 
@@ -32,4 +32,4 @@ Feel free to open a pull requests or issue.
 5. Create the pull request
 
 ## License
-This project uses the following license: [MIT LICENSE](https://github.com/devtomos/aeri/blob/main/LICENSE.md).
+This project uses the following license: [MIT LICENSE](https://github.com/ehiraa/aeri/blob/main/LICENSE.md).

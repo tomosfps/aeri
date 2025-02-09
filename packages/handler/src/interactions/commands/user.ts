@@ -1,8 +1,8 @@
 import { EmbedBuilder } from "@discordjs/builders";
-import { fetchAnilistUserData } from "anilist";
 import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
+import { Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
@@ -31,22 +31,33 @@ export const interaction: Command = {
         }
 
         logger.debug(`Fetching user: ${username}`, "User");
-        const userFetch = await fetchAnilistUserData(username, interaction);
-        if (userFetch === null) {
+
+        const user = await api.fetch(Routes.User, { username }).catch((error: any) => {
+            logger.error("Error while fetching data from the API.", "Anilist", error);
+            return undefined;
+        });
+
+        if (user === undefined) {
+            return interaction.reply({
+                content: "An error occurred while fetching data from the API.",
+                ephemeral: true,
+            });
+        }
+
+        if (user === null) {
             return interaction.reply({
                 content: "User could not be found. Are you sure you have the correct username?",
                 ephemeral: true,
             });
         }
 
-        const footer = `${userFetch.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${interaction.format_seconds(userFetch.result.leftUntilExpire)}`}`;
         const embed = new EmbedBuilder()
-            .setTitle(userFetch.result.name)
-            .setURL(userFetch.result.url)
-            .setDescription(userFetch.description)
-            .setThumbnail(userFetch.result.avatar)
-            .setImage(userFetch.result.banner)
-            .setFooter({ text: footer })
+            .setTitle(user.name)
+            .setURL(user.siteUrl)
+            .setDescription(user.description)
+            .setThumbnail(user.avatar)
+            .setImage(user.banner)
+            .setFooter({ text: user.footer })
             .setColor(0x2f3136);
 
         return interaction.reply({

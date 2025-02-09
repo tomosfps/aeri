@@ -7,7 +7,7 @@
         "build": "tsc",
         "start": "node dist/index.js"
     },
-    "license": "GPL-3.0",
+    "license": "MIT",
     "dependencies": {
         "logger": "workspace:*",
         "core": "workspace:*",

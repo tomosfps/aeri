@@ -1,5 +1,6 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { fetchAnilistStaff } from "anilist";
+import { formatSeconds } from "core";
 import { Logger } from "logger";
 import type { Button } from "../../services/commands.js";
 
@@ -12,7 +13,7 @@ type ButtonData = {
 
 export const interaction: Button<ButtonData> = {
     custom_id: "staffMangaShow",
-    toggable: true,
+    toggleable: true,
     timeout: 3600,
     parse(data) {
         if (!data[0] || !data[1]) {
@@ -32,7 +33,7 @@ export const interaction: Button<ButtonData> = {
             return interaction.reply({ content: "No staff member found", ephemeral: true });
         }
 
-        const footer = `${staff.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${interaction.format_seconds(staff.result.leftUntilExpire)}`}`;
+        const footer = `${staff.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${formatSeconds(staff.result.leftUntilExpire)}`}`;
         const description = staff.description + staff.mangaDescription;
 
         const embed = new EmbedBuilder()

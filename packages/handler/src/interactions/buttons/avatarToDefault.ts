@@ -7,7 +7,7 @@ type ButtonData = {
 
 export const interaction: Button<ButtonData> = {
     custom_id: "default",
-    toggable: true,
+    toggleable: true,
     timeout: 3600,
     parse(data) {
         if (!data[0] || !data[1]) {

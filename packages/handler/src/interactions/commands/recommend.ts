@@ -4,13 +4,16 @@ import {
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
 } from "@discordjs/builders";
+
+import { fetchAnilistMedia, fetchRecommendation } from "anilist";
+import { formatSeconds } from "core";
 import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
+import { Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
-
-import { fetchAnilistMedia, fetchAnilistUserData, fetchRecommendation } from "anilist";
 import { getCommandOption } from "../../utility/interactionUtils.js";
+
 const logger = new Logger();
 const genreList = [
     "Action",
@@ -107,14 +110,19 @@ export const interaction: Command = {
             });
         }
 
-        const userFetch = await fetchAnilistUserData(username, interaction);
-        if (!userFetch) {
+        const user = await api.fetch(Routes.User, { username }).catch((error: any) => {
+            logger.error("Error while fetching data from the API.", "Anilist", error);
+            return undefined;
+        });
+
+        if (!user) {
             return interaction.followUp({ content: "User not found" });
         }
-        logger.debug("Gained user data", "Recommend", userFetch.result);
 
-        const topGenres = userFetch.result.animeStats.genres
-            ? userFetch.result.animeStats.genres
+        logger.debug("Gained user data", "Recommend", user);
+
+        const topGenres = user.animeStats.genres
+            ? user.animeStats.genres
                   .sort((a: any, b: any) => b.count - a.count)
                   .slice(0, 5)
                   .map((genre: any) => genre.genre)
@@ -140,7 +148,7 @@ export const interaction: Command = {
             .setThumbnail(result.result.cover.extraLarge)
             .setDescription(result.description)
             .setFooter({
-                text: `${result.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${interaction.format_seconds(result.result.leftUntilExpire)}`}`,
+                text: `${result.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${formatSeconds(result.result.leftUntilExpire)}`}`,
             })
             .setColor(0x2f3136);
 
