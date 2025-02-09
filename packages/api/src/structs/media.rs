@@ -1,16 +1,16 @@
-use super::shared::{Date, Title, MediaCoverImage, AiringSchedule};
+use super::shared::{Date, Title, MediaCoverImage, AiringSchedule, MediaStatus, MediaFormat};
 use serde::{Serialize, Deserialize};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Media {
     pub id:              i32,
     pub season:          Option<String>,
-    pub format:          Option<String>,
+    pub format:          Option<MediaFormat>,
     pub episodes:        Option<i32>,
     pub chapters:        Option<i32>,
     pub volumes:         Option<i32>,
     pub duration:        Option<i32>,
-    pub status:          Option<String>,
+    pub status:          Option<MediaStatus>,
     pub genres:          Option<Vec<String>>,
     #[serde(rename = "averageScore")]
     pub average_score:   Option<i32>,

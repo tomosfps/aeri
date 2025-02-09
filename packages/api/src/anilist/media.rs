@@ -45,9 +45,8 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
     let media_name = req.media_name.clone().to_lowercase();
     match redis.get(media_name.to_string()) {
         Ok(data) => {
-            let mut media_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-            media_data["dataFrom"] = "Cache".into();
-            return HttpResponse::Ok().json(json!({"relations": media_data, "leftUntilExpire": redis.ttl(&media_name).unwrap()}));
+            let media_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
+            return HttpResponse::Ok().json(json!({"relations": media_data, "dataFrom": "Cache", "leftUntilExpire": redis.ttl(&media_name).unwrap()}));
         },
         Err(_) => {
             logger.debug_single("No data found in cache, fetching from Anilist", "Relations");
@@ -70,7 +69,7 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
     let relations:      Value       = format_relation_data(media_name.clone(), relations).await;
 
     logger.debug_single(&format!("Relations for {} found, caching", media_name), "Relations");
-    let _                           = redis.setexp(media_name, relations.clone().to_string(), 86400);
+    let _ = redis.setexp(media_name, relations.clone().to_string(), 86400).await;
     HttpResponse::Ok().json(json!({"relations": relations, "dataFrom": "API"}))
 }
 

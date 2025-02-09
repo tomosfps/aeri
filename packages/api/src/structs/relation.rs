@@ -1,4 +1,4 @@
-use super::shared::Title;
+use super::shared::{MediaFormat, MediaStatus, Title, Type};
 use serde::{Deserialize, Serialize};
 use struct_iterable::Iterable;
 
@@ -11,8 +11,8 @@ pub struct Relations {
 pub struct RelationData {
     pub id:              i32,
     pub title:           Title,
-    pub format:          Option<String>,
-    pub r#type:          Option<String>,
+    pub format:          Option<MediaFormat>,
+    pub r#type:          Option<Type>,
     pub synonyms:        Option<Vec<String>>,
-    pub status:          Option<String>,
+    pub status:          Option<MediaStatus>,
 }

@@ -1,4 +1,4 @@
-use super::shared::Avatar;
+use super::shared::{Avatar, MediaListStatus};
 use serde::{Serialize, Deserialize};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -8,7 +8,7 @@ pub struct AffinityLists {
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct AffinityListData {
-    pub status:     Option<String>,
+    pub status:     Option<MediaListStatus>,
     pub score:      Option<i32>,
     #[serde(rename = "mediaId")]
     pub media_id:   i32,

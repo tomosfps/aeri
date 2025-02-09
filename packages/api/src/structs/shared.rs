@@ -1,5 +1,102 @@
 use serde::{Deserialize, Serialize};
 
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+pub enum MediaFormat {
+    #[serde(rename = "TV")]
+    TV,
+    #[serde(rename = "TV_SHORT")]
+    TVShort,
+    #[serde(rename = "MOVIE")]
+    Movie,
+    #[serde(rename = "SPECIAL")]
+    Special,
+    #[serde(rename = "OVA")]
+    OVA,
+    #[serde(rename = "ONA")]
+    ONA,
+    #[serde(rename = "MUSIC")]
+    Music,
+    #[serde(rename = "MANGA")]
+    Manga,
+    #[serde(rename = "NOVEL")]
+    Novel,
+    #[serde(rename = "ONE_SHOT")]
+    OneShot,
+    #[serde(rename = "UNKNOWN")]
+    #[default]
+    Unknown,
+}
+
+impl MediaFormat {
+    pub fn as_str(&self) -> &str {
+        match self {
+            MediaFormat::TV => "TV",
+            MediaFormat::Movie => "Movie",
+            MediaFormat::OVA => "OVA",
+            MediaFormat::ONA => "ONA",
+            MediaFormat::Special => "Special",
+            MediaFormat::Music => "Music",
+            MediaFormat::Manga => "Manga",
+            MediaFormat::Novel => "Novel",
+            MediaFormat::OneShot => "OneShot",
+            MediaFormat::TVShort => "TV Short",
+            MediaFormat::Unknown => "Unknown",
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub enum MediaListStatus {
+    #[serde(rename = "CURRENT")]
+    Current,
+    #[serde(rename = "PLANNING")]
+    Planning,
+    #[serde(rename = "COMPLETED")]
+    Completed,
+    #[serde(rename = "DROPPED")]
+    Dropped,
+    #[serde(rename = "PAUSED")]
+    Paused,
+    #[serde(rename = "REPEATING")]
+    Repeating,
+}
+
+impl MediaListStatus {
+    pub fn as_str(&self) -> &str {
+        match self {
+            MediaListStatus::Current => "Current",
+            MediaListStatus::Planning => "Planning",
+            MediaListStatus::Completed => "Completed",
+            MediaListStatus::Dropped => "Dropped",
+            MediaListStatus::Paused => "Paused",
+            MediaListStatus::Repeating => "Repeating",
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub enum MediaStatus {
+    #[serde(rename = "FINISHED")]
+    Finished,
+    #[serde(rename = "RELEASING")]
+    Releasing,
+    #[serde(rename = "NOT_YET_RELEASED")]
+    NotYetReleased,
+    #[serde(rename = "CANCELLED")]
+    Cancelled,
+    #[serde(rename = "HIATUS")]
+    Hiatus,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+pub enum Type {
+    #[serde(rename = "ANIME")]
+    #[default]
+    Anime,
+    #[serde(rename = "MANGA")]
+    Manga,
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct MediaCoverImage {
     #[serde(rename = "extraLarge")]
@@ -40,7 +137,7 @@ pub struct Name {
     pub first:       Option<String>,
     pub last:        Option<String>,
     pub middle:      Option<String>,
-    pub alternative: Option<Vec<String>>,
+    pub alternative: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -61,7 +158,7 @@ pub struct MediaNodeData {
     #[serde(rename = "siteUrl")]
     pub site_url:   Option<String>,
     pub title:      Option<Title>,
-    pub format:     Option<String>,
+    pub format:     Option<MediaFormat>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -75,7 +172,7 @@ pub struct StaffNodeData {
     #[serde(rename = "siteUrl")]
     pub site_url:   Option<String>,
     pub title:      Option<Title>,
-    pub format:     Option<String>,
+    pub format:     Option<MediaFormat>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -101,13 +198,13 @@ pub struct AnimeStatistics {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct AnimeFormatDistribution {
-    pub format: String,
+    pub format: MediaFormat,
     pub count:  i32,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct AnimeStatusDistribution {
-    pub status:     String,
+    pub status:     MediaListStatus,
     #[serde(rename = "meanScore")]
     pub mean_score: f32,
     pub count:      i32,

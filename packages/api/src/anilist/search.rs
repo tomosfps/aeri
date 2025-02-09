@@ -27,7 +27,6 @@ struct AffinityRequest {
     other_users: Vec<String>,
 }
 
-
 #[derive(Deserialize)]
 struct CharacterRequest {
     character_name: String

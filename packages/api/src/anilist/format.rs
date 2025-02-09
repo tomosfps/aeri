@@ -1,6 +1,6 @@
 use crate::{
     global::compare_strings::compare_strings,
-    structs::{affinity::Affinity, character::Character, media::Media, relation::Relations, staff::Staff, studio::Studio, user::User, user_stats::UserScores},
+    structs::{affinity::Affinity, character::Character, media::Media, relation::Relations, shared::{MediaFormat, Type}, staff::Staff, studio::Studio, user::User, user_stats::UserScores},
 };
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
@@ -11,13 +11,7 @@ lazy_static! {
 }
 
 pub async fn format_media_data(media_data: Media) -> serde_json::Value {
-    let mut data = media_data.clone();
-
-    if let Some(status) = data.status.as_deref_mut() {
-        if status == "NOT_YET_RELEASED" {
-            data.status = Some("Not Yet Released".to_string());
-        }
-    }
+    let data = media_data.clone();
 
     let washed_data: serde_json::Value = json!({
         "id"            : data.id,
@@ -36,7 +30,7 @@ pub async fn format_media_data(media_data: Media) -> serde_json::Value {
         "popularity"    : data.popularity,
         "favourites"    : data.favourites,
         "status"        : data.status,
-        "url"           : data.site_url,
+        "siteUrl"       : data.site_url,
         "endDate"       : format!("{}/{}/{}", data.end_date.day.unwrap_or_else( || 0), data.end_date.month.unwrap_or_else( || 0), data.end_date.year.unwrap_or_else( || 0)),
         "startDate"     : format!("{}/{}/{}", data.start_date.day.unwrap_or_else( || 0), data.start_date.month.unwrap_or_else( || 0), data.start_date.year.unwrap_or_else( || 0)),
         "dataFrom"      : "API",
@@ -72,8 +66,8 @@ pub async fn format_relation_data(parsed_string: String, relation_data: Relation
             "english"       : english,
             "native"        : native,
             "synonyms"      : synonyms,
-            "type"          : rel.r#type.clone().unwrap_or_else(|| String::new()),
-            "format"        : rel.format.clone().unwrap_or_else(|| String::new()),
+            "type"          : rel.r#type.clone().unwrap_or_else(|| Type::default()),
+            "format"        : rel.format.clone().unwrap_or_else(|| MediaFormat::default()),
             "airingType"    : rel.status,
             "similarity"    : result.1,
             "dataFrom"      : "API",
@@ -105,7 +99,7 @@ pub async fn format_staff_data(staff_data: Staff) -> serde_json::Value {
         "nativeName":       data.name.native,
         "dateOfBirth":      format!("{}/{}/{}", data.date_of_birth.day.unwrap_or_else(|| 0), data.date_of_birth.month.unwrap_or_else(|| 0), data.date_of_birth.year.unwrap_or_else(|| 0)),
         "dateOfDeath":      format!("{}/{}/{}", data.date_of_death.day.unwrap_or_else(|| 0), data.date_of_death.month.unwrap_or_else(|| 0), data.date_of_death.year.unwrap_or_else(|| 0)),
-        "url":              data.site_url,
+        "siteUrl":          data.site_url,
         "image":            data.image.large,
         "staffData":        data.staff_media,
         "dataFrom":         "API",
@@ -120,7 +114,7 @@ pub async fn format_studio_data(studio_data: Studio) -> serde_json::Value {
         "id":                   data.id,
         "favourites":           data.favourites,
         "name":                 data.name,
-        "url":                  data.site_url,
+        "siteUrl":              data.site_url,
         "media":                data.media,
         "isAnimationStudio":    data.is_animation,
         "dataFrom":             "API",
@@ -136,7 +130,7 @@ pub async fn format_character_data(character_data: Character) -> serde_json::Val
         "fullName":             data.name.full,
         "nativeName":           data.name.native,
         "alternativeNames":     data.name.alternative,
-        "url":                  data.site_url,
+        "siteUrl":              data.site_url,
         "favourites":           data.favourites,
         "image":                data.image.large,
         "age":                  data.age,
@@ -240,7 +234,7 @@ pub async fn format_user_data(user_data: User) -> serde_json::Value {
 
     let completed_entries = statistics.anime.statuses
         .iter()
-        .find(|status| status.status.as_str() == "COMPLETED")
+        .find(|status| status.status.as_str() == "Completed")
         .map_or(0, |status| status.count);
 
     let added_up_entries = statistics.anime.statuses
@@ -260,7 +254,7 @@ pub async fn format_user_data(user_data: User) -> serde_json::Value {
         "avatar"                : data.avatar.large,
         "banner"                : data.banner_image,
         "about"                 : data.about,
-        "url"                   : data.site_url,
+        "siteUrl"               : data.site_url,
         "animeStats": {
             "count"             : statistics.anime.count,
             "watched"           : statistics.anime.episodes_watched,
