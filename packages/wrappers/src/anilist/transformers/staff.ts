@@ -6,26 +6,19 @@ import { filteredDescription, truncateAnilistDescription, truncateAnilistIfExcee
 
 const MAX_DESCRIPTION_LENGTH = 4096;
 
-export const characterTransformer: TransformersType[Routes.Character] = (data) => {
-    const alternativeNames =
-        data.alternativeNames !== undefined && data.alternativeNames.length > 0
-            ? data.alternativeNames.slice(0, 3).join(", ") +
-              (data.alternativeNames.length > 3 ? ` + ${data.alternativeNames.length - 3} more` : "")
-            : "None";
-
+export const staffTransformer: TransformersType[Routes.Staff] = (data) => {
     const descriptionBuilder = [
         `${inlineCode("Age               :")} ${data.age}\n`,
         `${inlineCode("Gender            :")} ${data.gender}\n`,
-        `${inlineCode("Date Of Birth     :")} ${data.dateOfBirth}\n`,
+        `${inlineCode("Birth             :")} ${data.dateOfBirth}\n`,
+        `${inlineCode("Death             :")} ${data.dateOfDeath}\n`,
+        `${inlineCode("Language          :")} ${data.language}\n`,
+        `${inlineCode("Home Town         :")} ${data.homeTown}\n`,
         `${inlineCode("Favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
-        `${inlineCode("Alternative Names :")} ${alternativeNames}\n`,
     ];
 
-    const addOnDescription = `${inlineCode("Description       :")}\n${data.description}\n`;
-    const filteredAddOn = filteredDescription(addOnDescription, true);
-
     const filtered = filteredDescription(descriptionBuilder.join(""), false);
-    const animeList = data.media.nodes.filter(
+    const animeList = data.staffData.nodes.filter(
         (media: any) => media.format !== "MANGA" && media.format !== "NOVEL" && media.format !== "ONE_SHOT",
     );
 
@@ -36,7 +29,7 @@ export const characterTransformer: TransformersType[Routes.Character] = (data) =
         })
         .join("\n");
 
-    const mangaList = data.media.nodes.filter(
+    const mangaList = data.staffData.nodes.filter(
         (media: any) => media.format === "MANGA" || media.format === "NOVEL" || media.format === "ONE_SHOT",
     );
 
@@ -79,7 +72,6 @@ export const characterTransformer: TransformersType[Routes.Character] = (data) =
 
     return {
         description: filtered,
-        addOnDescription: `\n${filteredAddOn}`,
         animeDescription: `\n${inlineCode("Anime List        :")}\n${animeListString}`,
         mangaDescription: `\n${inlineCode("Manga List        :")}\n${mangaListString}`,
     };

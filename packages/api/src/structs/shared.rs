@@ -137,7 +137,7 @@ pub struct Name {
     pub first:       Option<String>,
     pub last:        Option<String>,
     pub middle:      Option<String>,
-    pub alternative: Vec<String>,
+    pub alternative: Option<Vec<String>>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]

@@ -3,8 +3,43 @@ import type { DataFrom, MediaFormat, MediaListStatus, MediaStatus, MediaType } f
 export enum Routes {
     Relations = "relations",
     User = "user",
+    UserScore = "user/score",
     Character = "character",
+    Staff = "staff",
+    Studio = "studio",
+    Media = "media",
+    Affinity = "affinity",
+    Recommend = "recommend",
 }
+
+type AffinityListData = {
+    status: MediaListStatus;
+    score: number;
+    mediaId: number;
+};
+
+type AffinityUser = {
+    name: string;
+    siteUrl: string;
+    avatar: string;
+};
+
+type PageInfo = {
+    total: number;
+    perPage: number;
+    current: number;
+    lastPage: number;
+    hasNext: boolean;
+};
+
+type AiringSchedule = {
+    nodes: AiringScheduleNode[];
+};
+
+type AiringScheduleNode = {
+    episode: number;
+    timeUntilAiring: number;
+};
 
 type GenreDistribution = {
     genre: string;
@@ -34,6 +69,10 @@ type AnimeStatusDistribution = {
 type SortedGenre = {
     genre: string;
     count: number;
+};
+
+type StaffData = {
+    nodes: MediaNode[];
 };
 
 type AnimeStatistics = {
@@ -111,6 +150,37 @@ type Relations = {
     transformed: never;
 };
 
+type Media = {
+    body: {
+        media_id: number;
+        media_type: MediaType;
+    };
+    response: BaseResponse & {
+        id: number;
+        title: Title;
+        airing: AiringSchedule[] | null;
+        averageScore: number | null;
+        meanScore: number | null;
+        banner: string | null;
+        cover: string | null;
+        duration: number | null;
+        episodes: number | null;
+        chapters: number | null;
+        volumes: number | null;
+        format: MediaFormat | null;
+        genres: string[];
+        popularity: number | null;
+        favourites: number | null;
+        status: MediaStatus | null;
+        siteUrl: string | null;
+        endDate: string | null;
+        startDate: string | null;
+    };
+    transformed: {
+        description: string;
+    };
+};
+
 type User = {
     body: {
         username: string;
@@ -133,6 +203,22 @@ type User = {
     transformed: {
         description: string;
     };
+};
+
+type UserScore = {
+    body: {
+        user_id: number;
+        media_id: number;
+    };
+    response: BaseResponse & {
+        progress: number;
+        volumes: number;
+        score: number;
+        status: MediaListStatus;
+        repeat: number;
+        user: string;
+    };
+    transformed: never;
 };
 
 type Character = {
@@ -161,8 +247,85 @@ type Character = {
     };
 };
 
+type Staff = {
+    body: {
+        staff_name: string;
+        media_type?: MediaType;
+    };
+    response: BaseResponse & {
+        id: number;
+        age: number | null;
+        gender: string | null;
+        favourites: number | null;
+        homeTown: string | null;
+        language: string | null;
+        image: string | null;
+        fullName: string | null;
+        nativeName: string | null;
+        dateOfBirth: string;
+        dateOfDeath: string;
+        siteUrl: string | null;
+        staffData: StaffData;
+    };
+    transformed: {
+        description: string;
+        animeDescription: string;
+        mangaDescription: string;
+    };
+};
+
+type Studio = {
+    body: {
+        studio_name: string;
+    };
+    response: BaseResponse & {
+        id: number;
+        favourites: number;
+        name: string;
+        siteUrl: string;
+        isAnimationStudio: boolean;
+        media: MediaNodes;
+    };
+    transformed: {
+        description: string;
+        animeDescription: string;
+    };
+};
+
+type Recommend = {
+    body: {
+        media: MediaType;
+        genres: string[];
+    };
+    response: BaseResponse & {
+        pageInfo: PageInfo;
+        media: MediaNode[];
+    };
+    transformed: never;
+};
+
+type Affinity = {
+    body: {
+        username: string;
+        other_users: string[];
+    };
+    response: BaseResponse & {
+        user: AffinityUser;
+        lists: AffinityListData[];
+        affinity: number;
+        count: number;
+    };
+    transformed: never;
+};
+
 export type RouteMap = {
     [Routes.Relations]: Relations;
     [Routes.User]: User;
     [Routes.Character]: Character;
+    [Routes.Staff]: Staff;
+    [Routes.Studio]: Studio;
+    [Routes.UserScore]: UserScore;
+    [Routes.Media]: Media;
+    [Routes.Recommend]: Recommend;
+    [Routes.Affinity]: Affinity;
 };

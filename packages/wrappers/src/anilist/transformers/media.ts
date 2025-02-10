@@ -1,37 +1,20 @@
-import { inlineCode } from "@discordjs/builders";
-import { capitalise, env, formatSeconds } from "core";
-import { fetchAllUsers } from "database";
-import { Logger } from "logger";
-import { checkResponse, filteredDescription } from "../util/anilistUtil.js";
-import { fetchUserScores } from "./fetchUserData.js";
+import { inlineCode } from "@discordjs/formatters";
+import { formatSeconds } from "core";
+import { Routes } from "../types.js";
+import type { TransformersType } from "./index.js";
+import { filteredDescription } from "./util.js";
+import { api } from "../index.js";
 
-const logger = new Logger();
-
-export async function fetchAnilistMedia(mediaType: string, mediaID: number, interaction: any): Promise<any> {
-    const response = await fetch(`${env.API_URL}/media`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            media_id: mediaID,
-            media_type: mediaType,
-        }),
-    }).catch((error) => {
-        logger.error("Error while fetching data from the API.", "Anilist", error);
-        return undefined;
-    });
-    const result = await checkResponse(response, "Media");
-
-    if (result === null) {
-        return null;
-    }
-
-    const genresToShow = result.genres.slice(0, 3);
-    const additionalGenresCount = result.genres.length - genresToShow.length;
+export const mediaTransformer: TransformersType[Routes.Media] = async (data) => {
+    const genresToShow = data.genres.slice(0, 3);
+    const additionalGenresCount = data.genres.length - genresToShow.length;
     const genresDisplay =
         genresToShow.join(", ") + (additionalGenresCount > 0 ? ` + ${additionalGenresCount} more` : "");
 
-    const currentEpisode = result.airing[0] ? result.airing[0].episode - 1 : null;
-    const nextEpisode = result.airing[0] ? formatSeconds(result.airing[0].timeUntilAiring) : null;
+    const currentEpisode = data.airing?.[0]?.nodes?.[0]?.episode ? data.airing[0].nodes[0].episode - 1 : null;
+    const nextEpisode = data.airing?.[0]?.nodes?.[0]?.episode
+        ? formatSeconds(data.airing[0].nodes[0].timeUntilAiring)
+        : null;
 
     const userData: {
         current: string[];
@@ -47,18 +30,20 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         paused: [],
     };
 
+    /*
     const guildId = BigInt(interaction.guild_id);
     const allUsers = await fetchAllUsers(guildId).then((users: any) => {
-        logger.debugSingle(`Fetched ${users.length} users from the database`, "Anilist");
         return users.map((user: { anilist: any }) => user.anilist.id);
     });
+    */
+
+    const allUsers: string | any[] = [];
 
     if (allUsers.length !== 0) {
         for (const member in allUsers) {
-            const userScore = await fetchUserScores(Number(allUsers[member]), mediaID);
-            logger.debug("User information", "Anilist", userScore);
+            const userScore = await api.fetch(Routes.UserScore, { user_id: allUsers[member], media_id: data.id });
 
-            switch (userScore.status) {
+            switch (userScore?.status) {
                 case "REPEATING":
                     userData.current.push(
                         `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 (${userScore.repeat}) `)}\n`,
@@ -98,18 +83,18 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
     }
 
     const descriptionBuilder = [
-        `${inlineCode("total episodes    :")} ${result.episodes?.toLocaleString("en-US")}\n`,
+        `${inlineCode("total episodes    :")} ${data.episodes?.toLocaleString("en-US")}\n`,
         `${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString("en-US")}\n`,
         `${inlineCode("next airing       :")} ${nextEpisode}\n`,
-        `${inlineCode("chapters          :")} ${result.chapters?.toLocaleString("en-US")}\n`,
-        `${inlineCode("volumes           :")} ${result.volumes?.toLocaleString("en-US")}\n`,
-        `${inlineCode("status            :")} ${capitalise(result.status)}\n`,
-        `${inlineCode("average score     :")} ${result.averageScore}%\n`,
-        `${inlineCode("mean score        :")} ${result.meanScore}%\n`,
-        `${inlineCode("popularity        :")} ${result.popularity.toLocaleString("en-US")}\n`,
-        `${inlineCode("favourites        :")} ${result.favourites.toLocaleString("en-US")}\n`,
-        `${inlineCode("start date        :")} ${result.startDate}\n`,
-        `${inlineCode("end date          :")} ${result.endDate}\n`,
+        `${inlineCode("chapters          :")} ${data.chapters?.toLocaleString("en-US")}\n`,
+        `${inlineCode("volumes           :")} ${data.volumes?.toLocaleString("en-US")}\n`,
+        `${inlineCode("status            :")} ${data.status}\n`,
+        `${inlineCode("average score     :")} ${data.averageScore}%\n`,
+        `${inlineCode("mean score        :")} ${data.meanScore}%\n`,
+        `${inlineCode("popularity        :")} ${data.popularity?.toLocaleString("en-US")}\n`,
+        `${inlineCode("favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
+        `${inlineCode("start date        :")} ${data.startDate}\n`,
+        `${inlineCode("end date          :")} ${data.endDate}\n`,
         `${inlineCode("genres            :")} ${genresDisplay}\n\n`,
         `${inlineCode("completed         :")} \n ${userData.completed.join("")}\n`,
         `${inlineCode("current           :")} \n ${userData.current.join("")}\n`,
@@ -118,8 +103,8 @@ export async function fetchAnilistMedia(mediaType: string, mediaID: number, inte
         `${inlineCode("paused            :")}\n ${userData.paused.join("")}\n\n`,
     ];
     const filtered = filteredDescription(descriptionBuilder, false);
+
     return {
-        result: result,
         description: filtered,
     };
-}
+};

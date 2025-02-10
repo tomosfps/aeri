@@ -1,8 +1,8 @@
-import { EmbedBuilder } from "@discordjs/builders";
+import { EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
-import { fetchAnilistStudio } from "anilist";
 import { formatSeconds } from "core";
 import { Logger } from "logger";
+import { Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
@@ -20,23 +20,33 @@ export const interaction: Command = {
     async execute(interaction): Promise<void> {
         const studio_name =
             getCommandOption("studio_name", ApplicationCommandOptionType.String, interaction.options) || "";
-        const studio = await fetchAnilistStudio(studio_name).catch((error: any) => {
+
+        const studio = await api.fetch(Routes.Studio, { studio_name }).catch((error: any) => {
             logger.error("Error while fetching data from the API.", "Anilist", error);
-            return null;
+            return undefined;
         });
 
-        if (studio === null) {
-            logger.debugSingle("No studio found", "Anilist");
+        if (studio === undefined) {
             return interaction.reply({
-                content: `Could not find ${studio_name} within the Anilist API`,
+                content: "An error occurred while fetching data from the API",
                 ephemeral: true,
             });
         }
 
-        const footer = `${studio.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${formatSeconds(studio.result.leftUntilExpire)}`}`;
+        if (studio === null) {
+            logger.debugSingle("Studio could not be found within the Anilist API", "Anilist");
+            return interaction.reply({
+                content: `Could not find ${inlineCode(studio_name)} within the Anilist API`,
+                ephemeral: true,
+            });
+        }
+
+        logger.debug("Studio found", "Anilist", studio);
+        const footer = `${studio.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${formatSeconds(studio.leftUntilExpire)}`}`;
+
         const embed = new EmbedBuilder()
-            .setTitle(studio.result.name)
-            .setURL(studio.result.url)
+            .setTitle(studio.name)
+            .setURL(studio.siteUrl)
             .setDescription(studio.description + studio.animeDescription)
             .setFooter({ text: footer })
             .setColor(0x2f3136);

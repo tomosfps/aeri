@@ -5,12 +5,12 @@ import {
     StringSelectMenuOptionBuilder,
 } from "@discordjs/builders";
 
-import { fetchAnilistMedia, fetchRecommendation } from "anilist";
+import { fetchAnilistMedia } from "anilist";
 import { formatSeconds } from "core";
 import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
-import { Routes, api } from "wrappers/anilist";
+import { MediaType, Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
@@ -71,7 +71,7 @@ export const interaction: Command = {
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";
         const genre = getCommandOption("genre", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const score = getCommandOption("score", ApplicationCommandOptionType.Boolean, interaction.options) || false;
-        const mediaType = media === "ANIME" ? "ANIME" : "MANGA";
+        const mediaType = media === "ANIME" ? MediaType.Anime : MediaType.Manga;
 
         if (genre && score) {
             return interaction.followUp({ content: "Please select only one option" });
@@ -134,22 +134,29 @@ export const interaction: Command = {
             return interaction.followUp({ content: "Error: User genres are undefined or empty" });
         }
 
-        const recommendation = await fetchRecommendation(media, topGenres);
-        if (recommendation === null) {
-            logger.errorSingle("Problem trying to fetch data in result", "recommend");
-            return interaction.followUp({ content: "Problem trying to fetch data" });
+        const recommendation = await api
+            .fetch(Routes.Recommend, { media: mediaType, genres: topGenres })
+            .catch((error: any) => {
+                logger.error("Error while fetching data from the API.", "Anilist", error);
+                return undefined;
+            });
+
+        if (recommendation === undefined) {
+            return interaction.reply({
+                content: "An error occurred while fetching data from the API",
+                ephemeral: true,
+            });
         }
 
         const result = await fetchAnilistMedia(mediaType, Number(recommendation), interaction);
+        const footer = `${result.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${formatSeconds(result.result.leftUntilExpire)}`}`;
         const embed = new EmbedBuilder()
             .setTitle(result.result.romaji)
             .setURL(result.result.url)
             .setImage(result.result.banner)
             .setThumbnail(result.result.cover.extraLarge)
             .setDescription(result.description)
-            .setFooter({
-                text: `${result.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${formatSeconds(result.result.leftUntilExpire)}`}`,
-            })
+            .setFooter({ text: footer })
             .setColor(0x2f3136);
 
         await interaction.followUp({ embeds: [embed] });

@@ -13,13 +13,12 @@ export const interaction: Command = {
     data: new SlashCommandBuilder()
         .setName("character")
         .setDescription("Find a character based on the name")
-        .addExample("/character character_name:Saitama")
+        .addExample("/character name:Saitama")
         .addStringOption((option) =>
-            option.setName("character_name").setDescription("The name of the character").setRequired(true),
+            option.setName("name").setDescription("The name of the character").setRequired(true),
         ),
     async execute(interaction): Promise<void> {
-        const character_name =
-            getCommandOption("character_name", ApplicationCommandOptionType.String, interaction.options) || "";
+        const character_name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
 
         const character = await api.fetch(Routes.Character, { character_name }).catch((error: any) => {
             logger.error("Error while fetching data from the API.", "Anilist", error);
@@ -42,7 +41,6 @@ export const interaction: Command = {
         }
 
         logger.debug("Character found", "Anilist", character);
-
         const footer = `${character.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${formatSeconds(character.leftUntilExpire)}`}`;
         const minDescriptionLength = 23;
 

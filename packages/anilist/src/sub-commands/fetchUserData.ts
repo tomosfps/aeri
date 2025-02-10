@@ -4,6 +4,9 @@ import { checkResponse } from "../util/anilistUtil.js";
 
 const logger = new Logger();
 
+// THIS NEEDS TO STAY DUE TO MEDIA USING IT
+// REMOVE ONCE MEDIA IS REMOVED
+
 export async function fetchUserScores(user: number, media_id: number) {
     const response = await fetch(`${env.API_URL}/user/score`, {
         method: "POST",

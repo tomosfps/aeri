@@ -15,7 +15,7 @@ pub async fn format_media_data(media_data: Media) -> serde_json::Value {
 
     let washed_data: serde_json::Value = json!({
         "id"            : data.id,
-        "romaji"        : data.title.romaji,
+        "title"         : data.title,
         "airing"        : data.airing_schedule,
         "averageScore"  : data.average_score,
         "meanScore"     : data.mean_score,
@@ -92,7 +92,7 @@ pub async fn format_staff_data(staff_data: Staff) -> serde_json::Value {
         "id":               data.id,
         "age":              data.age,
         "gender":           data.gender,
-        "home":             data.home_town,
+        "homeTown":         data.home_town,
         "favourites":       data.favourites,
         "language":         data.language,
         "fullName":         data.name.full,
