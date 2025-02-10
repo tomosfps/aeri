@@ -62,7 +62,7 @@ export async function anilistFetch<T extends Routes>(route: T, body: RouteBody<T
     if (isTransformableRoute(route)) {
         return {
             ...result,
-            ...await transformers[route](result as any),
+            ...(await transformers[route](result as any)),
         } as RouteTransformedResponse<T>;
     }
 

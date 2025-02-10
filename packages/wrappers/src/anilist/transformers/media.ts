@@ -1,9 +1,9 @@
 import { inlineCode } from "@discordjs/formatters";
 import { formatSeconds } from "core";
+import { api } from "../index.js";
 import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
 import { filteredDescription } from "./util.js";
-import { api } from "../index.js";
 
 export const mediaTransformer: TransformersType[Routes.Media] = async (data) => {
     const genresToShow = data.genres.slice(0, 3);
