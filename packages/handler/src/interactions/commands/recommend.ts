@@ -156,9 +156,13 @@ export const interaction: Command = {
 
         const media_id = Number(recommendation.id);
         const guild_id = BigInt(interaction.guild_id || 0);
-        
-        const { result: mediaResult, error: mediaError } = await api.fetch(Routes.Media, { media_type, media_id }, { guild_id });
-        
+
+        const { result: mediaResult, error: mediaError } = await api.fetch(
+            Routes.Media,
+            { media_type, media_id },
+            { guild_id },
+        );
+
         if (mediaError) {
             logger.error("Error while fetching Media data from the API.", "Anilist", mediaError);
 
@@ -167,7 +171,7 @@ export const interaction: Command = {
                 ephemeral: true,
             });
         }
-        
+
         if (!mediaResult) {
             return interaction.followUp({ content: "User not found" });
         }
@@ -185,4 +189,3 @@ export const interaction: Command = {
         await interaction.followUp({ embeds: [embed] });
     },
 };
-
