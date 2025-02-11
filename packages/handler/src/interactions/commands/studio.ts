@@ -21,12 +21,11 @@ export const interaction: Command = {
         const studio_name =
             getCommandOption("studio_name", ApplicationCommandOptionType.String, interaction.options) || "";
 
-        const studio = await api.fetch(Routes.Studio, { studio_name }).catch((error: any) => {
-            logger.error("Error while fetching data from the API.", "Anilist", error);
-            return undefined;
-        });
+        const { result: studio, error } = await api.fetch(Routes.Studio, { studio_name });
 
-        if (studio === undefined) {
+        if (error) {
+            logger.error("Error while fetching data from the API.", "Anilist", error);
+
             return interaction.reply({
                 content: "An error occurred while fetching data from the API",
                 ephemeral: true,
@@ -35,6 +34,7 @@ export const interaction: Command = {
 
         if (studio === null) {
             logger.debugSingle("Studio could not be found within the Anilist API", "Anilist");
+
             return interaction.reply({
                 content: `Could not find ${inlineCode(studio_name)} within the Anilist API`,
                 ephemeral: true,

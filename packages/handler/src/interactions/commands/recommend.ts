@@ -110,10 +110,16 @@ export const interaction: Command = {
             });
         }
 
-        const user = await api.fetch(Routes.User, { username }).catch((error: any) => {
+        const { result: user, error } = await api.fetch(Routes.User, { username });
+
+        if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", error);
-            return undefined;
-        });
+
+            return interaction.reply({
+                content: "An error occurred while fetching data from the API.",
+                ephemeral: true,
+            });
+        }
 
         if (!user) {
             return interaction.followUp({ content: "User not found" });

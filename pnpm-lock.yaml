@@ -282,6 +282,9 @@ importers:
       core:
         specifier: workspace:*
         version: link:../core
+      database:
+        specifier: workspace:*
+        version: link:../database
 
 packages:
 

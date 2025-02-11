@@ -26,21 +26,19 @@ export const interaction: Button<ButtonData> = {
     async execute(interaction, data): Promise<void> {
         const staffName = data.staffName;
 
-        const animeStaff = await api
-            .fetch(Routes.Staff, { staff_name: staffName, media_type: MediaType.Anime })
-            .catch((error: any) => {
-                logger.error("Error while fetching data from the API.", "Anilist", error);
-                return undefined;
-            });
+        const { result: animeStaff, error: animeError } = await api.fetch(Routes.Staff, {
+            staff_name: staffName,
+            media_type: MediaType.Anime,
+        });
 
-        const mangaStaff = await api
-            .fetch(Routes.Staff, { staff_name: staffName, media_type: MediaType.Manga })
-            .catch((error: any) => {
-                logger.error("Error while fetching data from the API.", "Anilist", error);
-                return undefined;
-            });
+        const { result: mangaStaff, error: mangaError } = await api.fetch(Routes.Staff, {
+            staff_name: staffName,
+            media_type: MediaType.Manga,
+        });
 
-        if (animeStaff === undefined || mangaStaff === undefined) {
+        if (animeError || mangaError) {
+            logger.error("Error while fetching data from the API.", "Anilist", { animeError, mangaError });
+
             return interaction.reply({
                 content: "An error occurred while fetching data from the API.",
                 ephemeral: true,

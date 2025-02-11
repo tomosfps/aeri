@@ -1,11 +1,12 @@
 import { inlineCode } from "@discordjs/formatters";
 import { formatSeconds } from "core";
+import { fetchAllUsers } from "database";
 import { api } from "../index.js";
 import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
 import { filteredDescription } from "./util.js";
 
-export const mediaTransformer: TransformersType[Routes.Media] = async (data) => {
+export const mediaTransformer: TransformersType[Routes.Media] = async (data, { guild_id }) => {
     const genresToShow = data.genres.slice(0, 3);
     const additionalGenresCount = data.genres.length - genresToShow.length;
     const genresDisplay =
@@ -30,18 +31,20 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data) => 
         paused: [],
     };
 
-    /*
-    const guildId = BigInt(interaction.guild_id);
-    const allUsers = await fetchAllUsers(guildId).then((users: any) => {
+    const allUsers = await fetchAllUsers(guild_id).then((users: any) => {
         return users.map((user: { anilist: any }) => user.anilist.id);
     });
-    */
-
-    const allUsers: string | any[] = [];
 
     if (allUsers.length !== 0) {
         for (const member in allUsers) {
-            const userScore = await api.fetch(Routes.UserScore, { user_id: allUsers[member], media_id: data.id });
+            const { result: userScore, error } = await api.fetch(Routes.UserScore, {
+                user_id: Number(allUsers[member]),
+                media_id: data.id,
+            });
+
+            if (error) {
+                continue;
+            }
 
             switch (userScore?.status) {
                 case "REPEATING":

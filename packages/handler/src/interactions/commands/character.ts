@@ -20,12 +20,11 @@ export const interaction: Command = {
     async execute(interaction): Promise<void> {
         const character_name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
 
-        const character = await api.fetch(Routes.Character, { character_name }).catch((error: any) => {
-            logger.error("Error while fetching data from the API.", "Anilist", error);
-            return undefined;
-        });
+        const { result: character, error } = await api.fetch(Routes.Character, { character_name });
 
-        if (character === undefined) {
+        if (error) {
+            logger.error("Error while fetching data from the API.", "Anilist", error);
+
             return interaction.reply({
                 content: "An error occurred while fetching data from the API",
                 ephemeral: true,

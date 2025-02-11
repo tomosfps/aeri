@@ -20,12 +20,11 @@ export const interaction: Command = {
     async execute(interaction): Promise<void> {
         const staff_name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
 
-        const staff = await api.fetch(Routes.Staff, { staff_name }).catch((error: any) => {
-            logger.error("Error while fetching data from the API.", "Anilist", error);
-            return undefined;
-        });
+        const { result: staff, error } = await api.fetch(Routes.Staff, { staff_name });
 
-        if (staff === undefined) {
+        if (error) {
+            logger.error("Error while fetching data from the API.", "Anilist", error);
+
             return interaction.reply({
                 content: "An error occurred while fetching data from the API",
                 ephemeral: true,
@@ -34,6 +33,7 @@ export const interaction: Command = {
 
         if (staff === null) {
             logger.debugSingle("Staff could not be found within the Anilist API", "Anilist");
+
             return interaction.reply({
                 content: `Could not find ${inlineCode(staff_name)} within the Anilist API`,
                 ephemeral: true,

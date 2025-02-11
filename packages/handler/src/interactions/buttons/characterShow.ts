@@ -25,12 +25,12 @@ export const interaction: Button<ButtonData> = {
     },
     async execute(interaction, data): Promise<void> {
         const characterName = data.characterName;
-        const character = await api.fetch(Routes.Character, { character_name: characterName }).catch((error: any) => {
-            logger.error("Error while fetching data from the API.", "Anilist", error);
-            return undefined;
-        });
 
-        if (character === undefined) {
+        const { result: character, error } = await api.fetch(Routes.Character, { character_name: characterName });
+
+        if (error) {
+            logger.error("Error while fetching data from the API.", "Anilist", error);
+
             return interaction.reply({
                 content: "An error occurred while fetching data from the API.",
                 ephemeral: true,

@@ -17,24 +17,21 @@ export const interaction: Command = {
     async execute(interaction): Promise<void> {
         const anime = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
 
-        const data = await api
-            .fetch(Routes.Relations, {
-                media_name: anime,
-                media_type: MediaType.Anime,
-            })
-            .catch((error: any) => {
-                logger.error("Error while fetching data from the API.", "Anilist", error);
-                return null;
-            });
+        const { result, error } = await api.fetch(Routes.Relations, {
+            media_name: anime,
+            media_type: MediaType.Anime,
+        });
 
-        if (data === null) {
+        if (error || result === null) {
+            logger.error("Error while fetching data from the API.", "Anilist", { error });
+
             return interaction.reply({
                 content: "An error occurred while fetching data from the API",
                 ephemeral: true,
             });
         }
 
-        if (data.relations.length === 0) {
+        if (result.relations.length === 0) {
             logger.debugSingle("No relations found", "Anilist");
             return interaction.reply({ content: "No anime found", ephemeral: true });
         }
@@ -45,7 +42,7 @@ export const interaction: Command = {
             .setMinValues(1)
             .setMaxValues(1)
             .addOptions(
-                data.relations.slice(0, 25).map((relation) => {
+                result.relations.slice(0, 25).map((relation) => {
                     return new StringSelectMenuOptionBuilder()
                         .setLabel(`${relation.english || relation.romaji || relation.native || ""}`.slice(0, 100))
                         .setValue(`${relation.id}`)

@@ -31,12 +31,11 @@ export const interaction: Command = {
         }
 
         logger.debug(`Fetching user: ${username}`, "User");
-        const user = await api.fetch(Routes.User, { username }).catch((error: any) => {
-            logger.error("Error while fetching data from the API.", "Anilist", error);
-            return undefined;
-        });
+        const { result: user, error } = await api.fetch(Routes.User, { username });
 
         if (user === undefined) {
+            logger.error("Error while fetching data from the API.", "Anilist", error);
+
             return interaction.reply({
                 content: "An error occurred while fetching data from the API.",
                 ephemeral: true,

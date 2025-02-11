@@ -21,13 +21,17 @@ export const interaction: Command = {
         const isInDatabase = await fetchUser(interaction.member_id);
 
         if (!isInDatabase) {
-            const user = await api.fetch(Routes.User, { username }).catch((error: any) => {
+            const { result: user, error } = await api.fetch(Routes.User, { username });
+
+            if (error) {
                 logger.error("Error while fetching data from the API.", "Anilist", error);
-                return null;
-            });
+                return interaction.reply({ content: "An error occurred while fetching data from the API." });
+            }
 
             if (user === null) {
-                return interaction.reply({ content: "An error occurred while fetching data from the API." });
+                return interaction.reply({
+                    content: "User could not be found. Are you sure you have the correct username?",
+                });
             }
 
             if (interaction.guild_id === undefined) {

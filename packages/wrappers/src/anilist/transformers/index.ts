@@ -1,3 +1,4 @@
+import type { TransformableRoutesWithArgs, TransformableRoutesWithoutArgs } from "../fetch.js";
 import { type BaseResponse, type BaseTransformed, type RouteMap, Routes } from "../types.js";
 import { characterTransformer } from "./character.js";
 import { mediaTransformer } from "./media.js";
@@ -6,11 +7,22 @@ import { studioTransformer } from "./studio.js";
 import { universalTransformer } from "./universal.js";
 import { userTransformer } from "./user.js";
 
-export type TransformersType = {
-    [key in Routes as RouteMap[key]["transformed"] extends never ? never : key]: (
+type Awaitable<T> = T | Promise<T>;
+
+type TransformersTypeWithoutArgs = {
+    [key in TransformableRoutesWithoutArgs]: (
         data: RouteMap[key]["response"],
-    ) => RouteMap[key]["transformed"] | Promise<RouteMap[key]["transformed"]>;
+    ) => Awaitable<RouteMap[key]["transformed"]>;
 };
+
+type TransformersTypeWithArgs = {
+    [key in TransformableRoutesWithArgs]: (
+        data: RouteMap[key]["response"],
+        args: RouteMap[key]["transformer_args"],
+    ) => Awaitable<RouteMap[key]["transformed"]>;
+};
+
+export type TransformersType = TransformersTypeWithoutArgs & TransformersTypeWithArgs;
 
 export type UniversalTransformer = {
     universal: (data: BaseResponse) => BaseTransformed;

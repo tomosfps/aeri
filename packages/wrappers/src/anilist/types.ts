@@ -147,7 +147,6 @@ type Relations = {
             type: MediaType;
         }[];
     };
-    transformed: never;
 };
 
 type Media = {
@@ -178,6 +177,9 @@ type Media = {
     };
     transformed: {
         description: string;
+    };
+    transformer_args: {
+        guild_id: bigint;
     };
 };
 
@@ -218,7 +220,6 @@ type UserScore = {
         repeat: number;
         user: string;
     };
-    transformed: never;
 };
 
 type Character = {
@@ -301,7 +302,6 @@ type Recommend = {
         pageInfo: PageInfo;
         media: MediaNode[];
     };
-    transformed: never;
 };
 
 type Affinity = {
@@ -315,7 +315,6 @@ type Affinity = {
         affinity: number;
         count: number;
     };
-    transformed: never;
 };
 
 export type RouteMap = {
