@@ -93,16 +93,18 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     }
 
     let response:       Value              = response.json().await.unwrap();
-    let relations:      Recommendation     = serde_json::from_value(response["data"]["Page"].clone()).unwrap();
+    let recommendation: Recommendation     = serde_json::from_value(response["data"]["Page"].clone()).unwrap();
 
-    let last_page:      i32 = relations.page_info.last_page.unwrap();
-    let pages:          i32 = rng.random_range(1..last_page-1);
+    let last_page:      i32 = recommendation.page_info.last_page.unwrap();
+    let pages:          i32 = rng.random_range(1..last_page);
     let mut recommend:  Value = get_recommendation(pages, genres.clone(), req.media.clone()).await;
 
-    if recommend.is_null() {
-        recommend = get_recommendation(pages, genres.clone(), req.media.clone()).await;
-    } 
-    HttpResponse::Ok().json(recommend)
+    if recommend["error"].is_string() {
+        recommend = get_recommendation(1, genres.clone(), req.media.clone()).await;
+    }
+
+    logger.debug_single(&format!("Recommendation for {} found", recommend), "Recommend");
+    HttpResponse::Ok().json(json!({"id": recommend}))
 }
 
 #[post("/media")]
@@ -186,14 +188,12 @@ async fn get_recommendation(pages: i32, genres: Vec<String>, media: String) -> s
         return json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
     }
 
-    let recommeneded_ids: Value = response.json::<serde_json::Value>().await.unwrap();
-    let recommeneded_ids: &Value = &recommeneded_ids["data"]["Page"]["media"];
+    let response:       Value              = response.json().await.unwrap();
+    let recommendation: Recommendation     = serde_json::from_value(response["data"]["Page"].clone()).unwrap();
 
-    let mut ids: Vec<i64> = Vec::new();
-    for media in recommeneded_ids.as_array().unwrap() {
-        if let Some(id) = media["id"].as_i64() {
-            ids.push(id);
-        }
+    let mut ids: Vec<i32> = Vec::new();
+    for media in recommendation.media.iter() {
+        ids.push(media.id);
     }
 
     if ids.len() == 0 {

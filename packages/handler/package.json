@@ -14,7 +14,6 @@
         "@discordjs/core": "^2.0.0",
         "@discordjs/rest": "^2.3.0",
         "core": "workspace:*",
-        "anilist": "workspace:*",
         "database": "workspace:*",
         "discord-api-types": "^0.37.97",
         "ioredis": "^5.4.1",

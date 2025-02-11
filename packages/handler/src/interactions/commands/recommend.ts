@@ -5,7 +5,6 @@ import {
     StringSelectMenuOptionBuilder,
 } from "@discordjs/builders";
 
-import { fetchAnilistMedia } from "anilist";
 import { formatSeconds } from "core";
 import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
@@ -71,7 +70,7 @@ export const interaction: Command = {
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";
         const genre = getCommandOption("genre", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const score = getCommandOption("score", ApplicationCommandOptionType.Boolean, interaction.options) || false;
-        const mediaType = media === "ANIME" ? MediaType.Anime : MediaType.Manga;
+        const media_type = media === "ANIME" ? MediaType.Anime : MediaType.Manga;
 
         if (genre && score) {
             return interaction.followUp({ content: "Please select only one option" });
@@ -115,7 +114,7 @@ export const interaction: Command = {
         if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", error);
 
-            return interaction.reply({
+            return interaction.followUp({
                 content: "An error occurred while fetching data from the API.",
                 ephemeral: true,
             });
@@ -125,8 +124,6 @@ export const interaction: Command = {
             return interaction.followUp({ content: "User not found" });
         }
 
-        logger.debug("Gained user data", "Recommend", user);
-
         const topGenres = user.animeStats.genres
             ? user.animeStats.genres
                   .sort((a: any, b: any) => b.count - a.count)
@@ -134,37 +131,58 @@ export const interaction: Command = {
                   .map((genre: any) => genre.genre)
             : [];
 
-        logger.debug("Got top 5 genres", "Recommend", topGenres);
         if (topGenres.length === 0) {
             logger.error("User genres are undefined or empty", "Recommend");
             return interaction.followUp({ content: "Error: User genres are undefined or empty" });
         }
 
-        const recommendation = await api
-            .fetch(Routes.Recommend, { media: mediaType, genres: topGenres })
-            .catch((error: any) => {
-                logger.error("Error while fetching data from the API.", "Anilist", error);
-                return undefined;
-            });
+        const { result: recommendation, error: recommendationsError } = await api.fetch(Routes.Recommend, {
+            media: media_type,
+            genres: topGenres,
+        });
 
-        if (recommendation === undefined) {
-            return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+        if (recommendationsError) {
+            logger.error("Error while fetching recommendations from the API.", "Anilist", recommendationsError);
+
+            return interaction.followUp({
+                content: "An error occurred while fetching data from the API.",
                 ephemeral: true,
             });
         }
 
-        const result = await fetchAnilistMedia(mediaType, Number(recommendation), interaction);
-        const footer = `${result.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${formatSeconds(result.result.leftUntilExpire)}`}`;
+        if (!recommendation) {
+            return interaction.followUp({ content: "User not found" });
+        }
+
+        const media_id = Number(recommendation.id);
+        const guild_id = BigInt(interaction.guild_id || 0);
+        
+        const { result: mediaResult, error: mediaError } = await api.fetch(Routes.Media, { media_type, media_id }, { guild_id });
+        
+        if (mediaError) {
+            logger.error("Error while fetching Media data from the API.", "Anilist", mediaError);
+
+            return interaction.followUp({
+                content: "An error occurred while fetching data from the API.",
+                ephemeral: true,
+            });
+        }
+        
+        if (!mediaResult) {
+            return interaction.followUp({ content: "User not found" });
+        }
+
+        const footer = `${mediaResult.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${formatSeconds(mediaResult.leftUntilExpire)}`}`;
         const embed = new EmbedBuilder()
-            .setTitle(result.result.romaji)
-            .setURL(result.result.url)
-            .setImage(result.result.banner)
-            .setThumbnail(result.result.cover.extraLarge)
-            .setDescription(result.description)
+            .setTitle(mediaResult.title.romaji)
+            .setURL(mediaResult.siteUrl)
+            .setImage(mediaResult.banner)
+            .setThumbnail(mediaResult.cover)
+            .setDescription(mediaResult.description)
             .setFooter({ text: footer })
             .setColor(0x2f3136);
 
         await interaction.followUp({ embeds: [embed] });
     },
 };
+

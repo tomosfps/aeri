@@ -251,6 +251,6 @@ pub struct PageInfo {
     pub current:    Option<i32>,
     #[serde(rename = "lastPage")]
     pub last_page:  Option<i32>,
-    #[serde(rename = "hasNext")]
+    #[serde(rename = "hasNextPage")]
     pub has_next:   Option<bool>,
 }

@@ -24,14 +24,6 @@ type AffinityUser = {
     avatar: string;
 };
 
-type PageInfo = {
-    total: number;
-    perPage: number;
-    current: number;
-    lastPage: number;
-    hasNext: boolean;
-};
-
 type AiringSchedule = {
     nodes: AiringScheduleNode[];
 };
@@ -299,8 +291,7 @@ type Recommend = {
         genres: string[];
     };
     response: BaseResponse & {
-        pageInfo: PageInfo;
-        media: MediaNode[];
+        id: number;
     };
 };
 

@@ -1,8 +1,8 @@
 import { EmbedBuilder } from "@discordjs/builders";
-import { fetchAnilistMedia, fetchRecommendation } from "anilist";
 import { formatSeconds } from "core";
 import { Logger } from "logger";
 import type { SelectMenu } from "../../services/commands.js";
+import { api, MediaType, Routes } from "wrappers/anilist";
 
 const logger = new Logger();
 type SelectMenuData = {
@@ -22,28 +22,52 @@ export const interaction: SelectMenu<SelectMenuData> = {
         return { custom_id: data[0], userId: data[1] };
     },
     async execute(interaction, data): Promise<void> {
-        const mediaType = data.custom_id === "ANIME" ? "ANIME" : "MANGA";
-        const result = await fetchRecommendation(mediaType, interaction.menuValues);
-        const media = await fetchAnilistMedia(mediaType, Number(result), interaction);
-
-        if (result === null) {
-            logger.errorSingle("Problem trying to fetch data in result", "genreSelection");
-            return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
+        const media_type = data.custom_id === "ANIME" ? MediaType.Anime : MediaType.Manga;
+        const genres = interaction.menuValues;
+        const guild_id = BigInt(interaction.guild_id || 0);
+        
+        const { result: recommendation, error: recommendationsError } = await api.fetch(Routes.Recommend, {
+            media: media_type,
+            genres: genres,
+        });
+        
+        if (recommendationsError) {
+            logger.error("Error while fetching recommendations from the API.", "Anilist", recommendationsError);
+        
+            return interaction.followUp({
+                content: "An error occurred while fetching data from the API.",
+                ephemeral: true,
+            });
         }
+        
+        if (!recommendation) {
+            return interaction.followUp({ content: "User not found" });
+        }
+        
+        const media_id = Number(recommendation.id);
+        const { result: media, error: mediaError } = await api.fetch(Routes.Media, { media_type, media_id }, { guild_id });
 
-        if (media === null) {
-            logger.errorSingle("Problem trying to fetch data in media", "genreSelection");
-            return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
+        if (mediaError) {
+            logger.error("Error while fetching data from the API.", "Anilist", mediaError);
+        
+            return interaction.reply({
+                content: "An error occurred while fetching data from the API.",
+                ephemeral: true,
+            });
+        }
+        
+        if (!media) {
+            return interaction.followUp({ content: "Media not found" });
         }
 
         const embed = new EmbedBuilder()
-            .setTitle(media.result.romaji)
-            .setURL(media.result.url)
-            .setImage(media.result.banner)
-            .setThumbnail(media.result.cover.extraLarge)
+            .setTitle(media.title.romaji)
+            .setURL(media.siteUrl)
+            .setImage(media.banner)
+            .setThumbnail(media.cover)
             .setDescription(media.description)
             .setFooter({
-                text: `${media.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${formatSeconds(media.result.leftUntilExpire)}`}`,
+                text: `${media.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${formatSeconds(media.leftUntilExpire)}`}`,
             })
             .setColor(0x2f3136);
         await interaction.edit({ embeds: [embed] });
