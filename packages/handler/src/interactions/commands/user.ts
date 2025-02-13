@@ -1,6 +1,6 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
+import { EmbedBuilder } from "@discordjs/builders";
 import { fetchAnilistUser } from "database";
-import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10";
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
@@ -49,22 +49,6 @@ export const interaction: Command = {
             });
         }
 
-        const informationButton = new ButtonBuilder()
-            .setCustomId(`userShow:${user.name}:INFORMATION:${interaction.member?.user.id}`)
-            .setLabel("See Character Description")
-            .setStyle(ButtonStyle.Primary);
-
-        const animeButton = new ButtonBuilder()
-            .setCustomId(`userShow:${user.name}:ANIME:${interaction.member?.user.id}`)
-            .setLabel("See Anime Show Appearances")
-            .setStyle(ButtonStyle.Secondary);
-
-        const mangaButton = new ButtonBuilder()
-            .setCustomId(`userShow:${user.name}:MANGA:${interaction.member?.user.id}`)
-            .setLabel("See Manga Character Appearances")
-            .setStyle(ButtonStyle.Secondary);
-
-        const row = new ActionRowBuilder().addComponents(informationButton, animeButton, mangaButton);
         const embed = new EmbedBuilder()
             .setTitle(user.name)
             .setURL(user.siteUrl)
@@ -76,7 +60,6 @@ export const interaction: Command = {
 
         return interaction.reply({
             embeds: [embed],
-            components: [row],
         });
     },
 };

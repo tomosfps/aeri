@@ -46,7 +46,7 @@ export class BaseInteraction {
     }
 
     get member_name() {
-        return this.member?.user.username || "undefined";
+        return this.member?.user.username || undefined;
     }
 
     public async reply(

@@ -7,6 +7,7 @@ lazy_static! {
     static ref logger: Logger = Logger::default();
 }
 
+#[derive(Debug, Clone)]
 pub struct Redis {
     client: Client,
 }
@@ -107,8 +108,8 @@ impl Redis {
         }
     }
 
-    pub async fn expire_user<T: ToRedisArgs + std::fmt::Debug + std::fmt::Display>(&self, user_id: T) -> RedisResult<()> {
-        logger.debug_single(&format!("Deleting all cached related for user ID {:?}", user_id).as_str(), "Redis");
+    pub async fn expire_user<T: ToRedisArgs + std::fmt::Debug + std::fmt::Display>(&self, k: T) -> RedisResult<()> {
+        logger.debug_single(&format!("Deleting all cached related for user ID {:?}", k).as_str(), "Redis");
         let mut con = self.client.get_connection()?;
     
         let mut count = 0;
@@ -118,7 +119,7 @@ impl Redis {
             let parts: Vec<&str> = key.split(":").collect();
             logger.debug_single(&format!("Split up parts: {:?}", &parts), "Redis");
 
-            if parts.get(1) == Some(&user_id.to_string().as_str()) {
+            if parts.get(1) == Some(&k.to_string().as_str()) {
                 logger.debug_single(&format!("Found Key: {:?}", key), "Redis");
                 let _: () = con.del(key)?;
                 count += 1;
@@ -126,8 +127,7 @@ impl Redis {
         }
 
         if count == 0 {
-            logger.warn_single("No keys found for user ID", "Redis");
-            return Err(redis::RedisError::from((redis::ErrorKind::ResponseError, "No keys found for user ID")));
+            logger.warn_single("No keys found", "Redis");
         }
 
         Ok(())

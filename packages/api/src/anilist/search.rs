@@ -11,10 +11,10 @@ use crate::anilist::queries::{get_query, QUERY_URL};
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
-use crate::anilist::format::{format_character_data, format_staff_data, format_studio_data, format_affinity_data};
+use crate::anilist::format::{format_affinity_data, format_character_data, format_main_affinity, format_staff_data, format_studio_data};
 use crate::client::client::Client;
 use crate::global::pearson_correlation::pearson;
-use std::collections::HashMap;
+use futures::future::join_all;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -188,12 +188,21 @@ pub async fn staff_search(req: web::Json<StaffRequest>) -> impl Responder {
 
 #[post("/affinity")]
 pub async fn fetch_affinity(req: web::Json<AffinityRequest>) -> impl Responder {
-    if req.username.is_empty() {
-        return HttpResponse::NotFound().json(json!({"error": "No username was included in the request"}));
+    if req.username.is_empty() || req.other_users.is_empty() {
+        return HttpResponse::NotFound().json(json!({"error": "No username or other users was included in the request"}));
     }
 
-    if req.other_users.is_empty() {
-        return HttpResponse::NotFound().json(json!({"error": "No other users were included in the request"}));
+    let cache_key = format!("affinity:{}", req.username.to_lowercase());
+    match redis.get(&cache_key) {
+        Ok(data) => {
+            let mut affinity_data: serde_json::Value = serde_json::from_str(&data).unwrap();
+            affinity_data["dataFrom"] = "Cache".into();
+            affinity_data["leftUntilExpire"] = redis.ttl(cache_key).unwrap().into();
+            return HttpResponse::Ok().json(affinity_data);
+        },
+        Err(_) => {
+            logger.debug_single("No affinity data found in cache", "Affinity");
+        }
     }
 
     let client:   Client    = Client::new().with_proxy().await.unwrap();
@@ -208,66 +217,80 @@ pub async fn fetch_affinity(req: web::Json<AffinityRequest>) -> impl Responder {
     }
 
     let response: Value = response.json().await.unwrap();
-    let affinity: Affinity = match serde_json::from_value(response["data"]["MediaListCollection"].clone()) {
-        Ok(affinity) => affinity,
+    let user_affinity: Affinity = match serde_json::from_value(response["data"]["MediaListCollection"].clone()) {
+        Ok(user_affinity) => user_affinity,
         Err(err) => {
             logger.error_single(&format!("Error parsing affinity: {}", err), "Affinity");
             return HttpResponse::InternalServerError().json(json!({"error": "Failed to parse affinity"}));
         }
     };
     
-    let user_affinity: Value = format_affinity_data(affinity).await;
-    let _ = redis.setexp(user_affinity["user"]["name"].to_string(), user_affinity.to_string(), 86400).await;
-    let mut user_data = HashMap::<String, Value>::new();
+    let futures = req.other_users.iter().map(|user| {
+        let client = client.clone();
+        let user_affinity = user_affinity.clone();
+        async move {
+            let json = json!({ "query": get_query("affinity"), "variables": { "userName": user, "perChunk": 100, "type": "ANIME" }});
+            let response = client.post(QUERY_URL, &json).await.unwrap();
 
-    for user in req.other_users.iter() {
-        let json:     Value     = json!({ "query": get_query("affinity"), "variables": { "userName": user, "perChunk": 100, "type": "ANIME" }});
-        let response: Response  = client.post(QUERY_URL, &json).await.unwrap();
-
-        if response.status().as_u16() != 200 {
-            if response.status().as_u16() == 403 {
-                let _ = client.remove_proxy().await;
+            if response.status().as_u16() != 200 {
+                if response.status().as_u16() == 403 {
+                    let _ = client.remove_proxy().await;
+                }
+                return Err(HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()})));
             }
-            return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
+
+            let response: Value = response.json().await.unwrap();
+            let affinity: Affinity = match serde_json::from_value(response["data"]["MediaListCollection"].clone()) {
+                Ok(affinity) => affinity,
+                Err(err) => {
+                    logger.error_single(&format!("Error parsing affinity: {}", err), "Affinity");
+                    return Err(HttpResponse::InternalServerError().json(json!({"error": "Failed to parse affinity"})));
+                }
+            };
+
+            let scores: (f64, i32) = compare_scores(&user_affinity, &affinity);
+            let affinity: Value = format_affinity_data(&affinity, &scores.0, &scores.1).await;
+            Ok(json!(affinity))
         }
+    });
 
-        let response: Value = response.json().await.unwrap();
-        let affinity: Affinity = match serde_json::from_value(response["data"]["MediaListCollection"].clone()) {
-            Ok(affinity) => affinity,
-            Err(err) => {
-                logger.error_single(&format!("Error parsing affinity: {}", err), "Affinity");
-                return HttpResponse::InternalServerError().json(json!({"error": "Failed to parse affinity"}));
-            }
-        };
-        let affinity:   Value = format_affinity_data(affinity).await;
-        let scores:     f64 = compare_scores(&user_affinity, &affinity);
-        let _ = redis.setexp(affinity["user"]["name"].to_string(), affinity.to_string(), 86400).await;
-        user_data.insert(user.clone(), json!({"affinity": scores}));
+    let results: Vec<Result<Value, HttpResponse>> = join_all(futures).await;
+    let mut affinity_data: Vec<Value> = Vec::new();
+    for result in results {
+        match result {
+            Ok(affinity) => affinity_data.push(affinity),
+            Err(err) => return err,
+        }
     }
-    HttpResponse::Ok().json(user_data)
+
+    let format_user: Value = format_main_affinity(&user_affinity).await;
+    let result:      Value = json!({"comparedAgainst": format_user, "affinity": affinity_data, "dataFrom": "API"});
+    let _ = redis.setexp(&cache_key, result.to_string(), 86400).await;
+    HttpResponse::Ok().json(result)
 }
 
+fn compare_scores(user: &Affinity, other_user: &Affinity) -> (f64, i32) {
+    let mut user_scores = Vec::new();
+    let mut other_user_scores = Vec::new();
 
-fn compare_scores(user: &Value, other_user: &Value) -> f64 {
-    let mut user_scores:        Vec<f64> = Vec::new();
-    let mut other_user_scores:  Vec<f64> = Vec::new();
+    let binding = Vec::new();
+    let user_entries = user.lists.as_ref().unwrap_or(&binding).iter();
+    let other_user_entries = other_user.lists.as_ref().unwrap_or(&binding).iter();
 
-    for user_entry in user["entries"].as_array().unwrap() {
-        if let Some(entry) = user_entry["entries"].as_array() {
-            for media in entry.iter() {
-                user_scores.push(media["score"].as_f64().unwrap());
-            }
+    for user_entry in user_entries {
+        for media in &user_entry.entries {
+            user_scores.push(media.score.unwrap_or(0) as f64);
         }
     }
 
-    for other_user_entry in other_user["entries"].as_array().unwrap() {
-        if let Some(entry) = other_user_entry["entries"].as_array() {
-            for media in entry.iter() {
-                other_user_scores.push(media["score"].as_f64().unwrap());
-            }
+    for other_user_entry in other_user_entries {
+        for media in &other_user_entry.entries {
+            other_user_scores.push(media.score.unwrap_or(0) as f64);
+    
         }
     }
 
+    let min_length = user_scores.len().min(other_user_scores.len());
     while user_scores.len() < other_user_scores.len() {
         user_scores.push(0.0);
     }
@@ -277,8 +300,8 @@ fn compare_scores(user: &Value, other_user: &Value) -> f64 {
     }
 
     if !user_scores.is_empty() && !other_user_scores.is_empty() {
-        return pearson(&user_scores, &other_user_scores);
+        (pearson(&user_scores, &other_user_scores), min_length as i32)
     } else {
-        return 0.0;
+        (0.0, 0)
     }
 }

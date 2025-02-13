@@ -1,5 +1,6 @@
 import type { TransformableRoutesWithArgs, TransformableRoutesWithoutArgs } from "../fetch.js";
 import { type BaseResponse, type BaseTransformed, type RouteMap, Routes } from "../types.js";
+import { affinityTransformer } from "./affinity.js";
 import { characterTransformer } from "./character.js";
 import { mediaTransformer } from "./media.js";
 import { staffTransformer } from "./staff.js";
@@ -34,5 +35,6 @@ export const transformers: TransformersType & UniversalTransformer = {
     [Routes.Staff]: staffTransformer,
     [Routes.Studio]: studioTransformer,
     [Routes.Media]: mediaTransformer,
+    [Routes.Affinity]: affinityTransformer,
     universal: universalTransformer,
 };

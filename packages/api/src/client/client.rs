@@ -8,6 +8,7 @@ lazy_static! {
     static ref logger: Logger = Logger::default();
 }
 
+#[derive(Debug, Clone)]
 pub struct Client {
     client: reqwest::Client,
     redis: Redis,

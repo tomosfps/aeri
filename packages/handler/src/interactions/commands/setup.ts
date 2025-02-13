@@ -41,6 +41,13 @@ export const interaction: Command = {
                 });
             }
 
+            if (interaction.member_name === undefined) {
+                return interaction.reply({
+                    content: "This command can only be used by a member.",
+                    ephemeral: true,
+                });
+            }
+
             await createAnilistUser(
                 interaction.member_id,
                 interaction.member_name,

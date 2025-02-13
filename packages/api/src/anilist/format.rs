@@ -285,14 +285,22 @@ pub async fn format_user_data(user_data: User) -> serde_json::Value {
     users
 }
 
-
-pub async fn format_affinity_data(affinity_data: Affinity) -> serde_json::Value {
+pub async fn format_affinity_data(affinity_data: &Affinity, affinity: &f64, total_count: &i32) -> serde_json::Value {
     let data = affinity_data.clone();
 
     let washed_data = json!({
-        "user":     data.user,
-        "entries":  data.lists,
-        "dataFrom": "API"
+        "user":         data.user,
+        "count":        total_count,
+        "affinity":     (affinity * 100.0).round(),
+    });
+    washed_data
+}
+
+pub async fn format_main_affinity(affinity_data: &Affinity) -> serde_json::Value {
+    let data = affinity_data.clone();
+
+    let washed_data = json!({
+        "user":         data.user,
     });
     washed_data
 }

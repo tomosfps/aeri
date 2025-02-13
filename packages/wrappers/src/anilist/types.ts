@@ -12,16 +12,15 @@ export enum Routes {
     Recommend = "recommend",
 }
 
-type AffinityListData = {
-    status: MediaListStatus;
-    score: number;
-    mediaId: number;
-};
-
 type AffinityUser = {
     name: string;
     siteUrl: string;
-    avatar: string;
+    avatar: AvatarTypes;
+};
+
+type AvatarTypes = {
+    large: string | null;
+    medium: string | null;
 };
 
 type AiringSchedule = {
@@ -301,10 +300,17 @@ type Affinity = {
         other_users: string[];
     };
     response: BaseResponse & {
-        user: AffinityUser;
-        lists: AffinityListData[];
-        affinity: number;
-        count: number;
+        comparedAgainst: {
+            user: AffinityUser;
+        };
+        affinity: {
+            user: AffinityUser;
+            affinity: number;
+            count: number;
+        }[];
+    };
+    transformed: {
+        description: string;
     };
 };
 
