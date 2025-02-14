@@ -98,6 +98,12 @@ pub enum Type {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Favourites {
+    pub anime:  MediaNodes,
+    pub manga:  MediaNodes,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct MediaCoverImage {
     #[serde(rename = "extraLarge")]
     pub extra_large: Option<String>,
@@ -154,7 +160,7 @@ pub struct MediaNodes {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct MediaNodeData {
-    pub id:         i32,
+    pub id:         Option<i32>,
     #[serde(rename = "siteUrl")]
     pub site_url:   Option<String>,
     pub title:      Option<Title>,

@@ -5,7 +5,6 @@ import {
     StringSelectMenuOptionBuilder,
 } from "@discordjs/builders";
 
-import { formatSeconds } from "core";
 import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
@@ -176,14 +175,13 @@ export const interaction: Command = {
             return interaction.followUp({ content: "User not found" });
         }
 
-        const footer = `${mediaResult.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${formatSeconds(mediaResult.leftUntilExpire)}`}`;
         const embed = new EmbedBuilder()
             .setTitle(mediaResult.title.romaji)
             .setURL(mediaResult.siteUrl)
             .setImage(mediaResult.banner)
             .setThumbnail(mediaResult.cover)
             .setDescription(mediaResult.description)
-            .setFooter({ text: footer })
+            .setFooter({ text: mediaResult.footer })
             .setColor(0x2f3136);
 
         await interaction.followUp({ embeds: [embed] });

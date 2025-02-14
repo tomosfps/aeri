@@ -1,6 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
-import { formatSeconds } from "core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
@@ -9,7 +8,6 @@ import { getCommandOption } from "../../utility/interactionUtils.js";
 const logger = new Logger();
 export const interaction: Command = {
     cooldown: 5,
-    owner_only: true,
     data: new SlashCommandBuilder()
         .setName("staff")
         .setDescription("Find a staff member on the name")
@@ -40,15 +38,12 @@ export const interaction: Command = {
             });
         }
 
-        logger.debug("Staff found", "Anilist", staff);
-        const footer = `${staff.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${formatSeconds(staff.leftUntilExpire)}`}`;
-
         const embed = new EmbedBuilder()
             .setTitle(staff.fullName)
             .setURL(staff.siteUrl)
             .setDescription(staff.description)
             .setThumbnail(staff.image)
-            .setFooter({ text: footer })
+            .setFooter({ text: staff.footer })
             .setColor(0x2f3136);
 
         const animeButton = new ButtonBuilder()

@@ -1,6 +1,5 @@
 import { EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
-import { formatSeconds } from "core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
@@ -9,7 +8,6 @@ import { getCommandOption } from "../../utility/interactionUtils.js";
 const logger = new Logger();
 export const interaction: Command = {
     cooldown: 5,
-    owner_only: true,
     data: new SlashCommandBuilder()
         .setName("studio")
         .setDescription("Find a studio based on the name")
@@ -41,14 +39,11 @@ export const interaction: Command = {
             });
         }
 
-        logger.debug("Studio found", "Anilist", studio);
-        const footer = `${studio.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${formatSeconds(studio.leftUntilExpire)}`}`;
-
         const embed = new EmbedBuilder()
             .setTitle(studio.name)
             .setURL(studio.siteUrl)
             .setDescription(studio.description + studio.animeDescription)
-            .setFooter({ text: footer })
+            .setFooter({ text: studio.footer })
             .setColor(0x2f3136);
 
         return interaction.reply({

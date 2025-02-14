@@ -168,6 +168,32 @@ pub fn get_query(query_name: &str) -> String {
             large
             medium
         }
+        favourites {
+            anime {
+                nodes {
+                    id
+                    title {
+                        romaji
+                        english
+                        native
+                    }
+                    format
+                    siteUrl
+                }
+            }
+            manga {
+                nodes {
+                    id
+                    title {
+                        romaji
+                        english
+                        native
+                    }
+                    format
+                    siteUrl
+                }
+            }
+        }
         statistics {
             anime {
                 count

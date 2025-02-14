@@ -44,12 +44,12 @@ export const interaction: Command = {
             guildMembers,
         });
 
-        const { result, error } = await api.fetch(Routes.Affinity, {
+        const { result: affinity, error } = await api.fetch(Routes.Affinity, {
             username: username,
             other_users: guildMembers,
         });
 
-        if (error || result === null) {
+        if (error || affinity === null) {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
 
             return interaction.reply({
@@ -59,10 +59,11 @@ export const interaction: Command = {
         }
 
         const embed = new EmbedBuilder()
-            .setTitle(`${result.comparedAgainst.user.name} affinity`)
-            .setURL(result.comparedAgainst.user.siteUrl)
-            .setThumbnail(result.comparedAgainst.user.avatar.large)
-            .setDescription(result.description)
+            .setTitle(`${affinity.comparedAgainst.user.name} affinity`)
+            .setURL(affinity.comparedAgainst.user.siteUrl)
+            .setThumbnail(affinity.comparedAgainst.user.avatar.large)
+            .setDescription(affinity.description)
+            .setFooter({ text: affinity.footer })
             .setColor(0x2f3136);
 
         await interaction.reply({ embeds: [embed] });

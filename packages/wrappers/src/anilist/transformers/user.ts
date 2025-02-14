@@ -20,6 +20,29 @@ export const userTransformer: TransformersType[Routes.User] = (data) => {
         `${inlineCode("Top Genre          :")} ${data.topGenre}\n` +
         `${inlineCode("Favourite Format   :")} ${data.favouriteFormat}\n` +
         `${inlineCode("Completion Rate    :")} ${data.completionPercentage}%\n`;
+    `${inlineCode("Anime Favourites   :")}\n`;
 
-    return { description };
+    const animeDescription =
+        data.favourites.anime.nodes?.length > 0
+            ? data.favourites.anime.nodes
+                  .map((anime) => {
+                      return `[${bold(`${anime.title.romaji}`)}](${anime.siteUrl}) - ${bold(`[${anime.format}]`)}`;
+                  })
+                  .join("\n")
+            : bold("No Anime Favourited");
+
+    const mangaDescription =
+        data.favourites.manga.nodes?.length > 0
+            ? data.favourites.manga.nodes
+                  .map((manga) => {
+                      return `[${bold(`${manga.title.romaji}`)}](${manga.siteUrl}) - ${bold(`[${manga.format}]`)}`;
+                  })
+                  .join("\n")
+            : bold("No Manga Favourited");
+
+    return {
+        description: description,
+        animeFavourites: `${inlineCode("Anime Favourites   :")}\n${animeDescription}`,
+        mangaFavourites: `${inlineCode("Manga Favourites   :")}\n${mangaDescription}`,
+    };
 };

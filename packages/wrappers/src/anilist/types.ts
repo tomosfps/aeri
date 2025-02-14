@@ -18,6 +18,11 @@ type AffinityUser = {
     avatar: AvatarTypes;
 };
 
+type Favourites = {
+    anime: MediaNodes;
+    manga: MediaNodes;
+};
+
 type AvatarTypes = {
     large: string | null;
     medium: string | null;
@@ -60,10 +65,6 @@ type AnimeStatusDistribution = {
 type SortedGenre = {
     genre: string;
     count: number;
-};
-
-type StaffData = {
-    nodes: MediaNode[];
 };
 
 type AnimeStatistics = {
@@ -185,6 +186,7 @@ type User = {
         banner: string | null;
         about: string | null;
         siteUrl: string;
+        favourites: Favourites;
         animeStats: AnimeStatistics;
         mangaStats: MangaStatistics;
         totalEntries: number;
@@ -195,6 +197,8 @@ type User = {
     };
     transformed: {
         description: string;
+        animeFavourites: string;
+        mangaFavourites: string;
     };
 };
 
@@ -257,7 +261,7 @@ type Staff = {
         dateOfBirth: string;
         dateOfDeath: string;
         siteUrl: string | null;
-        staffData: StaffData;
+        staffData: MediaNodes;
     };
     transformed: {
         description: string;

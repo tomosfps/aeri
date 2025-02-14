@@ -1,6 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
-import { formatSeconds } from "core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
@@ -9,7 +8,6 @@ import { getCommandOption } from "../../utility/interactionUtils.js";
 const logger = new Logger();
 export const interaction: Command = {
     cooldown: 5,
-    owner_only: true,
     data: new SlashCommandBuilder()
         .setName("character")
         .setDescription("Find a character based on the name")
@@ -39,16 +37,13 @@ export const interaction: Command = {
             });
         }
 
-        logger.debug("Character found", "Anilist", character);
-        const footer = `${character.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${formatSeconds(character.leftUntilExpire)}`}`;
         const minDescriptionLength = 23;
-
         const embed = new EmbedBuilder()
             .setTitle(character.fullName)
             .setURL(character.siteUrl)
             .setDescription(character.description + character.addOnDescription)
             .setThumbnail(character.image)
-            .setFooter({ text: footer })
+            .setFooter({ text: character.footer })
             .setColor(0x2f3136);
 
         const descriptionButton = new ButtonBuilder()

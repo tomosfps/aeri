@@ -1,4 +1,4 @@
-use super::shared::{Avatar, Statistics};
+use super::shared::{Avatar, Favourites, Statistics};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -12,5 +12,6 @@ pub struct User {
     pub banner_image:   Option<String>,
     pub about:          Option<String>,
     pub avatar:         Avatar,
+    pub favourites:     Favourites,
     pub statistics:     Statistics,
 }

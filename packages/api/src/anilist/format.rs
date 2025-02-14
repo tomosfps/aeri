@@ -255,6 +255,7 @@ pub async fn format_user_data(user_data: User) -> serde_json::Value {
         "banner"                : data.banner_image,
         "about"                 : data.about,
         "siteUrl"               : data.site_url,
+        "favourites"            : data.favourites,
         "animeStats": {
             "count"             : statistics.anime.count,
             "watched"           : statistics.anime.episodes_watched,
