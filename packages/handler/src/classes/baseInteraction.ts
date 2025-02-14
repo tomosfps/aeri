@@ -30,7 +30,7 @@ export class BaseInteraction {
     }
 
     get member_id() {
-        return BigInt(this.member?.user.id || "0");
+        return BigInt(this.member?.user.id || 0);
     }
 
     get message_id() {

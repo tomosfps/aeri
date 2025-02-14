@@ -9,7 +9,7 @@ export const affinityTransformer: TransformersType[Routes.Affinity] = async (dat
 
     for (const user of data.affinity) {
         list.push(
-            `${bold(`${user.affinity}%`)} with ${bold(hyperlink(user.user.name, user.user.siteUrl))} - [${italic(`${user.count} media shared`)}]`,
+            `${bold(`${user.affinity.toFixed(2)}%`)} with ${bold(hyperlink(user.user.name, user.user.siteUrl))} - [${italic(`${user.count} media shared`)}]`,
         );
     }
 

@@ -17,7 +17,7 @@ pub fn pearson(x: &[f64], y: &[f64]) -> f64 {
     let den: f64 = (sx * sy).sqrt();
 
     if den == 0.0 {
-        panic!("Denominator is zero, cannot compute Pearson correlation");
+        return 0.0;
     }
 
     num / den

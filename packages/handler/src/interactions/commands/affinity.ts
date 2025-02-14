@@ -59,7 +59,7 @@ export const interaction: Command = {
         }
 
         const embed = new EmbedBuilder()
-            .setTitle(`affinity with ${result.comparedAgainst.user.name}`)
+            .setTitle(`${result.comparedAgainst.user.name} affinity`)
             .setURL(result.comparedAgainst.user.siteUrl)
             .setThumbnail(result.comparedAgainst.user.avatar.large)
             .setDescription(result.description)

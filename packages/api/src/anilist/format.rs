@@ -291,7 +291,7 @@ pub async fn format_affinity_data(affinity_data: &Affinity, affinity: &f64, tota
     let washed_data = json!({
         "user":         data.user,
         "count":        total_count,
-        "affinity":     (affinity * 100.0).round(),
+        "affinity":     (affinity * 100.0).clamp(0.0, 100.0),
     });
     washed_data
 }

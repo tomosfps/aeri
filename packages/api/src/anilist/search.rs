@@ -1,6 +1,7 @@
 use crate::global::compare_strings::normalize_name;
 use crate::structs::affinity::Affinity;
 use crate::structs::character::Character;
+use crate::structs::shared::MediaListStatus;
 use crate::structs::staff::Staff;
 use crate::structs::studio::Studio;
 use reqwest::Response;
@@ -15,6 +16,7 @@ use crate::anilist::format::{format_affinity_data, format_character_data, format
 use crate::client::client::Client;
 use crate::global::pearson_correlation::pearson;
 use futures::future::join_all;
+use std::collections::HashMap;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -270,6 +272,7 @@ pub async fn fetch_affinity(req: web::Json<AffinityRequest>) -> impl Responder {
 }
 
 fn compare_scores(user: &Affinity, other_user: &Affinity) -> (f64, i32) {
+    let mut user_scores_map: HashMap<i32, f64> = HashMap::new();
     let mut user_scores = Vec::new();
     let mut other_user_scores = Vec::new();
 
@@ -279,28 +282,23 @@ fn compare_scores(user: &Affinity, other_user: &Affinity) -> (f64, i32) {
 
     for user_entry in user_entries {
         for media in &user_entry.entries {
-            user_scores.push(media.score.unwrap_or(0) as f64);
+            if !matches!(media.status.as_ref().unwrap_or(&MediaListStatus::Completed).as_str(), "PLANNING" | "DROPPED" | "PAUSED") {
+                user_scores_map.insert(media.media_id, media.score.unwrap_or(0) as f64);
+            }
         }
     }
 
     for other_user_entry in other_user_entries {
         for media in &other_user_entry.entries {
-            other_user_scores.push(media.score.unwrap_or(0) as f64);
-    
+            if let Some(&user_score) = user_scores_map.get(&media.media_id) {
+                user_scores.push(user_score);
+                other_user_scores.push(media.score.unwrap_or(0) as f64);
+            }
         }
     }
 
-    let min_length = user_scores.len().min(other_user_scores.len());
-    while user_scores.len() < other_user_scores.len() {
-        user_scores.push(0.0);
-    }
-
-    while other_user_scores.len() < user_scores.len() {
-        other_user_scores.push(0.0);
-    }
-
     if !user_scores.is_empty() && !other_user_scores.is_empty() {
-        (pearson(&user_scores, &other_user_scores), min_length as i32)
+        (pearson(&user_scores, &other_user_scores), user_scores.len() as i32)
     } else {
         (0.0, 0)
     }
