@@ -14,9 +14,10 @@ const commands = await load(FileType.Commands);
 const buttons = await load(FileType.Buttons);
 const selectMenus = await load(FileType.SelectMenus);
 const modals = await load(FileType.Modals);
+const messageContext = await load(FileType.MessageContext);
 
 const gateway = new Gateway({ redis, env, commands });
-const client = new HandlerClient({ rest, gateway, commands, buttons, selectMenus, modals });
+const client = new HandlerClient({ rest, gateway, commands, buttons, selectMenus, modals, messageContext });
 
 await gateway.connect();
 await registerEvents(client);

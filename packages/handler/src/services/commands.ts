@@ -1,10 +1,12 @@
 import { readdir } from "node:fs/promises";
 import { URL } from "node:url";
+import type { ContextMenuCommandBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
 import { env } from "core";
 import { Routes } from "discord-api-types/v10";
 import { Logger } from "logger";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
+import type { MessageContextInteraction } from "../classes/messageContextInteraction.js";
 import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
 import type { Command } from "../classes/slashCommandBuilder.js";
@@ -31,6 +33,13 @@ export interface Modal<T = undefined> {
     custom_id: string;
     parse?: (data: string[]) => T;
     execute: (interaction: ModalInteraction, data: T) => void;
+}
+
+export interface MessageContext {
+    data: ContextMenuCommandBuilder;
+    cooldown?: number;
+    owner_only?: boolean;
+    execute: (interaction: MessageContextInteraction) => void;
 }
 
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
@@ -66,12 +75,14 @@ export enum FileType {
     Buttons = "buttons",
     SelectMenus = "select-menus",
     Modals = "modals",
+    MessageContext = "message-context",
 }
 
 export async function load<T = Command>(type: FileType.Commands): Promise<Map<string, T>>;
 export async function load<T = Button>(type: FileType.Buttons): Promise<Map<string, T>>;
 export async function load<T = SelectMenu>(type: FileType.SelectMenus): Promise<Map<string, T>>;
 export async function load<T = Modal>(type: FileType.Modals): Promise<Map<string, T>>;
+export async function load<T = MessageContext>(type: FileType.MessageContext): Promise<Map<string, T>>;
 export async function load<T>(type: FileType): Promise<Map<string, T>> {
     logger.infoSingle(`Started loading ${type} (📝) files.`, "Files");
 
@@ -101,7 +112,7 @@ export async function load<T>(type: FileType): Promise<Map<string, T>> {
     return files;
 }
 
-function getName(interaction: Command | Button | SelectMenu | Modal): string {
+function getName(interaction: Command | Button | SelectMenu | Modal | MessageContext): string {
     if ("data" in interaction) return interaction.data.name;
     return interaction.custom_id;
 }

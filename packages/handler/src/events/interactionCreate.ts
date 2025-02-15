@@ -7,6 +7,7 @@ import {
     autoCompleteHandler,
     buttonHandler,
     chatInputHandler,
+    messageContextHandler,
     modalHandler,
     selectMenuHandler,
     userContextHandler,
@@ -26,9 +27,7 @@ const interactionHandlers: Record<InteractType, (interaction: any, api: API, cli
     [InteractType.SelectMenu]: selectMenuHandler,
     [InteractType.Modal]: modalHandler,
     [InteractType.UserContext]: userContextHandler,
-    [InteractType.MessageContext]: () => {
-        logger.warnSingle("Message context interactions are not supported", "Handler");
-    },
+    [InteractType.MessageContext]: messageContextHandler,
     [InteractType.Button]: buttonHandler,
     [InteractType.Unknown]: (interaction: any) => {
         logger.warnSingle(`Unknown interaction type: ${interaction.type}`, "Handler");

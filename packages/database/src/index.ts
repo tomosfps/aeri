@@ -1,13 +1,13 @@
 import { connectPrisma } from "./sql.js";
-import { createAnilistUser } from "./utility/createAnilistUser.js";
-import { createGuild } from "./utility/createGuild.js";
-import { deleteAnilistUser } from "./utility/deleteAnilistUser.js";
-import { fetchAllUsers } from "./utility/fetchAllUsers.js";
-import { fetchAnilistUser } from "./utility/fetchAnilistUser.js";
-import { fetchGuild } from "./utility/fetchGuild.js";
-import { fetchUser } from "./utility/fetchUser.js";
-import { removeFromGuild } from "./utility/removeFromGuild.js";
-import { updateGuild } from "./utility/updateGuild.js";
+import { createGuild } from "./utility/dbCreateGuild.js";
+import { createAnilistUser } from "./utility/dbCreateUser.js";
+import { deleteAnilistUser } from "./utility/dbDeleteUser.js";
+import { fetchUser } from "./utility/dbFetchDiscordUser.js";
+import { fetchGuild } from "./utility/dbFetchGuild.js";
+import { fetchAnilistUser } from "./utility/dbFetchUser.js";
+import { fetchAllUsers } from "./utility/dbFetchUsers.js";
+import { removeFromGuild } from "./utility/dbRemoveFromGuild.js";
+import { updateGuild } from "./utility/dbUpdateGuild.js";
 
 export {
     fetchUser,
