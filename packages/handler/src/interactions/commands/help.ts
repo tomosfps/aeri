@@ -1,10 +1,11 @@
 import { EmbedBuilder, bold, codeBlock, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
 import { formatSeconds } from "core";
-import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
-export const interaction: Command = {
+export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("help")
         .setDescription("View all available commands")
@@ -18,7 +19,7 @@ export const interaction: Command = {
             interaction.options,
         )?.toLowerCase();
         const commands = interaction.client.commands;
-        const maxLength = Math.max(...Array.from(commands.values()).map((command) => command.data.name.length));
+        const maxLength = Math.max(...Array.from(commands.values()).map((command: any) => command.data.name.length));
 
         if (option) {
             const command = commands.get(option);
@@ -73,7 +74,10 @@ export const interaction: Command = {
         }
 
         const commandNames = Array.from(commands.values())
-            .map((command) => `${inlineCode(`${command.data.name.padEnd(maxLength)} :`)} ${command.data.description}`)
+            .map(
+                (command: any) =>
+                    `${inlineCode(`${command.data.name.padEnd(maxLength)} :`)} ${command.data.description}`,
+            )
             .join("\n");
         const embed = new EmbedBuilder().setTitle("Commands").setDescription(commandNames).setColor(0x2f3136);
         await interaction.reply({ embeds: [embed] });

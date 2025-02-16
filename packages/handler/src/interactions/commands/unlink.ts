@@ -1,7 +1,8 @@
 import { deleteAnilistUser, fetchUser } from "database";
-import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 
-export const interaction: Command = {
+export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("unlink")
         .setDescription("Unlink your anilist account from the bot")

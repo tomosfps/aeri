@@ -1,8 +1,4 @@
-import {
-    SlashCommandBuilder as SlashCommandBuilderOriginal,
-    type SlashCommandOptionsOnlyBuilder,
-} from "@discordjs/builders";
-import type { CommandInteraction } from "./commandInteraction.js";
+import { SlashCommandBuilder as SlashCommandBuilderOriginal } from "@discordjs/builders";
 
 export class SlashCommandBuilder extends SlashCommandBuilderOriginal {
     examples: string[] = [];
@@ -10,11 +6,4 @@ export class SlashCommandBuilder extends SlashCommandBuilderOriginal {
         this.examples.push(example_string);
         return this;
     }
-}
-
-export interface Command {
-    data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
-    cooldown?: number;
-    owner_only?: boolean;
-    execute: (interaction: CommandInteraction) => void;
 }

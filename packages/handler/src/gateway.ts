@@ -4,8 +4,7 @@ import type { GatewayDispatchPayload, GatewaySendPayload, Gateway as IGateway } 
 import type { Environment } from "core/dist/env.js";
 import type { Redis } from "ioredis";
 import { Logger } from "logger";
-import type { Command } from "./classes/slashCommandBuilder.js";
-import { deployCommands } from "./services/commands.js";
+import { type BaseCommand, deployCommands } from "./services/commands.js";
 
 const logger = new Logger();
 
@@ -17,13 +16,13 @@ type eventPayload = {
 export type gatewayOptions = {
     redis: Redis;
     env: Environment;
-    commands: Map<string, Command>;
+    commands: BaseCommand[];
 };
 
 export class Gateway extends EventEmitter implements IGateway {
     private readonly pubSubBroker: PubSubRedisBroker<Record<string, any>>;
     private readonly env: Environment;
-    private readonly commands: Map<string, Command>;
+    private readonly commands: BaseCommand[];
 
     constructor({ redis, env, commands }: gatewayOptions) {
         super();
@@ -38,7 +37,12 @@ export class Gateway extends EventEmitter implements IGateway {
         });
 
         this.pubSubBroker.on("deploy", async ({ ack }: eventPayload) => {
-            await deployCommands(this.commands);
+            const commandsMap = new Map(
+                this.commands
+                    .filter((command) => command.data.name !== undefined)
+                    .map((command) => [command.data.name as string, command]),
+            );
+            await deployCommands(commandsMap);
             void ack();
         });
 

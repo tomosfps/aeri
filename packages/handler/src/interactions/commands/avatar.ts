@@ -1,10 +1,11 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { ButtonStyle } from "@discordjs/core";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
-export const interaction: Command = {
+export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("avatar")
         .setDescription("View a users or bots avatar")

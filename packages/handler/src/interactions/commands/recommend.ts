@@ -9,7 +9,8 @@ import { fetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
-import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
@@ -40,7 +41,7 @@ const genreList = [
     "Martial Arts",
 ];
 
-export const interaction: Command = {
+export const interaction: ChatInputCommand = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("recommend")

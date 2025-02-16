@@ -5,9 +5,10 @@ import {
     TextInputBuilder,
 } from "@discordjs/builders";
 import { TextInputStyle } from "@discordjs/core";
-import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 
-export const interaction: Command = {
+export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder().setName("modal").setDescription("This is just a testing modal"),
     owner_only: true,
     async execute(interaction): Promise<void> {

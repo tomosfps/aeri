@@ -1,6 +1,7 @@
-import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 
-export const interaction: Command = {
+export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("ping")
         .setDescription("Replies with Pong! (Used for testing)")

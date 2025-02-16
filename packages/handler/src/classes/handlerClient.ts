@@ -1,21 +1,20 @@
 import { Client, type ClientOptions } from "@discordjs/core";
-import type { Button, MessageContext, Modal, SelectMenu } from "../services/commands.js";
-import type { Command } from "./slashCommandBuilder.js";
+import type { Button, ChatInputCommand, MessageContextCommand, Modal, SelectMenu } from "../services/commands.js";
 
 export interface HandlerClientOptions extends ClientOptions {
-    commands: Map<string, Command>;
+    commands: Map<string, ChatInputCommand>;
     buttons: Map<string, Button>;
     modals: Map<string, Modal>;
     selectMenus: Map<string, SelectMenu>;
-    messageContext: Map<string, MessageContext>;
+    messageContext: Map<string, MessageContextCommand>;
 }
 
 export class HandlerClient extends Client {
-    public commands: Map<string, Command>;
+    public commands: Map<string, ChatInputCommand>;
     public buttons: Map<string, Button>;
     public modals: Map<string, Modal>;
     public selectMenus: Map<string, SelectMenu>;
-    public messageContext: Map<string, MessageContext>;
+    public messageContext: Map<string, MessageContextCommand>;
 
     constructor(public options: HandlerClientOptions) {
         super({

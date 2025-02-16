@@ -2,11 +2,12 @@ import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, inlineCode } from "@disc
 import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { type Command, SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
-export const interaction: Command = {
+export const interaction: ChatInputCommand = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("staff")

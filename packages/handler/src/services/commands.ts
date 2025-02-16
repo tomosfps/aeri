@@ -1,15 +1,33 @@
 import { readdir } from "node:fs/promises";
 import { URL } from "node:url";
-import type { ContextMenuCommandBuilder } from "@discordjs/builders";
+import type { ContextMenuCommandBuilder, SlashCommandOptionsOnlyBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
 import { env } from "core";
-import { Routes } from "discord-api-types/v10";
+import { type RESTPostAPIApplicationCommandsJSONBody, Routes } from "discord-api-types/v10";
 import { Logger } from "logger";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
+import type { ChatInputCommandInteraction } from "../classes/chatInputCommandInteraction.js";
 import type { MessageContextInteraction } from "../classes/messageContextInteraction.js";
 import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
-import type { Command } from "../classes/slashCommandBuilder.js";
+import type { SlashCommandBuilder } from "../classes/slashCommandBuilder.js";
+
+interface CommandData extends Partial<Pick<RESTPostAPIApplicationCommandsJSONBody, "name">> {
+    toJSON(): RESTPostAPIApplicationCommandsJSONBody;
+}
+
+interface ChatInputCommandData extends CommandData {
+    description: string;
+    setDescription(description: string): this;
+}
+
+interface MessageContextCommandData extends CommandData {
+    setName(name: string): this;
+}
+
+export type BaseCommand = {
+    data: CommandData | ChatInputCommandData | MessageContextCommandData;
+};
 
 export interface Button<T = undefined> {
     custom_id: string;
@@ -35,17 +53,24 @@ export interface Modal<T = undefined> {
     execute: (interaction: ModalInteraction, data: T) => void;
 }
 
-export interface MessageContext {
+export interface MessageContextCommand extends BaseCommand {
     data: ContextMenuCommandBuilder;
     cooldown?: number;
     owner_only?: boolean;
     execute: (interaction: MessageContextInteraction) => void;
 }
 
+export interface ChatInputCommand extends BaseCommand {
+    data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
+    cooldown?: number;
+    owner_only?: boolean;
+    execute: (interaction: ChatInputCommandInteraction) => void;
+}
+
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
 const logger = new Logger();
 
-export async function deployCommands(commands: Map<string, Command>) {
+export async function deployCommands(commands: Map<string, BaseCommand>) {
     logger.infoSingle("Started deploying application (/) commands.", "Commands");
 
     try {
@@ -58,11 +83,15 @@ export async function deployCommands(commands: Map<string, Command>) {
         if (env.DISCORD_TEST_GUILD_ID) {
             await rest.put(Routes.applicationGuildCommands(env.DISCORD_APPLICATION_ID, env.DISCORD_TEST_GUILD_ID), {
                 body: Array.from(commands.values()).map((command) => {
-                    command.data.setDescription(`GUILD VERSION - ${command.data.description}`);
+                    if ("setDescription" in command.data) {
+                        command.data.setDescription(`GUILD VERSION - ${command.data.description}`);
+                    } else if ("setName" in command.data) {
+                        command.data.setName(`GUILD VERSION - ${command.data.name}`);
+                    }
+
                     return command.data.toJSON();
                 }),
             });
-
             logger.infoSingle("Successfully deployed guild application (/) commands.", "Commands");
         }
     } catch (error: any) {
@@ -78,11 +107,11 @@ export enum FileType {
     MessageContext = "message-context",
 }
 
-export async function load<T = Command>(type: FileType.Commands): Promise<Map<string, T>>;
+export async function load<T = ChatInputCommand>(type: FileType.Commands): Promise<Map<string, T>>;
 export async function load<T = Button>(type: FileType.Buttons): Promise<Map<string, T>>;
 export async function load<T = SelectMenu>(type: FileType.SelectMenus): Promise<Map<string, T>>;
 export async function load<T = Modal>(type: FileType.Modals): Promise<Map<string, T>>;
-export async function load<T = MessageContext>(type: FileType.MessageContext): Promise<Map<string, T>>;
+export async function load<T = MessageContextCommand>(type: FileType.MessageContext): Promise<Map<string, T>>;
 export async function load<T>(type: FileType): Promise<Map<string, T>> {
     logger.infoSingle(`Started loading ${type} (📝) files.`, "Files");
 
@@ -112,7 +141,7 @@ export async function load<T>(type: FileType): Promise<Map<string, T>> {
     return files;
 }
 
-function getName(interaction: Command | Button | SelectMenu | Modal | MessageContext): string {
+function getName(interaction: ChatInputCommand | Button | SelectMenu | Modal | MessageContextCommand): string {
     if ("data" in interaction) return interaction.data.name;
     return interaction.custom_id;
 }
