@@ -8,7 +8,7 @@ export type ChatInputHandler = (
     client: HandlerClient,
 ) => Promise<void>;
 
-export class ChatInputCommandInteraction extends BaseInteraction {
+export class ChatInputInteraction extends BaseInteraction {
     constructor(
         public override interaction: APIChatInputApplicationCommandInteraction,
         api: API,

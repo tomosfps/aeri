@@ -8,7 +8,7 @@ const logger = new Logger();
 export const handler: MessageContextHandler = async (interaction, api, client) => {
     logger.debugSingle(`Received message context interaction: ${interaction.data.name}`, "Handler");
 
-    const context = client.messageContext.get(interaction.data.name);
+    const context = client.messageContextCommands.get(interaction.data.name);
     const memberId = interaction.member?.user.id;
     const ownerOnly = context?.owner_only ?? false;
 

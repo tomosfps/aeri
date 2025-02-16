@@ -6,7 +6,7 @@ export interface HandlerClientOptions extends ClientOptions {
     buttons: Map<string, Button>;
     modals: Map<string, Modal>;
     selectMenus: Map<string, SelectMenu>;
-    messageContext: Map<string, MessageContextCommand>;
+    messageContextCommands: Map<string, MessageContextCommand>;
 }
 
 export class HandlerClient extends Client {
@@ -14,7 +14,7 @@ export class HandlerClient extends Client {
     public buttons: Map<string, Button>;
     public modals: Map<string, Modal>;
     public selectMenus: Map<string, SelectMenu>;
-    public messageContext: Map<string, MessageContextCommand>;
+    public messageContextCommands: Map<string, MessageContextCommand>;
 
     constructor(public options: HandlerClientOptions) {
         super({
@@ -26,6 +26,6 @@ export class HandlerClient extends Client {
         this.buttons = options.buttons;
         this.modals = options.modals;
         this.selectMenus = options.selectMenus;
-        this.messageContext = options.messageContext;
+        this.messageContextCommands = options.messageContextCommands;
     }
 }

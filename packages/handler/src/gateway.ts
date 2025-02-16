@@ -2,9 +2,10 @@ import { EventEmitter } from "node:events";
 import { PubSubRedisBroker } from "@discordjs/brokers";
 import type { GatewayDispatchPayload, GatewaySendPayload, Gateway as IGateway } from "@discordjs/core";
 import type { Environment } from "core/dist/env.js";
+import type { RESTPostAPIApplicationCommandsJSONBody as CommandData } from "discord-api-types/v10";
 import type { Redis } from "ioredis";
 import { Logger } from "logger";
-import { type BaseCommand, deployCommands } from "./services/commands.js";
+import { deployCommands } from "./services/commands.js";
 
 const logger = new Logger();
 
@@ -16,13 +17,13 @@ type eventPayload = {
 export type gatewayOptions = {
     redis: Redis;
     env: Environment;
-    commands: BaseCommand[];
+    commands: CommandData[];
 };
 
 export class Gateway extends EventEmitter implements IGateway {
     private readonly pubSubBroker: PubSubRedisBroker<Record<string, any>>;
     private readonly env: Environment;
-    private readonly commands: BaseCommand[];
+    private readonly commands: CommandData[];
 
     constructor({ redis, env, commands }: gatewayOptions) {
         super();
@@ -37,12 +38,7 @@ export class Gateway extends EventEmitter implements IGateway {
         });
 
         this.pubSubBroker.on("deploy", async ({ ack }: eventPayload) => {
-            const commandsMap = new Map(
-                this.commands
-                    .filter((command) => command.data.name !== undefined)
-                    .map((command) => [command.data.name as string, command]),
-            );
-            await deployCommands(commandsMap);
+            await deployCommands(this.commands);
             void ack();
         });
 

@@ -3,31 +3,27 @@ import { URL } from "node:url";
 import type { ContextMenuCommandBuilder, SlashCommandOptionsOnlyBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
 import { env } from "core";
-import { type RESTPostAPIApplicationCommandsJSONBody, Routes } from "discord-api-types/v10";
+import { type RESTPostAPIApplicationCommandsJSONBody as CommandData, Routes } from "discord-api-types/v10";
 import { Logger } from "logger";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
-import type { ChatInputCommandInteraction } from "../classes/chatInputCommandInteraction.js";
+import type { ChatInputInteraction } from "../classes/chatInputCommandInteraction.js";
 import type { MessageContextInteraction } from "../classes/messageContextInteraction.js";
 import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
 import type { SlashCommandBuilder } from "../classes/slashCommandBuilder.js";
 
-interface CommandData extends Partial<Pick<RESTPostAPIApplicationCommandsJSONBody, "name">> {
-    toJSON(): RESTPostAPIApplicationCommandsJSONBody;
-}
-
-interface ChatInputCommandData extends CommandData {
-    description: string;
-    setDescription(description: string): this;
-}
-
-interface MessageContextCommandData extends CommandData {
-    setName(name: string): this;
-}
-
 export type BaseCommand = {
-    data: CommandData | ChatInputCommandData | MessageContextCommandData;
+    data: {
+        toJSON(): CommandData;
+    };
+    cooldown?: number;
+    owner_only?: boolean;
 };
+
+export interface ChatInputCommand extends BaseCommand {
+    data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
+    execute: (interaction: ChatInputInteraction) => void;
+}
 
 export interface Button<T = undefined> {
     custom_id: string;
@@ -55,41 +51,32 @@ export interface Modal<T = undefined> {
 
 export interface MessageContextCommand extends BaseCommand {
     data: ContextMenuCommandBuilder;
-    cooldown?: number;
-    owner_only?: boolean;
     execute: (interaction: MessageContextInteraction) => void;
-}
-
-export interface ChatInputCommand extends BaseCommand {
-    data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
-    cooldown?: number;
-    owner_only?: boolean;
-    execute: (interaction: ChatInputCommandInteraction) => void;
 }
 
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
 const logger = new Logger();
 
-export async function deployCommands(commands: Map<string, BaseCommand>) {
+export async function deployCommands(commands: CommandData[]) {
     logger.infoSingle("Started deploying application (/) commands.", "Commands");
 
     try {
         await rest.put(Routes.applicationCommands(env.DISCORD_APPLICATION_ID), {
-            body: Array.from(commands.values()).map((command) => command.data.toJSON()),
+            body: commands,
         });
 
         logger.infoSingle("Successfully deployed global application (/) commands.", "Commands");
 
         if (env.DISCORD_TEST_GUILD_ID) {
             await rest.put(Routes.applicationGuildCommands(env.DISCORD_APPLICATION_ID, env.DISCORD_TEST_GUILD_ID), {
-                body: Array.from(commands.values()).map((command) => {
-                    if ("setDescription" in command.data) {
-                        command.data.setDescription(`GUILD VERSION - ${command.data.description}`);
-                    } else if ("setName" in command.data) {
-                        command.data.setName(`GUILD VERSION - ${command.data.name}`);
+                body: commands.map((command) => {
+                    command.name = `GUILD VERSION - ${command.name}`;
+
+                    if ("description" in command) {
+                        command.description = `GUILD VERSION - ${command.description}`;
                     }
 
-                    return command.data.toJSON();
+                    return command;
                 }),
             });
             logger.infoSingle("Successfully deployed guild application (/) commands.", "Commands");
