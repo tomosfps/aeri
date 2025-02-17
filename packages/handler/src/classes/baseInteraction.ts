@@ -56,10 +56,6 @@ export class BaseInteraction {
         return this.interaction.user!.username;
     }
 
-    get message_id() {
-        return this.interaction.message?.id;
-    }
-
     get guild_id() {
         return this.interaction.guild_id;
     }

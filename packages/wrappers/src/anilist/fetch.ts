@@ -95,6 +95,8 @@ export async function anilistFetch<T extends Routes>(
             Reflect.deleteProperty(data, "token");
         }
 
+        requestOptions.body = JSON.stringify(data);
+
         const response = await fetch(`${env.API_URL}/${route}`, requestOptions);
 
         let result = await validateResponse<RouteResponse<typeof route>>(response);

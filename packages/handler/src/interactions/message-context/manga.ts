@@ -14,14 +14,7 @@ const logger = new Logger();
 export const interaction: MessageContextCommand = {
     data: new ContextMenuCommandBuilder().setName("manga").setType(ApplicationCommandType.Message),
     async execute(interaction) {
-        const manga = null; // interaction.targetMessage;
-
-        logger.debug("Message content", "Anilist", { manga });
-
-        if (!manga) {
-            logger.debugSingle("No manga found", "Anilist");
-            return interaction.reply({ content: "No manga found", ephemeral: true });
-        }
+        const manga = interaction.message.content;
 
         logger.debug("Fetching data from the API", "Anilist", { manga });
         const { result, error } = await api.fetch(Routes.Relations, {

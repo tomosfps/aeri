@@ -1,7 +1,6 @@
 import { readdir } from "node:fs/promises";
 import { URL } from "node:url";
 import type { ContextMenuCommandBuilder, SlashCommandOptionsOnlyBuilder } from "@discordjs/builders";
-import { ApplicationCommandType } from "@discordjs/core";
 import { REST } from "@discordjs/rest";
 import { env } from "core";
 import { type RESTPostAPIApplicationCommandsJSONBody as CommandData, Routes } from "discord-api-types/v10";
@@ -70,10 +69,6 @@ export async function deployCommands(commands: CommandData[]) {
         if (env.DISCORD_TEST_GUILD_ID) {
             await rest.put(Routes.applicationGuildCommands(env.DISCORD_APPLICATION_ID, env.DISCORD_TEST_GUILD_ID), {
                 body: commands.map((command) => {
-                    if (command.type === ApplicationCommandType.Message) {
-                        command.name = `GUILD - ${command.name}`;
-                    }
-
                     if ("description" in command) {
                         command.description = `GUILD VERSION - ${command.description}`;
                     }

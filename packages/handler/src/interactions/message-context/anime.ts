@@ -14,14 +14,7 @@ const logger = new Logger();
 export const interaction: MessageContextCommand = {
     data: new ContextMenuCommandBuilder().setName("anime").setType(ApplicationCommandType.Message),
     async execute(interaction) {
-        const anime = null; // interaction.targetMessage;
-
-        logger.debug("Message content", "Anilist", { anime });
-
-        if (!anime) {
-            logger.debugSingle("No anime found", "Anilist");
-            return interaction.reply({ content: "No anime found", ephemeral: true });
-        }
+        const anime = interaction.message.content;
 
         logger.debug("Fetching data from the API", "Anilist", { anime });
         const { result, error } = await api.fetch(Routes.Relations, {
