@@ -20,25 +20,24 @@ export type BaseCommand = {
     owner_only?: boolean;
 };
 
+export type BaseComponent = {
+    custom_id: string;
+    cooldown?: number;
+    toggleable?: boolean;
+    timeout: number;
+};
+
 export interface ChatInputCommand extends BaseCommand {
     data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
     execute: (interaction: ChatInputInteraction) => void;
 }
 
-export interface Button<T = undefined> {
-    custom_id: string;
-    cooldown?: number;
-    toggleable?: boolean;
-    timeout: number;
+export interface Button<T = undefined> extends BaseComponent {
     parse?: (data: string[]) => T;
     execute: (interaction: ButtonInteraction, data: T) => void;
 }
 
-export interface SelectMenu<T = undefined> {
-    custom_id: string;
-    cooldown?: number;
-    toggleable?: boolean;
-    timeout: number;
+export interface SelectMenu<T = undefined> extends BaseComponent {
     parse?: (data: string[]) => T;
     execute: (interaction: SelectMenuInteraction, data: T) => void;
 }
@@ -70,7 +69,7 @@ export async function deployCommands(commands: CommandData[]) {
         if (env.DISCORD_TEST_GUILD_ID) {
             await rest.put(Routes.applicationGuildCommands(env.DISCORD_APPLICATION_ID, env.DISCORD_TEST_GUILD_ID), {
                 body: commands.map((command) => {
-                    command.name = `GUILD VERSION - ${command.name}`;
+                    command.name = `GUILD - ${command.name}`;
 
                     if ("description" in command) {
                         command.description = `GUILD VERSION - ${command.description}`;

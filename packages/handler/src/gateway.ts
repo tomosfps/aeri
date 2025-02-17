@@ -52,6 +52,5 @@ export class Gateway extends EventEmitter implements IGateway {
     }
 
     send = (_shardID: number, _payload: GatewaySendPayload): void => {};
-
     getShardCount = () => this.env.SHARD_COUNT;
 }
