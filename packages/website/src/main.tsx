@@ -6,6 +6,7 @@ import App from "./App.tsx";
 import Navigation from "./components/ui/navigation.tsx";
 import About from "./routes/about/About.tsx";
 import Commands from "./routes/commands/Commands.tsx";
+import Api from "./routes/api/api.tsx";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
                 path: "commands",
                 element: <Commands />,
             },
+            {
+                path: "login/success",
+                element: <Api />,
+            }
         ],
     },
 ]);

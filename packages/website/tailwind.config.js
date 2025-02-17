@@ -12,6 +12,24 @@ export default {
             colors: {
                 background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
+
+                whiteText: '#0e0a12',
+                whiteBackground: '#f7f5f9',
+                whitePrimary: '#7e61a6',
+                whiteSecondary: '#d1adcc',
+                whiteAccent: '#b983a7',
+
+                darkText: '#f2eff6',
+                darkBackground: '#08060a',
+                darkPrimary: '#75589d',
+                darkSecondary: '#522e4d',
+                darkAccent: '#7c466a',
+
+                gradient: {
+                    white: `bg-gradient-to-r from-[#7e61a6] via-[#d1adcc] to-[#b983a7]`,
+                    dark: `bg-gradient-to-r from-[#75589d] via-[#522e4d] to-[#7c466a]`,
+                },
+
                 card: {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
