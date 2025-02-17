@@ -2,7 +2,7 @@ import { MessageFlags } from "@discordjs/core";
 import { checkRedis } from "core";
 import { env } from "core";
 import { Logger } from "logger";
-import { type ChatInputHandler, ChatInputInteraction } from "../../classes/chatInputCommandInteraction.js";
+import type { ChatInputHandler } from "../../classes/chatInputCommandInteraction.js";
 
 const logger = new Logger();
 
@@ -10,7 +10,7 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
     logger.debugSingle(`Received chat input interaction: ${interaction.data.name}`, "Handler");
 
     const command = client.commands.get(interaction.data.name);
-    const memberId = interaction.member?.user.id;
+    const memberId = interaction.user.id;
     const ownerOnly = command?.owner_only ?? false;
 
     if (!memberId) {
@@ -42,7 +42,7 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
 
     try {
         logger.infoSingle(`Executing command: ${command.data.name}`, "Handler");
-        command.execute(new ChatInputInteraction(interaction, api, client));
+        command.execute(interaction);
     } catch (error: any) {
         logger.error("Command execution error:", "Handler", error);
     }

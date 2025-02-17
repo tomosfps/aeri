@@ -39,7 +39,7 @@ export const interaction: ChatInputCommand = {
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId(`media_selection:manga:${interaction.member_id}`)
+            .setCustomId(`media_selection:manga:${interaction.user_id}`)
             .setPlaceholder("Choose A Media...")
             .setMinValues(1)
             .setMaxValues(1)

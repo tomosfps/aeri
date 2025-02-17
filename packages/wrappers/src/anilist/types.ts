@@ -10,6 +10,7 @@ export enum Routes {
     Media = "media",
     Affinity = "affinity",
     Recommend = "recommend",
+    CurrentUser = "viewer",
 }
 
 type AffinityUser = {
@@ -318,6 +319,16 @@ type Affinity = {
     };
 };
 
+type Viewer = {
+    body: {
+        token: string;
+    };
+    response: BaseResponse & {
+        id: number;
+        name: string;
+    };
+};
+
 export type RouteMap = {
     [Routes.Relations]: Relations;
     [Routes.User]: User;
@@ -328,4 +339,5 @@ export type RouteMap = {
     [Routes.Media]: Media;
     [Routes.Recommend]: Recommend;
     [Routes.Affinity]: Affinity;
+    [Routes.CurrentUser]: Viewer;
 };

@@ -20,6 +20,7 @@ export const envSchema = z.object({
     API_PORT: z.coerce.number().default(8080),
     API_HOST: z.string().default("0.0.0.0"),
     API_URL: z.string().default("http://localhost:8080"),
+    ANILIST_CLIENT_ID: z.string(),
     REDIS_HOST: z.string().default("localhost"),
     REDIS_PORT: z.coerce.number().default(6379),
     REDIS_PASSWORD: z.string().default(""),

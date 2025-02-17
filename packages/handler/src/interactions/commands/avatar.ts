@@ -37,13 +37,13 @@ export const interaction: ChatInputCommand = {
                 : `https://cdn.discordapp.com/embed/avatars/${(Number(member) >> 22) % 6}.png?size=1024`;
 
         const guildButton = new ButtonBuilder()
-            .setCustomId(`showAvatar:${member}:GUILD:${interaction.member?.user.id}`)
+            .setCustomId(`showAvatar:${member}:GUILD:${interaction.user.id}`)
             .setLabel("Guild Avatar")
             .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Primary);
 
         const defaultButton = new ButtonBuilder()
-            .setCustomId(`showAvatar:${member}:DEFAULT:${interaction.member?.user.id}`)
+            .setCustomId(`showAvatar:${member}:DEFAULT:${interaction.user.id}`)
             .setLabel("Default Avatar")
             .setDisabled(guildAvatar === undefined)
             .setStyle(ButtonStyle.Secondary);

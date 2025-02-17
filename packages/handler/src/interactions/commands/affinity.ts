@@ -19,7 +19,7 @@ export const interaction: ChatInputCommand = {
         let username = "";
 
         try {
-            username = (await fetchAnilistUser(interaction.member_id)).username;
+            username = (await fetchAnilistUser(interaction.user_id)).username;
         } catch (error: any) {
             logger.error(`Error fetching user from database: ${error}`, "User");
             return interaction.reply({ content: "Please setup your account with /setup!", ephemeral: true });

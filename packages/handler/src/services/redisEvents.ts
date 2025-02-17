@@ -62,7 +62,7 @@ export async function registerRedisEvents(): Promise<void> {
 
             subscriber.on(event.name, async (pattern: string, channel: string, message: string) => {
                 logger.debugSingle(`Received event: ${event.name}`, "Files");
-                event.on({ pattern, channel, message });
+                await event.on({ pattern, channel, message });
             });
             events.set(event.name, event);
         } catch (error: any) {

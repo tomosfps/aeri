@@ -59,6 +59,26 @@ impl Client {
         Ok(response)
     }
 
+    pub async fn post_with_auth(&self, url: &str, json: &Value, auth: &str) -> Result<Response, Box<dyn std::error::Error>> {
+        if self.using_proxy {
+            let response = self.client.post(url)
+                .header("Content-Type", "application/json")
+                .header("Authorization", auth)
+                .json(json)
+                .send()
+                .await?;
+            return Ok(response);
+        }
+
+        let response = self.client.post(url)
+            .header("Content-Type", "application/json")
+            .header("Authorization", auth)
+            .json(json)
+            .send()
+            .await?;
+        Ok(response)
+    }
+
     async fn fetch_proxy(&self) -> Result<String, Box<dyn std::error::Error>> {
         logger.debug_single("Getting random proxy", "Proxy");
         let proxy: std::collections::HashMap<String, String> = self.redis.hgetall("proxies").await?;

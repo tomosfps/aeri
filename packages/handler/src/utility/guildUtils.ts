@@ -17,9 +17,7 @@ export async function onGuild(hasLeft: boolean, user: APIUser, member: any): Pro
 
         if (checkGuild) {
             logger.debugSingle(`Member ${user.username} is within the guild database`, "Handler");
-            hasLeft
-                ? await removeFromGuild(memberId, guildId)
-                : await updateGuild(guildId, memberId, member.user.username);
+            hasLeft ? await removeFromGuild(memberId, guildId) : await updateGuild(guildId, memberId);
             logger.debugSingle(`Removed ${user.username} from the database`, "Handler");
         } else {
             logger.debugSingle(`Member ${user.username} is not within the guild database`, "Handler");

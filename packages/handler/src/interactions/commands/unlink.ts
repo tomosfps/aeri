@@ -8,7 +8,7 @@ export const interaction: ChatInputCommand = {
         .setDescription("Unlink your anilist account from the bot")
         .addExample("/unlink"),
     async execute(interaction): Promise<void> {
-        const isInDatabase = await fetchUser(interaction.member_id);
+        const isInDatabase = await fetchUser(interaction.user_id);
 
         if (isInDatabase === null) {
             return interaction.reply({
@@ -17,7 +17,7 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        const deleteAccount = await deleteAnilistUser(interaction.member_id);
+        const deleteAccount = await deleteAnilistUser(interaction.user_id);
         if (deleteAccount) {
             return interaction.reply({
                 content: "Your anilist account has been unlinked.",

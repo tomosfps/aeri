@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
 import { checkRedis, setExpireCommand } from "core";
 import { Logger } from "logger";
-import { type SelectMenuHandler, SelectMenuInteraction } from "../../classes/selectMenuInteraction.js";
+import type { SelectMenuHandler } from "../../classes/selectMenuInteraction.js";
 
 const logger = new Logger();
 
@@ -10,7 +10,7 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
 
     const [selectId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
     const selectMenu = client.selectMenus.get(selectId);
-    const memberId = interaction.member?.user.id;
+    const memberId = interaction.user.id;
     const toggleable = selectMenu?.toggleable ?? false;
     const timeout = selectMenu?.timeout ?? 3600;
 
@@ -53,7 +53,7 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
 
     try {
         logger.infoSingle(`Executing select menu: ${selectId}`, "Handler");
-        selectMenu.execute(new SelectMenuInteraction(interaction, api, client), selectMenu.parse?.(data));
+        selectMenu.execute(interaction, selectMenu.parse?.(data));
     } catch (error: any) {
         logger.error("Select menu execution error:", "Handler", error);
     }

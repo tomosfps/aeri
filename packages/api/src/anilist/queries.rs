@@ -321,6 +321,15 @@ pub fn get_query(query_name: &str) -> String {
             }
         }";
 
+    let viewer: &str = "
+        {
+            Viewer {
+                id
+                name
+            }
+        }
+    ";
+
     match query_name {
         "search" => search.to_string(),
         "user_scores" => user_stats.to_string(),
@@ -332,6 +341,7 @@ pub fn get_query(query_name: &str) -> String {
         "staff" => staff.to_string(),
         "character" => character.to_string(),
         "studio" => studio.to_string(),
+        "viewer" => viewer.to_string(),
         _ => panic!("Invalid Query Name"),
     }
 }

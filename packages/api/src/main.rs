@@ -1,8 +1,8 @@
-use actix_web::{get, 
-                web, 
-                App, 
-                HttpResponse, 
-                HttpServer, 
+use actix_web::{get,
+                web,
+                App,
+                HttpResponse,
+                HttpServer,
                 Responder};
 
 use colourful_logger::Logger as Logger;
@@ -17,21 +17,23 @@ mod global;
 mod client;
 mod structs;
 
-use anilist::media::{media_search, 
-                    relations_search, 
+use anilist::media::{media_search,
+                    relations_search,
                     recommend};
 
-use anilist::user::{user_search, 
-                    user_score, 
+use anilist::user::{user_search,
+                    user_score,
                     expire_user};
 
-use anilist::search::{character_search, 
-                    staff_search, 
+use anilist::search::{character_search,
+                    staff_search,
                     studio_search,
                     fetch_affinity};
 
 use cache::redis::Redis;
 use client::proxy::Proxy;
+use crate::anilist::oauth::anilist_oauth;
+use crate::anilist::user::current_user;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -76,7 +78,7 @@ async fn main() -> std::io::Result<()> {
         });
     }
 
-    logger.info_single(&format!("Listening on {}:{}", ip, port), "Main");    
+    logger.info_single(&format!("Listening on {}:{}", ip, port), "Main");
     HttpServer::new(move || {
         App::new()
             .service(hello)
@@ -90,6 +92,8 @@ async fn main() -> std::io::Result<()> {
             .service(staff_search)
             .service(studio_search)
             .service(fetch_affinity)
+            .service(anilist_oauth)
+            .service(current_user)
             .route("/hey", web::get().to(manual))
     })
     .workers(num_cpus::get())

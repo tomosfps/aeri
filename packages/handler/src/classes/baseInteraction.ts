@@ -25,12 +25,35 @@ export class BaseInteraction {
         return this.interaction.token;
     }
 
+    get user() {
+        if (this.interaction.member) {
+            return this.interaction.member.user;
+        }
+
+        // biome-ignore lint/style/noNonNullAssertion: Either user or member is present
+        return this.interaction.user!;
+    }
+
     get member() {
         return this.interaction.member;
     }
 
-    get member_id() {
-        return BigInt(this.member?.user.id || 0);
+    get user_id() {
+        if (this.interaction.member) {
+            return BigInt(this.interaction.member.user.id);
+        }
+
+        // biome-ignore lint/style/noNonNullAssertion: Either user or member is present
+        return BigInt(this.interaction.user!.id);
+    }
+
+    get user_name() {
+        if (this.interaction.member) {
+            return this.interaction.member.user.username;
+        }
+
+        // biome-ignore lint/style/noNonNullAssertion: Either user or member is present
+        return this.interaction.user!.username;
     }
 
     get message_id() {
@@ -43,10 +66,6 @@ export class BaseInteraction {
 
     get guilds() {
         return this.api.guilds;
-    }
-
-    get member_name() {
-        return this.member?.user.username || undefined;
     }
 
     public async reply(

@@ -6,6 +6,7 @@ import { HandlerClient } from "./classes/handlerClient.js";
 import { Gateway } from "./gateway.js";
 import { FileType, load } from "./services/commands.js";
 import { registerEvents } from "./services/events.js";
+import { OauthTokenHandler } from "./services/oauthTokenHandler.js";
 import { registerRedisEvents } from "./services/redisEvents.js";
 
 const redis = await getRedis();
@@ -32,6 +33,9 @@ const client = new HandlerClient({
     modals,
     messageContextCommands,
 });
+
+const oauthTokenHandler = new OauthTokenHandler(redis);
+void oauthTokenHandler.listen();
 
 await gateway.connect();
 await registerEvents(client);

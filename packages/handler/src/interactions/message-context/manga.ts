@@ -14,7 +14,7 @@ const logger = new Logger();
 export const interaction: MessageContextCommand = {
     data: new ContextMenuCommandBuilder().setName("manga").setType(ApplicationCommandType.Message),
     async execute(interaction) {
-        const manga = interaction.targetMessage;
+        const manga = null; // interaction.targetMessage;
 
         logger.debug("Message content", "Anilist", { manga });
 
@@ -44,7 +44,7 @@ export const interaction: MessageContextCommand = {
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId(`media_selection:anime:${interaction.member_id}`)
+            .setCustomId(`media_selection:anime:${interaction.user_id}`)
             .setPlaceholder("Choose A Media...")
             .setMinValues(1)
             .setMaxValues(1)

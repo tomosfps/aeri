@@ -1,6 +1,5 @@
 use std::env;
 use redis::{Client, ToRedisArgs, RedisResult, Commands};
-use redis::streams::StreamReadReply;
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
 
@@ -45,7 +44,7 @@ impl Redis {
     pub fn set<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, value: V) -> RedisResult<()> {
         logger.debug_single(&format!("Setting Key with data {:?}", key).as_str(), "Redis");
         let mut con = self.client.get_connection()?;
-        
+
         let result: RedisResult<()> = con.set(key, value);
         match result {
             Ok(_) => {
@@ -62,7 +61,7 @@ impl Redis {
         logger.debug_single(&format!("Setting Key to expire in {} seconds for key: {:?}", seconds, &key).as_str(), "Redis");
         let mut con: redis::Connection = self.client.get_connection()?;
         let result:  RedisResult<()> = con.expire(&key, seconds);
-        
+
         match result {
             Ok(_) => {
                 logger.debug_single(format!("{:?} has been set", key).as_str(), "Redis");
@@ -112,7 +111,7 @@ impl Redis {
     pub async fn expire_user<T: ToRedisArgs + std::fmt::Debug + std::fmt::Display>(&self, k: T) -> RedisResult<()> {
         logger.debug_single(&format!("Deleting all cached related for user ID {:?}", k).as_str(), "Redis");
         let mut con = self.client.get_connection()?;
-    
+
         let mut count = 0;
         let iter: redis::Iter<String> = con.scan()?;
         let keys: Vec<String> = iter.collect();
@@ -137,7 +136,7 @@ impl Redis {
     pub async fn setexp<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, value: V, seconds: u64) -> RedisResult<()> {
         logger.debug_single(&format!("Setting {:?} with data and expiring in {} seconds", key, seconds).as_str(), "Redis");
         let mut con = self.client.get_connection()?;
-        
+
         let result: RedisResult<()> = con.set_ex(key, value, seconds);
         match result {
             Ok(_) => {
@@ -183,7 +182,7 @@ impl Redis {
 
     pub async fn hset<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, field: T, value: V) -> RedisResult<()> {
         let mut con = self.client.get_connection()?;
-        
+
         let result: RedisResult<()> = con.hset(key, field, value);
         match result {
             Ok(_) => {
@@ -195,56 +194,23 @@ impl Redis {
             }
         }
     }
-    
-    pub async fn xadd<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, stream: T, id: T, fields: Vec<(T, V)>) -> RedisResult<String> {
-        logger.debug_single(&format!("Adding entry to stream {:?} with ID {:?}", stream, id).as_str(), "Redis");
+
+    pub async fn xadd<T: ToRedisArgs + std::fmt::Debug + Clone, F: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, stream: T, field: F, data: V) -> RedisResult<()> {
+        logger.debug_single(&format!("Adding entry to stream {:?}", stream).as_str(), "Redis");
         let mut con = self.client.get_connection()?;
-        
-        let result: RedisResult<String> = con.xadd(stream, id, &fields);
+
+        let _: RedisResult<String> = con.xgroup_create_mkstream(stream.clone(), "api", "0");
+
+        let result: RedisResult<String> = con.xadd(stream, "*", &[(field, data)]);
         match result {
             Ok(entry_id) => {
                 logger.debug_single(&format!("Entry added with ID {:?}", entry_id).as_str(), "Redis");
-                return Ok(entry_id);
+                Ok(())
             },
             Err(e) => {
-                logger.error_single(&format!("Error adding entry to stream : {:?}", e).as_str(), "Redis");
-                return Err(e);
+                logger.error_single(&format!("Error adding entry to stream: {:?}", e).as_str(), "Redis");
+                Err(e)
             }
         }
     }
-
-    pub async fn xread<T: ToRedisArgs + std::fmt::Debug>(&self, streams: Vec<T>, count: i64) -> RedisResult<Vec<StreamReadReply>> {
-        logger.debug_single(&format!("Reading from streams : {:?}", streams).as_str(), "Redis");
-        let mut con = self.client.get_connection()?;
-        
-        let result: RedisResult<Vec<StreamReadReply>> = con.xread(&streams, &[count]);
-        match result {
-            Ok(entries) => {
-                logger.debug_single(&format!("Entries read : {:?}", entries).as_str(), "Redis");
-                return Ok(entries);
-            },
-            Err(e) => {
-                logger.error_single(&format!("Error reading from streams : {:?}", e).as_str(), "Redis");
-                return Err(e);
-            }
-        }
-    }
-
-    pub async fn xrange<T: ToRedisArgs + std::fmt::Debug>(&self, stream: T, start: T, end: T) -> RedisResult<Vec<StreamReadReply>> {
-        logger.debug_single(&format!("Reading from stream : {:?}", stream).as_str(), "Redis");
-        let mut con = self.client.get_connection()?;
-        
-        let result: RedisResult<Vec<StreamReadReply>> = con.xrange(stream, start, end);
-        match result {
-            Ok(entries) => {
-                logger.debug_single(&format!("Entries read : {:?}", entries).as_str(), "Redis");
-                return Ok(entries);
-            },
-            Err(e) => {
-                logger.error_single(&format!("Error reading from stream : {:?}", e).as_str(), "Redis");
-                return Err(e);
-            }
-        }
-    }
-
 }

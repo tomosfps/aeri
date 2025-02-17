@@ -48,12 +48,12 @@ export const interaction: ChatInputCommand = {
             .setColor(0x2f3136);
 
         const animeButton = new ButtonBuilder()
-            .setCustomId(`staffShow:${staff_name}:ANIME:${interaction.member?.user.id}`)
+            .setCustomId(`staffShow:${staff_name}:ANIME:${interaction.user.id}`)
             .setLabel("See Anime Within/Worked On")
             .setStyle(ButtonStyle.Primary);
 
         const mangaButton = new ButtonBuilder()
-            .setCustomId(`staffShow:${staff_name}:MANGA:${interaction.member?.user.id}`)
+            .setCustomId(`staffShow:${staff_name}:MANGA:${interaction.user.id}`)
             .setLabel("See Manga Worked On")
             .setStyle(ButtonStyle.Secondary);
 

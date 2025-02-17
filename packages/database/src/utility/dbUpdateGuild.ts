@@ -1,9 +1,9 @@
 import type { Guild } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export async function updateGuild(guild_id: bigint, discord_id: bigint, discord_name: string): Promise<Guild> {
+export async function updateGuild(guild_id: bigint, discord_id: bigint): Promise<Guild> {
     const db = await prisma;
-    const guild = await db.guild.upsert({
+    return db.guild.upsert({
         create: {
             id: guild_id,
             users: {
@@ -13,7 +13,6 @@ export async function updateGuild(guild_id: bigint, discord_id: bigint, discord_
                     },
                     create: {
                         discord_id: discord_id,
-                        username: discord_name,
                     },
                 },
             },
@@ -26,7 +25,6 @@ export async function updateGuild(guild_id: bigint, discord_id: bigint, discord_
                     },
                     create: {
                         discord_id: discord_id,
-                        username: discord_name,
                     },
                 },
             },
@@ -35,6 +33,4 @@ export async function updateGuild(guild_id: bigint, discord_id: bigint, discord_
             id: guild_id,
         },
     });
-
-    return guild;
 }

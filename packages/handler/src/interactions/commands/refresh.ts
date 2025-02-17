@@ -14,7 +14,7 @@ export const interaction: ChatInputCommand = {
         .addExample("/refresh")
         .addExample("Must have used /setup before using this command"),
     async execute(interaction): Promise<void> {
-        const anilistUser = await fetchAnilistUser(interaction.member_id);
+        const anilistUser = await fetchAnilistUser(interaction.user_id);
         const userID = anilistUser ? anilistUser.id : null;
         const username = anilistUser ? anilistUser.username : null;
         logger.debug(`Username: ${username}`, "Refresh");

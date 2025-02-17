@@ -48,18 +48,18 @@ export const interaction: ChatInputCommand = {
             .setColor(0x2f3136);
 
         const descriptionButton = new ButtonBuilder()
-            .setCustomId(`characterShow:${character_name}:DESCRIPTION:${interaction.member?.user.id}`)
+            .setCustomId(`characterShow:${character_name}:DESCRIPTION:${interaction.user.id}`)
             .setLabel("See Character Description")
             .setStyle(ButtonStyle.Primary);
 
         const animeButton = new ButtonBuilder()
-            .setCustomId(`characterShow:${character_name}:ANIME:${interaction.member?.user.id}`)
+            .setCustomId(`characterShow:${character_name}:ANIME:${interaction.user.id}`)
             .setLabel("See Anime Show Appearances")
             .setDisabled(character.animeDescription.length <= minDescriptionLength)
             .setStyle(ButtonStyle.Secondary);
 
         const mangaButton = new ButtonBuilder()
-            .setCustomId(`characterShow:${character_name}:MANGA:${interaction.member?.user.id}`)
+            .setCustomId(`characterShow:${character_name}:MANGA:${interaction.user.id}`)
             .setLabel("See Manga Character Appearances")
             .setDisabled(character.mangaDescription.length <= minDescriptionLength)
             .setStyle(ButtonStyle.Secondary);

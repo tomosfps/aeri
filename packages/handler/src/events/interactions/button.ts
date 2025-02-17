@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
 import { checkRedis, setExpireCommand } from "core";
 import { Logger } from "logger";
-import { type ButtonHandler, ButtonInteraction } from "../../classes/buttonInteraction.js";
+import type { ButtonHandler } from "../../classes/buttonInteraction.js";
 
 const logger = new Logger();
 
@@ -10,7 +10,7 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
 
     const [buttonId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
     const button = client.buttons.get(buttonId);
-    const memberId = interaction.member?.user.id;
+    const memberId = interaction.user.id;
     const toggleable = button?.toggleable ?? false;
     const timeout = button?.timeout ?? 3600;
 
@@ -53,7 +53,7 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
 
     try {
         logger.infoSingle(`Executing button: ${buttonId}`, "Handler");
-        button.execute(new ButtonInteraction(interaction, api, client), button.parse?.(data));
+        button.execute(interaction, button.parse?.(data));
     } catch (error: any) {
         logger.error("Button execution error:", "Handler", error);
     }

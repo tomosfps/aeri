@@ -52,44 +52,50 @@ type TransformableRoutes = TransformableRoutesWithArgs | TransformableRoutesWith
 type NonTransformableRoutes = Exclude<Routes, TransformableRoutes>;
 
 type RouteBody<T extends Routes> = RouteMap[T]["body"];
-
 type RouteResponse<T extends Routes> = RouteMap[T]["response"] & BaseTransformed;
-
 type RouteTransformed<T extends TransformableRoutes> = RouteMap[T]["transformed"];
-
+type RouteTransformerArgs<T extends TransformableRoutesWithArgs> = RouteMap[T]["transformer_args"];
 type RouteTransformedResponse<T extends TransformableRoutes> = RouteTransformed<T> & RouteResponse<T>;
 
 function isTransformableRoute(route: Routes): route is TransformableRoutes {
     return route in transformers;
 }
 
+export async function anilistFetch<T extends NonTransformableRoutes>(
+    route: T,
+    data: RouteBody<T>,
+): Promise<Result<RouteResponse<T> | null>>;
+
 export async function anilistFetch<T extends TransformableRoutesWithArgs>(
     route: T,
-    body: RouteBody<T>,
-    transformer_args: RouteMap[T]["transformer_args"],
+    data: RouteBody<T>,
+    transformer_args: RouteTransformerArgs<T>,
 ): Promise<Result<RouteTransformedResponse<T> | null>>;
 
 export async function anilistFetch<T extends TransformableRoutesWithoutArgs>(
     route: T,
-    body: RouteBody<T>,
+    data: RouteBody<T>,
 ): Promise<Result<RouteTransformedResponse<T> | null>>;
-
-export async function anilistFetch<T extends NonTransformableRoutes>(
-    route: T,
-    body: RouteBody<T>,
-): Promise<Result<RouteResponse<T> | null>>;
 
 export async function anilistFetch<T extends Routes>(
     route: T,
-    body: RouteBody<T>,
+    data: RouteBody<T>,
     transformer_args?: "transformer_args" extends keyof RouteMap[T] ? RouteMap[T]["transformer_args"] : never,
 ): Promise<Result<object | null>> {
     try {
-        const response = await fetch(`${env.API_URL}/${route}`, {
+        const requestOptions: RequestInit & { headers: { [key: string]: string } } = {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-        });
+            headers: {
+                "Content-Type": "application/json",
+            },
+        };
+
+        if ("token" in data) {
+            requestOptions.headers["Authorization"] = `Bearer ${data.token}`;
+            Reflect.deleteProperty(data, "token");
+        }
+
+        const response = await fetch(`${env.API_URL}/${route}`, requestOptions);
 
         let result = await validateResponse<RouteResponse<typeof route>>(response);
 

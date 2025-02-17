@@ -10,7 +10,6 @@ datasource db {
 
 model User {
   discord_id    BigInt  @id
-  username      String
   anilist       Anilist?
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
@@ -26,6 +25,7 @@ model Anilist {
   id            BigInt  @id
   username      String
   user_id       BigInt  @unique
+  token         String
   user          User    @relation(fields: [user_id], references: [discord_id])
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt

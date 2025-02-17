@@ -1,9 +1,9 @@
 use serde::Deserialize;
 use serde_json::{json, Value};
-use actix_web::{web, post, HttpResponse, Responder};
+use actix_web::{web, post, HttpResponse, Responder, HttpRequest};
 use colourful_logger::Logger;
 use crate::anilist::queries::{get_query, QUERY_URL};
-use crate::structs::user::User;
+use crate::structs::user::{User, Viewer};
 use crate::structs::user_stats::UserScores;
 use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
@@ -32,7 +32,6 @@ struct UserRequest {
     username: String,
 }
 
-
 #[post("/user/score")]
 pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
     let redis_key = req.media_id.to_string() + ":" + req.user_id.to_string().as_str();
@@ -52,7 +51,7 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
     let client = Client::new().with_proxy().await.unwrap();
     let json = json!({"query": get_query("user_scores"), "variables": {"userId": req.user_id, "mediaId": req.media_id}});
     let response = client.post(QUERY_URL, &json).await.unwrap();
-    
+
     if response.status().as_u16() != 200 {
         if response.status().as_u16() == 403 {
             let _ = client.remove_proxy().await;
@@ -96,7 +95,7 @@ pub async fn user_search(req: web::Json<UserRequest>) -> impl Responder {
     let client = Client::new().with_proxy().await.unwrap();
     let json = json!({"query": get_query("user"), "variables": {"name": req.username}});
     let response = client.post(QUERY_URL, &json).await.unwrap();
-    
+
     if response.status().as_u16() != 200 {
         if response.status().as_u16() == 403 {
             let _ = client.remove_proxy().await;
@@ -112,7 +111,7 @@ pub async fn user_search(req: web::Json<UserRequest>) -> impl Responder {
             return HttpResponse::InternalServerError().json(json!({"error": "Failed to parse user"}));
         }
     };
-    
+
     let user: Value = format_user_data(user).await;
     let _ = redis.setexp(req.username.clone(), user.to_string(), 86400).await;
     HttpResponse::Ok().json(user)
@@ -147,4 +146,47 @@ async fn expire_user(req: web::Json<UserExpireRequest>) -> impl Responder {
     HttpResponse::Ok().json(json!({
         "status": "User data has been expired"
     }))
+}
+
+#[post("/viewer")]
+async fn current_user(req: HttpRequest) -> impl Responder {
+    let auth = req.headers().get("Authorization");
+
+    if auth.is_none() {
+        return HttpResponse::Unauthorized().json(json!({
+            "error": "No Authorization header was included"
+        }));
+    }
+
+    let auth = auth.unwrap().to_str().unwrap();
+
+    if auth.len() == 0 {
+        return HttpResponse::Unauthorized().json(json!({
+            "error": "No Authorization header was included"
+        }));
+    }
+
+    logger.debug_single(&format!("Auth token: {}", auth), "User");
+
+    let client = Client::new().with_proxy().await.unwrap();
+    let json = json!({"query": get_query("viewer")});
+    let response = client.post_with_auth(QUERY_URL, &json, auth).await.unwrap();
+
+    if response.status().as_u16() != 200 {
+        let status = response.status().as_u16();
+        let error = response.text().await.unwrap();
+        return HttpResponse::BadRequest().json(json!({"error": error, "errorCode": status}));
+    }
+
+    let response:       Value = response.json().await.unwrap();
+
+    let user:           Viewer  = match serde_json::from_value(response["data"]["Viewer"].clone()) {
+        Ok(user) => user,
+        Err(err) => {
+            logger.error_single(&format!("Error parsing user: {}", err), "User");
+            return HttpResponse::InternalServerError().json(json!({"error": "Failed to parse user"}));
+        }
+    };
+
+    HttpResponse::Ok().json(user)
 }

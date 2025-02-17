@@ -4,7 +4,7 @@ import { BaseInteraction } from "./baseInteraction.js";
 import type { HandlerClient } from "./handlerClient.js";
 
 export type MessageContextHandler = (
-    interaction: APIContextMenuInteraction,
+    interaction: MessageContextInteraction,
     api: API,
     client: HandlerClient,
 ) => Promise<void>;
@@ -16,6 +16,10 @@ export class MessageContextInteraction extends BaseInteraction {
         client: HandlerClient,
     ) {
         super(interaction, api, client);
+    }
+
+    get data() {
+        return this.interaction.data;
     }
 
     get commandName() {

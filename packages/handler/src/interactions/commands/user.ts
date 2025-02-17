@@ -24,7 +24,7 @@ export const interaction: ChatInputCommand = {
         if (username === null) {
             logger.debug("Attemping fetching user from database", "User");
             try {
-                username = (await fetchAnilistUser(interaction.member_id)).username;
+                username = (await fetchAnilistUser(interaction.user_id)).username;
             } catch (error: any) {
                 logger.error(`Error fetching user from database: ${error}`, "User");
                 return interaction.reply({ content: "Please setup your account with /setup!", ephemeral: true });
@@ -53,18 +53,18 @@ export const interaction: ChatInputCommand = {
         }
 
         const informationButton = new ButtonBuilder()
-            .setCustomId(`userShow:${user.name}:INFORMATION:${interaction.member?.user.id}`)
+            .setCustomId(`userShow:${user.name}:INFORMATION:${interaction.user.id}`)
             .setLabel("Main Information")
             .setStyle(ButtonStyle.Primary);
 
         const animeButton = new ButtonBuilder()
-            .setCustomId(`userShow:${user.name}:ANIME:${interaction.member?.user.id}`)
-            .setLabel("Top 5 Anime")
+            .setCustomId(`userShow:${user.name}:ANIME:${interaction.user.id}`)
+            .setLabel("Favourite Anime")
             .setStyle(ButtonStyle.Secondary);
 
         const mangaButton = new ButtonBuilder()
-            .setCustomId(`userShow:${user.name}:MANGA:${interaction.member?.user.id}`)
-            .setLabel("Top 5 Manga")
+            .setCustomId(`userShow:${user.name}:MANGA:${interaction.user.id}`)
+            .setLabel("Favourite Manga")
             .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder().addComponents(informationButton, animeButton, mangaButton);

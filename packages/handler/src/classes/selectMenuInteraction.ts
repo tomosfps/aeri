@@ -2,11 +2,7 @@ import type { API, APIMessageComponentSelectMenuInteraction } from "@discordjs/c
 import { BaseInteraction } from "./baseInteraction.js";
 import type { HandlerClient } from "./handlerClient.js";
 
-export type SelectMenuHandler = (
-    interaction: APIMessageComponentSelectMenuInteraction,
-    api: API,
-    client: HandlerClient,
-) => Promise<void>;
+export type SelectMenuHandler = (interaction: SelectMenuInteraction, api: API, client: HandlerClient) => Promise<void>;
 
 export class SelectMenuInteraction extends BaseInteraction {
     constructor(
@@ -15,6 +11,18 @@ export class SelectMenuInteraction extends BaseInteraction {
         client: HandlerClient,
     ) {
         super(interaction, api, client);
+    }
+
+    get data() {
+        return this.interaction.data;
+    }
+
+    get channel() {
+        return this.interaction.channel;
+    }
+
+    get message() {
+        return this.interaction.message;
     }
 
     get custom_id() {

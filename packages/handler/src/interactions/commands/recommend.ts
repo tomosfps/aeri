@@ -82,7 +82,7 @@ export const interaction: ChatInputCommand = {
 
         if (genre) {
             const select = new StringSelectMenuBuilder()
-                .setCustomId(`genre_selection:${media}:${interaction.member_id}`)
+                .setCustomId(`genre_selection:${media}:${interaction.user_id}`)
                 .setPlaceholder("Choose Some Genres...")
                 .setMinValues(1)
                 .setMaxValues(24)
@@ -100,7 +100,7 @@ export const interaction: ChatInputCommand = {
             return await interaction.followUp({ components: [row] });
         }
 
-        const username = (await fetchAnilistUser(interaction.member_id)).username ?? null;
+        const username = (await fetchAnilistUser(interaction.user_id)).username ?? null;
         if (username === null) {
             return interaction.followUp({
                 content:

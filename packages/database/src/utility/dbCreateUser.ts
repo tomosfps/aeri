@@ -3,16 +3,15 @@ import prisma from "../index.js";
 
 export async function createAnilistUser(
     discord_id: bigint,
-    username: string,
     anilist_id: bigint,
     anilist_username: string,
+    anilist_token: string,
     guild_id: bigint,
 ): Promise<User> {
     const db = await prisma;
     const user = await db.user.create({
         data: {
             discord_id: discord_id,
-            username: username,
         },
     });
 
@@ -20,6 +19,7 @@ export async function createAnilistUser(
         data: {
             id: anilist_id,
             username: anilist_username,
+            token: anilist_token,
             user: {
                 connect: {
                     discord_id: discord_id,
