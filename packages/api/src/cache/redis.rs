@@ -149,52 +149,6 @@ impl Redis {
         }
     }
 
-    pub async fn hgetall<T: ToRedisArgs + std::fmt::Debug>(&self, key: T) -> RedisResult<std::collections::HashMap<String, String>> {
-        logger.debug_single(&format!("Trying to grab key : {:?}", key), "Redis");
-        let mut con = self.client.get_connection()?;
-        let rv: std::collections::HashMap<String, String> = con.hgetall(key)?;
-
-        if rv.is_empty() {
-            logger.warn_single("No value found for key", "Redis");
-            return Err(redis::RedisError::from((redis::ErrorKind::ResponseError, "No value found for key")));
-        }
-
-        logger.debug_single("Found value for key", "Redis");
-        Ok(rv)
-    }
-
-    pub async fn hdel<T: ToRedisArgs + std::fmt::Debug>(&self, key: T, field: T) -> RedisResult<()> {
-        logger.debug_single(&format!("Deleting field : {:?} from key : {:?}", field, key), "Redis");
-        let mut con = self.client.get_connection()?;
-        let result: RedisResult<()> = con.hdel(key, field);
-
-        match result {
-            Ok(_) => {
-                logger.debug_single("Field has been deleted", "Redis");
-                return Ok(());
-            },
-            Err(e) => {
-                logger.error_single(&format!("Error deleting field : {:?}", e).as_str(), "Redis");
-                return Err(e);
-            }
-        }
-    }
-
-    pub async fn hset<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, field: T, value: V) -> RedisResult<()> {
-        let mut con = self.client.get_connection()?;
-
-        let result: RedisResult<()> = con.hset(key, field, value);
-        match result {
-            Ok(_) => {
-                return Ok(());
-            },
-            Err(e) => {
-                logger.error_single(&format!("Error setting key : {:?}", e).as_str(), "Redis");
-                return Err(e);
-            }
-        }
-    }
-
     pub async fn xadd<T: ToRedisArgs + std::fmt::Debug + Clone, F: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, stream: T, field: F, data: V) -> RedisResult<()> {
         logger.debug_single(&format!("Adding entry to stream {:?}", stream).as_str(), "Redis");
         let mut con = self.client.get_connection()?;
@@ -209,6 +163,57 @@ impl Redis {
             },
             Err(e) => {
                 logger.error_single(&format!("Error adding entry to stream: {:?}", e).as_str(), "Redis");
+                Err(e)
+            }
+        }
+    }
+
+    pub async fn sadd<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, value: V) -> RedisResult<()> {
+        logger.debug_single(&format!("Adding value(s) to set {:?}", key).as_str(), "Redis");
+        let mut con = self.client.get_connection()?;
+
+        let result: RedisResult<()> = con.sadd(key, value);
+        match result {
+            Ok(_) => {
+                logger.debug_single("Value added to set", "Redis");
+                Ok(())
+            },
+            Err(e) => {
+                logger.error_single(&format!("Error adding value to set: {:?}", e).as_str(), "Redis");
+                Err(e)
+            }
+        }
+    }
+
+    pub async fn srandmember<T: ToRedisArgs + std::fmt::Debug>(&self, key: T) -> RedisResult<String> {
+        logger.debug_single(&format!("Getting random member from set {:?}", key).as_str(), "Redis");
+        let mut con = self.client.get_connection()?;
+
+        let result: RedisResult<String> = con.srandmember(key);
+        match result {
+            Ok(member) => {
+                logger.debug_single(&format!("Random member from set is {:?}", member).as_str(), "Redis");
+                Ok(member)
+            },
+            Err(e) => {
+                logger.error_single(&format!("Error getting random member from set: {:?}", e).as_str(), "Redis");
+                Err(e)
+            }
+        }
+    }
+
+    pub async fn srem<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, value: V) -> RedisResult<()> {
+        logger.debug_single(&format!("Removing value from set {:?}", key).as_str(), "Redis");
+        let mut con = self.client.get_connection()?;
+
+        let result: RedisResult<()> = con.srem(key, value);
+        match result {
+            Ok(_) => {
+                logger.debug_single("Value removed from set", "Redis");
+                Ok(())
+            },
+            Err(e) => {
+                logger.error_single(&format!("Error removing value from set: {:?}", e).as_str(), "Redis");
                 Err(e)
             }
         }

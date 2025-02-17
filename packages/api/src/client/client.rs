@@ -81,21 +81,20 @@ impl Client {
 
     async fn fetch_proxy(&self) -> Result<String, Box<dyn std::error::Error>> {
         logger.debug_single("Getting random proxy", "Proxy");
-        let proxy: std::collections::HashMap<String, String> = self.redis.hgetall("proxies").await?;
+        let proxy = self.redis.srandmember("proxies").await?;
 
         if proxy.is_empty() {
-            logger.error("Failed to find a proxy", "Proxy", false, proxy.len().to_string());
+            logger.error_single("Failed to find a proxy", "Proxy");
             return Err("No proxies found".into());
         }
 
-        let proxy_value = proxy.iter().next().unwrap().1;
-        logger.debug("Returning random proxy in redis", "Proxy", false, proxy_value.clone());
-        Ok(proxy_value.to_string())
+        logger.debug("Returning random proxy in redis", "Proxy", false, proxy.clone());
+        Ok(proxy)
     }
 
     pub async fn remove_proxy(&self) -> Result<(), Box<dyn std::error::Error>> {
         logger.debug_single(&format!("Removing proxy: {}", self.current_proxy), "Proxy");
-        let _: () = self.redis.hdel("proxies", &self.current_proxy).await?;
+        let _: () = self.redis.srem("proxies", &self.current_proxy).await?;
         Ok(())
     }
 }
