@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
-import { fetchAnilistUser } from "database";
+import { dbFetchAnilistUser } from "database";
 import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
@@ -24,7 +24,7 @@ export const interaction: ChatInputCommand = {
         if (username === null) {
             logger.debug("Attemping fetching user from database", "User");
             try {
-                username = (await fetchAnilistUser(interaction.user_id)).username;
+                username = (await dbFetchAnilistUser(interaction.user_id)).username;
             } catch (error: any) {
                 logger.error(`Error fetching user from database: ${error}`, "User");
                 return interaction.reply({ content: "Please setup your account with /setup!", ephemeral: true });

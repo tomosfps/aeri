@@ -1,7 +1,7 @@
 import type { Anilist } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export async function fetchAnilistUser(discord_id: bigint): Promise<Anilist> {
+export async function dbFetchAnilistUser(discord_id: bigint): Promise<Anilist> {
     const db = await prisma;
     const user = (await db.anilist.findUnique({
         where: {

@@ -1,5 +1,5 @@
 import { env } from "core";
-import { fetchAnilistUser } from "database";
+import { dbFetchAnilistUser } from "database";
 import { Logger } from "logger";
 import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
@@ -14,10 +14,10 @@ export const interaction: ChatInputCommand = {
         .addExample("/refresh")
         .addExample("Must have used /setup before using this command"),
     async execute(interaction): Promise<void> {
-        const anilistUser = await fetchAnilistUser(interaction.user_id);
+        const anilistUser = await dbFetchAnilistUser(interaction.user_id);
+
         const userID = anilistUser ? anilistUser.id : null;
         const username = anilistUser ? anilistUser.username : null;
-        logger.debug(`Username: ${username}`, "Refresh");
 
         if (username === null) {
             return interaction.reply({

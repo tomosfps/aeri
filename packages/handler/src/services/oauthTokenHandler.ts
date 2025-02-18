@@ -3,7 +3,7 @@ import { EmbedBuilder } from "@discordjs/builders";
 import { API } from "@discordjs/core";
 import { REST } from "@discordjs/rest";
 import { env } from "core";
-import { createAnilistUser } from "database";
+import { dbCreateAnilistUser } from "database";
 import { type Redis, ReplyError } from "ioredis";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
@@ -116,7 +116,7 @@ export class OauthTokenHandler {
             return await this.finishInteraction(userId, false);
         }
 
-        await createAnilistUser(BigInt(userId), BigInt(currentUser.id), currentUser.name, token, BigInt(guildId));
+        await dbCreateAnilistUser(BigInt(userId), BigInt(currentUser.id), currentUser.name, BigInt(guildId), token);
 
         return await this.finishInteraction(userId, true);
     }

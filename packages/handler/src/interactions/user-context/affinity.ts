@@ -1,28 +1,36 @@
-import { EmbedBuilder } from "@discordjs/builders";
+import { ContextMenuCommandBuilder, EmbedBuilder } from "@discordjs/builders";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
+import { ApplicationCommandType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
-import type { ChatInputCommand } from "../../services/commands.js";
+import type { UserContextCommand } from "../../services/commands.js";
 
 const logger = new Logger();
 
-export const interaction: ChatInputCommand = {
-    cooldown: 5,
-    data: new SlashCommandBuilder()
-        .setName("affinity")
-        .setDescription("Compare your affinity with server members!")
-        .addExample("/affinity")
-        .addExample("Must have a user account linked to Anilist"),
-    async execute(interaction): Promise<void> {
+export const interaction: UserContextCommand = {
+    data: new ContextMenuCommandBuilder().setName("affinity").setType(ApplicationCommandType.User),
+    async execute(interaction) {
+        const user = interaction.target_user;
+        logger.debug("Fetching user data", "User", { user });
+
         const guild_id = interaction.guild_id_bigint;
         let username = "";
 
+        if (!user) {
+            return interaction.reply({
+                content: "This user is not in the server.",
+                ephemeral: true,
+            });
+        }
+
         try {
-            username = (await dbFetchAnilistUser(interaction.user_id)).username;
+            username = (await dbFetchAnilistUser(BigInt(user.id))).username;
         } catch (error: any) {
             logger.error(`Error fetching user from database: ${error}`, "User");
-            return interaction.reply({ content: "Please setup your account with /setup!", ephemeral: true });
+            return interaction.followUp({
+                content: `${user.username} hasn't set up their anilist account yet!`,
+                ephemeral: true,
+            });
         }
 
         const guildMembers = await dbFetchGuildUsers(guild_id).then((users: any) => {

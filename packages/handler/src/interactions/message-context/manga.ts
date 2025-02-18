@@ -33,11 +33,11 @@ export const interaction: MessageContextCommand = {
 
         if (result.relations.length === 0) {
             logger.debugSingle("No relations found", "Anilist");
-            return interaction.reply({ content: "No anime found", ephemeral: true });
+            return interaction.reply({ content: "No manga found", ephemeral: true });
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId(`media_selection:anime:${interaction.user_id}`)
+            .setCustomId(`media_selection:manga:${interaction.user_id}`)
             .setPlaceholder("Choose A Media...")
             .setMinValues(1)
             .setMaxValues(1)

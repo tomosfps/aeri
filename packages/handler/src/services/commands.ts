@@ -11,6 +11,7 @@ import type { MessageContextInteraction } from "../classes/messageContextInterac
 import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
 import type { SlashCommandBuilder } from "../classes/slashCommandBuilder.js";
+import type { UserContextInteraction } from "../classes/userContextInteraction.js";
 
 export type BaseCommand = {
     data: {
@@ -53,6 +54,11 @@ export interface MessageContextCommand extends BaseCommand {
     execute: (interaction: MessageContextInteraction) => void;
 }
 
+export interface UserContextCommand extends BaseCommand {
+    data: ContextMenuCommandBuilder;
+    execute: (interaction: UserContextInteraction) => void;
+}
+
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
 const logger = new Logger();
 
@@ -89,6 +95,7 @@ export enum FileType {
     SelectMenus = "select-menus",
     Modals = "modals",
     MessageContext = "message-context",
+    UserContext = "user-context",
 }
 
 export async function load<T = ChatInputCommand>(type: FileType.Commands): Promise<Map<string, T>>;
@@ -96,6 +103,7 @@ export async function load<T = Button>(type: FileType.Buttons): Promise<Map<stri
 export async function load<T = SelectMenu>(type: FileType.SelectMenus): Promise<Map<string, T>>;
 export async function load<T = Modal>(type: FileType.Modals): Promise<Map<string, T>>;
 export async function load<T = MessageContextCommand>(type: FileType.MessageContext): Promise<Map<string, T>>;
+export async function load<T = UserContextCommand>(type: FileType.UserContext): Promise<Map<string, T>>;
 export async function load<T>(type: FileType): Promise<Map<string, T>> {
     logger.infoSingle(`Started loading ${type} (📝) files.`, "Files");
 
@@ -125,7 +133,9 @@ export async function load<T>(type: FileType): Promise<Map<string, T>> {
     return files;
 }
 
-function getName(interaction: ChatInputCommand | Button | SelectMenu | Modal | MessageContextCommand): string {
+function getName(
+    interaction: ChatInputCommand | Button | SelectMenu | Modal | MessageContextCommand | UserContextCommand,
+): string {
     if ("data" in interaction) return interaction.data.name;
     return interaction.custom_id;
 }

@@ -60,6 +60,15 @@ export class BaseInteraction {
         return this.interaction.guild_id;
     }
 
+    get guild_id_bigint() {
+        if (this.interaction.guild_id) {
+            return BigInt(this.interaction.guild_id);
+        }
+
+        // biome-ignore lint/style/noNonNullAssertion: Either user or member is present
+        return BigInt(this.interaction.guild!.id);
+    }
+
     get guilds() {
         return this.api.guilds;
     }

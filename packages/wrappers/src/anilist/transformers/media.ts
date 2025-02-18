@@ -1,6 +1,6 @@
 import { inlineCode } from "@discordjs/formatters";
 import { formatSeconds } from "core";
-import { fetchAllUsers } from "database";
+import { dbFetchGuildUsers } from "database";
 import { api } from "../index.js";
 import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
@@ -31,7 +31,7 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
         paused: [],
     };
 
-    const allUsers = await fetchAllUsers(guild_id).then((users: any) => {
+    const allUsers = await dbFetchGuildUsers(guild_id).then((users: any) => {
         return users.map((user: { anilist: any }) => user.anilist.id);
     });
 

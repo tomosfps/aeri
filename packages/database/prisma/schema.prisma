@@ -25,7 +25,7 @@ model Anilist {
   id            BigInt  @id
   username      String
   user_id       BigInt  @unique
-  token         String
+  token         String?
   user          User    @relation(fields: [user_id], references: [discord_id])
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt

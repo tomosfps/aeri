@@ -17,10 +17,12 @@ const buttons = await load(FileType.Buttons);
 const selectMenus = await load(FileType.SelectMenus);
 const modals = await load(FileType.Modals);
 const messageContextCommands = await load(FileType.MessageContext);
+const userContextCommands = await load(FileType.UserContext);
 
 const commands: CommandData[] = [
     ...chatInputCommands.values().map((c) => c.data.toJSON()),
     ...messageContextCommands.values().map((c) => c.data.toJSON()),
+    ...userContextCommands.values().map((c) => c.data.toJSON()),
 ];
 
 const gateway = new Gateway({ redis, env, commands });
@@ -32,6 +34,7 @@ const client = new HandlerClient({
     selectMenus,
     modals,
     messageContextCommands,
+    userContextCommands,
 });
 
 const oauthTokenHandler = new OauthTokenHandler(redis);

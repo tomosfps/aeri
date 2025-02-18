@@ -1,5 +1,12 @@
 import { Client, type ClientOptions } from "@discordjs/core";
-import type { Button, ChatInputCommand, MessageContextCommand, Modal, SelectMenu } from "../services/commands.js";
+import type {
+    Button,
+    ChatInputCommand,
+    MessageContextCommand,
+    Modal,
+    SelectMenu,
+    UserContextCommand,
+} from "../services/commands.js";
 
 export interface HandlerClientOptions extends ClientOptions {
     commands: Map<string, ChatInputCommand>;
@@ -7,6 +14,7 @@ export interface HandlerClientOptions extends ClientOptions {
     modals: Map<string, Modal>;
     selectMenus: Map<string, SelectMenu>;
     messageContextCommands: Map<string, MessageContextCommand>;
+    userContextCommands: Map<string, UserContextCommand>;
 }
 
 export class HandlerClient extends Client {
@@ -15,6 +23,7 @@ export class HandlerClient extends Client {
     public modals: Map<string, Modal>;
     public selectMenus: Map<string, SelectMenu>;
     public messageContextCommands: Map<string, MessageContextCommand>;
+    public userContextCommands: Map<string, UserContextCommand>;
 
     constructor(public options: HandlerClientOptions) {
         super({
@@ -27,5 +36,6 @@ export class HandlerClient extends Client {
         this.modals = options.modals;
         this.selectMenus = options.selectMenus;
         this.messageContextCommands = options.messageContextCommands;
+        this.userContextCommands = options.userContextCommands;
     }
 }

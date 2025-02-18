@@ -1,7 +1,7 @@
 import type { Guild } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export async function removeFromGuild(discord_id: bigint, guild_id: bigint): Promise<Guild> {
+export async function dbRemoveFromGuild(discord_id: bigint, guild_id: bigint): Promise<Guild> {
     const db = await prisma;
 
     const userInGuild = await db.guild.findUnique({

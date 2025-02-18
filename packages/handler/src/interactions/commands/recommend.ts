@@ -5,7 +5,7 @@ import {
     StringSelectMenuOptionBuilder,
 } from "@discordjs/builders";
 
-import { fetchAnilistUser } from "database";
+import { dbFetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
@@ -100,7 +100,7 @@ export const interaction: ChatInputCommand = {
             return await interaction.followUp({ components: [row] });
         }
 
-        const username = (await fetchAnilistUser(interaction.user_id)).username ?? null;
+        const username = (await dbFetchAnilistUser(interaction.user_id)).username ?? null;
         if (username === null) {
             return interaction.followUp({
                 content:
