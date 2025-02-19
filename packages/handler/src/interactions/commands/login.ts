@@ -1,6 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { env, getRedis } from "core";
-import { dbFetchDiscordUser } from "database";
 import { ButtonStyle } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
@@ -10,30 +9,13 @@ const redis = await getRedis();
 export const interaction: ChatInputCommand = {
     cooldown: 5,
     data: new SlashCommandBuilder()
-        .setName("oauth")
+        .setName("login")
         .setDescription("Setup OAuth with the Discord bot!")
-        .addExample("/oauth"),
+        .addExample("/login"),
     async execute(interaction): Promise<void> {
-        const isInDatabase = await dbFetchDiscordUser(interaction.user_id);
-
         if (interaction.guild_id === undefined) {
             return interaction.reply({
                 content: "This command can only be used in a server.",
-                ephemeral: true,
-            });
-        }
-
-        if (isInDatabase === null) {
-            return interaction.reply({
-                content: "Please use `/link` to link your Discord account with the bot first.",
-                ephemeral: true,
-            });
-        }
-
-        if (isInDatabase.anilist?.token !== null) {
-            return interaction.reply({
-                content:
-                    "You already have OAuth setup with the bot. If you want to unlink your account, use the `/unlink` command.",
                 ephemeral: true,
             });
         }
