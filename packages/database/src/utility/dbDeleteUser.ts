@@ -1,12 +1,14 @@
 import type { User } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export async function dbDeleteAnilistUser(discord_id: bigint): Promise<User> {
+export async function dbDeleteAnilistUser(discord_id: string): Promise<User> {
     const db = await prisma;
+
+    const discord_id_bigint = BigInt(discord_id);
 
     await db.anilist.deleteMany({
         where: {
-            user_id: discord_id,
+            user_id: discord_id_bigint,
         },
     });
 
@@ -14,17 +16,15 @@ export async function dbDeleteAnilistUser(discord_id: bigint): Promise<User> {
         where: {
             users: {
                 some: {
-                    discord_id: discord_id,
+                    discord_id: discord_id_bigint,
                 },
             },
         },
     });
 
-    const user = await db.user.delete({
+    return db.user.delete({
         where: {
-            discord_id: discord_id,
+            discord_id: discord_id_bigint,
         },
     });
-
-    return user;
 }

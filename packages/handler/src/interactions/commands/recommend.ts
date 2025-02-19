@@ -65,7 +65,9 @@ export const interaction: ChatInputCommand = {
             option.setName("score").setDescription("Base recommendation on scores").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
-        await interaction.defer();
+        if (!interaction.guild_id) {
+            return interaction.reply({ content: "This command can only be used in a server.", ephemeral: true });
+        }
 
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";
         const genre = getCommandOption("genre", ApplicationCommandOptionType.Boolean, interaction.options) || false;
@@ -73,11 +75,11 @@ export const interaction: ChatInputCommand = {
         const media_type = media === "ANIME" ? MediaType.Anime : MediaType.Manga;
 
         if (genre && score) {
-            return interaction.followUp({ content: "Please select only one option" });
+            return interaction.reply({ content: "Please select only one option", ephemeral: true });
         }
 
         if (!genre && !score) {
-            return interaction.followUp({ content: "Please select an option" });
+            return interaction.reply({ content: "Please select at least one option", ephemeral: true });
         }
 
         if (genre) {
@@ -97,19 +99,21 @@ export const interaction: ChatInputCommand = {
 
             logger.debugSingle("Select Menu Created", "Recommend");
             const row = new ActionRowBuilder().addComponents(select);
-            return await interaction.followUp({ components: [row] });
+            return await interaction.reply({ components: [row] });
         }
 
-        const username = (await dbFetchAnilistUser(interaction.user_id)).username ?? null;
-        if (username === null) {
+        await interaction.defer();
+
+        const dbUser = await dbFetchAnilistUser(interaction.user_id);
+
+        if (!dbUser) {
             return interaction.followUp({
-                content:
-                    "Could not find your Anilist account. If you haven't please link your account using the `/setup` command.",
+                content: "Could not find your Anilist account. If you haven't please link your account using the `/setup` command.",
                 ephemeral: true,
             });
         }
 
-        const { result: user, error } = await api.fetch(Routes.User, { username });
+        const { result: user, error } = await api.fetch(Routes.User, { username: dbUser.username });
 
         if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", error);
@@ -155,12 +159,11 @@ export const interaction: ChatInputCommand = {
         }
 
         const media_id = Number(recommendation.id);
-        const guild_id = BigInt(interaction.guild_id || 0);
 
         const { result: mediaResult, error: mediaError } = await api.fetch(
             Routes.Media,
             { media_type, media_id },
-            { guild_id },
+            { guild_id: interaction.guild_id },
         );
 
         if (mediaError) {

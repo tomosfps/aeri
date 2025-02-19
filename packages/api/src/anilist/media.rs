@@ -10,6 +10,7 @@ use crate::structs::media::Media;
 use crate::structs::recommendation::Recommendation;
 use crate::structs::relation::Relations;
 use actix_web::{web, post, HttpResponse, Responder};
+use futures::TryFutureExt;
 use crate::anilist::queries::{get_query, QUERY_URL};
 use crate::anilist::format::{format_media_data, format_relation_data};
 
@@ -56,7 +57,7 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
     let client:   Client    = Client::new().with_proxy().await.unwrap();
     let json:     Value     = json!({"query": get_query("relation_stats"), "variables": {"search": &media_name, "type": req.media_type.to_uppercase()}});
     let response: Response  = client.post(QUERY_URL, &json).await.unwrap();
-    
+
     if response.status().as_u16() != 200 {
         if response.status().as_u16() == 403 {
             let _ = client.remove_proxy().await;
@@ -78,13 +79,13 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     if req.media.len() == 0 {
         return HttpResponse::NotFound().json(json!({"error": "No Media Type was included"}));
     }
-    
+
     let genres:     Vec<String> = req.genres.clone().unwrap_or(vec![]);
     let mut rng:    rand::prelude::ThreadRng = rand::rng();
     let client:     Client = Client::new().with_proxy().await.unwrap();
     let json:       Value = json!({"query": get_query("recommendations"), "variables": { "page": 1, "perPage": 50 }});
     let response:   Response = client.post(QUERY_URL, &json).await.unwrap();
-    
+
     if response.status().as_u16() != 200 {
         if response.status().as_u16() == 403 {
             let _ = client.remove_proxy().await;
@@ -113,7 +114,7 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
         return HttpResponse::NotFound().json(json!({"error": "No type was included"}));
     }
 
-    match redis.get(req.media_id.to_string()) {
+    match redis.get(format!("{}:{}", req.media_type, req.media_id)) {
         Ok(data) => {
             let mut media_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
             media_data["dataFrom"] = "Cache".into();
@@ -130,15 +131,17 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
 
     let client:     Client = Client::new().with_proxy().await.unwrap();
     let json:       serde_json::Value = json!({"query": get_query("search"), "variables": {"id": req.media_id, "type": req.media_type.to_uppercase()}});
+    logger.debug(&format!("Searching for media with ID: {} and Type: {}", req.media_id, req.media_type), "Media", false, json.clone());
     let response:   Response = client.post(QUERY_URL, &json).await.unwrap();
 
     if response.status().as_u16() != 200 {
         if response.status().as_u16() == 403 {
             let _ = client.remove_proxy().await;
         }
-        return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
+
+        return Client::error_response(response).await;
     }
-    
+
     let response:       Value = response.json().await.unwrap();
     let media:          Media = match serde_json::from_value(response["data"]["Media"].clone()) {
         Ok(media) => media,
@@ -172,15 +175,15 @@ async fn get_recommendation(pages: i32, genres: Vec<String>, media: String) -> s
     let mut rng:    rand::prelude::ThreadRng = rand::rng();
     let client:     Client = Client::new().with_proxy().await.unwrap();
     let json:       Value = json!({
-        "query": get_query("recommendation"), 
+        "query": get_query("recommendation"),
         "variables": {
-            "type": media, 
-            "genres": genres, 
-            "page": pages, 
+            "type": media,
+            "genres": genres,
+            "page": pages,
             "perPage": 50
     }});
     let response: Response = client.post(QUERY_URL, &json).await.unwrap();
-    
+
     if response.status().as_u16() != 200 {
         if response.status().as_u16() == 403 {
             let _ = client.remove_proxy().await;

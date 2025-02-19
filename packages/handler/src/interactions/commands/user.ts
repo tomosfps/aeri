@@ -22,13 +22,19 @@ export const interaction: ChatInputCommand = {
         let username = getCommandOption("username", ApplicationCommandOptionType.String, interaction.options);
 
         if (username === null) {
-            logger.debug("Attemping fetching user from database", "User");
-            try {
-                username = (await dbFetchAnilistUser(interaction.user_id)).username;
-            } catch (error: any) {
-                logger.error(`Error fetching user from database: ${error}`, "User");
+            logger.debug("Attempting fetching user from database", "User");
+
+            const dbUser = await dbFetchAnilistUser(interaction.user_id);
+
+            if (!dbUser) {
                 return interaction.reply({ content: "Please setup your account with /setup!", ephemeral: true });
             }
+
+            username = dbUser.username;
+        }
+
+        if (!username) {
+            return interaction.reply({ content: "Please provide a username, or setup your account with /setup", ephemeral: true });
         }
 
         logger.debug(`Fetching user: ${username}`, "User");
@@ -36,7 +42,7 @@ export const interaction: ChatInputCommand = {
 
         logger.debugSingle(`User: ${JSON.stringify(user)}`, "User");
 
-        if (user === undefined) {
+        if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", error);
 
             return interaction.reply({

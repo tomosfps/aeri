@@ -1,8 +1,10 @@
+use actix_web::http::StatusCode;
+use actix_web::HttpResponse;
 use lazy_static::lazy_static;
 use colourful_logger::Logger;
 use reqwest::{Proxy, Response};
 use crate::cache::redis::Redis;
-use serde_json::Value;
+use serde_json::{json, Value};
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -96,5 +98,14 @@ impl Client {
         logger.debug_single(&format!("Removing proxy: {}", self.current_proxy), "Proxy");
         let _: () = self.redis.srem("proxies", &self.current_proxy).await?;
         Ok(())
+    }
+
+    pub async fn error_response(response: Response) -> HttpResponse {
+        let code = response.status().as_u16();
+        let error = response.text().await.unwrap();
+
+        HttpResponse::build(StatusCode::from_u16(code).unwrap())
+            .append_header(("Content-Type", "application/json"))
+            .body(json!({"error": error, "errorCode": code}).to_string())
     }
 }

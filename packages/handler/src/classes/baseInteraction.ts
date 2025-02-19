@@ -39,34 +39,15 @@ export class BaseInteraction {
     }
 
     get user_id() {
-        if (this.interaction.member) {
-            return BigInt(this.interaction.member.user.id);
-        }
-
-        // biome-ignore lint/style/noNonNullAssertion: Either user or member is present
-        return BigInt(this.interaction.user!.id);
+        return this.user.id;
     }
 
     get user_name() {
-        if (this.interaction.member) {
-            return this.interaction.member.user.username;
-        }
-
-        // biome-ignore lint/style/noNonNullAssertion: Either user or member is present
-        return this.interaction.user!.username;
+        return this.user.username;
     }
 
     get guild_id() {
         return this.interaction.guild_id;
-    }
-
-    get guild_id_bigint() {
-        if (this.interaction.guild_id) {
-            return BigInt(this.interaction.guild_id);
-        }
-
-        // biome-ignore lint/style/noNonNullAssertion: Either user or member is present
-        return BigInt(this.interaction.guild!.id);
     }
 
     get guilds() {
@@ -112,6 +93,34 @@ export class BaseInteraction {
         const flags: number = options.ephemeral ? MessageFlags.Ephemeral : 0;
 
         await this.api.interactions.updateMessage(this.id, this.token, {
+            content: options.content,
+            embeds: options.embeds?.map((embed) => {
+                if (embed instanceof EmbedBuilder) {
+                    return embed.toJSON();
+                }
+                return embed;
+            }),
+            components: options.components?.map((component) => {
+                if (component instanceof ActionRowBuilder) {
+                    return component.toJSON();
+                }
+                return component;
+            }),
+            flags,
+        });
+    }
+
+    public async editReply(
+        options: {
+            content?: string;
+            embeds?: EmbedBuilder[] | APIEmbed[];
+            components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
+            ephemeral?: boolean;
+        } = {},
+    ) {
+        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : 0;
+
+        await this.api.interactions.editReply(env.DISCORD_APPLICATION_ID, this.token, {
             content: options.content,
             embeds: options.embeds?.map((embed) => {
                 if (embed instanceof EmbedBuilder) {

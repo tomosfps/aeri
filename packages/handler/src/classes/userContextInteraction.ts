@@ -26,11 +26,11 @@ export class UserContextInteraction extends BaseInteraction {
         return this.interaction.data.name;
     }
 
-    get target() {
+    get target_id() {
         return this.interaction.data.target_id;
     }
 
-    get target_user() {
-        return this.interaction.data.resolved.users[this.target] as APIUser;
+    get target() {
+        return this.data.resolved.users[this.target_id] as APIUser;
     }
 }

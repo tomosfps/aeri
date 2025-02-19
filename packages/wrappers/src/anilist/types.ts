@@ -172,7 +172,7 @@ type Media = {
         description: string;
     };
     transformer_args: {
-        guild_id: bigint;
+        guild_id: string;
     };
 };
 
@@ -181,7 +181,7 @@ type User = {
         username: string;
     };
     response: BaseResponse & {
-        id: bigint;
+        id: number;
         name: string;
         avatar: string | null;
         banner: string | null;

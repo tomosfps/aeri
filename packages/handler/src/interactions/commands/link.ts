@@ -39,7 +39,7 @@ export const interaction: ChatInputCommand = {
                 });
             }
 
-            await dbCreateAnilistUser(interaction.user_id, user.id, user.name, interaction.guild_id_bigint);
+            await dbCreateAnilistUser(interaction.user_id, user.id, user.name, interaction.guild_id);
             return interaction.reply({
                 content: `Successfully linked ${user.name} to your discord account.`,
                 ephemeral: true,

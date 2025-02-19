@@ -14,7 +14,7 @@ const logger = new Logger();
 export const interaction: MessageContextCommand = {
     data: new ContextMenuCommandBuilder().setName("anime").setType(ApplicationCommandType.Message),
     async execute(interaction) {
-        const anime = interaction.message.content;
+        const anime = interaction.target.content;
 
         logger.debug("Fetching data from the API", "Anilist", { anime });
         const { result, error } = await api.fetch(Routes.Relations, {

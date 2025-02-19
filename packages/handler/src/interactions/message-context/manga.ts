@@ -14,7 +14,7 @@ const logger = new Logger();
 export const interaction: MessageContextCommand = {
     data: new ContextMenuCommandBuilder().setName("manga").setType(ApplicationCommandType.Message),
     async execute(interaction) {
-        const manga = interaction.message.content;
+        const manga = interaction.target.content;
 
         logger.debug("Fetching data from the API", "Anilist", { manga });
         const { result, error } = await api.fetch(Routes.Relations, {

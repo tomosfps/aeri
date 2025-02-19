@@ -1,10 +1,10 @@
 import type { API, APIMessageComponentSelectMenuInteraction } from "@discordjs/core";
-import { BaseInteraction } from "./baseInteraction.js";
+import { MessageComponentInteraction } from "./messageComponentInteraction.js";
 import type { HandlerClient } from "./handlerClient.js";
 
 export type SelectMenuHandler = (interaction: SelectMenuInteraction, api: API, client: HandlerClient) => Promise<void>;
 
-export class SelectMenuInteraction extends BaseInteraction {
+export class SelectMenuInteraction extends MessageComponentInteraction {
     constructor(
         public override interaction: APIMessageComponentSelectMenuInteraction,
         api: API,
@@ -15,18 +15,6 @@ export class SelectMenuInteraction extends BaseInteraction {
 
     get data() {
         return this.interaction.data;
-    }
-
-    get channel() {
-        return this.interaction.channel;
-    }
-
-    get message() {
-        return this.interaction.message;
-    }
-
-    get custom_id() {
-        return this.interaction.data.custom_id;
     }
 
     get menuValues() {

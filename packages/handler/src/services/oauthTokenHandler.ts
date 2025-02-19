@@ -116,7 +116,7 @@ export class OauthTokenHandler {
             return await this.finishInteraction(userId, false);
         }
 
-        await dbCreateAnilistUser(BigInt(userId), BigInt(currentUser.id), currentUser.name, BigInt(guildId), token);
+        await dbCreateAnilistUser(userId, currentUser.id, currentUser.name, guildId, token);
 
         return await this.finishInteraction(userId, true);
     }

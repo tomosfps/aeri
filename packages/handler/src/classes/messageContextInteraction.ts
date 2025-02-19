@@ -26,11 +26,11 @@ export class MessageContextInteraction extends BaseInteraction {
         return this.interaction.data.name;
     }
 
-    get message_id() {
+    get target_id() {
         return this.interaction.data.target_id;
     }
 
-    get message() {
-        return this.interaction.data.resolved.messages[this.message_id] as APIMessage;
+    get target() {
+        return this.interaction.data.resolved.messages[this.target_id] as APIMessage;
     }
 }

@@ -15,22 +15,30 @@ export const interaction: ChatInputCommand = {
         .addExample("/affinity")
         .addExample("Must have a user account linked to Anilist"),
     async execute(interaction): Promise<void> {
-        const guild_id = interaction.guild_id_bigint;
-        let username = "";
-
-        try {
-            username = (await dbFetchAnilistUser(interaction.user_id)).username;
-        } catch (error: any) {
-            logger.error(`Error fetching user from database: ${error}`, "User");
-            return interaction.reply({ content: "Please setup your account with /setup!", ephemeral: true });
+        if (!interaction.guild_id) {
+            return interaction.reply({
+                content: "This command can only be used in a server.",
+                ephemeral: true,
+            });
         }
 
-        const guildMembers = await dbFetchGuildUsers(guild_id).then((users: any) => {
-            return users.map((user: { anilist: any }) => user.anilist.username);
-        });
+        logger.debug("Fetching user data", "User", { user: interaction.user_id });
+        const user = await dbFetchAnilistUser(interaction.user_id);
 
-        if (guildMembers.includes(username)) {
-            guildMembers.splice(guildMembers.indexOf(username), 1);
+        if (!user) {
+            return interaction.reply({
+                content: "This user hasn't set up their anilist account yet!",
+                ephemeral: true,
+            });
+        }
+
+        const guildMembers = (await dbFetchGuildUsers(interaction.guild_id))
+            .filter((user) => user.anilist !== null)
+            // biome-ignore lint/style/noNonNullAssertion: filtered above
+            .map((user) => user.anilist!.username);
+
+        if (guildMembers.includes(user.username)) {
+            guildMembers.splice(guildMembers.indexOf(user.username), 1);
         }
 
         if (guildMembers.length === 0) {
@@ -40,13 +48,13 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        logger.debug(`Fetching affinity for ${username} against ${guildMembers.length} users`, "Anilist", {
-            username,
+        logger.debug(`Fetching affinity for ${user.username} against ${guildMembers.length} users`, "Anilist", {
+            username: user.username,
             guildMembers,
         });
 
         const { result: affinity, error } = await api.fetch(Routes.Affinity, {
-            username: username,
+            username: user.username,
             other_users: guildMembers,
         });
 

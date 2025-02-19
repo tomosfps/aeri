@@ -10,35 +10,30 @@ const logger = new Logger();
 export const interaction: UserContextCommand = {
     data: new ContextMenuCommandBuilder().setName("affinity").setType(ApplicationCommandType.User),
     async execute(interaction) {
-        const user = interaction.target_user;
-        logger.debug("Fetching user data", "User", { user });
+        if (!interaction.guild_id) {
+            return interaction.reply({
+                content: "This command can only be used in a server.",
+                ephemeral: true,
+            });
+        }
 
-        const guild_id = interaction.guild_id_bigint;
-        let username = "";
+        logger.debug("Fetching user data", "User", { user: interaction.target_id });
+        const user = await dbFetchAnilistUser(interaction.target.id);
 
         if (!user) {
             return interaction.reply({
-                content: "This user is not in the server.",
+                content: "This user hasn't set up their anilist account yet!",
                 ephemeral: true,
             });
         }
 
-        try {
-            username = (await dbFetchAnilistUser(BigInt(user.id))).username;
-        } catch (error: any) {
-            logger.error(`Error fetching user from database: ${error}`, "User");
-            return interaction.followUp({
-                content: `${user.username} hasn't set up their anilist account yet!`,
-                ephemeral: true,
-            });
-        }
+        const guildMembers = (await dbFetchGuildUsers(interaction.guild_id))
+            .filter((user) => user.anilist !== null)
+            // biome-ignore lint/style/noNonNullAssertion: filtered above
+            .map((user) => user.anilist!.username);
 
-        const guildMembers = await dbFetchGuildUsers(guild_id).then((users: any) => {
-            return users.map((user: { anilist: any }) => user.anilist.username);
-        });
-
-        if (guildMembers.includes(username)) {
-            guildMembers.splice(guildMembers.indexOf(username), 1);
+        if (guildMembers.includes(user.username)) {
+            guildMembers.splice(guildMembers.indexOf(user.username), 1);
         }
 
         if (guildMembers.length === 0) {
@@ -48,13 +43,13 @@ export const interaction: UserContextCommand = {
             });
         }
 
-        logger.debug(`Fetching affinity for ${username} against ${guildMembers.length} users`, "Anilist", {
-            username,
+        logger.debug(`Fetching affinity for ${user.username} against ${guildMembers.length} users`, "Anilist", {
+            username: user.username,
             guildMembers,
         });
 
         const { result: affinity, error } = await api.fetch(Routes.Affinity, {
-            username: username,
+            username: user.username,
             other_users: guildMembers,
         });
 

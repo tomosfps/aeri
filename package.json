@@ -9,7 +9,7 @@
         "all": "pnpm check && pnpm install && pnpm build && docker compose up --build",
         "gateway": "pnpm --filter gateway build && dotenv -- pnpm --filter gateway start",
         "handler": "pnpm --filter handler build && pnpm --filter wrappers build && dotenv -- pnpm --filter handler start ",
-        "database-setup": "pnpm --filter database build && dotenv -- pnpm --filter database generate && dotenv -- pnpm --filter database push",
+        "database-setup": "dotenv -- pnpm --filter database generate && pnpm --filter database build && dotenv -- pnpm --filter database generate && dotenv -- pnpm --filter database push",
         "api": "dotenv -- cargo run --manifest-path ./packages/api/Cargo.toml",
         "website": "pnpm --filter website build && dotenv -- pnpm --filter website dev"
     },

@@ -84,7 +84,9 @@ export async function handleExpiration(redisKey: string): Promise<void> {
             });
             logger.debugSingle(`Removed component from message: ${redisKey}`, "Redis");
         } catch (error: any) {
-            logger.error(`Error while removing component: ${redisKey}`, "Redis", error);
+            if (error.rawError.code !== 50006) {
+                logger.error(`Error while removing component: ${redisKey}`, "Redis", error);
+            }
         }
     } else {
         logger.warnSingle(`Message not found for component: ${redisKey}`, "Redis");

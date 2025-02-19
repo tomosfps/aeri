@@ -1,13 +1,12 @@
 import type { Guild } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export async function dbCreateGuild(guild_id: bigint): Promise<Guild> {
+export async function dbCreateGuild(guild_id: string): Promise<Guild> {
     const db = await prisma;
-    const guild = await db.guild.create({
+
+    return db.guild.create({
         data: {
-            id: guild_id,
+            id: BigInt(guild_id),
         },
     });
-
-    return guild;
 }

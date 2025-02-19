@@ -24,9 +24,13 @@ export const interaction: SelectMenu<SelectMenuData> = {
     async execute(interaction, data): Promise<void> {
         const media_type = data.custom_id === "anime" ? MediaType.Anime : MediaType.Manga;
         const media_id = Number(interaction.menuValues[0]);
-        const guild_id = BigInt(interaction.guild_id || 0);
 
-        const { result: media, error } = await api.fetch(Routes.Media, { media_type, media_id }, { guild_id });
+        if (!interaction.guild_id) {
+            return interaction.reply({ content: "This command can only be used in a server", ephemeral: true });
+        }
+
+        logger.debug("Fetching media data", "Anilist", { media_type, media_id });
+        const { result: media, error } = await api.fetch(Routes.Media, { media_type, media_id }, { guild_id: interaction.guild_id });
 
         if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", error);

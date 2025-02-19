@@ -24,7 +24,12 @@ export const interaction: SelectMenu<SelectMenuData> = {
     async execute(interaction, data): Promise<void> {
         const media_type = data.custom_id === "ANIME" ? MediaType.Anime : MediaType.Manga;
         const genres = interaction.menuValues;
-        const guild_id = BigInt(interaction.guild_id || 0);
+
+        if (!interaction.guild_id) {
+            return interaction.followUp({ content: "This command can only be used in a server." });
+        }
+
+        await interaction.deferUpdate();
 
         const { result: recommendation, error: recommendationsError } = await api.fetch(Routes.Recommend, {
             media: media_type,
@@ -48,13 +53,13 @@ export const interaction: SelectMenu<SelectMenuData> = {
         const { result: media, error: mediaError } = await api.fetch(
             Routes.Media,
             { media_type, media_id },
-            { guild_id },
+            { guild_id: interaction.guild_id },
         );
 
         if (mediaError) {
             logger.error("Error while fetching data from the API.", "Anilist", mediaError);
 
-            return interaction.reply({
+            return interaction.editReply({
                 content: "An error occurred while fetching data from the API.",
                 ephemeral: true,
             });
@@ -74,6 +79,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
                 text: `${media.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${formatSeconds(media.leftUntilExpire)}`}`,
             })
             .setColor(0x2f3136);
-        await interaction.edit({ embeds: [embed] });
+
+        await interaction.editReply({ embeds: [embed] });
     },
 };

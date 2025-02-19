@@ -1,18 +1,16 @@
-import type { User } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export async function dbFetchGuildUsers(guild_id: bigint): Promise<User[]> {
+export async function dbFetchGuildUsers(guild_id: string) {
     const db = await prisma;
-    const users = await db.user.findMany({
+
+    return db.user.findMany({
         where: {
             guilds: {
                 some: {
-                    id: guild_id,
+                    id: BigInt(guild_id),
                 },
             },
         },
         include: { anilist: true },
     });
-
-    return users;
 }

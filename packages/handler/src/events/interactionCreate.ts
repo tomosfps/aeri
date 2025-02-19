@@ -5,6 +5,7 @@ import type { HandlerClient } from "../classes/handlerClient.js";
 import { MessageContextInteraction } from "../classes/messageContextInteraction.js";
 import { ModalInteraction } from "../classes/modalInteraction.js";
 import { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
+import { UserContextInteraction } from "../classes/userContextInteraction.js";
 import { event } from "../services/events.js";
 import { InteractType, determineInteractionType } from "../utility/interactionUtils.js";
 import {
@@ -38,6 +39,8 @@ const interactionTransformer = (interaction: any, api: API, client: HandlerClien
             return new ModalInteraction(interaction, api, client);
         case InteractType.MessageContext:
             return new MessageContextInteraction(interaction, api, client);
+        case InteractType.UserContext:
+            return new UserContextInteraction(interaction, api, client);
         case InteractType.Button:
             return new ChatInputInteraction(interaction, api, client);
         default:

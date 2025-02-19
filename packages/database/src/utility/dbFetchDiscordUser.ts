@@ -6,14 +6,13 @@ export interface UserWithRelations extends User {
     guilds: Guild[];
 }
 
-export async function dbFetchDiscordUser(id: bigint): Promise<UserWithRelations | null> {
+export async function dbFetchDiscordUser(id: string): Promise<UserWithRelations | null> {
     const db = await prisma;
-    const user = (await db.user.findUnique({
+
+    return db.user.findUnique({
         where: {
-            discord_id: id,
+            discord_id: BigInt(id),
         },
         include: { guilds: true, anilist: true },
-    })) as UserWithRelations | null;
-
-    return user;
+    });
 }
