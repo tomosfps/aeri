@@ -29,6 +29,8 @@
         --chart-4: 43 74% 66%;
         --chart-5: 27 87% 67%;
         --radius: 0.5rem;
+        --font-geistmono: 'GeistMono', Liberation Mono, Menlo, Monaco, Lucida Console, monospace;
+        --font-geistsans: 'GeistSans', fallback;
     }
     .dark {
         --background: 240 10% 3.9%;
@@ -72,14 +74,15 @@
 }
 
 body {
-    font-family: var(--font-inter), sans-serif;
+    font-family: var(--font-geistsans), sans-serif;
 }
 
+p,
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-    font-family: var(--font-inter), sans-serif;
+    font-family: var(--font-geistmono), sans-serif;
 }

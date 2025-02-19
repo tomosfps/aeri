@@ -1,19 +1,24 @@
-import { NavLink } from "react-router-dom";
+import { NavLink as Link } from "react-router-dom";
 
 function App() {
     return (
-        <>
-            <main className="min-h-screen min-w-screen pt-4 text transition-all duration-300 ease-in-out lg:mx-56 xl:mx-40">
-                <div className="flex flex-col h-full items-center lg:items-start space-y-4 mx-4 pt-56">
-                    <h1 className="font-bold text-8xl lg:text-8xl bg-gradient-to-r from-whitePrimary via-whiteAccent to-whiteSecondary bg-clip-text text-transparent dark:from-darkPrimary dark:via-darkAccent dark:to-darkSecondary transition-all duration-300 ease-in-out hover:text-whitePrimary dark:hover:text-darkPrimary">Aeri</h1>
-                    <p>The only Anime/Manga bot you'll need.</p>
-                    <div className="flex flex-row space-x-4 pb-56">
-                        <NavLink to="https://discord.com/oauth2/authorize?client_id=795916241193140244" className="px-4 py-4 bg-whitePrimary hover:bg-whiteAccent rounded-lg text-whiteBackground dark:text-darkText dark:bg-darkSecondary dark:hover:bg-darkAccent transition-all duration-300">Add To Discord</NavLink>
-                        <NavLink to="commands" className="px-4 py-4 bg-transparent border-2 border-whitePrimary hover:bg-whitePrimary hover:text-whiteBackground rounded-lg text-whiteText dark:text-darkText dark:border-darkPrimary dark:hover:bg-darkPrimary transition-all duration-300">See Commands</NavLink>
-                    </div>
+        <main className="h-dvh w-dvw">
+
+            {/* Hero */}
+            <div className="h-max flex flex-col items-center bg-pink-50 mx-4 rounded-3xl p-4 space-y-8">
+                <h1 className="text-4xl text-center font-bold mx-4 pt-12">The Only Anime Bot You Need</h1>
+                <p className="text-center text-base mx-4">With a wide range of features, Aeri is the only bot you need for your server.</p>
+                <img src="https://placehold.co/400x500" alt="Image Of Commands" className="rounded-2xl" />
+
+                {/* Hero Buttons */}
+                <div className="flex flex-row space-x-8">
+                    <Link to="/" className="bg-blue-500 px-4 py-2 rounded-lg">Invite Aeri</Link>
+                    <Link to="/" className="bg-blue-500 px-4 py-2 rounded-lg">Commands</Link>
                 </div>
-            </main>
-        </>
+
+            </div>
+            
+        </main>
     );
 }
 
