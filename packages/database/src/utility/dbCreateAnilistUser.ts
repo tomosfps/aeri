@@ -1,4 +1,3 @@
-import type { User } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
 export async function dbCreateAnilistUser(
@@ -7,7 +6,7 @@ export async function dbCreateAnilistUser(
     anilist_username: string,
     guild_id: string,
     anilist_token?: string | null,
-): Promise<User> {
+) {
     const db = await prisma;
 
     const discord_id_bigint = BigInt(discord_id);

@@ -1,7 +1,6 @@
-import type { User } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export async function dbFetchGuildUser(guild_id: string, discord_id: string): Promise<User | null> {
+export async function dbFetchGuildUser(guild_id: string, discord_id: string) {
     const db = await prisma;
 
     return db.guild.findUnique({
@@ -12,5 +11,5 @@ export async function dbFetchGuildUser(guild_id: string, discord_id: string): Pr
                 select: { discord_id: true },
             },
         },
-    }) as Promise<User | null>;
+    });
 }

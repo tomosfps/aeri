@@ -1,7 +1,6 @@
-import type { User } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export async function dbDeleteAnilistUser(discord_id: string): Promise<User> {
+export async function dbDeleteAnilistUser(discord_id: string) {
     const db = await prisma;
 
     const discord_id_bigint = BigInt(discord_id);

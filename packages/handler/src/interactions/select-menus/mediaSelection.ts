@@ -30,7 +30,11 @@ export const interaction: SelectMenu<SelectMenuData> = {
         }
 
         logger.debug("Fetching media data", "Anilist", { media_type, media_id });
-        const { result: media, error } = await api.fetch(Routes.Media, { media_type, media_id }, { guild_id: interaction.guild_id });
+        const { result: media, error } = await api.fetch(
+            Routes.Media,
+            { media_type, media_id },
+            { guild_id: interaction.guild_id },
+        );
 
         if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", error);

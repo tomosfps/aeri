@@ -108,7 +108,8 @@ export const interaction: ChatInputCommand = {
 
         if (!dbUser) {
             return interaction.followUp({
-                content: "Could not find your Anilist account. If you haven't please link your account using the `/setup` command.",
+                content:
+                    "Could not find your Anilist account. If you haven't please link your account using the `/setup` command.",
                 ephemeral: true,
             });
         }

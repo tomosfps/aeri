@@ -4,7 +4,11 @@ import { Logger } from "logger";
 
 const logger = new Logger();
 
-export async function onGuild(hasLeft: boolean, user: APIUser, member: GatewayGuildMemberRemoveDispatchData): Promise<void> {
+export async function onGuild(
+    hasLeft: boolean,
+    user: APIUser,
+    member: GatewayGuildMemberRemoveDispatchData,
+): Promise<void> {
     const inDatabase = await dbFetchDiscordUser(user.id);
 
     if (inDatabase) {
@@ -16,7 +20,7 @@ export async function onGuild(hasLeft: boolean, user: APIUser, member: GatewayGu
             return;
         }
 
-        const checkGuild = guildData.discord_id.toString() === user.id;
+        const checkGuild = guildData.users[0]?.discord_id.toString() === user.id;
         if (checkGuild) {
             logger.debugSingle(`Member ${user.username} is within the guild database`, "Handler");
             hasLeft ? await dbRemoveFromGuild(user.id, member.guild_id) : await dbUpdateGuild(member.guild_id, user.id);

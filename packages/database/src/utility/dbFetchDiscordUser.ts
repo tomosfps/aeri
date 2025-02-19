@@ -1,12 +1,6 @@
-import type { Anilist, Guild, User } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export interface UserWithRelations extends User {
-    anilist: Anilist | null;
-    guilds: Guild[];
-}
-
-export async function dbFetchDiscordUser(id: string): Promise<UserWithRelations | null> {
+export async function dbFetchDiscordUser(id: string) {
     const db = await prisma;
 
     return db.user.findUnique({

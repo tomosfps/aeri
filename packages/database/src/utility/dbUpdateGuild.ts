@@ -1,7 +1,6 @@
-import type { Guild } from "../../prisma/gen/client/index.js";
 import prisma from "../index.js";
 
-export async function dbUpdateGuild(guild_id: string, discord_id: string): Promise<Guild> {
+export async function dbUpdateGuild(guild_id: string, discord_id: string) {
     const db = await prisma;
 
     const guild_id_bigint = BigInt(guild_id);

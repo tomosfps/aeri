@@ -1,6 +1,6 @@
 import type { API, APIMessageComponentButtonInteraction } from "@discordjs/core";
-import { MessageComponentInteraction } from "./messageComponentInteraction.js";
 import type { HandlerClient } from "./handlerClient.js";
+import { MessageComponentInteraction } from "./messageComponentInteraction.js";
 
 export type ButtonHandler = (interaction: ButtonInteraction, api: API, client: HandlerClient) => Promise<void>;
 

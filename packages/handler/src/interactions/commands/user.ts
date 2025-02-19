@@ -34,7 +34,10 @@ export const interaction: ChatInputCommand = {
         }
 
         if (!username) {
-            return interaction.reply({ content: "Please provide a username, or setup your account with /setup", ephemeral: true });
+            return interaction.reply({
+                content: "Please provide a username, or setup your account with /setup",
+                ephemeral: true,
+            });
         }
 
         logger.debug(`Fetching user: ${username}`, "User");
