@@ -7,7 +7,7 @@ import type { ChatInputCommand } from "../../services/commands.js";
 const logger = new Logger();
 
 export const interaction: ChatInputCommand = {
-    cooldown: 300,
+    cooldown: 1800,
     data: new SlashCommandBuilder()
         .setName("refresh")
         .setDescription("Refresh your scores in the cache")

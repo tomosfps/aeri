@@ -30,6 +30,11 @@ impl Client {
         }
     }
 
+    pub async fn set_proxy(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        self.current_proxy = self.fetch_proxy().await?;
+        Ok(())
+    }
+
     pub async fn with_proxy(&self) -> Result<Self, Box<dyn std::error::Error>> {
         let redis = Redis::new();
         let proxy_url = self.fetch_proxy().await?;
@@ -43,13 +48,19 @@ impl Client {
         })
     }
 
-    pub async fn post(&self, url: &str, json: &Value) -> Result<Response, Box<dyn std::error::Error>> {
+    pub async fn post(&mut self, url: &str, json: &Value) -> Result<Response, Box<dyn std::error::Error>> {
         if self.using_proxy {
             let response = self.client.post(url)
                 .header("Content-Type", "application/json")
                 .json(json)
                 .send()
                 .await?;
+
+            if response.status().as_u16() == 403 {
+                let _ = self.remove_proxy().await;
+                let _ = self.set_proxy().await;
+                return Box::pin(async move { self.post(url, json).await }).await;
+            }
             return Ok(response);
         }
 
@@ -58,10 +69,11 @@ impl Client {
             .json(json)
             .send()
             .await?;
+
         Ok(response)
     }
 
-    pub async fn post_with_auth(&self, url: &str, json: &Value, auth: &str) -> Result<Response, Box<dyn std::error::Error>> {
+    pub async fn post_with_auth(&mut self, url: &str, json: &Value, auth: &str) -> Result<Response, Box<dyn std::error::Error>> {
         if self.using_proxy {
             let response = self.client.post(url)
                 .header("Content-Type", "application/json")
@@ -69,6 +81,12 @@ impl Client {
                 .json(json)
                 .send()
                 .await?;
+
+            if response.status().as_u16() == 403 {
+                let _ = self.remove_proxy().await;
+                let _ = self.set_proxy().await;
+                return Box::pin(async move { self.post(url, json).await }).await;
+            }
             return Ok(response);
         }
 
@@ -78,6 +96,7 @@ impl Client {
             .json(json)
             .send()
             .await?;
+
         Ok(response)
     }
 

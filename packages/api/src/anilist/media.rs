@@ -10,8 +10,8 @@ use crate::structs::media::Media;
 use crate::structs::recommendation::Recommendation;
 use crate::structs::relation::Relations;
 use actix_web::{web, post, HttpResponse, Responder};
-use futures::TryFutureExt;
 use crate::anilist::queries::{get_query, QUERY_URL};
+use crate::global::get_recommend::get_recommendation;
 use crate::anilist::format::{format_media_data, format_relation_data};
 
 lazy_static! {
@@ -44,33 +44,29 @@ pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder
     }
 
     let media_name = req.media_name.clone().to_lowercase();
-    match redis.get(media_name.to_string()) {
+    let redis_key = format!("{}:{}", req.media_type, media_name);
+    match redis.get(&redis_key) {
         Ok(data) => {
             let media_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-            return HttpResponse::Ok().json(json!({"relations": media_data, "dataFrom": "Cache", "leftUntilExpire": redis.ttl(&media_name).unwrap()}));
+            return HttpResponse::Ok().json(json!({"relations": media_data, "dataFrom": "Cache", "leftUntilExpire": redis.ttl(&redis_key).unwrap()}));
         },
         Err(_) => {
             logger.debug_single("No data found in cache, fetching from Anilist", "Relations");
         }
     }
 
-    let client:   Client    = Client::new().with_proxy().await.unwrap();
-    let json:     Value     = json!({"query": get_query("relation_stats"), "variables": {"search": &media_name, "type": req.media_type.to_uppercase()}});
-    let response: Response  = client.post(QUERY_URL, &json).await.unwrap();
+    let mut client:   Client    = Client::new().with_proxy().await.unwrap();
+    let json:         Value     = json!({"query": get_query("relation_stats"), "variables": {"search": &media_name, "type": req.media_type.to_uppercase()}});
+    let response:     Response  = client.post(QUERY_URL, &json).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        if response.status().as_u16() == 403 {
-            let _ = client.remove_proxy().await;
-        }
-        return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let response:       Value       = response.json().await.unwrap();
     let relations:      Relations   = serde_json::from_value(response["data"]["Page"].clone()).unwrap();
     let relations:      Value       = format_relation_data(media_name.clone(), relations).await;
 
-    logger.debug_single(&format!("Relations for {} found, caching", media_name), "Relations");
-    let _ = redis.setexp(media_name, relations.clone().to_string(), 86400).await;
+    logger.debug_single(&format!("Relations for {} found, caching", redis_key), "Relations");
+    let _ = redis.setexp(redis_key, relations.clone().to_string(), 86400).await;
     HttpResponse::Ok().json(json!({"relations": relations, "dataFrom": "API"}))
 }
 
@@ -82,16 +78,11 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
 
     let genres:     Vec<String> = req.genres.clone().unwrap_or(vec![]);
     let mut rng:    rand::prelude::ThreadRng = rand::rng();
-    let client:     Client = Client::new().with_proxy().await.unwrap();
+    let mut client:     Client = Client::new().with_proxy().await.unwrap();
     let json:       Value = json!({"query": get_query("recommendations"), "variables": { "page": 1, "perPage": 50 }});
     let response:   Response = client.post(QUERY_URL, &json).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        if response.status().as_u16() == 403 {
-            let _ = client.remove_proxy().await;
-        }
-        return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let response:       Value              = response.json().await.unwrap();
     let recommendation: Recommendation     = serde_json::from_value(response["data"]["Page"].clone()).unwrap();
@@ -129,18 +120,12 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
         }
     }
 
-    let client:     Client = Client::new().with_proxy().await.unwrap();
+    let mut client:     Client = Client::new().with_proxy().await.unwrap();
     let json:       serde_json::Value = json!({"query": get_query("search"), "variables": {"id": req.media_id, "type": req.media_type.to_uppercase()}});
     logger.debug(&format!("Searching for media with ID: {} and Type: {}", req.media_id, req.media_type), "Media", false, json.clone());
     let response:   Response = client.post(QUERY_URL, &json).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        if response.status().as_u16() == 403 {
-            let _ = client.remove_proxy().await;
-        }
-
-        return Client::error_response(response).await;
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let response:       Value = response.json().await.unwrap();
     let media:          Media = match serde_json::from_value(response["data"]["Media"].clone()) {
@@ -169,40 +154,4 @@ pub async fn media_search(req: web::Json<MediaRequest>) -> impl Responder {
         logger.error_single("Failed to get airing nodes", "Media");
     }
     HttpResponse::Ok().json(media)
-}
-
-async fn get_recommendation(pages: i32, genres: Vec<String>, media: String) -> serde_json::Value {
-    let mut rng:    rand::prelude::ThreadRng = rand::rng();
-    let client:     Client = Client::new().with_proxy().await.unwrap();
-    let json:       Value = json!({
-        "query": get_query("recommendation"),
-        "variables": {
-            "type": media,
-            "genres": genres,
-            "page": pages,
-            "perPage": 50
-    }});
-    let response: Response = client.post(QUERY_URL, &json).await.unwrap();
-
-    if response.status().as_u16() != 200 {
-        if response.status().as_u16() == 403 {
-            let _ = client.remove_proxy().await;
-        }
-        return json!({"error": "Request returned an error", "errorCode": response.status().as_u16()});
-    }
-
-    let response:       Value              = response.json().await.unwrap();
-    let recommendation: Recommendation     = serde_json::from_value(response["data"]["Page"].clone()).unwrap();
-
-    let mut ids: Vec<i32> = Vec::new();
-    for media in recommendation.media.iter() {
-        ids.push(media.id);
-    }
-
-    if ids.len() == 0 {
-        return json!({"error": "No recommendations found"});
-    }
-
-    let random_choice = rng.random_range(0..ids.len());
-    json!(ids[random_choice])
 }

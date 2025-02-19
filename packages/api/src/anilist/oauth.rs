@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use crate::cache::redis::Redis;
 use crate::client::client::Client;
+use reqwest::Response;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
     static ref redis: Redis = Redis::new();
-    static ref client: Client = Client::new();
 }
 
 #[derive(Deserialize)]
@@ -47,15 +47,10 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>) -> impl Responder {
         "code": params.code,
     });
 
-    let response = client.post("https://anilist.co/api/v2/oauth/token", &json).await.unwrap();
+    let mut client:   Client    = Client::new().with_proxy().await.unwrap();
+    let response:     Response  = client.post("https://anilist.co/api/v2/oauth/token", &json).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        return HttpResponse::BadRequest().json(json!({
-            "error": "Request returned an error",
-            "errorCode": response.status().as_u16(),
-            "errorMessage": response.text().await.unwrap()
-        }));
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let params: Vec<&str> = params.state.split("_").collect();
 

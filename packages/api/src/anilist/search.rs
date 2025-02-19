@@ -65,16 +65,11 @@ pub async fn character_search(req: web::Json<CharacterRequest>) -> impl Responde
         }
     }
 
-    let client = Client::new().with_proxy().await.unwrap();
+    let mut client = Client::new().with_proxy().await.unwrap();
     let json = json!({ "query": get_query("character"), "variables": { "search": req.character_name }});
     let response = client.post(QUERY_URL, &json).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        if response.status().as_u16() == 403 {
-            let _ = client.remove_proxy().await;
-        }
-        return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let response:       Value      = response.json().await.unwrap();
     let character:      Character  = match serde_json::from_value(response["data"]["Character"].clone()) {
@@ -110,16 +105,11 @@ pub async fn studio_search(req: web::Json<StudioRequest>) -> impl Responder {
         }
     }
 
-    let client = Client::new().with_proxy().await.unwrap();
+    let mut client = Client::new().with_proxy().await.unwrap();
     let json = json!({ "query": get_query("studio"), "variables": { "search": req.studio_name }});
     let response = client.post(QUERY_URL, &json).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        if response.status().as_u16() == 403 {
-            let _ = client.remove_proxy().await;
-        }
-        return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let response:       Value       = response.json().await.unwrap();
     let studio:         Studio      = match serde_json::from_value(response["data"]["Studio"].clone()) {
@@ -163,15 +153,10 @@ pub async fn staff_search(req: web::Json<StaffRequest>) -> impl Responder {
         json = json!({"query": get_query("staff"),"variables": { "search": req.staff_name, "mediaType": req.media_type.clone().unwrap()}});
     }
 
-    let client = Client::new().with_proxy().await.unwrap();
+    let mut client = Client::new().with_proxy().await.unwrap();
     let response = client.post(QUERY_URL, &json).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        if response.status().as_u16() == 403 {
-            let _ = client.remove_proxy().await;
-        }
-        return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let response:       Value   = response.json().await.unwrap();
     let staff:          Staff   = match serde_json::from_value(response["data"]["Page"]["staff"][0].clone()) {
@@ -207,16 +192,11 @@ pub async fn fetch_affinity(req: web::Json<AffinityRequest>) -> impl Responder {
         }
     }
 
-    let client:   Client    = Client::new().with_proxy().await.unwrap();
+    let mut client:   Client    = Client::new().with_proxy().await.unwrap();
     let json:     Value     = json!({ "query": get_query("affinity"), "variables": { "userName": req.username, "perChunk": 100, "type": "ANIME" }});
     let response: Response  = client.post(QUERY_URL, &json).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        if response.status().as_u16() == 403 {
-            let _ = client.remove_proxy().await;
-        }
-        return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let response: Value = response.json().await.unwrap();
     let user_affinity: Affinity = match serde_json::from_value(response["data"]["MediaListCollection"].clone()) {
@@ -228,17 +208,14 @@ pub async fn fetch_affinity(req: web::Json<AffinityRequest>) -> impl Responder {
     };
     
     let futures = req.other_users.iter().map(|user| {
-        let client = client.clone();
+        let mut client = client.clone();
         let user_affinity = user_affinity.clone();
         async move {
             let json = json!({ "query": get_query("affinity"), "variables": { "userName": user, "perChunk": 100, "type": "ANIME" }});
             let response = client.post(QUERY_URL, &json).await.unwrap();
 
             if response.status().as_u16() != 200 {
-                if response.status().as_u16() == 403 {
-                    let _ = client.remove_proxy().await;
-                }
-                return Err(HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()})));
+                return Err(Client::error_response(response).await);
             }
 
             let response: Value = response.json().await.unwrap();

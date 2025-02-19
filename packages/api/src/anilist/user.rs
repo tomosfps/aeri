@@ -48,16 +48,11 @@ pub async fn user_score(req: web::Json<ScoreRequest>) -> impl Responder {
         }
     }
 
-    let client = Client::new().with_proxy().await.unwrap();
+    let mut client = Client::new().with_proxy().await.unwrap();
     let json = json!({"query": get_query("user_scores"), "variables": {"userId": req.user_id, "mediaId": req.media_id}});
     let response = client.post(QUERY_URL, &json).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        if response.status().as_u16() == 403 {
-            let _ = client.remove_proxy().await;
-        }
-        return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let response:       Value = response.json().await.unwrap();
     let user:           UserScores = match serde_json::from_value(response["data"]["MediaList"].clone()) {
@@ -92,16 +87,11 @@ pub async fn user_search(req: web::Json<UserRequest>) -> impl Responder {
         }
     }
 
-    let client = Client::new().with_proxy().await.unwrap();
+    let mut client = Client::new().with_proxy().await.unwrap();
     let json = json!({"query": get_query("user"), "variables": {"name": req.username}});
     let response = client.post(QUERY_URL, &json).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        if response.status().as_u16() == 403 {
-            let _ = client.remove_proxy().await;
-        }
-        return HttpResponse::BadRequest().json(json!({"error": "Request returned an error", "errorCode": response.status().as_u16()}));
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let response:       Value = response.json().await.unwrap();
     let user:           User  = match serde_json::from_value(response["data"]["User"].clone()) {
@@ -168,15 +158,11 @@ async fn current_user(req: HttpRequest) -> impl Responder {
 
     logger.debug_single(&format!("Auth token: {}", auth), "User");
 
-    let client = Client::new().with_proxy().await.unwrap();
+    let mut client = Client::new().with_proxy().await.unwrap();
     let json = json!({"query": get_query("viewer")});
     let response = client.post_with_auth(QUERY_URL, &json, auth).await.unwrap();
 
-    if response.status().as_u16() != 200 {
-        let status = response.status().as_u16();
-        let error = response.text().await.unwrap();
-        return HttpResponse::BadRequest().json(json!({"error": error, "errorCode": status}));
-    }
+    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
     let response:       Value = response.json().await.unwrap();
 
