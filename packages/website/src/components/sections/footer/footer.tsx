@@ -1,20 +1,35 @@
 import { Footer, FooterBottom } from "@/components/ui/footer";
+import { FaStar } from "react-icons/fa";
 
 export default function FooterSection() {
   return (
-    <footer className="w-full bg-background px-4">
+    <footer className="w-full px-4">
       <div className="mx-auto max-w-container">
         <Footer className="pt-0">
-          <FooterBottom className="mt-0 flex flex-col items-center gap-4 sm:flex-col md:flex-row text-whiteText dark:text-darkText">
-            <div>© 2025 Aeri. All rights reserved</div>
+          <FooterBottom className="mt-0 flex flex-col items-center gap-4 sm:flex-col md:flex-row text-ctext-light dark:text-ctext-dark">
+            <div className="flex flex-row items-center gap-4">
+              <p>© 2025 Aeri. All rights reserved</p>
+              <button onClick={toggleTheme} className="text-[12px] leading-4 font-normal"><FaStar/></button>
+              </div>
             <div className="flex items-center gap-4">
-              <a href="#">Sign In</a> <a href="#">Sign Out</a>|
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Service</a>
+              <a href="login" className="hover:text-cprimary-light dark:hover:text-cprimary-dark">Sign In</a> <a href="logout" className="hover:text-cprimary-light dark:hover:text-cprimary-dark">Sign Out</a>|
+              <a href="privacy" className="hover:text-cprimary-light dark:hover:text-cprimary-dark">Privacy Policy</a>
+              <a href="terms" className="hover:text-cprimary-light dark:hover:text-cprimary-dark">Terms of Service</a>
             </div>
           </FooterBottom>
         </Footer>
       </div>
     </footer>
   );
+}
+
+function toggleTheme() {
+  const htmlElement = document.documentElement;
+  if (htmlElement.classList.contains('dark')) {
+      htmlElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+  } else {
+      htmlElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+  }
 }

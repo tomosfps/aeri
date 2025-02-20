@@ -4,13 +4,11 @@ import FooterSection from "./components/sections/footer/footer";
 
 function Layout() {
     return (
-        <>
+        <div className="h-full w-screen bg-cbackground-light dark:bg-cbackground-dark">
             <Navigation />
-
             <Outlet />
-
             <FooterSection />
-        </>
+        </div>
     );
 }
 

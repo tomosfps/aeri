@@ -3,9 +3,10 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { FaGithub } from "react-icons/fa";
 import { FaDiscord } from "react-icons/fa6";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { CgAlignBottom } from "react-icons/cg";
+import { SiGitbook } from "react-icons/si";
 import { useEffect, useState } from "react";
 import { NavLink as Link } from "react-router-dom";
+import { NavigationLink } from "./navigationLinks";
 
 export default function Navigation() {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -21,25 +22,24 @@ export default function Navigation() {
     return (
         <>
             <header className="sticky top-0 flex w-full h-24 items-center z-50">
-                <div className="mx-4 lg:mx-6 xl:mx-8 2xl:mx-auto max-w-7xl flex w-full items-center border-2 rounded-lg p-4 my-8 bg-white">
+
+                {/* Navigation */}
+                <div className="mx-4 lg:mx-6 xl:mx-8 2xl:mx-auto max-w-7xl flex w-full items-center border-2 rounded-lg p-4 my-8 bg-cbackground-light dark:bg-cbackground-dark">
                     <Link to="/" className="mr-6 flex items-center" prefetch="none">
-                        <CgAlignBottom className="h-6 w-6" />
-                        <span className="sr-only">Aeri</span>
+                        <SiGitbook className="h-6 w-6 hover:text-cprimary-light/40 dark:hover:text-cprimary-dark/40 text-cprimary-light dark:text-cprimary-dark" />
+                        <span className="sr-only">Aeri Logo</span>
                     </Link>
+
+                    {/* Left Side */}
                     <nav className="hidden lg:flex items-center space-x-6">
-                        <Link to="/" className="text-sm font-medium hover:underline underline-offset-4" prefetch="none">
-                            Home
-                        </Link>
-                        <Link
-                            to="commands"
-                            className="text-sm font-medium hover:underline underline-offset-4"
-                            prefetch="none"
-                        >
-                            Commands
-                        </Link>
+                        <NavigationLink href="/" children="Home" />
+                        <NavigationLink href="commands" children="Commands" />
+                        <NavigationLink href="status" children="Status" />
+                        <NavigationLink href="settings" children="Settings" />
+
                         <Link
                             to="https://github.com/ehiraa/aeri"
-                            className="inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow"
+                            className="hover:bg-csecondary-light/40 dark:hover:bg-csecondary-dark/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light dark:text-ctext-dark bg-csecondary-light dark:bg-csecondary-dark"
                             prefetch="none"
                             target="_blank"
                         >
@@ -47,17 +47,19 @@ export default function Navigation() {
                         </Link>
                         <Link
                             to="#"
-                            className="inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow"
+                            className="hover:bg-csecondary-light/40 dark:hover:bg-csecondary-dark/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light dark:text-ctext-dark bg-csecondary-light dark:bg-csecondary-dark"
                             prefetch="none"
                             target="_blank"
                         >
                             <FaDiscord className=""/>
                         </Link>
                     </nav>
+
+                    {/* Right Side */}
                     <div className="ml-auto flex items-center space-x-4">
                         <Link
                             to="#"
-                            className="inline-flex h-9 items-center justify-center rounded-md bg-whitePrimary px-4 py-2 text-sm font-medium text-whiteBackground shadow"
+                            className="hover:bg-cprimary-light/40 dark:hover:bg-cprimary-dark/40 inline-flex h-9 items-center justify-center rounded-md bg-cprimary-light dark:bg-cprimary-dark px-4 py-2 text-sm font-medium text-ctext-light dark:text-ctext-dark shadow"
                             prefetch="none"
                         >
                             Sign in
@@ -66,46 +68,33 @@ export default function Navigation() {
                         {/* Burger Menu toggle */}
                         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="outline" size="icon" className="lg:hidden bg-whiteSecondary text-whiteText">
+                                <Button variant="outline" size="icon" className="lg:hidden bg-csecondary-light dark:bg-csecondary-dark text-ctext-light dark:text-ctext-dark">
                                     <GiHamburgerMenu className="h-6 w-6" />
                                     <span className="sr-only">Toggle navigation menu</span>
                                 </Button>
                             </SheetTrigger>
                             <SheetContent side="left" className="w-full">
-                                <div className="grid gap-6 p-6 text-4xl font-bold">
-                                    <Link
-                                        to="/"
-                                        className="hover:underline underline-offset-4 text-whiteText dark:text-darkText"
-                                        prefetch="none"
-                                        onClick={toggleSheet}
-                                    >
-                                        Home
-                                    </Link>
-                                    <Link
-                                        to="commands"
-                                        className="hover:underline underline-offset-4 text-whiteText dark:text-darkText"
-                                        prefetch="none"
-                                        onClick={toggleSheet}
-                                    >
-                                        Commands
-                                    </Link>
-                                    <div className="flex space-x-6">
-                                        <Link
-                                            to="https://github.com/ehiraa/aeri"
-                                            target="_blank"
-                                            className="inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow"
-                                            prefetch="none"
-                                        >
-                                            <FaGithub className="" />
-                                        </Link>
-                                        <Link
-                                            to="#"
-                                            target="_blank"
-                                            className="inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow"
-                                            prefetch="none"
-                                        >
-                                            <FaDiscord className="" />
-                                        </Link>
+
+                                <div className="grid gap-4 text-2xl font-bold">
+                                    <div className="flex flex-col space-y-4 p-6">
+                                        <h1 className="text-cprimary-light dark:text-cprimary-dark">Main Page</h1>
+                                        <NavigationLink href="/" children="Home" onClick={toggleSheet} />
+                                        <NavigationLink href="commands" children="Commands" onClick={toggleSheet} />
+                                        <NavigationLink href="status" children="Status" onClick={toggleSheet} />
+                                        <NavigationLink href="settings" children="Settings" onClick={toggleSheet} />
+                                        <NavigationLink href="profile" children="Profile" onClick={toggleSheet} />
+                                    </div>
+                                    
+                                    <div className="flex flex-col space-y-4 p-6">
+                                        <h1 className="text-cprimary-light dark:text-cprimary-dark">Support</h1>
+                                        <NavigationLink href="/" children="Server" onClick={toggleSheet} />
+                                        <NavigationLink href="commands" children="Guides" onClick={toggleSheet} />
+                                    </div>
+
+                                    <div className="flex flex-col space-y-4 p-6">
+                                        <h1 className="text-cprimary-light dark:text-cprimary-dark">External</h1>
+                                        <NavigationLink href="https://github.com/ehiraa/aeri" children="Github" onClick={toggleSheet} />
+                                        <NavigationLink href="/" children="Discord" onClick={toggleSheet} />
                                     </div>
                                 </div>
                             </SheetContent>
@@ -116,6 +105,8 @@ export default function Navigation() {
         </>
     );
 }
+
+
 
 function loadTheme() {
     const htmlElement = document.documentElement;

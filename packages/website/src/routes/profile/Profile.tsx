@@ -1,4 +1,4 @@
-export default function Commands() {
+export default function Profile() {
     return (
         <>
             <div className="text-whiteText bg-whiteBackground dark:text-darkText dark:bg-darkBackground h-screen w-screen flex items-center justify-center">
