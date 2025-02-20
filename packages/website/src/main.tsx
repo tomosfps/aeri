@@ -13,6 +13,7 @@ import Dashboard from "./routes/dashboard/Dashboard.tsx";
 import Profile from "./routes/profile/Profile.tsx";
 import Settings from "./routes/settings/Settings.tsx";
 import Status from "./routes/status/Status.tsx";
+import Logout from "./routes/api/logout.tsx";
 
 const router = createBrowserRouter([
     {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
             {
                 path: "login",
                 element: <Login />,
+            },
+            {
+                path: "logout",
+                element: <Logout />,
             },
             {
                 path: "login/fail",
