@@ -1,5 +1,9 @@
 import { Footer, FooterBottom } from "@/components/ui/footer";
-import { FaStar } from "react-icons/fa";
+import { lazy, Suspense } from "react";
+
+const icon = {
+    star: lazy(() => import("react-icons/fa6").then((module) => ({ default: module.FaStar } as const))),
+}
 
 export default function FooterSection() {
   return (
@@ -9,7 +13,11 @@ export default function FooterSection() {
           <FooterBottom className="mt-0 flex flex-col items-center gap-4 sm:flex-col md:flex-row text-ctext-light dark:text-ctext-dark">
             <div className="flex flex-row items-center gap-4">
               <p>© 2025 Aeri. All rights reserved</p>
-              <button onClick={toggleTheme} className="text-[12px] leading-4 font-normal"><FaStar/></button>
+              <button onClick={toggleTheme} className="text-[12px] leading-4 font-normal" title="Theme Toggler">
+                <Suspense fallback={<div>Loading...</div>}>
+                  <icon.star className="h-4 w-4" />
+                </Suspense>
+                </button>
               </div>
             <div className="flex items-center gap-4">
               <a href="login" className="hover:text-cprimary-light dark:hover:text-cprimary-dark">Sign In</a> <a href="logout" className="hover:text-cprimary-light dark:hover:text-cprimary-dark">Sign Out</a>|

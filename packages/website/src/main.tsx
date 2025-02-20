@@ -1,71 +1,39 @@
-import { StrictMode } from "react";
+import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./index.css";
 
-import App from "./App.tsx";
-import Commands from "./routes/commands/Commands.tsx";
-import Success from "./routes/api/success.tsx";
-import Layout from "./Layout.tsx";
-import Login from "./routes/api/login.tsx";
-import Fail from "./routes/api/fail.tsx";
-import Dashboard from "./routes/dashboard/Dashboard.tsx";
-import Profile from "./routes/profile/Profile.tsx";
-import Settings from "./routes/settings/Settings.tsx";
-import Status from "./routes/status/Status.tsx";
-import Logout from "./routes/api/logout.tsx";
-
-const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <Layout />,
-        children: [
-            {
-                path: "/",
-                element: <App />,
-            },
-            {
-                path: "commands",
-                element: <Commands />,
-            },
-            {
-                path: "login",
-                element: <Login />,
-            },
-            {
-                path: "logout",
-                element: <Logout />,
-            },
-            {
-                path: "login/fail",
-                element: <Fail />,
-            },
-            {
-                path: "login/success",
-                element: <Success />,
-            },
-            {
-                path: "dashboard",
-                element: <Dashboard />,
-            },
-            {
-                path: "profile",
-                element: <Profile />,
-            },
-            {
-                path: "settings",
-                element: <Settings />,
-            },
-            {
-                path: "status",
-                element: <Status />,
-            }
-        ],
-    },
-]);
+const App       = lazy(() => import("./App.tsx"));
+const Commands  = lazy(() => import("./routes/commands/Commands.tsx"));
+const Success   = lazy(() => import("./routes/api/success.tsx"));
+const Layout    = lazy(() => import("./Layout.tsx"));
+const Login     = lazy(() => import("./routes/api/login.tsx"));
+const Fail      = lazy(() => import("./routes/api/fail.tsx"));
+const Dashboard = lazy(() => import("./routes/dashboard/Dashboard.tsx"));
+const Profile   = lazy(() => import("./routes/profile/Profile.tsx"));
+const Settings  = lazy(() => import("./routes/settings/Settings.tsx"));
+const Status    = lazy(() => import("./routes/status/Status.tsx"));
+const Logout    = lazy(() => import("./routes/api/logout.tsx"));
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <RouterProvider router={router} />
+        <Router>
+            <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                    <Route path="/" element={<Layout />}>
+                        <Route index element={<App />} />
+                        <Route path="commands" element={<Commands />} />
+                        <Route path="login" element={<Login />} />
+                        <Route path="logout" element={<Logout />} />
+                        <Route path="login/fail" element={<Fail />} />
+                        <Route path="login/success" element={<Success />} />
+                        <Route path="status" element={<Status />} />
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="profile" element={<Profile />} />
+                        <Route path="settings" element={<Settings />} />
+                    </Route>
+                </Routes>
+            </Suspense>
+        </Router>
     </StrictMode>,
 );

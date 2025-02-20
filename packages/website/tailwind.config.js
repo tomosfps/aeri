@@ -3,28 +3,38 @@ export default {
     darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
     theme: {
+        screens: {
+            'sm': '640px',
+            'md': '768px',
+            'lg': '1024px',
+            'xl': '1280px',
+            '2xl': '1536px',
+            '1920p': '1920px',
+            '2k': '2560px',
+            '4k': '3840px',
+        },
         extend: {
             borderRadius: {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
-            },  
+            },
             colors: {
                 background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
 
                 cprimary: {
                     light: "#F9A8D4",
-                    DEFAULT: "#EC4899", 
-                    dark: "#BE185D", 
+                    DEFAULT: "#EC4899",
+                    dark: "#BE185D",
                 },
 
                 csecondary: {
                     light: "#A5B4FC",
-                    DEFAULT: "#6366F1", 
+                    DEFAULT: "#6366F1",
                     dark: "#4338CA",
                 },
-                
+
                 caccent: {
                     light: "#86EFAC",
                     DEFAULT: "#34D399",
@@ -33,17 +43,17 @@ export default {
 
                 cbackground: {
                     light: "#FDF7FA",
-                    dark: "#1E1B1E", 
+                    dark: "#1E1B1E",
                 },
 
                 ccard: {
-                    light: "#FFFFFF", 
-                    dark: "#2A1F2D", 
+                    light: "#FFFFFF",
+                    dark: "#2A1F2D",
                 },
 
                 ctext: {
-                    light: "#1F2937", 
-                    dark: "#E5E7EB", 
+                    light: "#1F2937",
+                    dark: "#E5E7EB",
                 },
 
                 cborder: {

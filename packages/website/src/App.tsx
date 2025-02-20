@@ -28,18 +28,18 @@ function App() {
                     <Features title="Update Info" description="Update the status of a media, score or anything, right through the bot." image="https://placehold.co/600x400" alt="Anime Search" />
                 </div>
 
-                <div className="pb-32 ml-4 lg:ml-0 lg:flex lg:justify-center">
+                <div className="pb-32 lg:ml-0 md:flex md:justify-center pt-6">
                     <Link to="commands" className="hover:bg-cprimary-light/40 dark:hover:bg-cprimary-dark/40 inline-flex h-9 items-center justify-center rounded-md bg-cprimary-light dark:bg-cprimary-dark px-4 py-6 lg:px-6 lg:py-8 text-base lg:text-xl font-medium text-ctext-light dark:text-ctext-dark shadow">See More Features</Link>
                 </div>
             </section>
         
             {/* Github Stats */}
             <section className="w-full h-max space-y-8 lg:mx-2">
-                <div className="ml-4 2xl:ml-80">
-                    <h1 className="text-2xl font-bold text-ctext-light dark:text-ctext-dark">Open-Source</h1>
-                    <p className="text-gray-600 dark:text-gray-300 mt-2">All of Aeri is also open source, so you can locally host it yourself!</p>
+                <div className="ml-4 md:flex md:flex-col md:items-center">
+                    <h1 className="text-2xl font-bold 2xl:text-6xl text-cprimary-light dark:text-cprimary-dark">Open-Source</h1>
+                    <p className="text-gray-600 dark:text-gray-300 mt-2">All of <span className="font-bold dark:text-cprimary-dark text-cprimary-light">Aeri</span> is also open source, so you can locally host it yourself!</p>
                 </div>
-                <div className="flex flex-wrap justify-center 2xl:mx-72">
+                <div className="flex flex-wrap justify-center 2xl:mx-26">
                     <Card title="Aeri" description="Discord bot for anime and manga fans" 
                     url="https://github.com/ehiraa/aeri" image="https://placehold.co/600x400"
                     languages={["TypeScript", "Redis", "Prisma"]}/>
@@ -57,7 +57,7 @@ function App() {
                     languages={["Rust", "Redis", "Dockerfile"]}/>
                 </div>
 
-                <div className="ml-4 pb-20 2xl:ml-80">
+                <div className="ml-4 pb-20 2xl:ml-0 md:flex md:flex-col md:items-center">
                     <Link to="https://github.com/ehiraa/aeri" target="_blank" className="hover:bg-cprimary-light/40 dark:hover:bg-cprimary-dark/40 inline-flex h-9 items-center justify-center rounded-md bg-cprimary-light dark:bg-cprimary-dark px-4 py-6 lg:px-6 lg:py-8 lg:text-lg text-base font-medium text-ctext-light dark:text-ctext-dark shadow">Learn To Locally Setup</Link>
                 </div>
             </section>

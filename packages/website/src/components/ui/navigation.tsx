@@ -1,12 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { FaGithub } from "react-icons/fa";
-import { FaDiscord } from "react-icons/fa6";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { SiGitbook } from "react-icons/si";
+import { lazy, Suspense } from "react";
 import { useEffect, useState } from "react";
 import { NavLink as Link } from "react-router-dom";
 import { NavigationLink } from "./navigationLinks";
+
+const icons = {
+    Github: lazy(() => import("react-icons/fa6").then((module) => ({ default: module.FaGithub } as const))),
+    Discord: lazy(() => import("react-icons/fa6").then((module) => ({ default: module.FaDiscord } as const))),
+    HamburgerMenu: lazy(() => import("react-icons/gi").then((module) => ({ default: module.GiHamburgerMenu } as const))),
+    Gitbook: lazy(() => import("react-icons/si").then((module) => ({ default: module.SiGitbook } as const))),
+}
 
 export default function Navigation() {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -23,7 +27,7 @@ export default function Navigation() {
 
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > lastScrollY) {
+            if (window.scrollY > lastScrollY && window.scrollY > 75) {
                 setIsVisible(false);
             } else {
                 setIsVisible(true);
@@ -42,9 +46,11 @@ export default function Navigation() {
             <header className={`sticky top-0 flex w-full h-24 items-center z-50 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
 
                 {/* Navigation */}
-                <div className="mx-4 lg:mx-6 xl:mx-8 2xl:mx-auto max-w-7xl flex w-full items-center border-2 rounded-lg p-4 my-8 bg-cbackground-light dark:bg-cbackground-dark">
+                <div className="min-h-max mx-4 lg:mx-6 xl:mx-8 2xl:mx-auto max-w-7xl flex w-full items-center border-2 rounded-lg p-4 my-8 bg-cbackground-light dark:bg-cbackground-dark">
                     <Link to="/" className="mr-6 flex items-center" prefetch="none">
-                        <SiGitbook className="h-6 w-6 hover:text-cprimary-light/40 dark:hover:text-cprimary-dark/40 text-cprimary-light dark:text-cprimary-dark" />
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <icons.Gitbook className="h-6 w-6 hover:text-cprimary-light/40 dark:hover:text-cprimary-dark/40 text-cprimary-light dark:text-cprimary-dark" />
+                        </Suspense>
                         <span className="sr-only">Aeri Logo</span>
                     </Link>
 
@@ -61,7 +67,9 @@ export default function Navigation() {
                             prefetch="none"
                             target="_blank"
                         >
-                            <FaGithub className="" />
+                            <Suspense fallback={<div>Loading...</div>}>
+                                <icons.Github/>
+                            </Suspense>
                         </Link>
                         <Link
                             to="#"
@@ -69,7 +77,9 @@ export default function Navigation() {
                             prefetch="none"
                             target="_blank"
                         >
-                            <FaDiscord className=""/>
+                            <Suspense fallback={<div>Loading...</div>}>
+                                <icons.Discord/>
+                            </Suspense>
                         </Link>
                     </nav>
 
@@ -87,14 +97,17 @@ export default function Navigation() {
                         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                             <SheetTrigger asChild>
                                 <Button variant="outline" size="icon" className="lg:hidden bg-csecondary-light dark:bg-csecondary-dark text-ctext-light dark:text-ctext-dark">
-                                    <GiHamburgerMenu className="h-6 w-6" />
+                                    
+                                    <Suspense fallback={<div>Loading...</div>}>
+                                        <icons.HamburgerMenu className="h-6 w-6" />
+                                    </Suspense>
                                     <span className="sr-only">Toggle navigation menu</span>
                                 </Button>
                             </SheetTrigger>
                             <SheetContent side="left" className="w-full">
 
                                 <div className="grid gap-4 text-2xl font-bold">
-                                    <div className="flex flex-col space-y-4 p-6">
+                                    <div className="flex flex-col space-y-4 pl-6 pb-4">
                                         <h1 className="text-cprimary-light dark:text-cprimary-dark">Main Page</h1>
                                         <NavigationLink href="/" children="Home" onClick={toggleSheet} />
                                         <NavigationLink href="commands" children="Commands" onClick={toggleSheet} />
@@ -103,13 +116,13 @@ export default function Navigation() {
                                         <NavigationLink href="profile" children="Profile" onClick={toggleSheet} />
                                     </div>
                                     
-                                    <div className="flex flex-col space-y-4 p-6">
+                                    <div className="flex flex-col space-y-4 pl-6 pb-4">
                                         <h1 className="text-cprimary-light dark:text-cprimary-dark">Support</h1>
                                         <NavigationLink href="/" children="Server" onClick={toggleSheet} />
                                         <NavigationLink href="commands" children="Guides" onClick={toggleSheet} />
                                     </div>
 
-                                    <div className="flex flex-col space-y-4 p-6">
+                                    <div className="flex flex-col space-y-4 pl-6 pb-4">
                                         <h1 className="text-cprimary-light dark:text-cprimary-dark">External</h1>
                                         <NavigationLink href="https://github.com/ehiraa/aeri" children="Github" onClick={toggleSheet} />
                                         <NavigationLink href="/" children="Discord" onClick={toggleSheet} />
