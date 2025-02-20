@@ -20,6 +20,9 @@ export default defineConfig({
         },
     },
     build: {
+        rollupOptions: {
+            treeshake: true,
+        },
         minify: 'terser',
         terserOptions: {
             compress: {

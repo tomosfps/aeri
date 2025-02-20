@@ -213,7 +213,7 @@ importers:
         version: 1.0.7(tailwindcss@3.4.17)
     devDependencies:
       '@eslint/js':
-        specifier: ^9.17.0
+        specifier: ^9.19.0
         version: 9.19.0
       '@types/node':
         specifier: ^22.13.0

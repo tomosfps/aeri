@@ -2,7 +2,7 @@ import { Footer, FooterBottom } from "@/components/ui/footer";
 import { lazy, Suspense } from "react";
 
 const icon = {
-    star: lazy(() => import("react-icons/fa6").then((module) => ({ default: module.FaStar } as const))),
+    star: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaStar } as const))),
 }
 
 export default function FooterSection() {

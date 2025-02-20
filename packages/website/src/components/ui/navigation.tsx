@@ -4,12 +4,12 @@ import { lazy, Suspense } from "react";
 import { useEffect, useState } from "react";
 import { NavLink as Link } from "react-router-dom";
 import { NavigationLink } from "./navigationLinks";
+import logo from "@/assets/logo.svg";
 
 const icons = {
-    Github: lazy(() => import("react-icons/fa6").then((module) => ({ default: module.FaGithub } as const))),
-    Discord: lazy(() => import("react-icons/fa6").then((module) => ({ default: module.FaDiscord } as const))),
+    Github: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaGithubAlt } as const))),
+    Discord: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaDiscord } as const))),
     HamburgerMenu: lazy(() => import("react-icons/gi").then((module) => ({ default: module.GiHamburgerMenu } as const))),
-    Gitbook: lazy(() => import("react-icons/si").then((module) => ({ default: module.SiGitbook } as const))),
 }
 
 export default function Navigation() {
@@ -49,7 +49,7 @@ export default function Navigation() {
                 <div className="min-h-max mx-4 lg:mx-6 xl:mx-8 2xl:mx-auto max-w-7xl flex w-full items-center border-2 rounded-lg p-4 my-8 bg-cbackground-light dark:bg-cbackground-dark">
                     <Link to="/" className="mr-6 flex items-center" prefetch="none">
                         <Suspense fallback={<div>Loading...</div>}>
-                            <icons.Gitbook className="h-6 w-6 hover:text-cprimary-light/40 dark:hover:text-cprimary-dark/40 text-cprimary-light dark:text-cprimary-dark" />
+                            <LogoIcon />
                         </Suspense>
                         <span className="sr-only">Aeri Logo</span>
                     </Link>
@@ -144,4 +144,22 @@ function loadTheme() {
     } else {
         htmlElement.classList.remove('dark');
     }
+}
+
+function LogoIcon() {
+    return (
+        <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="32"
+        height="32"
+        viewBox="0 0 32 32"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        >
+            <image href={logo} width="32" height="32" />
+        </svg>
+    )
 }

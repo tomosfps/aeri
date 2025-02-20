@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 
 const icon = {
-    github: lazy(() => import("react-icons/fa6").then((module) => ({ default: module.FaGithub } as const))),
+    github: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaGithub } as const))),
 }
 
 type GithubCardProps = {
