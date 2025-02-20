@@ -4,7 +4,7 @@ import { Card } from "./components/ui/card";
 
 function App() {
     return (
-        <main className="h-full w-screen bg-cbackground-light dark:bg-cbackground-dark overflow-x-hidden">
+        <main className="h-full w-screen bg-cbackground-light dark:bg-cbackground-dark">
 
             {/* Hero */}
             <div className="h-max w-full flex flex-col justify-center items-center text-ctext-light dark:text-ctext-dark rounded-3xl p-4 space-y-8 mb-24">

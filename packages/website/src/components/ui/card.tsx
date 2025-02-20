@@ -9,7 +9,7 @@ type GithubCardProps = {
     description: string;
     image: string;
     url: string;
-    languages?: string[];
+    languages: string[];
 }
 
 export function Card({ title, description, image, url, languages }: GithubCardProps) {
@@ -29,7 +29,7 @@ export function Card({ title, description, image, url, languages }: GithubCardPr
                     <h2 className="text-2xl font-bold text-ctext-light dark:text-ctext-dark">{title}</h2>
                     <p className="text-gray-600 dark:text-gray-300 mt-2">{description}</p>
                     <div className="flex flex-wrap gap-2 mt-4">
-                        {languages?.map((language) => (
+                        {languages.map((language) => (
                             <span key={language} className="bg-csecondary-light dark:bg-csecondary-dark text-ctext-light dark:text-ctext-dark px-2 py-1 rounded-lg text-sm">{language}</span>
                         ))}
                     </div>
