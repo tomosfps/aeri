@@ -10,7 +10,7 @@ type GithubCardProps = {
 
 export function Card({ title, description, image, url, languages }: GithubCardProps) {
     return (
-        <a href={url} target="_blank" rel="noreferrer" className="w-fit 2xl:w-max m-4">
+        <a href={url} target="_blank" rel="noreferrer" className="min-w-[350px] lg:min-w-[500px] w-fit md:w-5/12 2xl:w-max m-4">
             <div className="bg-ccard-light dark:bg-ccard-dark shadow-soft dark:shadow-strong border-2 hover:border-cprimary-light dark:hover:border-cprimary-dark rounded-xl p-4 mx-auto max-w-sm 2xl:max-w-7xl">
 
                 <div className="w-min bg-cprimary-light dark:bg-cprimary-dark text-ctext-light dark:text-ctext-dark flex flex-row items-center space-x-2 px-2 py-2 rounded-lg text-sm mb-4 font-semibold">

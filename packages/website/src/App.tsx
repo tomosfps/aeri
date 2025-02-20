@@ -42,7 +42,7 @@ function App() {
                 <div className="flex flex-wrap justify-center 2xl:mx-72">
                     <Card title="Aeri" description="Discord bot for anime and manga fans" 
                     url="https://github.com/ehiraa/aeri" image="https://placehold.co/600x400"
-                    languages={["TypeScript", "Redis", "Prisma", "Dockerfile"]}/>
+                    languages={["TypeScript", "Redis", "Prisma"]}/>
 
                     <Card title="Website" description="The website for Aeri" 
                     url="https://github.com/ehiraa/aeri/tree/main/packages/website" image="https://placehold.co/600x400"
