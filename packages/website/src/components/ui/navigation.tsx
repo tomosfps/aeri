@@ -7,7 +7,7 @@ import { NavigationLink } from "./navigationLinks";
 import logo from "@/assets/logo.svg";
 
 const icons = {
-    Github: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaGithubAlt } as const))),
+    Github: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaGithub } as const))),
     Discord: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaDiscord } as const))),
     HamburgerMenu: lazy(() => import("react-icons/gi").then((module) => ({ default: module.GiHamburgerMenu } as const))),
 }
