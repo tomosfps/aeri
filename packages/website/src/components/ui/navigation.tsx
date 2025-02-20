@@ -58,6 +58,7 @@ export default function Navigation() {
                     <nav className="hidden lg:flex items-center space-x-6">
                         <NavigationLink href="/" children="Home" />
                         <NavigationLink href="commands" children="Commands" />
+                        <NavigationLink href="dashboard" children="Profile" />
                         <NavigationLink href="status" children="Status" />
                         <NavigationLink href="settings" children="Settings" />
 
@@ -113,7 +114,7 @@ export default function Navigation() {
                                         <NavigationLink href="commands" children="Commands" onClick={toggleSheet} />
                                         <NavigationLink href="status" children="Status" onClick={toggleSheet} />
                                         <NavigationLink href="settings" children="Settings" onClick={toggleSheet} />
-                                        <NavigationLink href="profile" children="Profile" onClick={toggleSheet} />
+                                        <NavigationLink href="dashboard" children="Profile" onClick={toggleSheet} />
                                     </div>
                                     
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
