@@ -10,6 +10,8 @@ import { NavigationLink } from "./navigationLinks";
 
 export default function Navigation() {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
 
     function toggleSheet() {
         setIsSheetOpen(!isSheetOpen);
@@ -19,9 +21,25 @@ export default function Navigation() {
         loadTheme();
     }, []);
 
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > lastScrollY) {
+                setIsVisible(false);
+            } else {
+                setIsVisible(true);
+            }
+            setLastScrollY(window.scrollY);
+        };
+        window.addEventListener("scroll", handleScroll);
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, [lastScrollY]);
+
     return (
         <>
-            <header className="sticky top-0 flex w-full h-24 items-center z-50">
+            <header className={`sticky top-0 flex w-full h-24 items-center z-50 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
 
                 {/* Navigation */}
                 <div className="mx-4 lg:mx-6 xl:mx-8 2xl:mx-auto max-w-7xl flex w-full items-center border-2 rounded-lg p-4 my-8 bg-cbackground-light dark:bg-cbackground-dark">
@@ -105,8 +123,6 @@ export default function Navigation() {
         </>
     );
 }
-
-
 
 function loadTheme() {
     const htmlElement = document.documentElement;
