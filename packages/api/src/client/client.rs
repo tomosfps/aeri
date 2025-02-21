@@ -1,9 +1,9 @@
+use crate::cache::redis::Redis;
 use actix_web::http::StatusCode;
 use actix_web::HttpResponse;
-use lazy_static::lazy_static;
 use colourful_logger::Logger;
+use lazy_static::lazy_static;
 use reqwest::{Proxy, Response};
-use crate::cache::redis::Redis;
 use serde_json::{json, Value};
 
 lazy_static! {

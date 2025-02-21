@@ -1,7 +1,7 @@
-use std::env;
-use redis::{Client, ToRedisArgs, RedisResult, Commands};
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
+use redis::{Client, Commands, RedisResult, ToRedisArgs};
+use std::env;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();

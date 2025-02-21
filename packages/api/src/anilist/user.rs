@@ -1,14 +1,14 @@
-use serde::Deserialize;
-use serde_json::{json, Value};
-use actix_web::{web, post, HttpResponse, Responder, HttpRequest};
-use colourful_logger::Logger;
+use crate::anilist::format::{format_user_data, format_user_score};
 use crate::anilist::queries::{get_query, QUERY_URL};
+use crate::cache::redis::Redis;
+use crate::client::client::Client;
 use crate::structs::user::{User, Viewer};
 use crate::structs::user_stats::UserScores;
+use actix_web::{post, web, HttpRequest, HttpResponse, Responder};
+use colourful_logger::Logger;
 use lazy_static::lazy_static;
-use crate::cache::redis::Redis;
-use crate::anilist::format::{format_user_data, format_user_score};
-use crate::client::client::Client;
+use serde::Deserialize;
+use serde_json::{json, Value};
 
 lazy_static! {
     static ref logger: Logger = Logger::default();

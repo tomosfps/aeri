@@ -1,8 +1,8 @@
+use crate::anilist::queries::get_query;
+use crate::entities::traits::Entity;
+use crate::structs::shared::MediaNodes;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use crate::anilist::queries::{get_query};
-use crate::entities::traits::Entity;
-use crate::structs::shared::{MediaNodes};
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

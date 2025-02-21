@@ -1,9 +1,9 @@
+use crate::anilist::queries::{get_query, QUERY_URL};
+use crate::client::client::Client;
+use crate::structs::recommendation::Recommendation;
 use rand::Rng;
 use reqwest::Response;
 use serde_json::{json, Value};
-use crate::client::client::Client;
-use crate::structs::recommendation::Recommendation;
-use crate::anilist::queries::{get_query, QUERY_URL};
 
 pub async fn get_recommendation(pages: i32, genres: Vec<String>, media: String) -> serde_json::Value {
     let mut rng:        rand::prelude::ThreadRng = rand::rng();

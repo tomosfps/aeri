@@ -1,5 +1,5 @@
-use super::shared::{MediaNodes, Avatar, Name, Date};
-use serde::{Serialize, Deserialize};
+use super::shared::{Avatar, Date, MediaNodes, Name};
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Character {

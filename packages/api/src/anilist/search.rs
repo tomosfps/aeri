@@ -1,19 +1,19 @@
+use crate::anilist::format::{format_affinity_data, format_character_data, format_main_affinity};
+use crate::anilist::queries::{get_query, QUERY_URL};
+use crate::cache::redis::Redis;
+use crate::client::client::Client;
 use crate::global::compare_strings::normalize_name;
+use crate::global::pearson_correlation::pearson;
 use crate::structs::affinity::Affinity;
 use crate::structs::character::Character;
 use crate::structs::shared::MediaListStatus;
-use reqwest::Response;
-use serde_json::{json, Value};
-use serde::Deserialize;
-use actix_web::{web, post, HttpResponse, Responder};
-use crate::anilist::queries::{get_query, QUERY_URL};
+use actix_web::{post, web, HttpResponse, Responder};
 use colourful_logger::Logger;
-use lazy_static::lazy_static;
-use crate::cache::redis::Redis;
-use crate::anilist::format::{format_affinity_data, format_character_data, format_main_affinity};
-use crate::client::client::Client;
-use crate::global::pearson_correlation::pearson;
 use futures::future::join_all;
+use lazy_static::lazy_static;
+use reqwest::Response;
+use serde::Deserialize;
+use serde_json::{json, Value};
 use std::collections::HashMap;
 
 lazy_static! {

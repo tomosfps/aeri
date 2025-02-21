@@ -1,12 +1,12 @@
-use std::env;
+use crate::cache::redis::Redis;
+use crate::client::client::Client;
 use actix_web::{get, web, HttpResponse, Responder};
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
+use reqwest::Response;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use crate::cache::redis::Redis;
-use crate::client::client::Client;
-use reqwest::Response;
+use std::env;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();

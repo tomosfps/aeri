@@ -7,9 +7,9 @@ use actix_web::{get,
 
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
+use num_cpus;
 use std::env;
 use std::thread;
-use num_cpus;
 
 mod anilist;
 mod cache;
@@ -19,22 +19,22 @@ mod structs;
 mod entities;
 
 use anilist::media::{media_search,
-                     relations_search,
-                     recommend};
+                     recommend,
+                     relations_search};
 
-use anilist::user::{user_search,
+use anilist::user::{expire_user,
                     user_score,
-                    expire_user};
+                    user_search};
 
 use anilist::search::{character_search,
-                    fetch_affinity};
+                      fetch_affinity};
 
-use cache::redis::Redis;
-use client::proxy::Proxy;
 use crate::anilist::oauth::anilist_oauth;
 use crate::anilist::user::current_user;
-use crate::entities::{staff::Staff, studio::Studio};
 use crate::entities::traits::Entity;
+use crate::entities::{staff::Staff, studio::Studio};
+use cache::redis::Redis;
+use client::proxy::Proxy;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();

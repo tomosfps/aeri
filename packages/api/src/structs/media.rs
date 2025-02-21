@@ -1,5 +1,5 @@
-use super::shared::{Date, Title, MediaCoverImage, AiringSchedule, MediaStatus, MediaFormat};
-use serde::{Serialize, Deserialize};
+use super::shared::{AiringSchedule, Date, MediaCoverImage, MediaFormat, MediaStatus, Title};
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Media {

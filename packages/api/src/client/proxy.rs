@@ -1,9 +1,9 @@
-use std::error::Error;
-use colourful_logger::Logger;
-use reqwest::{Client, Response, StatusCode};
 use crate::cache::redis::Redis;
+use colourful_logger::Logger;
 use lazy_static::lazy_static;
+use reqwest::{Client, Response, StatusCode};
 use std::env;
+use std::error::Error;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();

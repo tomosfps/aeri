@@ -1,8 +1,8 @@
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
 use crate::anilist::queries::get_query;
 use crate::entities::traits::Entity;
 use crate::structs::shared::{Avatar, Date, Name, StaffNodes};
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

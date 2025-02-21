@@ -1,15 +1,15 @@
-use actix_web::{web, HttpResponse, Responder};
-use colourful_logger::Logger;
-use lazy_static::lazy_static;
-use reqwest::Response;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use serde_json::{json, Value};
-use ::redis::RedisResult;
 use crate::anilist::queries::QUERY_URL;
 use crate::cache::redis::Redis;
 use crate::client::client::Client;
 use crate::structs::data_from::DataFrom;
+use actix_web::{web, HttpResponse, Responder};
+use colourful_logger::Logger;
+use lazy_static::lazy_static;
+use ::redis::RedisResult;
+use reqwest::Response;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+use serde_json::{json, Value};
 
 lazy_static! {
     static ref logger: Logger = Logger::default();

@@ -1,5 +1,5 @@
 use super::shared::{Avatar, MediaListStatus};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct AffinityLists {

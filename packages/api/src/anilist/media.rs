@@ -1,18 +1,18 @@
+use crate::anilist::format::{format_media_data, format_relation_data};
+use crate::anilist::queries::{get_query, QUERY_URL};
+use crate::cache::redis::Redis;
+use crate::client::client::Client;
+use crate::global::get_recommend::get_recommendation;
+use crate::structs::media::Media;
+use crate::structs::recommendation::Recommendation;
+use crate::structs::relation::Relations;
+use actix_web::{post, web, HttpResponse, Responder};
+use colourful_logger::Logger;
+use lazy_static::lazy_static;
 use rand::Rng;
 use reqwest::Response;
 use serde::Deserialize;
 use serde_json::{json, Value};
-use colourful_logger::Logger;
-use lazy_static::lazy_static;
-use crate::cache::redis::Redis;
-use crate::client::client::Client;
-use crate::structs::media::Media;
-use crate::structs::recommendation::Recommendation;
-use crate::structs::relation::Relations;
-use actix_web::{web, post, HttpResponse, Responder};
-use crate::anilist::queries::{get_query, QUERY_URL};
-use crate::global::get_recommend::get_recommendation;
-use crate::anilist::format::{format_media_data, format_relation_data};
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
