@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+#[derive(Deserialize, Serialize, Default, Clone)]
 pub enum MediaFormat {
     #[serde(rename = "TV")]
     TV,
@@ -45,7 +45,7 @@ impl MediaFormat {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+#[derive(Deserialize, Serialize, Default)]
 pub enum MediaListStatus {
     #[serde(rename = "CURRENT")]
     Current,
@@ -78,7 +78,7 @@ impl MediaListStatus {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+#[derive(Deserialize, Serialize, Default, Clone)]
 pub enum MediaStatus {
     #[serde(rename = "FINISHED")]
     Finished,
@@ -95,7 +95,7 @@ pub enum MediaStatus {
     Unknown,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+#[derive(Deserialize, Serialize, Default, Clone)]
 pub enum Type {
     #[serde(rename = "ANIME")]
     #[default]
@@ -104,13 +104,13 @@ pub enum Type {
     Manga,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct Favourites {
     pub anime:  MediaNodes,
     pub manga:  MediaNodes,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct MediaCoverImage {
     #[serde(rename = "extraLarge")]
     pub extra_large: Option<String>,
@@ -118,32 +118,32 @@ pub struct MediaCoverImage {
     pub medium:      Option<String>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Avatar {
     pub large:      Option<String>,
     pub medium:     Option<String>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct AiringSchedule {
     pub nodes: Option<Vec<AiringScheduleNode>>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct AiringScheduleNode {
     #[serde(rename = "timeUntilAiring")]
     pub time_until_airing:  i32,
     pub episode:            i32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct Title {
     pub romaji:  Option<String>,
     pub native:  Option<String>,
     pub english: Option<String>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct Name {
     pub full:        Option<String>,
     pub native:      Option<String>,
@@ -153,19 +153,19 @@ pub struct Name {
     pub alternative: Option<Vec<String>>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct Date {
     pub year:   Option<i32>,
     pub month:  Option<i32>,
     pub day:    Option<i32>,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize)]
 pub struct MediaNodes {
     pub nodes: Vec<MediaNodeData>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct MediaNodeData {
     pub id:         Option<i32>,
     #[serde(rename = "siteUrl")]
@@ -174,12 +174,12 @@ pub struct MediaNodeData {
     pub format:     Option<MediaFormat>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct StaffNodes {
     pub nodes: Vec<StaffNodeData>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct StaffNodeData {
     pub id:         i32,
     #[serde(rename = "siteUrl")]
@@ -188,13 +188,13 @@ pub struct StaffNodeData {
     pub format:     Option<MediaFormat>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct Statistics {
     pub anime:  AnimeStatistics,
     pub manga:  MangaStatistics,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct AnimeStatistics {
     pub count:              i32,
     #[serde(rename = "meanScore")]
@@ -209,13 +209,13 @@ pub struct AnimeStatistics {
     pub statuses:           Vec<AnimeStatusDistribution>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct AnimeFormatDistribution {
     pub format: MediaFormat,
     pub count:  i32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct AnimeStatusDistribution {
     pub status:     MediaListStatus,
     #[serde(rename = "meanScore")]
@@ -223,7 +223,7 @@ pub struct AnimeStatusDistribution {
     pub count:      i32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct MangaStatistics {
     pub count:              i32,
     #[serde(rename = "meanScore")]
@@ -236,7 +236,7 @@ pub struct MangaStatistics {
     pub genres:             Vec<GenreDistribution>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct ScoreDistribution {
     pub score:      i32,
     pub count:      i32,
@@ -244,7 +244,7 @@ pub struct ScoreDistribution {
     pub media_ids:  Vec<i32>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct GenreDistribution {
     pub genre:           String,
     pub count:           i32,
@@ -256,7 +256,7 @@ pub struct GenreDistribution {
     pub chapters_read:   i32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct PageInfo {
     pub total:      Option<i32>,
     #[serde(rename = "perPage")]

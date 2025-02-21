@@ -3,7 +3,6 @@ use crate::anilist::queries::{get_query, QUERY_URL};
 use crate::cache::redis::Redis;
 use crate::client::client::Client;
 use crate::global::pearson_correlation::pearson;
-use crate::structs::affinity::Affinity;
 use crate::structs::shared::MediaListStatus;
 use actix_web::{post, web, HttpResponse, Responder};
 use colourful_logger::Logger;
@@ -19,11 +18,6 @@ lazy_static! {
     static ref redis:  Redis  = Redis::new();
 }
 
-#[derive(Deserialize)]
-struct AffinityRequest {
-    username: String,
-    other_users: Vec<String>,
-}
 
 #[post("/affinity")]
 pub async fn fetch_affinity(req: web::Json<AffinityRequest>) -> impl Responder {

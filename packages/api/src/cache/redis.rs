@@ -41,39 +41,6 @@ impl Redis {
         }
     }
 
-    pub fn set<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, value: V) -> RedisResult<()> {
-        logger.debug_single(&format!("Setting Key with data {:?}", key).as_str(), "Redis");
-        let mut con = self.client.get_connection()?;
-
-        let result: RedisResult<()> = con.set(key, value);
-        match result {
-            Ok(_) => {
-                return Ok(());
-            },
-            Err(e) => {
-                logger.error_single(&format!("Error setting key : {:?}", e).as_str(), "Redis");
-                return Err(e);
-            }
-        }
-    }
-
-    pub fn expire<T: ToRedisArgs + std::fmt::Debug>(&self, key: T, seconds: i64) -> RedisResult<()> {
-        logger.debug_single(&format!("Setting Key to expire in {} seconds for key: {:?}", seconds, &key).as_str(), "Redis");
-        let mut con: redis::Connection = self.client.get_connection()?;
-        let result:  RedisResult<()> = con.expire(&key, seconds);
-
-        match result {
-            Ok(_) => {
-                logger.debug_single(format!("{:?} has been set", key).as_str(), "Redis");
-                return Ok(());
-            },
-            Err(e) => {
-                logger.error_single(&format!("Error setting key to expire : {:?}", e).as_str(), "Redis");
-                return Err(e);
-            }
-        }
-    }
-
     pub fn ttl<T: ToRedisArgs + std::fmt::Debug>(&self, key: T) -> RedisResult<i64> {
         logger.debug_single(&format!("Getting TTL for key : {:?}", key).as_str(), "Redis");
         let mut con: redis::Connection = self.client.get_connection()?;

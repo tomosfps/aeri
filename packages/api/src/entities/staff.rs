@@ -54,7 +54,7 @@ impl Entity<FormattedStaff, StaffRequest> for Staff {
         vec!["data".into(), "Page".into(), Self::entity_name().to_lowercase(), "0".into()]
     }
 
-    fn format(self, _request: &StaffRequest) -> FormattedStaff {
+    async fn format(self, _request: &StaffRequest) -> FormattedStaff {
         FormattedStaff {
             id: self.id,
             age: self.age,

@@ -5,3 +5,5 @@ pub mod user;
 pub mod user_score;
 pub mod relations;
 pub mod character;
+pub mod media;
+pub mod affinity;

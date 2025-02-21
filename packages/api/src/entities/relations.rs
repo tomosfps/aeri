@@ -20,7 +20,7 @@ pub struct RelationData {
     pub status:          Option<MediaStatus>,
 }
 
-#[derive(Serialize, Deserialize)]   
+#[derive(Serialize, Deserialize, Clone)]   
 pub struct FormattedRelation {
     pub id:              i32,
     pub romaji:          String,
@@ -53,7 +53,7 @@ impl Entity<FormattedRelations, RelationRequest> for Relations {
         vec!["data".into(), "Page".into()]
     }
 
-    fn format(self, request: &RelationRequest) -> FormattedRelations {
+    async fn format(self, request: &RelationRequest) -> FormattedRelations {
         let mut relations: Vec<FormattedRelation> = vec![];
 
         for relation in &self.media {

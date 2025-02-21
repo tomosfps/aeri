@@ -1,7 +1,4 @@
-use serde::{Serialize, Deserialize};
 use crate::{entities::relations::RelationData, global::compare_strings::compare_strings};
-
-#[derive(Serialize, Deserialize)]
 pub struct AddonData {
     pub similarity:     f32,
 }

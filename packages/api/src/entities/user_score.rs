@@ -42,7 +42,7 @@ impl Entity<FormattedUserScore, UserScoreRequest> for UserScore {
         "MediaList".into()
     }
 
-    fn format(self, _request: &UserScoreRequest) -> FormattedUserScore {
+    async fn format(self, _request: &UserScoreRequest) -> FormattedUserScore {
         FormattedUserScore {
             volumes:            self.progress_volumes,
             progress:           self.progress,

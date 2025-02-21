@@ -19,13 +19,15 @@ mod structs;
 mod entities;
 mod format;
 
-use anilist::media::{media_search, recommend};
+use anilist::media::recommend;
 use anilist::search::fetch_affinity;
 
 use crate::anilist::oauth::anilist_oauth;
 use crate::anilist::user::current_user;
 use crate::entities::traits::Entity;
-use crate::entities::{staff::Staff, studio::Studio, user::User, user_score::UserScore, relations::Relations, character::Character};
+use crate::entities::{staff::Staff, studio::Studio, 
+    user::User, user_score::UserScore, relations::Relations, 
+    character::Character, media::Media};
 use cache::redis::Redis;
 use client::proxy::Proxy;
 
@@ -76,7 +78,6 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .service(hello)
-            .service(media_search)
             .service(recommend)
             .service(fetch_affinity)
             .service(anilist_oauth)
@@ -88,6 +89,7 @@ async fn main() -> std::io::Result<()> {
             .route("/user/scores", web::post().to(UserScore::route))
             .route("/relations", web::post().to(Relations::route))
             .route("/character", web::post().to(Character::route))
+            .route("/media", web::post().to(Media::route))
     })
     .workers(num_cpus::get())
     .bind((ip, port))?

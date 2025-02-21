@@ -46,7 +46,7 @@ impl Entity<FormattedCharacter, CharacterRequest> for Character {
         "Character".into()
     }
 
-    fn format(self, _request: &CharacterRequest) -> FormattedCharacter {
+    async fn format(self, _request: &CharacterRequest) -> FormattedCharacter {
         FormattedCharacter {
             id:                 self.id,
             full_name:          self.name.full,

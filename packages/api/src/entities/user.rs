@@ -47,7 +47,7 @@ impl Entity<FormattedUser, UserRequest> for User {
         "User".into()
     }
 
-    fn format(self, _request: &UserRequest) -> FormattedUser {
+    async fn format(self, _request: &UserRequest) -> FormattedUser {
         let addon = user_addon(&self);
 
         FormattedUser {
