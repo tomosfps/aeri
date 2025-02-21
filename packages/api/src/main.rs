@@ -16,24 +16,25 @@ mod cache;
 mod global;
 mod client;
 mod structs;
+mod entities;
 
 use anilist::media::{media_search,
-                    relations_search,
-                    recommend};
+                     relations_search,
+                     recommend};
 
 use anilist::user::{user_search,
                     user_score,
                     expire_user};
 
 use anilist::search::{character_search,
-                    staff_search,
-                    studio_search,
                     fetch_affinity};
 
 use cache::redis::Redis;
 use client::proxy::Proxy;
 use crate::anilist::oauth::anilist_oauth;
 use crate::anilist::user::current_user;
+use crate::entities::{staff::Staff, studio::Studio};
+use crate::entities::traits::Entity;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -89,12 +90,12 @@ async fn main() -> std::io::Result<()> {
             .service(expire_user)
             .service(recommend)
             .service(character_search)
-            .service(staff_search)
-            .service(studio_search)
             .service(fetch_affinity)
             .service(anilist_oauth)
             .service(current_user)
             .route("/hey", web::get().to(manual))
+            .route("/studio", web::post().to(Studio::route))
+            .route("/staff", web::post().to(Staff::route))
     })
     .workers(num_cpus::get())
     .bind((ip, port))?

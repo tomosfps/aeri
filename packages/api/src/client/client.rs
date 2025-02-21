@@ -30,14 +30,28 @@ impl Client {
         }
     }
 
+    pub async fn new_proxied() -> Self {
+        let redis = Redis::new();
+        let proxy_url = Self::fetch_proxy(&redis).await.unwrap();
+        let proxy = Proxy::http(&proxy_url).unwrap();
+        let client = reqwest::Client::builder().proxy(proxy).build().unwrap();
+
+        Client {
+            client,
+            redis,
+            using_proxy: true,
+            current_proxy: proxy_url,
+        }
+    }
+
     pub async fn set_proxy(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        self.current_proxy = self.fetch_proxy().await?;
+        self.current_proxy = Self::fetch_proxy(&self.redis).await?;
         Ok(())
     }
 
     pub async fn with_proxy(&self) -> Result<Self, Box<dyn std::error::Error>> {
         let redis = Redis::new();
-        let proxy_url = self.fetch_proxy().await?;
+        let proxy_url = Self::fetch_proxy(&self.redis).await?;
         let proxy = Proxy::http(&proxy_url)?;
         let client = reqwest::Client::builder().proxy(proxy).build()?;
         Ok(Client {
@@ -100,9 +114,9 @@ impl Client {
         Ok(response)
     }
 
-    async fn fetch_proxy(&self) -> Result<String, Box<dyn std::error::Error>> {
+    async fn fetch_proxy(redis: &Redis) -> Result<String, Box<dyn std::error::Error>> {
         logger.debug_single("Getting random proxy", "Proxy");
-        let proxy = self.redis.srandmember("proxies").await?;
+        let proxy = redis.srandmember("proxies").await?;
 
         if proxy.is_empty() {
             logger.error_single("Failed to find a proxy", "Proxy");

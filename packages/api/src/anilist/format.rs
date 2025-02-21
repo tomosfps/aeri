@@ -1,6 +1,6 @@
 use crate::{
     global::compare_strings::compare_strings,
-    structs::{affinity::Affinity, character::Character, media::Media, relation::Relations, shared::{MediaFormat, Type}, staff::Staff, studio::Studio, user::User, user_stats::UserScores},
+    structs::{affinity::Affinity, character::Character, media::Media, relation::Relations, shared::{MediaFormat, Type}, user::User, user_stats::UserScores},
 };
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
@@ -83,43 +83,6 @@ pub async fn format_relation_data(parsed_string: String, relation_data: Relation
             .unwrap_or_else(|| std::cmp::Ordering::Equal)
     });
     json!(relation_list)
-}
-
-pub async fn format_staff_data(staff_data: Staff) -> serde_json::Value {
-    let data = staff_data.clone();
-    
-    let washed_data = json!({
-        "id":               data.id,
-        "age":              data.age,
-        "gender":           data.gender,
-        "homeTown":         data.home_town,
-        "favourites":       data.favourites,
-        "language":         data.language,
-        "fullName":         data.name.full,
-        "nativeName":       data.name.native,
-        "dateOfBirth":      format!("{}/{}/{}", data.date_of_birth.day.unwrap_or_else(|| 0), data.date_of_birth.month.unwrap_or_else(|| 0), data.date_of_birth.year.unwrap_or_else(|| 0)),
-        "dateOfDeath":      format!("{}/{}/{}", data.date_of_death.day.unwrap_or_else(|| 0), data.date_of_death.month.unwrap_or_else(|| 0), data.date_of_death.year.unwrap_or_else(|| 0)),
-        "siteUrl":          data.site_url,
-        "image":            data.image.large,
-        "staffData":        data.staff_media,
-        "dataFrom":         "API",
-    });
-    washed_data
-}
-
-pub async fn format_studio_data(studio_data: Studio) -> serde_json::Value {
-    let data = studio_data.clone();
-
-    let washed_data = json!({
-        "id":                   data.id,
-        "favourites":           data.favourites,
-        "name":                 data.name,
-        "siteUrl":              data.site_url,
-        "media":                data.media,
-        "isAnimationStudio":    data.is_animation,
-        "dataFrom":             "API",
-    });
-    washed_data
 }
 
 pub async fn format_character_data(character_data: Character) -> serde_json::Value {

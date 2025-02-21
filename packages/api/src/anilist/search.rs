@@ -2,8 +2,6 @@ use crate::global::compare_strings::normalize_name;
 use crate::structs::affinity::Affinity;
 use crate::structs::character::Character;
 use crate::structs::shared::MediaListStatus;
-use crate::structs::staff::Staff;
-use crate::structs::studio::Studio;
 use reqwest::Response;
 use serde_json::{json, Value};
 use serde::Deserialize;
@@ -12,7 +10,7 @@ use crate::anilist::queries::{get_query, QUERY_URL};
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
-use crate::anilist::format::{format_affinity_data, format_character_data, format_main_affinity, format_staff_data, format_studio_data};
+use crate::anilist::format::{format_affinity_data, format_character_data, format_main_affinity};
 use crate::client::client::Client;
 use crate::global::pearson_correlation::pearson;
 use futures::future::join_all;
@@ -32,17 +30,6 @@ struct AffinityRequest {
 #[derive(Deserialize)]
 struct CharacterRequest {
     character_name: String
-}
-
-#[derive(Deserialize)]
-struct StaffRequest {
-    staff_name: String,
-    media_type: Option<String>,
-}
-
-#[derive(Deserialize)]
-struct StudioRequest {
-    studio_name: String  
 }
 
 #[post("/character")]
@@ -86,93 +73,6 @@ pub async fn character_search(req: web::Json<CharacterRequest>) -> impl Responde
 
 }
 
-#[post("/studio")]
-pub async fn studio_search(req: web::Json<StudioRequest>) -> impl Responder {
-    if req.studio_name.is_empty() {
-        return HttpResponse::NotFound().json(json!({"error": "No studio name was included in the request"}));
-    }
-
-    let cache_key = format!("studio:{}", req.studio_name);
-    match redis.get(&cache_key) {
-        Ok(data) => {
-            let mut studio_data: serde_json::Value = serde_json::from_str(&data).unwrap();
-            studio_data["dataFrom"] = "Cache".into();
-            studio_data["leftUntilExpire"] = redis.ttl(cache_key).unwrap().into();
-            return HttpResponse::Ok().json(studio_data);
-        },
-        Err(_) => {
-            logger.debug_single("No studio data found in cache", "Studio");
-        }
-    }
-
-    let mut client = Client::new().with_proxy().await.unwrap();
-    let json = json!({ "query": get_query("studio"), "variables": { "search": req.studio_name }});
-    let response = client.post(QUERY_URL, &json).await.unwrap();
-
-    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
-
-    let response:       Value       = response.json().await.unwrap();
-    let studio:         Studio      = match serde_json::from_value(response["data"]["Studio"].clone()) {
-        Ok(studio) => studio,
-        Err(err) => {
-            logger.error_single(&format!("Error parsing studio: {}", err), "Studio");
-            return HttpResponse::InternalServerError().json(json!({"error": "Failed to parse studio"}));
-        }
-    };
-
-    let studio: Value = format_studio_data(studio).await;
-    let _ = redis.setexp(&cache_key, studio.to_string(), 86400).await; 
-    HttpResponse::Ok().json(studio)
-
-}
-
-
-#[post("/staff")]
-pub async fn staff_search(req: web::Json<StaffRequest>) -> impl Responder {
-    if req.staff_name.is_empty() {
-        return HttpResponse::NotFound().json(json!({"error": "No staff name was included in the request"}));
-    }
-
-    let cache_key = format!("staff:{}", req.staff_name);
-    match redis.get(&cache_key) {
-        Ok(data) => {
-            let mut staff_data: serde_json::Value = serde_json::from_str(&data).unwrap();
-            staff_data["dataFrom"] = "Cache".into();
-            staff_data["leftUntilExpire"] = redis.ttl(cache_key).unwrap().into();
-            return HttpResponse::Ok().json(staff_data);
-        },
-        Err(_) => {
-            logger.debug_single("No staff data found in cache", "Staff");
-        }
-    }
-
-    let json;
-    if req.media_type.is_none() {
-        json = json!({"query": get_query("staff"),"variables": { "search": req.staff_name,} });
-    } else {
-        json = json!({"query": get_query("staff"),"variables": { "search": req.staff_name, "mediaType": req.media_type.clone().unwrap()}});
-    }
-
-    let mut client = Client::new().with_proxy().await.unwrap();
-    let response = client.post(QUERY_URL, &json).await.unwrap();
-
-    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
-
-    let response:       Value   = response.json().await.unwrap();
-    let staff:          Staff   = match serde_json::from_value(response["data"]["Page"]["staff"][0].clone()) {
-        Ok(staff) => staff,
-        Err(err) => {
-            logger.error_single(&format!("Error parsing staff: {}", err), "Staff");
-            return HttpResponse::InternalServerError().json(json!({"error": "Failed to parse staff"}));
-        }
-    };
-
-    let staff: Value = format_staff_data(staff).await;
-    let _ = redis.setexp(&cache_key, staff.to_string(), 86400).await;
-    HttpResponse::Ok().json(staff)
-}
-
-
 #[post("/affinity")]
 pub async fn fetch_affinity(req: web::Json<AffinityRequest>) -> impl Responder {
     if req.username.is_empty() || req.other_users.is_empty() {
@@ -206,7 +106,7 @@ pub async fn fetch_affinity(req: web::Json<AffinityRequest>) -> impl Responder {
             return HttpResponse::InternalServerError().json(json!({"error": "Failed to parse affinity"}));
         }
     };
-    
+
     let futures = req.other_users.iter().map(|user| {
         let mut client = client.clone();
         let user_affinity = user_affinity.clone();
