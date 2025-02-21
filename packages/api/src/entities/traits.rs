@@ -23,7 +23,7 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
         vec!["data".to_string(), Self::entity_name()]
     }
 
-    fn format(self) -> F;
+    fn format(self, request: &R) -> F;
 
     fn cache_key(request: &R) -> String;
 
@@ -92,7 +92,7 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
             Err(e) => return HttpResponse::InternalServerError().json(json!({"error": e})),
         };
 
-        let formatted = data.format();
+        let formatted = data.format(&req);
         let _ = Self::cache_set(&formatted, &req).await;
 
         HttpResponse::Ok().json(Self::apply_data_from(formatted, DataFrom::API))

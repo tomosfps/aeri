@@ -1,11 +1,10 @@
-use crate::anilist::format::{format_media_data, format_relation_data};
+use crate::anilist::format::format_media_data;
 use crate::anilist::queries::{get_query, QUERY_URL};
 use crate::cache::redis::Redis;
 use crate::client::client::Client;
 use crate::global::get_recommend::get_recommendation;
 use crate::structs::media::Media;
 use crate::structs::recommendation::Recommendation;
-use crate::structs::relation::Relations;
 use actix_web::{post, web, HttpResponse, Responder};
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
@@ -20,12 +19,6 @@ lazy_static! {
 }
 
 #[derive(Deserialize)]
-struct RelationRequest {
-    media_name: String,
-    media_type: String,
-}
-
-#[derive(Deserialize)]
 struct MediaRequest {
     media_id:   i32,
     media_type: String,
@@ -37,38 +30,6 @@ struct RecommendRequest {
     genres:     Option<Vec<String>>,
 }
 
-#[post("/relations")]
-pub async fn relations_search(req: web::Json<RelationRequest>) -> impl Responder {
-    if req.media_name.len() == 0 || req.media_type.len() == 0 {
-        return HttpResponse::NotFound().json(json!({"error": "No Media Name or Type was included"}));
-    }
-
-    let media_name = req.media_name.clone().to_lowercase();
-    let redis_key = format!("{}:{}", req.media_type, media_name);
-    match redis.get(&redis_key) {
-        Ok(data) => {
-            let media_data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-            return HttpResponse::Ok().json(json!({"relations": media_data, "dataFrom": "Cache", "leftUntilExpire": redis.ttl(&redis_key).unwrap()}));
-        },
-        Err(_) => {
-            logger.debug_single("No data found in cache, fetching from Anilist", "Relations");
-        }
-    }
-
-    let mut client:   Client    = Client::new().with_proxy().await.unwrap();
-    let json:         Value     = json!({"query": get_query("relation_stats"), "variables": {"search": &media_name, "type": req.media_type.to_uppercase()}});
-    let response:     Response  = client.post(QUERY_URL, &json).await.unwrap();
-
-    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
-
-    let response:       Value       = response.json().await.unwrap();
-    let relations:      Relations   = serde_json::from_value(response["data"]["Page"].clone()).unwrap();
-    let relations:      Value       = format_relation_data(media_name.clone(), relations).await;
-
-    logger.debug_single(&format!("Relations for {} found, caching", redis_key), "Relations");
-    let _ = redis.setexp(redis_key, relations.clone().to_string(), 86400).await;
-    HttpResponse::Ok().json(json!({"relations": relations, "dataFrom": "API"}))
-}
 
 #[post("/recommend")]
 async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {

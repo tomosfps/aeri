@@ -259,8 +259,8 @@ pub fn get_query(query_name: &str) -> String {
     }";
 
     let relation_stats: &str = "
-    query ($id: Int, $page: Int, $perPage: Int, $search: String, $type: MediaType) {
-    Page (page: $page, perPage: $perPage) {
+    query ($id: Int, $search: String, $type: MediaType) {
+    Page  {
         media (id: $id, search: $search, type: $type) {
             id
             type

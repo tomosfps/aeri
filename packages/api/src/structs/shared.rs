@@ -45,7 +45,7 @@ impl MediaFormat {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub enum MediaListStatus {
     #[serde(rename = "CURRENT")]
     Current,
@@ -59,6 +59,9 @@ pub enum MediaListStatus {
     Paused,
     #[serde(rename = "REPEATING")]
     Repeating,
+    #[serde(rename = "UNKNOWN")]
+    #[default]
+    Unknown,
 }
 
 impl MediaListStatus {
@@ -70,11 +73,12 @@ impl MediaListStatus {
             MediaListStatus::Dropped => "Dropped",
             MediaListStatus::Paused => "Paused",
             MediaListStatus::Repeating => "Repeating",
+            MediaListStatus::Unknown => "Unknown",
         }
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub enum MediaStatus {
     #[serde(rename = "FINISHED")]
     Finished,
@@ -86,6 +90,9 @@ pub enum MediaStatus {
     Cancelled,
     #[serde(rename = "HIATUS")]
     Hiatus,
+    #[serde(rename = "UNKNOWN")]
+    #[default]
+    Unknown,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]

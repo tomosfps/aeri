@@ -17,7 +17,3 @@ pub fn compare_strings(input_string: &String, vec_of_strings: Vec<&String>) -> V
     result.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
     result
 }
-
-pub fn normalize_name(name: &str) -> String {
-    name.trim().to_lowercase()
-}

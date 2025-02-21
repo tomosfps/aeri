@@ -1,11 +1,9 @@
-use crate::anilist::format::{format_affinity_data, format_character_data, format_main_affinity};
+use crate::anilist::format::{format_affinity_data, format_main_affinity};
 use crate::anilist::queries::{get_query, QUERY_URL};
 use crate::cache::redis::Redis;
 use crate::client::client::Client;
-use crate::global::compare_strings::normalize_name;
 use crate::global::pearson_correlation::pearson;
 use crate::structs::affinity::Affinity;
-use crate::structs::character::Character;
 use crate::structs::shared::MediaListStatus;
 use actix_web::{post, web, HttpResponse, Responder};
 use colourful_logger::Logger;
@@ -25,52 +23,6 @@ lazy_static! {
 struct AffinityRequest {
     username: String,
     other_users: Vec<String>,
-}
-
-#[derive(Deserialize)]
-struct CharacterRequest {
-    character_name: String
-}
-
-#[post("/character")]
-pub async fn character_search(req: web::Json<CharacterRequest>) -> impl Responder {
-    if req.character_name.is_empty() {
-        return HttpResponse::NotFound().json(json!({"error": "No character name was included in the request"}));
-    }
-
-    let character_name = normalize_name(&req.character_name);
-    let cache_key = format!("character:{}", character_name);
-    match redis.get(&cache_key) {
-        Ok(data) => {
-            let mut character_data: serde_json::Value = serde_json::from_str(&data).unwrap();
-            character_data["dataFrom"] = "Cache".into();
-            character_data["leftUntilExpire"] = redis.ttl(cache_key).unwrap().into();
-            return HttpResponse::Ok().json(character_data);
-        },
-        Err(_) => {
-            logger.debug_single("No character data found in cache", "Character");
-        }
-    }
-
-    let mut client = Client::new().with_proxy().await.unwrap();
-    let json = json!({ "query": get_query("character"), "variables": { "search": req.character_name }});
-    let response = client.post(QUERY_URL, &json).await.unwrap();
-
-    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
-
-    let response:       Value      = response.json().await.unwrap();
-    let character:      Character  = match serde_json::from_value(response["data"]["Character"].clone()) {
-        Ok(character) => character,
-        Err(err) => {
-            logger.error_single(&format!("Error parsing character: {}", err), "Character");
-            return HttpResponse::InternalServerError().json(json!({"error": "Failed to parse character"}));
-        }
-    };
-
-    let character: Value = format_character_data(character).await;
-    let _ = redis.setexp(&cache_key, character.to_string(), 86400).await;
-    HttpResponse::Ok().json(character)
-
 }
 
 #[post("/affinity")]

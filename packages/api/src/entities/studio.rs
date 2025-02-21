@@ -25,7 +25,7 @@ impl Entity<Studio, StudioRequest> for Studio {
         "Studio".into()
     }
 
-    fn format(self) -> Studio {
+    fn format(self, _request: &StudioRequest) -> Studio {
         self
     }
 

@@ -17,22 +17,15 @@ mod global;
 mod client;
 mod structs;
 mod entities;
+mod format;
 
-use anilist::media::{media_search,
-                     recommend,
-                     relations_search};
-
-use anilist::user::{expire_user,
-                    user_score,
-                    user_search};
-
-use anilist::search::{character_search,
-                      fetch_affinity};
+use anilist::media::{media_search, recommend};
+use anilist::search::fetch_affinity;
 
 use crate::anilist::oauth::anilist_oauth;
 use crate::anilist::user::current_user;
 use crate::entities::traits::Entity;
-use crate::entities::{staff::Staff, studio::Studio};
+use crate::entities::{staff::Staff, studio::Studio, user::User, user_score::UserScore, relations::Relations, character::Character};
 use cache::redis::Redis;
 use client::proxy::Proxy;
 
@@ -83,19 +76,18 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .service(hello)
-            .service(user_search)
-            .service(user_score)
             .service(media_search)
-            .service(relations_search)
-            .service(expire_user)
             .service(recommend)
-            .service(character_search)
             .service(fetch_affinity)
             .service(anilist_oauth)
             .service(current_user)
             .route("/hey", web::get().to(manual))
             .route("/studio", web::post().to(Studio::route))
             .route("/staff", web::post().to(Staff::route))
+            .route("/user", web::post().to(User::route))
+            .route("/user/scores", web::post().to(UserScore::route))
+            .route("/relations", web::post().to(Relations::route))
+            .route("/character", web::post().to(Character::route))
     })
     .workers(num_cpus::get())
     .bind((ip, port))?
