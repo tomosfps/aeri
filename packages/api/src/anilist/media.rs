@@ -30,7 +30,6 @@ struct RecommendRequest {
     genres:     Option<Vec<String>>,
 }
 
-
 #[post("/recommend")]
 async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     if req.media.len() == 0 {

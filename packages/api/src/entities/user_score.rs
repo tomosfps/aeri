@@ -4,7 +4,7 @@ use crate::structs::shared::MediaListStatus;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserScore {
     pub progress_volumes:   Option<i32>,

@@ -4,7 +4,7 @@ use crate::structs::shared::{Date, MediaNodes, Name, Avatar};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Character {
     pub id:             i32,

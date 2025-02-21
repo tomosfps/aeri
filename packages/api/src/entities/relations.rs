@@ -5,12 +5,12 @@ use crate::structs::shared::{MediaFormat, MediaStatus, Title, Type};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct Relations {
     pub media: Vec<RelationData>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct RelationData {
     pub id:              i32,
     pub title:           Title,
@@ -38,7 +38,7 @@ pub struct FormattedRelations {
     pub relations: Vec<FormattedRelation>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct RelationRequest {
     media_name: String,
     media_type: String,
