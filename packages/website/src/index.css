@@ -29,6 +29,8 @@
         --chart-4: 43 74% 66%;
         --chart-5: 27 87% 67%;
         --radius: 0.5rem;
+        --font-montserrat: 'Montserrat', 'sans-serif';
+        --font-montserat-mono: 'Montserrat', 'monospace';
     }
     .dark {
         --background: 240 10% 3.9%;
@@ -58,6 +60,11 @@
     }
 }
 
+::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+}
+
 @layer base {
     * {
         @apply border-border;
@@ -72,14 +79,24 @@
 }
 
 body {
-    font-family: var(--font-inter), sans-serif;
+    overflow-x: hidden;
+    font-family: var(--font-montserrat), sans-serif;
 }
 
+p,
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-    font-family: var(--font-inter), sans-serif;
+    font-family: var(--font-montserrat), sans-serif;
+}
+
+.feature:nth-child(odd) .feature-content {
+    flex-direction: row-reverse;
+}
+
+.feature:nth-child(even) .feature-content {
+    flex-direction: row;
 }

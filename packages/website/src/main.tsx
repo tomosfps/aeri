@@ -1,41 +1,37 @@
-import { StrictMode } from "react";
+import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-
-import App from "./App.tsx";
-import Navigation from "./components/ui/navigation.tsx";
-import About from "./routes/about/About.tsx";
-import Commands from "./routes/commands/Commands.tsx";
-import Api from "./routes/api/api.tsx";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./index.css";
 
-const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <Navigation />,
-        children: [
-            {
-                path: "/",
-                element: <App />,
-            },
-            {
-                path: "about",
-                element: <About />,
-            },
-            {
-                path: "commands",
-                element: <Commands />,
-            },
-            {
-                path: "login/success",
-                element: <Api />,
-            }
-        ],
-    },
-]);
+const App       = lazy(() => import("./App.tsx"));
+const Commands  = lazy(() => import("./routes/commands/Commands.tsx"));
+const Success   = lazy(() => import("./routes/api/success.tsx"));
+const Layout    = lazy(() => import("./Layout.tsx"));
+const Login     = lazy(() => import("./routes/api/login.tsx"));
+const Fail      = lazy(() => import("./routes/api/fail.tsx"));
+const Dashboard = lazy(() => import("./routes/dashboard/Dashboard.tsx"));
+const Settings  = lazy(() => import("./routes/settings/Settings.tsx"));
+const Status    = lazy(() => import("./routes/status/Status.tsx"));
+const Logout    = lazy(() => import("./routes/api/logout.tsx"));
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <RouterProvider router={router} />
+        <Router>
+            <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                    <Route path="/" element={<Layout />}>
+                        <Route index element={<App />} />
+                        <Route path="commands" element={<Commands />} />
+                        <Route path="login" element={<Login />} />
+                        <Route path="logout" element={<Logout />} />
+                        <Route path="api/fail" element={<Fail />} />
+                        <Route path="api/success" element={<Success />} />
+                        <Route path="status" element={<Status />} />
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="settings" element={<Settings />} />
+                    </Route>
+                </Routes>
+            </Suspense>
+        </Router>
     </StrictMode>,
 );

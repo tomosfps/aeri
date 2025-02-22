@@ -3,6 +3,16 @@ export default {
     darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
     theme: {
+        screens: {
+            'sm': '640px',
+            'md': '768px',
+            'lg': '1024px',
+            'xl': '1280px',
+            '2xl': '1536px',
+            '1920p': '1920px',
+            '2k': '2560px',
+            '4k': '3840px',
+        },
         extend: {
             borderRadius: {
                 lg: "var(--radius)",
@@ -13,17 +23,43 @@ export default {
                 background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
 
-                whiteText: '#0e0a12',
-                whiteBackground: '#f7f5f9',
-                whitePrimary: '#7e61a6',
-                whiteSecondary: '#d1adcc',
-                whiteAccent: '#b983a7',
+                cprimary: {
+                    light: "#F9A8D4",
+                    DEFAULT: "#EC4899",
+                    dark: "#BE185D",
+                },
 
-                darkText: '#f2eff6',
-                darkBackground: '#08060a',
-                darkPrimary: '#75589d',
-                darkSecondary: '#522e4d',
-                darkAccent: '#7c466a',
+                csecondary: {
+                    light: "#A5B4FC",
+                    DEFAULT: "#6366F1",
+                    dark: "#4338CA",
+                },
+
+                caccent: {
+                    light: "#86EFAC",
+                    DEFAULT: "#34D399",
+                    dark: "#15803D",
+                },
+
+                cbackground: {
+                    light: "#FDF7FA",
+                    dark: "#1E1B1E",
+                },
+
+                ccard: {
+                    light: "#FFFFFF",
+                    dark: "#2A1F2D",
+                },
+
+                ctext: {
+                    light: "#1F2937",
+                    dark: "#E5E7EB",
+                },
+
+                cborder: {
+                    light: "#E5E7EB",
+                    dark: "#4B2C3D",
+                },
 
                 gradient: {
                     white: `bg-gradient-to-r from-[#7e61a6] via-[#d1adcc] to-[#b983a7]`,

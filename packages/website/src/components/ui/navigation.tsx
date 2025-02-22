@@ -1,113 +1,132 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { FaGithub } from "react-icons/fa";
-import { FaDiscord } from "react-icons/fa6";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { FaAppleAlt } from "react-icons/fa";
-import { CiLight } from "react-icons/ci";
-import { useEffect } from "react";
+import { lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
+import { NavLink as Link } from "react-router-dom";
+import { NavigationLink } from "./navigationLinks";
+import logo from "@/assets/logo.svg";
 
-import { NavLink as Link, Outlet } from "react-router-dom";
-import FooterSection from "../sections/footer/default";
+const icons = {
+    Github: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaGithub } as const))),
+    Discord: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaDiscord } as const))),
+    HamburgerMenu: lazy(() => import("react-icons/gi").then((module) => ({ default: module.GiHamburgerMenu } as const))),
+}
 
 export default function Navigation() {
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
+
+    function toggleSheet() {
+        setIsSheetOpen(!isSheetOpen);
+    }
+
     useEffect(() => {
         loadTheme();
     }, []);
 
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > lastScrollY && window.scrollY > 75) {
+                setIsVisible(false);
+            } else {
+                setIsVisible(true);
+            }
+            setLastScrollY(window.scrollY);
+        };
+        window.addEventListener("scroll", handleScroll);
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, [lastScrollY]);
+
     return (
         <>
-            <header className="flex h-16 w-full items-center border-b border-gray-200 dark:border-gray-800">
-                <div className="mx-auto max-w-7xl flex w-full items-center px-4 md:px-6">
+            <header className={`sticky top-0 flex w-full h-24 items-center z-50 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+
+                {/* Navigation */}
+                <div className="min-h-max mx-4 lg:mx-6 xl:mx-8 2xl:mx-auto max-w-7xl flex w-full items-center border-2 rounded-lg p-4 my-8 bg-cbackground-light dark:bg-cbackground-dark">
                     <Link to="/" className="mr-6 flex items-center" prefetch="none">
-                        <FaAppleAlt className="h-6 w-6 text-whiteText hover:text-whiteAccent dark:text-darkText dark:hover:text-darkAccent transition-colors duraction-300" />
-                        <span className="sr-only">Aeri</span>
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <LogoIcon />
+                        </Suspense>
+                        <span className="sr-only">Aeri Logo</span>
                     </Link>
+
+                    {/* Left Side */}
                     <nav className="hidden lg:flex items-center space-x-6">
-                        <Link to="/" className="text-sm font-medium hover:underline underline-offset-4" prefetch="none">
-                            Home
-                        </Link>
-                        <Link
-                            to="commands"
-                            className="text-sm font-medium hover:underline underline-offset-4"
-                            prefetch="none"
-                        >
-                            Commands
-                        </Link>
+                        <NavigationLink href="/" children="Home" />
+                        <NavigationLink href="commands" children="Commands" />
+                        <NavigationLink href="dashboard" children="Profile" />
+                        <NavigationLink href="status" children="Status" />
+                        <NavigationLink href="settings" children="Settings" />
+
                         <Link
                             to="https://github.com/ehiraa/aeri"
-                            className="inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium text-whiteText dark:text-darkText shadow transition-colors duraction-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-darkPrimary  dark:hover:bg-darkAccent hover:bg-whiteAccent dark:focus-visible:ring-gray-300"
+                            className="hover:bg-csecondary-light/40 dark:hover:bg-csecondary-dark/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light dark:text-ctext-dark bg-csecondary-light dark:bg-csecondary-dark"
                             prefetch="none"
                             target="_blank"
                         >
-                            <FaGithub className="text-darkBackground dark:text-whiteBackground" />
+                            <Suspense fallback={<div>Loading...</div>}>
+                                <icons.Github/>
+                            </Suspense>
                         </Link>
                         <Link
                             to="#"
-                            className="inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium text-whiteText dark:text-darkText shadow transition-colors duraction-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-darkSecondary  dark:hover:bg-darkAccent hover:bg-whiteAccent dark:focus-visible:ring-gray-300"
+                            className="hover:bg-csecondary-light/40 dark:hover:bg-csecondary-dark/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light dark:text-ctext-dark bg-csecondary-light dark:bg-csecondary-dark"
                             prefetch="none"
                             target="_blank"
                         >
-                            <FaDiscord className="text-darkBackground dark:text-whiteBackground" />
+                            <Suspense fallback={<div>Loading...</div>}>
+                                <icons.Discord/>
+                            </Suspense>
                         </Link>
                     </nav>
+
+                    {/* Right Side */}
                     <div className="ml-auto flex items-center space-x-4">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="text-whiteText bg-whiteSecondaryhover:bg-whiteAccent dark:text-darkText dark:bg-darkSecondary dark:hover:bg-darkAccent"
-                            onClick={toggleTheme}
-                            >
-                            <CiLight className="h-6 w-6" />
-                            <span className="sr-only">Toggle Theme</span>
-                        </Button>
                         <Link
                             to="#"
-                            className="inline-flex h-9 items-center justify-center rounded-md bg-whitePrimary px-4 py-2 text-sm font-medium text-whiteBackground shadow transition-colors hover:bg-whiteAccent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-darkPrimary dark:text-darkText dark:hover:bg-darkAccent dark:focus-visible:ring-gray-300"
+                            className="hover:bg-cprimary-light/40 dark:hover:bg-cprimary-dark/40 inline-flex h-9 items-center justify-center rounded-md bg-cprimary-light dark:bg-cprimary-dark px-4 py-2 text-sm font-medium text-ctext-light dark:text-ctext-dark shadow"
                             prefetch="none"
                         >
-                            Link Anilist
+                            Sign in
                         </Link>
-                        <Sheet>
+
+                        {/* Burger Menu toggle */}
+                        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="outline" size="icon" className="lg:hidden bg-whiteSecondary text-whiteText hover:bg-whiteAccent dark:text-darkText dark:bg-darkSecondary dark:hover:bg-darkAccent">
-                                    <GiHamburgerMenu className="h-6 w-6" />
+                                <Button variant="outline" size="icon" className="lg:hidden bg-csecondary-light dark:bg-csecondary-dark text-ctext-light dark:text-ctext-dark">
+                                    
+                                    <Suspense fallback={<div>Loading...</div>}>
+                                        <icons.HamburgerMenu className="h-6 w-6" />
+                                    </Suspense>
                                     <span className="sr-only">Toggle navigation menu</span>
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side="left">
-                                <div className="grid gap-6 p-6">
-                                    <Link
-                                        to="/"
-                                        className="text-sm font-medium hover:underline underline-offset-4 text-whiteText dark:text-darkText"
-                                        prefetch="none"
-                                    >
-                                        Home
-                                    </Link>
-                                    <Link
-                                        to="commands"
-                                        className="text-sm font-medium hover:underline underline-offset-4 text-whiteText dark:text-darkText"
-                                        prefetch="none"
-                                    >
-                                        Commands
-                                    </Link>
-                                    <div className="flex space-x-6">
-                                        <Link
-                                            to="https://github.com/ehiraa/aeri"
-                                            target="_blank"
-                                            className="inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium text-whiteText dark:text-darkText shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-darkPrimary  dark:hover:bg-darkAccent dark:focus-visible:ring-gray-300"
-                                            prefetch="none"
-                                        >
-                                            <FaGithub className="text-darkBackground dark:text-whiteBackground" />
-                                        </Link>
-                                        <Link
-                                            to="#"
-                                            target="_blank"
-                                            className="inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium text-whiteText dark:text-darkText shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-darkSecondary  dark:hover:bg-darkAccent dark:focus-visible:ring-gray-300"
-                                            prefetch="none"
-                                        >
-                                            <FaDiscord className="text-darkBackground dark:text-whiteBackground" />
-                                        </Link>
+                            <SheetContent side="left" className="w-full">
+
+                                <div className="grid gap-4 text-2xl font-bold">
+                                    <div className="flex flex-col space-y-4 pl-6 pb-4">
+                                        <h1 className="text-cprimary-light dark:text-cprimary-dark">Main Page</h1>
+                                        <NavigationLink href="/" children="Home" onClick={toggleSheet} />
+                                        <NavigationLink href="commands" children="Commands" onClick={toggleSheet} />
+                                        <NavigationLink href="status" children="Status" onClick={toggleSheet} />
+                                        <NavigationLink href="settings" children="Settings" onClick={toggleSheet} />
+                                        <NavigationLink href="dashboard" children="Profile" onClick={toggleSheet} />
+                                    </div>
+                                    
+                                    <div className="flex flex-col space-y-4 pl-6 pb-4">
+                                        <h1 className="text-cprimary-light dark:text-cprimary-dark">Support</h1>
+                                        <NavigationLink href="/" children="Server" onClick={toggleSheet} />
+                                        <NavigationLink href="commands" children="Guides" onClick={toggleSheet} />
+                                    </div>
+
+                                    <div className="flex flex-col space-y-4 pl-6 pb-4">
+                                        <h1 className="text-cprimary-light dark:text-cprimary-dark">External</h1>
+                                        <NavigationLink href="https://github.com/ehiraa/aeri" children="Github" onClick={toggleSheet} />
+                                        <NavigationLink href="/" children="Discord" onClick={toggleSheet} />
                                     </div>
                                 </div>
                             </SheetContent>
@@ -115,25 +134,9 @@ export default function Navigation() {
                     </div>
                 </div>
             </header>
-
-            <Outlet />
-
-            <FooterSection />
         </>
     );
 }
-
-function toggleTheme() {
-    const htmlElement = document.documentElement;
-    if (htmlElement.classList.contains('dark')) {
-        htmlElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-    } else {
-        htmlElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-    }
-}
-
 
 function loadTheme() {
     const htmlElement = document.documentElement;
@@ -142,4 +145,22 @@ function loadTheme() {
     } else {
         htmlElement.classList.remove('dark');
     }
+}
+
+function LogoIcon() {
+    return (
+        <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="32"
+        height="32"
+        viewBox="0 0 32 32"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        >
+            <image href={logo} width="32" height="32" />
+        </svg>
+    )
 }
