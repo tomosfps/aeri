@@ -11,8 +11,8 @@ use std::env;
 lazy_static! {
     static ref logger: Logger = Logger::default();
     static ref redis: Redis = Redis::new();
-    static ref oauth_success_url: String = format!("{}/{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_SUCCESS_PATH").unwrap());
-    static ref oauth_fail_url: String = format!("{}/{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_FAIL_PATH").unwrap());
+    static ref oauth_success_url: String = format!("{}{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_SUCCESS_PATH").unwrap());
+    static ref oauth_fail_url: String = format!("{}{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_FAIL_PATH").unwrap());
 }
 
 #[derive(Deserialize)]
