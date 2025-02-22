@@ -64,6 +64,6 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>) -> impl Responder {
 
     redis.xadd("oauth_token", "data", serde_json::to_string(&token_data).unwrap()).await.unwrap();
 
-    // Needs to be changed to Redirect::to(<success page url>)
+    // @TODO Needs to be changed to Redirect::to(<success page url>)
     HttpResponse::Ok().json(token_data)
 }

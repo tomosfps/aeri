@@ -1,35 +1,26 @@
-use actix_web::{get,
-                web,
-                App,
-                HttpResponse,
-                HttpServer,
-                Responder};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
-use num_cpus;
 use std::env;
-use std::thread;
 
-mod anilist;
+mod routes;
 mod cache;
 mod global;
 mod client;
 mod structs;
 mod entities;
-mod format;
 
-use anilist::media::recommend;
-use anilist::search::fetch_affinity;
+use routes::recommend::recommend;
 
-use crate::anilist::oauth::anilist_oauth;
-use crate::anilist::user::current_user;
-use crate::entities::traits::Entity;
-use crate::entities::{staff::Staff, studio::Studio, 
-    user::User, user_score::UserScore, relations::Relations, 
-    character::Character, media::Media};
+use crate::entities::{affinity::Affinity, character::Character,
+                      media::Media, relations::Relations, staff::Staff,
+                      studio::Studio, user::User, user_score::UserScore, Entity};
+use crate::routes::oauth::anilist::anilist_oauth;
+use crate::routes::viewer::viewer;
 use cache::redis::Redis;
 use client::proxy::Proxy;
+use crate::routes::remove_user::remove_user;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -61,9 +52,9 @@ async fn main() -> std::io::Result<()> {
         tokio::spawn(async move {
             let mut attempts: u8 = 0;
             while attempts < 10 {
-                if let Err(e) = proxy.update_proxy_list().await {
-                    logger.error_single(&format!("Failed to update proxy list (attempt {}): {:?}", attempts + 1, e), "Main");
-                    thread::sleep(std::time::Duration::from_secs(10));
+                if let Err(e) = proxy.update_proxy_list().await.map_err(|e| { format!("{:?}", e) }) {
+                    logger.error_single(&format!("Failed to update proxy list (attempt {}): {}", attempts + 1, e), "Main");
+                    tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
                     attempts += 1;
                 }
             }
@@ -79,17 +70,18 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(hello)
             .service(recommend)
-            .service(fetch_affinity)
             .service(anilist_oauth)
-            .service(current_user)
+            .service(viewer)
+            .service(remove_user)
             .route("/hey", web::get().to(manual))
             .route("/studio", web::post().to(Studio::route))
             .route("/staff", web::post().to(Staff::route))
             .route("/user", web::post().to(User::route))
-            .route("/user/scores", web::post().to(UserScore::route))
+            .route("/user/score", web::post().to(UserScore::route))
             .route("/relations", web::post().to(Relations::route))
             .route("/character", web::post().to(Character::route))
             .route("/media", web::post().to(Media::route))
+            .route("/affinity", web::post().to(Affinity::route))
     })
     .workers(num_cpus::get())
     .bind((ip, port))?

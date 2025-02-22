@@ -1,11 +1,11 @@
-use crate::anilist::queries::{get_query, QUERY_URL};
 use crate::client::client::Client;
+use crate::global::queries::{get_query, QUERY_URL};
 use crate::structs::recommendation::Recommendation;
 use rand::Rng;
 use reqwest::Response;
 use serde_json::{json, Value};
 
-pub async fn get_recommendation(pages: i32, genres: Vec<String>, media: String) -> serde_json::Value {
+pub async fn get_recommendation(pages: i32, genres: Vec<String>, media: String) -> Value {
     let mut rng:        rand::prelude::ThreadRng = rand::rng();
     let mut client:     Client = Client::new().with_proxy().await.unwrap();
     let json:           Value = json!({
@@ -30,7 +30,7 @@ pub async fn get_recommendation(pages: i32, genres: Vec<String>, media: String) 
         ids.push(media.id);
     }
 
-    if ids.len() == 0 {
+    if ids.is_empty() {
         return json!({"error": "No recommendations found"});
     }
 

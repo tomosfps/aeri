@@ -1,7 +1,8 @@
-use crate::anilist::queries::get_query;
-use crate::entities::traits::Entity;
-use crate::format::relation_addon::relation_addon;
+use crate::entities::format::relation_addon::relation_addon;
+use crate::entities::Entity;
+use crate::global::queries::get_query;
 use crate::structs::shared::{MediaFormat, MediaStatus, Title, Type};
+use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -20,7 +21,8 @@ pub struct RelationData {
     pub status:          Option<MediaStatus>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]   
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct FormattedRelation {
     pub id:              i32,
     pub romaji:          String,
@@ -33,7 +35,7 @@ pub struct FormattedRelation {
     pub similarity:      f32,
 }
 
-#[derive(Serialize, Deserialize)]   
+#[derive(Serialize, Deserialize)]
 pub struct FormattedRelations {
     pub relations: Vec<FormattedRelation>,
 }
@@ -46,33 +48,33 @@ pub struct RelationRequest {
 
 impl Entity<FormattedRelations, RelationRequest> for Relations {
     fn entity_name() -> String {
-        "Media".into()
+        "Relations".into()
     }
 
     fn data_index() -> Vec<String> {
         vec!["data".into(), "Page".into()]
     }
 
-    async fn format(self, request: &RelationRequest) -> FormattedRelations {
+    async fn format(self, request: &RelationRequest) -> Result<FormattedRelations, HttpResponse> {
         let mut relations: Vec<FormattedRelation> = vec![];
 
         for relation in &self.media {
             let similarity = relation_addon(&request.media_name, relation);
-            let frelation = FormattedRelation {
+            let formatted_relation = FormattedRelation {
                 id:             relation.id,
-                romaji:         relation.title.romaji.clone().unwrap_or_else(|| String::new()),
-                english:        relation.title.english.clone().unwrap_or_else(|| String::new()),
-                native:         relation.title.native.clone().unwrap_or_else(|| String::new()),
-                synonyms:       relation.synonyms.clone().unwrap_or_else(|| Vec::new()),
-                r#type:         relation.r#type.clone().unwrap_or_else(|| Type::default()),
-                format:         relation.format.clone().unwrap_or_else(|| MediaFormat::default()),
-                airing_type:    relation.status.clone().unwrap_or_else(|| MediaStatus::default()),
+                romaji:         relation.title.romaji.clone().unwrap_or_default(),
+                english:        relation.title.english.clone().unwrap_or_default(),
+                native:         relation.title.native.clone().unwrap_or_default(),
+                synonyms:       relation.synonyms.clone().unwrap_or_default(),
+                r#type:         relation.r#type.unwrap_or_default(),
+                format:         relation.format.unwrap_or_default(),
+                airing_type:    relation.status.unwrap_or_default(),
                 similarity:     similarity.similarity,
             };
-            relations.push(frelation);
+            relations.push(formatted_relation);
         }
 
-        FormattedRelations { relations }
+        Ok(FormattedRelations { relations })
     }
 
     fn cache_key(request: &RelationRequest) -> String {
@@ -84,7 +86,7 @@ impl Entity<FormattedRelations, RelationRequest> for Relations {
     }
 
     fn validate_request(request: &RelationRequest) -> Result<(), String> {
-        if request.media_name.len() == 0 || request.media_type.len() == 0 {
+        if request.media_name.is_empty() || request.media_type.is_empty() {
             return Err("No Media Name or Type was included".into());
         }
 

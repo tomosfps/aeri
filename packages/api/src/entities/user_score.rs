@@ -1,6 +1,7 @@
-use crate::anilist::queries::get_query;
-use crate::entities::traits::Entity;
+use crate::entities::Entity;
+use crate::global::queries::get_query;
 use crate::structs::shared::MediaListStatus;
+use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -28,7 +29,7 @@ pub struct FormattedUserScore {
     pub score:              Option<i32>,
     pub status:             Option<MediaListStatus>,
     pub repeat:             Option<i32>,
-    pub user:               UserScoresName,
+    pub username:           String,
 }
 
 #[derive(Deserialize)]
@@ -39,18 +40,22 @@ pub struct UserScoreRequest {
 
 impl Entity<FormattedUserScore, UserScoreRequest> for UserScore {
     fn entity_name() -> String {
-        "MediaList".into()
+        "UserScore".into()
     }
 
-    async fn format(self, _request: &UserScoreRequest) -> FormattedUserScore {
-        FormattedUserScore {
-            volumes:            self.progress_volumes,
-            progress:           self.progress,
-            score:              self.score,
-            status:             self.status,
-            repeat:             self.repeat,
-            user:               self.user,
-        }
+    fn data_index() -> Vec<String> {
+        vec!["data".into(), "MediaList".into()]
+    }
+
+    async fn format(self, _request: &UserScoreRequest) -> Result<FormattedUserScore, HttpResponse> {
+        Ok(FormattedUserScore {
+            volumes: self.progress_volumes,
+            progress: self.progress,
+            score: self.score,
+            status: self.status,
+            repeat: self.repeat,
+            username: self.user.name,
+        })
     }
 
     fn cache_key(request: &UserScoreRequest) -> String {

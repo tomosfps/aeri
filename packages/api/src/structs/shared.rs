@@ -1,106 +1,52 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Default, Clone)]
+#[derive(Deserialize, Serialize, Default, Clone, Copy)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum MediaFormat {
-    #[serde(rename = "TV")]
-    TV,
-    #[serde(rename = "TV_SHORT")]
-    TVShort,
-    #[serde(rename = "MOVIE")]
+    Tv,
+    TvShort,
     Movie,
-    #[serde(rename = "SPECIAL")]
     Special,
-    #[serde(rename = "OVA")]
-    OVA,
-    #[serde(rename = "ONA")]
-    ONA,
-    #[serde(rename = "MUSIC")]
+    Ova,
+    Ona,
     Music,
-    #[serde(rename = "MANGA")]
     Manga,
-    #[serde(rename = "NOVEL")]
     Novel,
-    #[serde(rename = "ONE_SHOT")]
     OneShot,
-    #[serde(rename = "UNKNOWN")]
     #[default]
     Unknown,
 }
 
-impl MediaFormat {
-    pub fn as_str(&self) -> &str {
-        match self {
-            MediaFormat::TV => "TV",
-            MediaFormat::Movie => "Movie",
-            MediaFormat::OVA => "OVA",
-            MediaFormat::ONA => "ONA",
-            MediaFormat::Special => "Special",
-            MediaFormat::Music => "Music",
-            MediaFormat::Manga => "Manga",
-            MediaFormat::Novel => "Novel",
-            MediaFormat::OneShot => "OneShot",
-            MediaFormat::TVShort => "TV Short",
-            MediaFormat::Unknown => "Unknown",
-        }
-    }
-}
-
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize, Default, PartialEq)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum MediaListStatus {
-    #[serde(rename = "CURRENT")]
     Current,
-    #[serde(rename = "PLANNING")]
     Planning,
-    #[serde(rename = "COMPLETED")]
     Completed,
-    #[serde(rename = "DROPPED")]
     Dropped,
-    #[serde(rename = "PAUSED")]
     Paused,
-    #[serde(rename = "REPEATING")]
     Repeating,
-    #[serde(rename = "UNKNOWN")]
     #[default]
     Unknown,
 }
 
-impl MediaListStatus {
-    pub fn as_str(&self) -> &str {
-        match self {
-            MediaListStatus::Current => "Current",
-            MediaListStatus::Planning => "Planning",
-            MediaListStatus::Completed => "Completed",
-            MediaListStatus::Dropped => "Dropped",
-            MediaListStatus::Paused => "Paused",
-            MediaListStatus::Repeating => "Repeating",
-            MediaListStatus::Unknown => "Unknown",
-        }
-    }
-}
-
-#[derive(Deserialize, Serialize, Default, Clone)]
+#[derive(Deserialize, Serialize, Default, Clone, Copy)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum MediaStatus {
-    #[serde(rename = "FINISHED")]
     Finished,
-    #[serde(rename = "RELEASING")]
     Releasing,
-    #[serde(rename = "NOT_YET_RELEASED")]
     NotYetReleased,
-    #[serde(rename = "CANCELLED")]
     Cancelled,
-    #[serde(rename = "HIATUS")]
     Hiatus,
-    #[serde(rename = "UNKNOWN")]
     #[default]
     Unknown,
 }
 
-#[derive(Deserialize, Serialize, Default, Clone)]
+#[derive(Deserialize, Serialize, Default, Clone, Copy)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Type {
-    #[serde(rename = "ANIME")]
     #[default]
     Anime,
-    #[serde(rename = "MANGA")]
     Manga,
 }
 
@@ -110,12 +56,10 @@ pub struct Favourites {
     pub manga:  MediaNodes,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MediaCoverImage {
-    #[serde(rename = "extraLarge")]
     pub extra_large: Option<String>,
-    pub large:       Option<String>,
-    pub medium:      Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -130,8 +74,8 @@ pub struct AiringSchedule {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AiringScheduleNode {
-    #[serde(rename = "timeUntilAiring")]
     pub time_until_airing:  i32,
     pub episode:            i32,
 }
@@ -143,17 +87,14 @@ pub struct Title {
     pub english: Option<String>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Name {
     pub full:        Option<String>,
     pub native:      Option<String>,
-    pub first:       Option<String>,
-    pub last:        Option<String>,
-    pub middle:      Option<String>,
     pub alternative: Option<Vec<String>>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Date {
     pub year:   Option<i32>,
     pub month:  Option<i32>,
@@ -166,9 +107,9 @@ pub struct MediaNodes {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MediaNodeData {
     pub id:         Option<i32>,
-    #[serde(rename = "siteUrl")]
     pub site_url:   Option<String>,
     pub title:      Option<Title>,
     pub format:     Option<MediaFormat>,
@@ -180,9 +121,9 @@ pub struct StaffNodes {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct StaffNodeData {
     pub id:         i32,
-    #[serde(rename = "siteUrl")]
     pub site_url:   Option<String>,
     pub title:      Option<Title>,
     pub format:     Option<MediaFormat>,
@@ -195,13 +136,11 @@ pub struct Statistics {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AnimeStatistics {
     pub count:              i32,
-    #[serde(rename = "meanScore")]
-    pub mean:               f32,
-    #[serde(rename = "minutesWatched")]
+    pub mean_score:         f32,
     pub minutes_watched:    i32,
-    #[serde(rename = "episodesWatched")]
     pub episodes_watched:   i32,
     pub scores:             Vec<ScoreDistribution>,
     pub genres:             Vec<GenreDistribution>,
@@ -216,54 +155,50 @@ pub struct AnimeFormatDistribution {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AnimeStatusDistribution {
     pub status:     MediaListStatus,
-    #[serde(rename = "meanScore")]
     pub mean_score: f32,
     pub count:      i32,
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MangaStatistics {
     pub count:              i32,
-    #[serde(rename = "meanScore")]
-    pub mean:               f32,
-    #[serde(rename = "chaptersRead")]
+    pub mean_score:         f32,
     pub chapters_read:      i32,
-    #[serde(rename = "volumesRead")]
     pub volumes_read:       i32,
     pub scores:             Vec<ScoreDistribution>,
     pub genres:             Vec<GenreDistribution>,
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ScoreDistribution {
     pub score:      i32,
     pub count:      i32,
-    #[serde(rename = "mediaIds")]
     pub media_ids:  Vec<i32>,
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+#[derive(Clone)]
 pub struct GenreDistribution {
     pub genre:           String,
     pub count:           i32,
-    #[serde(rename = "meanScore")]
     pub mean_score:      f32,
-    #[serde(rename = "minutesWatched")]
     pub minutes_watched: i32,
-    #[serde(rename = "chaptersRead")]
     pub chapters_read:   i32,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PageInfo {
-    pub total:      Option<i32>,
-    #[serde(rename = "perPage")]
-    pub per_page:   Option<i32>,
-    pub current:    Option<i32>,
-    #[serde(rename = "lastPage")]
     pub last_page:  Option<i32>,
-    #[serde(rename = "hasNextPage")]
-    pub has_next:   Option<bool>,
+}
+
+pub enum DataFrom {
+    Api,
+    Cache(i64),
 }

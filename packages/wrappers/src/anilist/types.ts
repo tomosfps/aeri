@@ -63,31 +63,29 @@ type AnimeStatusDistribution = {
     meanScore: number;
 };
 
-type SortedGenre = {
-    genre: string;
-    count: number;
-};
-
 type AnimeStatistics = {
     count: number;
-    watched: number;
-    minutes: number;
     meanScore: number;
-    genres: GenreDistribution[];
+    minutesWatched: number;
+    episodesWatched: number;
     scores: ScoreDistribution[];
+    genres: GenreDistribution[];
     formats: AnimeFormatDistribution[];
-    status: AnimeStatusDistribution[];
-    sortedGenres: SortedGenre[];
+    statuses: AnimeStatusDistribution[];
 };
 
 type MangaStatistics = {
     count: number;
-    chapters: number;
-    volumes: number;
     meanScore: number;
-    genres: GenreDistribution[];
+    chaptersRead: number;
+    volumesRead: number;
     scores: ScoreDistribution[];
-    sortedGenres: SortedGenre[];
+    genres: GenreDistribution[];
+};
+
+type Statistics = {
+    anime: AnimeStatistics;
+    manga: MangaStatistics;
 };
 
 type Title = {
@@ -140,6 +138,19 @@ type Relations = {
             type: MediaType;
         }[];
     };
+    transformed: {
+        relations: {
+            airingType: string;
+            english: string;
+            format: string;
+            id: number;
+            native: string;
+            romaji: string;
+            similarity: number;
+            synonyms: string[];
+            type: string;
+        }[];
+    };
 };
 
 type Media = {
@@ -188,15 +199,15 @@ type User = {
         about: string | null;
         siteUrl: string;
         favourites: Favourites;
-        animeStats: AnimeStatistics;
-        mangaStats: MangaStatistics;
+        statistics: Statistics;
         totalEntries: number;
         topGenre: string;
-        favouriteFormat: string;
-        completionPercentage: number;
+        topFormat: MediaFormat;
+        completionRate: number;
         lastUpdated: number;
     };
     transformed: {
+        favouriteFormat: string;
         description: string;
         animeFavourites: string;
         mangaFavourites: string;
@@ -209,12 +220,12 @@ type UserScore = {
         media_id: number;
     };
     response: BaseResponse & {
-        progress: number;
-        volumes: number;
-        score: number;
-        status: MediaListStatus;
-        repeat: number;
-        user: string;
+        progress: number | null;
+        volumes: number | null;
+        score: number | null;
+        status: MediaListStatus | null;
+        repeat: number | null;
+        username: string;
     };
 };
 
@@ -305,9 +316,7 @@ type Affinity = {
         other_users: string[];
     };
     response: BaseResponse & {
-        comparedAgainst: {
-            user: AffinityUser;
-        };
+        comparedAgainst: AffinityUser;
         affinity: {
             user: AffinityUser;
             affinity: number;

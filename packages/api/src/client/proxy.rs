@@ -10,13 +10,13 @@ lazy_static! {
 }
 
 pub struct Proxy {
-    pub client: reqwest::Client,
+    pub client: Client,
     pub redis: Redis,
 }
 
 impl Proxy {
     pub fn new() -> Self {
-        let client: Client = reqwest::Client::new();
+        let client: Client = Client::new();
         let redis = Redis::new();
         Proxy {
             client,
@@ -48,7 +48,7 @@ impl Proxy {
 
     async fn remove_all_proxies(&self) -> Result<(), Box<dyn Error>> {
         logger.debug_single("Removing all proxies", "Proxy");
-        let _ = self.redis.del("proxies")?;
+        self.redis.del("proxies")?;
         Ok(())
     }
 

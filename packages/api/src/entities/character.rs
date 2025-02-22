@@ -1,6 +1,7 @@
-use crate::anilist::queries::get_query;
-use crate::entities::traits::Entity;
-use crate::structs::shared::{Date, MediaNodes, Name, Avatar};
+use crate::entities::Entity;
+use crate::global::queries::get_query;
+use crate::structs::shared::{Avatar, Date, MediaNodes, Name};
+use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -46,8 +47,8 @@ impl Entity<FormattedCharacter, CharacterRequest> for Character {
         "Character".into()
     }
 
-    async fn format(self, _request: &CharacterRequest) -> FormattedCharacter {
-        FormattedCharacter {
+    async fn format(self, _request: &CharacterRequest) -> Result<FormattedCharacter, HttpResponse> {
+        Ok(FormattedCharacter {
             id:                 self.id,
             full_name:          self.name.full,
             native_name:        self.name.native,
@@ -57,10 +58,10 @@ impl Entity<FormattedCharacter, CharacterRequest> for Character {
             image:              self.image.large,
             age:                self.age,
             gender:             self.gender,
-            date_of_birth:      format!("{}/{}/{}", self.date_of_birth.day.unwrap_or_else(|| 0), self.date_of_birth.month.unwrap_or_else(|| 0), self.date_of_birth.year.unwrap_or_else(|| 0)),
+            date_of_birth:      format!("{}/{}/{}", self.date_of_birth.day.unwrap_or_default(), self.date_of_birth.month.unwrap_or_default(), self.date_of_birth.year.unwrap_or_default()),
             media:              self.media,
             description:        self.description,
-        }
+        })
     }
 
     fn cache_key(request: &CharacterRequest) -> String {
@@ -72,7 +73,7 @@ impl Entity<FormattedCharacter, CharacterRequest> for Character {
     }
 
     fn validate_request(request: &CharacterRequest) -> Result<(), String> {
-        if request.character_name.len() == 0 {
+        if request.character_name.is_empty() {
             return Err("No character name was included".into());
         }
 

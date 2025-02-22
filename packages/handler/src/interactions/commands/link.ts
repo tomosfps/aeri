@@ -1,9 +1,12 @@
 import { dbCreateAnilistUser, dbFetchDiscordUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
+import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
+
+const logger = new Logger();
 
 export const interaction: ChatInputCommand = {
     cooldown: 5,
@@ -32,9 +35,18 @@ export const interaction: ChatInputCommand = {
 
             const { result: user, error } = await api.fetch(Routes.User, { username });
 
-            if (error || !user) {
+            if (error) {
+                logger.error("Error while fetching data from the API.", "Anilist", { error });
+
                 return interaction.reply({
                     content: "An error occurred while fetching your Anilist account.",
+                    ephemeral: true,
+                });
+            }
+
+            if (!user) {
+                return interaction.reply({
+                    content: "Anilist user not found.",
                     ephemeral: true,
                 });
             }

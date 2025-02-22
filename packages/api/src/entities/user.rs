@@ -1,9 +1,10 @@
-use crate::anilist::queries::get_query;
-use crate::entities::traits::Entity;
-use crate::structs::shared::{Avatar, Favourites, Statistics};
+use crate::entities::format::user_addon::user_addon;
+use crate::entities::Entity;
+use crate::global::queries::get_query;
+use crate::structs::shared::{Avatar, Favourites, MediaFormat, Statistics};
+use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use crate::format::user_addon::user_addon;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -33,7 +34,7 @@ pub struct FormattedUser {
     pub statistics:         Statistics,
     pub total_entries:      i32,
     pub top_genre:          String,
-    pub top_format:         String,
+    pub top_format:         MediaFormat,
     pub completion_rate:    i64,
 }
 
@@ -47,24 +48,24 @@ impl Entity<FormattedUser, UserRequest> for User {
         "User".into()
     }
 
-    async fn format(self, _request: &UserRequest) -> FormattedUser {
+    async fn format(self, _request: &UserRequest) -> Result<FormattedUser, HttpResponse> {
         let addon = user_addon(&self);
 
-        FormattedUser {
-            id:                 self.id,
-            name:               self.name,
-            avatar:             self.avatar.large,
-            banner_image:       self.banner_image,
-            about:              self.about,
-            site_url:           self.site_url,
-            updated_at:         self.updated_at,
-            favourites:         self.favourites,
-            statistics:         self.statistics,
-            total_entries:      addon.total_entries,
-            top_genre:          addon.top_genre,
-            top_format:         addon.top_format,
-            completion_rate:    addon.completion_rate,
-        }
+        Ok(FormattedUser {
+            id: self.id,
+            name: self.name,
+            avatar: self.avatar.large,
+            banner_image: self.banner_image,
+            about: self.about,
+            site_url: self.site_url,
+            updated_at: self.updated_at,
+            favourites: self.favourites,
+            statistics: self.statistics,
+            total_entries: addon.total_entries,
+            top_genre: addon.top_genre,
+            top_format: addon.top_format,
+            completion_rate: addon.completion_rate,
+        })
     }
 
     fn cache_key(request: &UserRequest) -> String {
@@ -76,7 +77,7 @@ impl Entity<FormattedUser, UserRequest> for User {
     }
 
     fn validate_request(request: &UserRequest) -> Result<(), String> {
-        if request.username.len() == 0 {
+        if request.username.is_empty() {
             return Err("No username name was included".into());
         }
 

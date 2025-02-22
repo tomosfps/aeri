@@ -42,41 +42,41 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
                 media_id: data.id,
             });
 
-            if (error) {
+            if (error || !userScore) {
                 continue;
             }
 
             switch (userScore?.status) {
                 case "REPEATING":
                     userData.current.push(
-                        `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 (${userScore.repeat}) `)}\n`,
+                        `> ${inlineCode(`${userScore.username}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 (${userScore.repeat}) `)}\n`,
                     );
                     break;
                 case "CURRENT": {
-                    const userRepeats = userScore.repeat === 0 ? "" : `(${userScore.repeat})`;
+                    const userRepeats = userScore.repeat && userScore.repeat > 0 ? `(${userScore.repeat})` : "";
                     userData.current.push(
-                        `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 ${userRepeats} `)}\n`,
+                        `> ${inlineCode(`${userScore.username}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 ${userRepeats} `)}\n`,
                     );
                     break;
                 }
                 case "COMPLETED": {
-                    const userRepeats = userScore.repeat === 0 ? "" : `(${userScore.repeat})`;
+                    const userRepeats = userScore.repeat && userScore.repeat > 0 ? `(${userScore.repeat})` : "";
                     userData.completed.push(
-                        `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.score}/10 ${userRepeats} `)}\n`,
+                        `> ${inlineCode(`${userScore.username}:`)} ${inlineCode(` ${userScore.score}/10 ${userRepeats} `)}\n`,
                     );
                     break;
                 }
                 case "PLANNING":
-                    userData.planning.push(`> ${inlineCode(userScore.user)}\n`);
+                    userData.planning.push(`> ${inlineCode(userScore.username)}\n`);
                     break;
                 case "DROPPED":
                     userData.dropped.push(
-                        `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 `)}\n`,
+                        `> ${inlineCode(`${userScore.username}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 `)}\n`,
                     );
                     break;
                 case "PAUSED":
                     userData.paused.push(
-                        `> ${inlineCode(`${userScore.user}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 `)}\n`,
+                        `> ${inlineCode(`${userScore.username}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 `)}\n`,
                     );
                     break;
                 default:

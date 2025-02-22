@@ -1,6 +1,7 @@
-use crate::anilist::queries::get_query;
-use crate::entities::traits::Entity;
+use crate::entities::Entity;
+use crate::global::queries::get_query;
 use crate::structs::shared::{AiringSchedule, Date, MediaCoverImage, MediaFormat, MediaStatus, Title};
+use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -65,29 +66,29 @@ impl Entity<FormattedMedia, MediaRequest> for Media {
         "Media".into()
     }
 
-    async fn format(self, _request: &MediaRequest) -> FormattedMedia {
-        FormattedMedia {
-            id:             self.id,
-            title:          self.title,
-            airing:         self.airing_schedule,
-            season:         self.season,
-            average_score:  self.average_score,
-            mean_score:     self.mean_score,
-            banner:         self.banner_image,
-            cover:          self.cover_image.extra_large,
-            duration:       self.duration,
-            episodes:       self.episodes,
-            chapters:       self.chapters,
-            volumes:        self.volumes,
-            format:         self.format,
-            genres:         self.genres,
-            popularity:     self.popularity,
-            favourites:     self.favourites,
-            status:         self.status,
-            site_url:       self.site_url,
-            end_date:       format!("{}/{}/{}", self.end_date.day.unwrap_or_else(|| 0), self.end_date.month.unwrap_or_else(|| 0), self.end_date.year.unwrap_or_else(|| 0)),
-            start_date:     format!("{}/{}/{}", self.start_date.day.unwrap_or_else(|| 0), self.start_date.month.unwrap_or_else(|| 0), self.start_date.year.unwrap_or_else(|| 0)),
-        }
+    async fn format(self, _request: &MediaRequest) -> Result<FormattedMedia, HttpResponse> {
+        Ok(FormattedMedia {
+            id: self.id,
+            title: self.title,
+            airing: self.airing_schedule,
+            season: self.season,
+            average_score: self.average_score,
+            mean_score: self.mean_score,
+            banner: self.banner_image,
+            cover: self.cover_image.extra_large,
+            duration: self.duration,
+            episodes: self.episodes,
+            chapters: self.chapters,
+            volumes: self.volumes,
+            format: self.format,
+            genres: self.genres,
+            popularity: self.popularity,
+            favourites: self.favourites,
+            status: self.status,
+            site_url: self.site_url,
+            end_date: format!("{}/{}/{}", self.end_date.day.unwrap_or_default(), self.end_date.month.unwrap_or_default(), self.end_date.year.unwrap_or_default()),
+            start_date: format!("{}/{}/{}", self.start_date.day.unwrap_or_default(), self.start_date.month.unwrap_or_default(), self.start_date.year.unwrap_or_default()),
+        })
     }
 
     fn cache_key(request: &MediaRequest) -> String {
@@ -99,7 +100,7 @@ impl Entity<FormattedMedia, MediaRequest> for Media {
     }
 
     fn validate_request(request: &MediaRequest) -> Result<(), String> {
-        if request.media_type.len() == 0 || request.media_id == 0 {
+        if request.media_type.is_empty() || request.media_id == 0 {
             return Err("No Media Type or ID was included".into());
         }
 

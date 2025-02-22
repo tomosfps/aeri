@@ -16,7 +16,7 @@ export const interaction: ChatInputCommand = {
     async execute(interaction): Promise<void> {
         const anilistUser = await dbFetchAnilistUser(interaction.user_id);
 
-        const userID = anilistUser ? anilistUser.id : null;
+        const userId = anilistUser ? anilistUser.id : null;
         const username = anilistUser ? anilistUser.username : null;
 
         if (username === null) {
@@ -27,11 +27,11 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        const response = await fetch(`${env.API_URL}/expire-user`, {
+        const response = await fetch(`${env.API_URL}/remove-user`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                user_id: String(userID),
+                user_id: userId?.toString(),
                 username: username,
             }),
         }).catch((error) => {

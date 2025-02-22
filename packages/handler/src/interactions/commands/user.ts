@@ -43,8 +43,6 @@ export const interaction: ChatInputCommand = {
         logger.debug(`Fetching user: ${username}`, "User");
         const { result: user, error } = await api.fetch(Routes.User, { username });
 
-        logger.debugSingle(`User: ${JSON.stringify(user)}`, "User");
-
         if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", error);
 

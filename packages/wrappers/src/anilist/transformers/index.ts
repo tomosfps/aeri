@@ -3,6 +3,7 @@ import { type BaseResponse, type BaseTransformed, type RouteMap, Routes } from "
 import { affinityTransformer } from "./affinity.js";
 import { characterTransformer } from "./character.js";
 import { mediaTransformer } from "./media.js";
+import { relationsTransformer } from "./relations.js";
 import { staffTransformer } from "./staff.js";
 import { studioTransformer } from "./studio.js";
 import { universalTransformer } from "./universal.js";
@@ -36,5 +37,6 @@ export const transformers: TransformersType & UniversalTransformer = {
     [Routes.Studio]: studioTransformer,
     [Routes.Media]: mediaTransformer,
     [Routes.Affinity]: affinityTransformer,
+    [Routes.Relations]: relationsTransformer,
     universal: universalTransformer,
 };

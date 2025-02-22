@@ -129,12 +129,10 @@ export const interaction: ChatInputCommand = {
             return interaction.followUp({ content: "User not found" });
         }
 
-        const topGenres = user.animeStats.genres
-            ? user.animeStats.genres
-                  .sort((a: any, b: any) => b.count - a.count)
-                  .slice(0, 5)
-                  .map((genre: any) => genre.genre)
-            : [];
+        const topGenres = user.statistics.anime.genres
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5)
+            .map((genre) => genre.genre);
 
         if (topGenres.length === 0) {
             logger.error("User genres are undefined or empty", "Recommend");

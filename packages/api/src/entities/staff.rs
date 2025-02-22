@@ -1,6 +1,7 @@
-use crate::anilist::queries::get_query;
-use crate::entities::traits::Entity;
+use crate::entities::Entity;
+use crate::global::queries::get_query;
 use crate::structs::shared::{Avatar, Date, Name, StaffNodes};
+use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -54,8 +55,8 @@ impl Entity<FormattedStaff, StaffRequest> for Staff {
         vec!["data".into(), "Page".into(), Self::entity_name().to_lowercase(), "0".into()]
     }
 
-    async fn format(self, _request: &StaffRequest) -> FormattedStaff {
-        FormattedStaff {
+    async fn format(self, _request: &StaffRequest) -> Result<FormattedStaff, HttpResponse> {
+        Ok(FormattedStaff {
             id: self.id,
             age: self.age,
             gender: self.gender,
@@ -64,12 +65,12 @@ impl Entity<FormattedStaff, StaffRequest> for Staff {
             language: self.language_v2,
             full_name: self.name.full,
             native_name: self.name.native,
-            date_of_birth: format!("{}/{}/{}", self.date_of_birth.day.unwrap_or_else(|| 0), self.date_of_birth.month.unwrap_or_else(|| 0), self.date_of_birth.year.unwrap_or_else(|| 0)),
-            date_of_death: format!("{}/{}/{}", self.date_of_death.day.unwrap_or_else(|| 0), self.date_of_death.month.unwrap_or_else(|| 0), self.date_of_death.year.unwrap_or_else(|| 0)),
+            date_of_birth: format!("{}/{}/{}", self.date_of_birth.day.unwrap_or_default(), self.date_of_birth.month.unwrap_or_default(), self.date_of_birth.year.unwrap_or_default()),
+            date_of_death: format!("{}/{}/{}", self.date_of_death.day.unwrap_or_default(), self.date_of_death.month.unwrap_or_default(), self.date_of_death.year.unwrap_or_default()),
             site_url: self.site_url,
             image: self.image.large,
             staff_data: self.staff_media,
-        }
+        })
     }
 
     fn cache_key(request: &StaffRequest) -> String {
@@ -85,7 +86,7 @@ impl Entity<FormattedStaff, StaffRequest> for Staff {
     }
 
     fn validate_request(request: &StaffRequest) -> Result<(), String> {
-        if request.staff_name.len() == 0 {
+        if request.staff_name.is_empty() {
             return Err("No staff name was included".into());
         }
 

@@ -1,6 +1,7 @@
-use crate::anilist::queries::get_query;
-use crate::entities::traits::Entity;
+use crate::entities::Entity;
+use crate::global::queries::get_query;
 use crate::structs::shared::MediaNodes;
+use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -25,8 +26,8 @@ impl Entity<Studio, StudioRequest> for Studio {
         "Studio".into()
     }
 
-    async fn format(self, _request: &StudioRequest) -> Studio {
-        self
+    async fn format(self, _request: &StudioRequest) -> Result<Studio, HttpResponse> {
+        Ok(self)
     }
 
     fn cache_key(request: &StudioRequest) -> String {
@@ -38,7 +39,7 @@ impl Entity<Studio, StudioRequest> for Studio {
     }
 
     fn validate_request(request: &StudioRequest) -> Result<(), String> {
-        if request.studio_name.len() == 0 {
+        if request.studio_name.is_empty() {
             return Err("No studio name was included".into());
         }
 

@@ -1,5 +1,6 @@
 import { type API, GatewayDispatchEvents as Events } from "@discordjs/core";
 import { Logger } from "logger";
+import { ButtonInteraction } from "../classes/buttonInteraction.js";
 import { ChatInputInteraction } from "../classes/chatInputCommandInteraction.js";
 import type { HandlerClient } from "../classes/handlerClient.js";
 import { MessageContextInteraction } from "../classes/messageContextInteraction.js";
@@ -42,7 +43,7 @@ const interactionTransformer = (interaction: any, api: API, client: HandlerClien
         case InteractType.UserContext:
             return new UserContextInteraction(interaction, api, client);
         case InteractType.Button:
-            return new ChatInputInteraction(interaction, api, client);
+            return new ButtonInteraction(interaction, api, client);
         default:
             return interaction;
     }

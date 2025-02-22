@@ -68,9 +68,9 @@ export const interaction: ChatInputCommand = {
         }
 
         const embed = new EmbedBuilder()
-            .setTitle(`${affinity.comparedAgainst.user.name} affinity`)
-            .setURL(affinity.comparedAgainst.user.siteUrl)
-            .setThumbnail(affinity.comparedAgainst.user.avatar.large)
+            .setTitle(`${affinity.comparedAgainst.name} affinity`)
+            .setURL(affinity.comparedAgainst.siteUrl)
+            .setThumbnail(affinity.comparedAgainst.avatar.large)
             .setDescription(affinity.description)
             .setFooter({ text: affinity.footer })
             .setColor(0x2f3136);

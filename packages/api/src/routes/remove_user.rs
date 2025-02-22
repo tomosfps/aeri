@@ -1,8 +1,8 @@
-use actix_web::{post, web, HttpResponse, Responder};
-use lazy_static::lazy_static;
 use crate::cache::redis::Redis;
-use serde::Deserialize;
+use actix_web::{post, web, HttpResponse, Responder};
 use colourful_logger::Logger;
+use lazy_static::lazy_static;
+use serde::Deserialize;
 use serde_json::json;
 
 lazy_static! {
@@ -18,7 +18,7 @@ struct UserExpireRequest {
 
 #[post("/remove-user")]
 async fn remove_user(req: web::Json<UserExpireRequest>) -> impl Responder {
-    if req.username.len() == 0 || req.user_id.len() == 0 {
+    if req.username.is_empty() || req.user_id.is_empty() {
         return HttpResponse::BadRequest().json(json!({
             "status": "No username or user_id was included"
         }));
@@ -43,6 +43,6 @@ async fn remove_user(req: web::Json<UserExpireRequest>) -> impl Responder {
     }
 
     HttpResponse::Ok().json(json!({
-        "status": "User data has been expired"
+        "message": "User data has been expired"
     }))
 }
