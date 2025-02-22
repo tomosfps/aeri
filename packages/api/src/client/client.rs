@@ -19,6 +19,7 @@ pub struct Client {
 }
 
 impl Client {
+    #[allow(dead_code)]
     pub fn new() -> Self {
         let client = reqwest::Client::new();
         let redis = Redis::new();
@@ -26,7 +27,7 @@ impl Client {
             client,
             redis,
             using_proxy: false,
-            current_proxy: "".to_string(),
+            current_proxy: String::from(""),
         }
     }
 
@@ -47,19 +48,6 @@ impl Client {
     pub async fn set_proxy(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         self.current_proxy = Self::fetch_proxy(&self.redis).await?;
         Ok(())
-    }
-
-    pub async fn with_proxy(&self) -> Result<Self, Box<dyn std::error::Error>> {
-        let redis = Redis::new();
-        let proxy_url = Self::fetch_proxy(&self.redis).await?;
-        let proxy = Proxy::http(&proxy_url)?;
-        let client = reqwest::Client::builder().proxy(proxy).build()?;
-        Ok(Client {
-            client,
-            redis,
-            using_proxy: true,
-            current_proxy: proxy_url,
-        })
     }
 
     pub async fn post(&mut self, url: &str, json: &Value) -> Result<Response, Box<dyn std::error::Error>> {

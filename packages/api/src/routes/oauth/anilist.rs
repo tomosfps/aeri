@@ -49,7 +49,7 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>) -> impl Responder {
         "code": params.code,
     });
 
-    let mut client = Client::new().with_proxy().await.unwrap();
+    let mut client = Client::new_proxied().await;
     let response = client.post("https://anilist.co/api/v2/oauth/token", &json).await;
 
     let response = match response {

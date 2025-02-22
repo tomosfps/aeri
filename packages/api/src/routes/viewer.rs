@@ -32,7 +32,7 @@ async fn viewer(req: HttpRequest) -> impl Responder {
 
     logger.debug_single(&format!("Auth token: {}", auth), "User");
 
-    let mut client = Client::new().with_proxy().await.unwrap();
+    let mut client = Client::new_proxied().await;
     let json = json!({"query": get_query("viewer")});
     let response = client.post_with_auth(QUERY_URL, &json, auth).await.unwrap();
 

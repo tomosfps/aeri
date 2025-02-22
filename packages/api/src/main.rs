@@ -13,9 +13,11 @@ mod entities;
 
 use routes::recommend::recommend;
 
-use crate::entities::{affinity::Affinity, character::Character,
-                      media::Media, relations::Relations, staff::Staff,
-                      studio::Studio, user::User, user_score::UserScore, Entity};
+use crate::entities::{
+    affinity::Affinity, character::Character,
+    media::Media, relations::Relations, staff::Staff,
+    studio::Studio, user::User, user_score::UserScore, Entity
+};
 use crate::routes::oauth::anilist::anilist_oauth;
 use crate::routes::viewer::viewer;
 use cache::redis::Redis;

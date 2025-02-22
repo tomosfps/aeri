@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 
 pub async fn get_recommendation(pages: i32, genres: Vec<String>, media: String) -> Value {
     let mut rng:        rand::prelude::ThreadRng = rand::rng();
-    let mut client:     Client = Client::new().with_proxy().await.unwrap();
+    let mut client:     Client = Client::new_proxied().await;
     let json:           Value = json!({
         "query": get_query("recommendation"),
         "variables": {
