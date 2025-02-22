@@ -1,9 +1,9 @@
 use crate::cache::redis::Redis;
 use crate::client::client::Client;
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::web::Redirect;
+use actix_web::{get, web, Responder};
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
-use reqwest::Response;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::env;
@@ -11,6 +11,8 @@ use std::env;
 lazy_static! {
     static ref logger: Logger = Logger::default();
     static ref redis: Redis = Redis::new();
+    static ref oauth_success_url: String = format!("{}/{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_SUCCESS_PATH").unwrap());
+    static ref oauth_fail_url: String = format!("{}/{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_FAIL_PATH").unwrap());
 }
 
 #[derive(Deserialize)]
@@ -47,14 +49,33 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>) -> impl Responder {
         "code": params.code,
     });
 
-    let mut client:   Client    = Client::new().with_proxy().await.unwrap();
-    let response:     Response  = client.post("https://anilist.co/api/v2/oauth/token", &json).await.unwrap();
+    let mut client = Client::new().with_proxy().await.unwrap();
+    let response = client.post("https://anilist.co/api/v2/oauth/token", &json).await;
 
-    if response.status().as_u16() != 200 { return Client::error_response(response).await; }
+    let response = match response {
+        Ok(response) => response,
+        Err(err) => {
+            logger.error_single(&format!("Error getting response: {}", err), "Anilist");
+            return Redirect::to(oauth_fail_url.clone());
+        }
+    };
+
+    if response.status().as_u16() != 200 {
+        return Redirect::to(oauth_fail_url.clone());
+    }
 
     let params: Vec<&str> = params.state.split("_").collect();
 
-    let response_json = response.json::<TokenResponse>().await.unwrap();
+    let response_json = response.json::<TokenResponse>().await;
+    
+    let response_json = match response_json {
+        Ok(response_json) => response_json,
+        Err(err) => {
+            logger.error_single(&format!("Error parsing response: {}", err), "Anilist");
+            return Redirect::to(oauth_fail_url.clone());
+        }
+    };
+    
     let token_data = TokenData {
         r#type: TokenTypes::Anilist,
         user_id: params[0].to_string(),
@@ -64,6 +85,5 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>) -> impl Responder {
 
     redis.xadd("oauth_token", "data", serde_json::to_string(&token_data).unwrap()).await.unwrap();
 
-    // @TODO Needs to be changed to Redirect::to(<success page url>)
-    HttpResponse::Ok().json(token_data)
+    Redirect::to(oauth_success_url.clone())
 }
