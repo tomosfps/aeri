@@ -8,7 +8,7 @@ interface NavigationLinkProps {
 
 export function NavigationLink({ href, children, onClick }: NavigationLinkProps) {
     return (
-        <Link to={href} target={href.startsWith("https") ? "_blank" : "_self"} className="hover:underline hover:text-csecondary-light/40 dark:hover:text-csecondary-dark/40 underline-offset-4 text-csecondary-light dark:text-csecondary-dark" prefetch="none" onClick={onClick}>
+        <Link to={href} target={href.startsWith("https") ? "_blank" : "_self"} className="hover:underline hover:text-csecondary-light/40 underline-offset-4 text-csecondary-light" prefetch="none" onClick={onClick}>
             {children}
         </Link>
     );

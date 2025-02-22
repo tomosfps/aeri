@@ -25,46 +25,32 @@ export default {
 
                 cprimary: {
                     light: "#F9A8D4",
-                    DEFAULT: "#EC4899",
-                    dark: "#BE185D",
                 },
 
                 csecondary: {
                     light: "#A5B4FC",
-                    DEFAULT: "#6366F1",
-                    dark: "#4338CA",
                 },
 
                 caccent: {
                     light: "#86EFAC",
-                    DEFAULT: "#34D399",
-                    dark: "#15803D",
                 },
 
                 cbackground: {
-                    light: "#FDF7FA",
-                    dark: "#1E1B1E",
+                    light: "#1A1C2C",
                 },
 
                 ccard: {
                     light: "#FFFFFF",
-                    dark: "#2A1F2D",
                 },
 
                 ctext: {
-                    light: "#1F2937",
-                    dark: "#E5E7EB",
+                    light: "#E5E7EB",
                 },
 
                 cborder: {
-                    light: "#E5E7EB",
-                    dark: "#4B2C3D",
+                    light: "#4B2C3D",
                 },
 
-                gradient: {
-                    white: `bg-gradient-to-r from-[#7e61a6] via-[#d1adcc] to-[#b983a7]`,
-                    dark: `bg-gradient-to-r from-[#75589d] via-[#522e4d] to-[#7c466a]`,
-                },
 
                 card: {
                     DEFAULT: "hsl(var(--card))",

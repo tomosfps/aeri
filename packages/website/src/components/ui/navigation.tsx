@@ -22,10 +22,6 @@ export default function Navigation() {
     }
 
     useEffect(() => {
-        loadTheme();
-    }, []);
-
-    useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > lastScrollY && window.scrollY > 75) {
                 setIsVisible(false);
@@ -46,7 +42,7 @@ export default function Navigation() {
             <header className={`sticky top-0 flex w-full h-24 items-center z-50 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
 
                 {/* Navigation */}
-                <div className="min-h-max mx-4 lg:mx-6 xl:mx-8 2xl:mx-auto max-w-7xl flex w-full items-center border-2 rounded-lg p-4 my-8 bg-cbackground-light dark:bg-cbackground-dark">
+                <div className="border-csecondary-light min-h-max mx-4 lg:mx-6 xl:mx-8 2xl:mx-auto max-w-7xl flex w-full items-center border-2 rounded-lg p-4 my-8 bg-cbackground-light">
                     <Link to="/" className="mr-6 flex items-center" prefetch="none">
                         <Suspense fallback={<div>Loading...</div>}>
                             <LogoIcon />
@@ -57,14 +53,11 @@ export default function Navigation() {
                     {/* Left Side */}
                     <nav className="hidden lg:flex items-center space-x-6">
                         <NavigationLink href="/" children="Home" />
-                        <NavigationLink href="commands" children="Commands" />
-                        <NavigationLink href="dashboard" children="Profile" />
-                        <NavigationLink href="status" children="Status" />
-                        <NavigationLink href="settings" children="Settings" />
+                        <NavigationLink href="/" children="Commands" />
 
                         <Link
                             to="https://github.com/ehiraa/aeri"
-                            className="hover:bg-csecondary-light/40 dark:hover:bg-csecondary-dark/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light dark:text-ctext-dark bg-csecondary-light dark:bg-csecondary-dark"
+                            className="hover:bg-csecondary-light/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light bg-csecondary-light"
                             prefetch="none"
                             target="_blank"
                         >
@@ -74,7 +67,7 @@ export default function Navigation() {
                         </Link>
                         <Link
                             to="#"
-                            className="hover:bg-csecondary-light/40 dark:hover:bg-csecondary-dark/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light dark:text-ctext-dark bg-csecondary-light dark:bg-csecondary-dark"
+                            className="hover:bg-csecondary-light/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light bg-csecondary-light"
                             prefetch="none"
                             target="_blank"
                         >
@@ -88,7 +81,7 @@ export default function Navigation() {
                     <div className="ml-auto flex items-center space-x-4">
                         <Link
                             to="#"
-                            className="hover:bg-cprimary-light/40 dark:hover:bg-cprimary-dark/40 inline-flex h-9 items-center justify-center rounded-md bg-cprimary-light dark:bg-cprimary-dark px-4 py-2 text-sm font-medium text-ctext-light dark:text-ctext-dark shadow"
+                            className="text-black hover:bg-cprimary-light/40 inline-flex h-9 items-center justify-center rounded-md bg-cprimary-light px-4 py-2 text-sm font-medium shadow"
                             prefetch="none"
                         >
                             Sign in
@@ -97,10 +90,10 @@ export default function Navigation() {
                         {/* Burger Menu toggle */}
                         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="outline" size="icon" className="lg:hidden bg-csecondary-light dark:bg-csecondary-dark text-ctext-light dark:text-ctext-dark">
+                                <Button variant="outline" size="icon" className="lg:hidden bg-csecondary-light border-transparent">
                                     
                                     <Suspense fallback={<div>Loading...</div>}>
-                                        <icons.HamburgerMenu className="h-6 w-6" />
+                                        <icons.HamburgerMenu className="h-6 w-6 text-black" />
                                     </Suspense>
                                     <span className="sr-only">Toggle navigation menu</span>
                                 </Button>
@@ -109,22 +102,19 @@ export default function Navigation() {
 
                                 <div className="grid gap-4 text-2xl font-bold">
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
-                                        <h1 className="text-cprimary-light dark:text-cprimary-dark">Main Page</h1>
+                                        <h1 className="text-cprimary-light">Main Page</h1>
                                         <NavigationLink href="/" children="Home" onClick={toggleSheet} />
-                                        <NavigationLink href="commands" children="Commands" onClick={toggleSheet} />
-                                        <NavigationLink href="status" children="Status" onClick={toggleSheet} />
-                                        <NavigationLink href="settings" children="Settings" onClick={toggleSheet} />
-                                        <NavigationLink href="dashboard" children="Profile" onClick={toggleSheet} />
+                                        <NavigationLink href="/" children="Commands" onClick={toggleSheet} />
                                     </div>
                                     
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
-                                        <h1 className="text-cprimary-light dark:text-cprimary-dark">Support</h1>
+                                        <h1 className="text-cprimary-light">Support</h1>
                                         <NavigationLink href="/" children="Server" onClick={toggleSheet} />
-                                        <NavigationLink href="commands" children="Guides" onClick={toggleSheet} />
+                                        <NavigationLink href="/" children="Guides" onClick={toggleSheet} />
                                     </div>
 
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
-                                        <h1 className="text-cprimary-light dark:text-cprimary-dark">External</h1>
+                                        <h1 className="text-cprimary-light">External</h1>
                                         <NavigationLink href="https://github.com/ehiraa/aeri" children="Github" onClick={toggleSheet} />
                                         <NavigationLink href="/" children="Discord" onClick={toggleSheet} />
                                     </div>
@@ -136,15 +126,6 @@ export default function Navigation() {
             </header>
         </>
     );
-}
-
-function loadTheme() {
-    const htmlElement = document.documentElement;
-    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        htmlElement.classList.add('dark');
-    } else {
-        htmlElement.classList.remove('dark');
-    }
 }
 
 function LogoIcon() {

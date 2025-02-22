@@ -4,7 +4,7 @@ import FooterSection from "./components/sections/footer/default";
 
 function Layout() {
     return (
-        <div className="h-full w-screen bg-cbackground-light dark:bg-cbackground-dark">
+        <div className="h-full w-screen bg-cbackground-light">
             <Navigation />
             
             <Outlet />
