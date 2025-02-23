@@ -8,9 +8,14 @@ async function validateResponse<T extends object>(response: Response): Promise<T
             return null;
         }
 
-        const result = (await response.json().catch((error) => {
-            throw new Error(`Error while parsing error response (${response.status})`, { cause: error });
-        })) as { error: string };
+        const result = (await response
+            .clone()
+            .json()
+            .catch(async () => {
+                throw new Error(`Error while parsing error response (${response.status})`, {
+                    cause: await response.text(),
+                });
+            })) as { error: string };
 
         throw new Error(`Response not ok (${response.status}):\n${result.error}`);
     }

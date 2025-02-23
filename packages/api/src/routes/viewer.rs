@@ -16,21 +16,22 @@ lazy_static! {
 async fn viewer(req: HttpRequest) -> impl Responder {
     let auth = req.headers().get("Authorization");
 
-    if auth.is_none() {
-        return HttpResponse::Unauthorized().json(json!({
-            "error": "No Authorization header was included"
-        }));
-    }
+    let auth = match auth {
+        Some(auth) => auth,
+        None => {
+            return HttpResponse::Unauthorized().json(json!({
+                "error": "No Authorization header was included"
+            }));
+        }
+    };
 
-    let auth = auth.unwrap().to_str().unwrap();
+    let auth = auth.to_str().unwrap();
 
     if auth.is_empty() {
         return HttpResponse::Unauthorized().json(json!({
             "error": "No Authorization header was included"
         }));
     }
-
-    logger.debug_single(&format!("Auth token: {}", auth), "User");
 
     let mut client = Client::new_proxied().await;
     let json = json!({"query": get_query("viewer")});

@@ -2,7 +2,7 @@ use crate::cache::redis::Redis;
 use crate::client::client::Client;
 use crate::global::queries::QUERY_URL;
 use crate::structs::shared::DataFrom;
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
 use ::redis::RedisResult;
@@ -40,10 +40,12 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
         false
     }
 
-    fn token(_request: &R) -> Option<&str> {
-        None
+    fn token(request: &HttpRequest) -> Option<&str> {
+        request
+            .headers()
+            .get("Authorization")
+            .and_then(|header| header.to_str().ok())
     }
-
 
     fn cache_key(request: &R) -> String;
 
@@ -51,15 +53,15 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
         86400
     }
 
-    fn cache_get(request: &R) -> Result<(F, DataFrom), String> {
+    fn cache_get(request: &R) -> Option<(F, DataFrom)> {
         match redis.get(Self::cache_key(request)) {
             Ok(data) => {
                 let result = serde_json::from_str::<F>(&data).unwrap();
                 let ttl = redis.ttl(Self::cache_key(request)).unwrap();
-                Ok((result, DataFrom::Cache(ttl)))
+                Some((result, DataFrom::Cache(ttl)))
             },
             Err(_) => {
-                Err("No data found in cache".to_string())
+                None
             }
         }
     }
@@ -91,20 +93,30 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
         }
     }
 
-    async fn route(req: web::Json<R>) -> impl Responder {
-        if let Err(e) = Self::validate_request(&req) {
+    async fn route(body: web::Json<R>, request: HttpRequest) -> impl Responder {
+        if let Err(e) = Self::validate_request(&body) {
             return HttpResponse::BadRequest().json(json!({"error": e}));
         }
 
-        if let Ok((data, data_from)) = Self::cache_get(&req) {
+        if let Some((data, data_from)) = Self::cache_get(&body) {
             return HttpResponse::Ok().json(Self::apply_data_from(data, data_from));
         }
-
+        
         let mut client = Client::new_proxied().await;
+        
         let response = if Self::auth_required() {
-            client.post_with_auth(QUERY_URL, &Self::query(&req), Self::token(&req).unwrap()).await.unwrap()
+            let token = Self::token(&request);
+            
+            let token = match token {
+                Some(token) => token,
+                None => {
+                    return HttpResponse::Unauthorized().json(json!({"error": "No token was included in the request"}));
+                }
+            };
+            
+            client.post_with_auth(QUERY_URL, &Self::query(&body), token).await.unwrap()
         } else {
-            client.post(QUERY_URL, &Self::query(&req)).await.unwrap()
+            client.post(QUERY_URL, &Self::query(&body)).await.unwrap()
         };
 
         if response.status().as_u16() != 200 {
@@ -116,12 +128,12 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
             Err(e) => return HttpResponse::InternalServerError().json(json!({"error": e})),
         };
 
-        let formatted = match data.format(&req).await {
+        let formatted = match data.format(&body).await {
             Ok(data) => data,
             Err(response) => return response,
         };
 
-        let _ = Self::cache_set(&formatted, &req).await;
+        let _ = Self::cache_set(&formatted, &body).await;
 
         HttpResponse::Ok().json(Self::apply_data_from(formatted, DataFrom::Api))
     }

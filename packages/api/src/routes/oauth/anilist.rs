@@ -61,6 +61,11 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>) -> impl Responder {
     };
 
     if response.status().as_u16() != 200 {
+        let code = response.status().as_u16();
+        let error = response.text().await.unwrap();
+
+        logger.error(&format!("Error getting token ({})", code), "Anilist", false, error.clone());
+
         return Redirect::to(oauth_fail_url.clone());
     }
 

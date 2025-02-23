@@ -1,7 +1,8 @@
 use crate::entities::Entity;
 use crate::global::mutations::get_mutation;
-use crate::structs::shared::{Title, MediaListStatus};
+use crate::structs::shared::{Title, MediaListStatus, DataFrom};
 use actix_web::HttpResponse;
+use redis::RedisResult;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -38,20 +39,11 @@ pub struct MutationMediaRequest {
     score:      i32,
     progress:   i32,
     id:         i32,
-    token:      String,
 }
 
 impl Entity<FormattedUpdateMedia, MutationMediaRequest> for UpdateMediaMutation {
     fn entity_name() -> String {
         "SaveMediaListEntry".into()
-    }
-
-    fn auth_required() -> bool {
-        true
-    }
-
-    fn token(request: &MutationMediaRequest) -> Option<&str> {
-        Some(&request.token)
     }
 
     fn data_index() -> Vec<String> {
@@ -69,19 +61,27 @@ impl Entity<FormattedUpdateMedia, MutationMediaRequest> for UpdateMediaMutation 
         })
     }
 
-    fn cache_key(request: &MutationMediaRequest) -> String {
-        format!("mutation:{}:{}:{}", request.id, request.progress, request.score)
+    fn auth_required() -> bool {
+        true
+    }
+
+    fn cache_key(_request: &MutationMediaRequest) -> String {
+        String::new()
+    }
+
+    fn cache_get(_request: &MutationMediaRequest) -> Option<(FormattedUpdateMedia, DataFrom)> {
+        None
+    }
+    
+    async fn cache_set(_data: &FormattedUpdateMedia, _request: &MutationMediaRequest) -> RedisResult<()> {
+        Ok(())
     }
 
     fn query(request: &MutationMediaRequest) -> Value {
         json!({ "query": get_mutation("update_media"), "variables": { "status": request.status, "score": request.score, "progress": request.progress, "id": request.id } })
     }
 
-    fn validate_request(request: &MutationMediaRequest) -> Result<(), String> {
-        if request.token.is_empty() {
-            return Err("No token was included in the request".into());
-        }
-
+    fn validate_request(_request: &MutationMediaRequest) -> Result<(), String> {
         Ok(())
     }
 }
