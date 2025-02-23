@@ -142,7 +142,14 @@ export async function load<T>(type: FileType): Promise<Map<string, T>> {
 }
 
 function getName(
-    interaction: AutoCompleteCommand | ChatInputCommand | Button | SelectMenu | Modal | MessageContextCommand | UserContextCommand,
+    interaction:
+        | AutoCompleteCommand
+        | ChatInputCommand
+        | Button
+        | SelectMenu
+        | Modal
+        | MessageContextCommand
+        | UserContextCommand,
 ): string {
     if ("data" in interaction) return interaction.data.name;
     return interaction.custom_id;
