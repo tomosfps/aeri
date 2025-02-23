@@ -17,7 +17,7 @@ pub enum MediaFormat {
     Unknown,
 }
 
-#[derive(Deserialize, Serialize, Default, PartialEq)]
+#[derive(Deserialize, Serialize, Default, PartialEq, Clone, Copy)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum MediaListStatus {
     Current,

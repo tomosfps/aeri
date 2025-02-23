@@ -50,44 +50,45 @@ impl Client {
         Ok(())
     }
 
-    pub async fn post(&mut self, url: &str, json: &Value) -> Result<Response, Box<dyn std::error::Error>> {
+    pub async fn post(&mut self, url: &str, query: &Value) -> Result<Response, Box<dyn std::error::Error>> {
         if self.using_proxy {
             let response = self.client.post(url)
                 .header("Content-Type", "application/json")
-                .json(json)
+                .json(query)
                 .send()
                 .await?;
 
             if response.status().as_u16() == 403 {
                 let _ = self.remove_proxy().await;
                 let _ = self.set_proxy().await;
-                return Box::pin(async move { self.post(url, json).await }).await;
+                return Box::pin(async move { self.post(url, query).await }).await;
             }
             return Ok(response);
         }
 
         let response = self.client.post(url)
             .header("Content-Type", "application/json")
-            .json(json)
+            .json(query)
             .send()
             .await?;
 
         Ok(response)
     }
 
-    pub async fn post_with_auth(&mut self, url: &str, json: &Value, auth: &str) -> Result<Response, Box<dyn std::error::Error>> {
+    pub async fn post_with_auth(&mut self, url: &str, query: &Value, auth: &str) -> Result<Response, Box<dyn std::error::Error>> {
         if self.using_proxy {
             let response = self.client.post(url)
                 .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
                 .header("Authorization", auth)
-                .json(json)
+                .json(query)
                 .send()
                 .await?;
 
             if response.status().as_u16() == 403 {
                 let _ = self.remove_proxy().await;
                 let _ = self.set_proxy().await;
-                return Box::pin(async move { self.post(url, json).await }).await;
+                return Box::pin(async move { self.post(url, query).await }).await;
             }
             return Ok(response);
         }
@@ -95,7 +96,7 @@ impl Client {
         let response = self.client.post(url)
             .header("Content-Type", "application/json")
             .header("Authorization", auth)
-            .json(json)
+            .json(query)
             .send()
             .await?;
 

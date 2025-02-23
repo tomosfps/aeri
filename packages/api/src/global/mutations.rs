@@ -1,8 +1,12 @@
 pub fn get_mutation(mutation_name: &str) -> String {
 
     let update_media: &str = "
-    mutation Mutation($status: MediaListStatus, $score: Float, $progress: Int, $ids: [Int]) {
-    UpdateMediaListEntries(status: $status, score: $score, progress: $progress, ids: $ids) {
+    mutation Mutation($status: MediaListStatus, $score: Float, $progress: Int, $id: Int) {
+    SaveMediaListEntry(status: $status, score: $score, progress: $progress, mediaId: $id) {
+        repeat
+        score
+        progress
+        status
         media {
             id
             title {

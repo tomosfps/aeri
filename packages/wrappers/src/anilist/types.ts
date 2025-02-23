@@ -11,6 +11,7 @@ export enum Routes {
     Affinity = "affinity",
     Recommend = "recommend",
     CurrentUser = "viewer",
+    UpdateMedia = "oauth/updateMedia",
 }
 
 type AffinityUser = {
@@ -155,7 +156,8 @@ type Relations = {
 
 type Media = {
     body: {
-        media_id: number;
+        search?:    string;
+        media_id?:  number;
         media_type: MediaType;
     };
     response: BaseResponse & {
@@ -216,8 +218,9 @@ type User = {
 
 type UserScore = {
     body: {
-        user_id: number;
+        user_id?: number;
         media_id: number;
+        userName?: string;
     };
     response: BaseResponse & {
         progress: number | null;
@@ -338,6 +341,24 @@ type Viewer = {
     };
 };
 
+type MediaUpdated = {
+    body: {
+        status:     MediaListStatus;
+        score:      number;
+        progress:   number;
+        id:         number;
+        token:      string;
+    };
+    response: BaseResponse & {
+        id:         number;
+        title:      Title;
+        repeats:    number;
+        score:      number;
+        status:     MediaListStatus;
+        progress:   number;
+    };
+};
+
 export type RouteMap = {
     [Routes.Relations]: Relations;
     [Routes.User]: User;
@@ -349,4 +370,5 @@ export type RouteMap = {
     [Routes.Recommend]: Recommend;
     [Routes.Affinity]: Affinity;
     [Routes.CurrentUser]: Viewer;
+    [Routes.UpdateMedia]: MediaUpdated;
 };

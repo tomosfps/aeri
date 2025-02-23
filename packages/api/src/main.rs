@@ -1,4 +1,4 @@
-use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpServer};
 
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
@@ -16,7 +16,8 @@ use routes::recommend::recommend;
 use crate::entities::{
     affinity::Affinity, character::Character,
     media::Media, relations::Relations, staff::Staff,
-    studio::Studio, user::User, user_score::UserScore, Entity
+    studio::Studio, user::User, user_score::UserScore, Entity,
+    update_entry::UpdateMediaMutation
 };
 use crate::routes::oauth::anilist::anilist_oauth;
 use crate::routes::viewer::viewer;
@@ -28,15 +29,6 @@ lazy_static! {
     static ref logger: Logger = Logger::default();
     static ref redis:  Redis  = Redis::new();
     static ref proxy:  Proxy  = Proxy::new();
-}
-
-#[get("/")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Welcome to the Ani API!")
-}
-
-async fn manual() -> impl Responder {
-    HttpResponse::Ok().body("Ani API")
 }
 
 #[actix_web::main]
@@ -70,12 +62,11 @@ async fn main() -> std::io::Result<()> {
     logger.info_single(&format!("Listening on {}:{}", ip, port), "Main");
     HttpServer::new(move || {
         App::new()
-            .service(hello)
             .service(recommend)
             .service(anilist_oauth)
             .service(viewer)
             .service(remove_user)
-            .route("/hey", web::get().to(manual))
+            .route("/oauth/updateMedia", web::post().to(UpdateMediaMutation::route))
             .route("/studio", web::post().to(Studio::route))
             .route("/staff", web::post().to(Staff::route))
             .route("/user", web::post().to(User::route))

@@ -1,16 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { NavLink as Link } from "react-router-dom";
 import { NavigationLink } from "./navigationLinks";
 import logo from "@/assets/aeri_logo.svg";
-
-const icons = {
-    Github: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaGithub } as const))),
-    Discord: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaDiscord } as const))),
-    HamburgerMenu: lazy(() => import("react-icons/gi").then((module) => ({ default: module.GiHamburgerMenu } as const))),
-}
+import github from "@/assets/github.svg";
+import discord from "@/assets/discord.svg";
 
 export default function Navigation() {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -57,12 +53,12 @@ export default function Navigation() {
 
                         <Link
                             to="https://github.com/ehiraa/aeri"
-                            className="hover:bg-csecondary-light/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light bg-csecondary-light"
+                            className="fill-white hover:bg-csecondary-light/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light bg-csecondary-light"
                             prefetch="none"
                             target="_blank"
                         >
                             <Suspense fallback={<div>Loading...</div>}>
-                                <icons.Github/>
+                                <GithubIcon className="h-6 w-6" />
                             </Suspense>
                         </Link>
                         <Link
@@ -72,7 +68,7 @@ export default function Navigation() {
                             target="_blank"
                         >
                             <Suspense fallback={<div>Loading...</div>}>
-                                <icons.Discord/>
+                                <DiscordIcon className="h-6 w-6" />
                             </Suspense>
                         </Link>
                     </nav>
@@ -93,7 +89,7 @@ export default function Navigation() {
                                 <Button variant="outline" size="icon" className="lg:hidden bg-csecondary-light border-transparent">
                                     
                                     <Suspense fallback={<div>Loading...</div>}>
-                                        <icons.HamburgerMenu className="h-6 w-6 text-black" />
+                                        <MenuIcon className="h-6 w-6 text-black" />
                                     </Suspense>
                                     <span className="sr-only">Toggle navigation menu</span>
                                 </Button>
@@ -128,21 +124,80 @@ export default function Navigation() {
     );
 }
 
+function MenuIcon(props: any) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <line x1="4" x2="20" y1="12" y2="12" />
+        <line x1="4" x2="20" y1="6" y2="6" />
+        <line x1="4" x2="20" y1="18" y2="18" />
+      </svg>
+    )
+  }
+
 function LogoIcon(props: any) {
     return (
         <svg
         {...props}
         xmlns="http://www.w3.org/2000/svg"
-        width="32"
-        height="32"
-        viewBox="0 0 32 32"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
         >
-            <image href={logo} width="32" height="32" />
+            <image href={logo} width="24" height="24" />
+        </svg>
+    )
+}
+
+function GithubIcon(props: any) {
+    return (
+        <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        >
+            <image href={github} width="24" height="24" />
+        </svg>
+    )
+}
+
+function DiscordIcon(props: any) {
+    return (
+        <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        >
+            <image href={discord} width="24" height="24" />
         </svg>
     )
 }

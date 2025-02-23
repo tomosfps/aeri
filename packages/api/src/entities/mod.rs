@@ -20,6 +20,7 @@ pub mod character;
 pub mod media;
 pub mod affinity;
 pub mod format;
+pub mod update_entry;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -34,6 +35,15 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
     }
 
     async fn format(self, request: &R) -> Result<F, HttpResponse>;
+
+    fn auth_required() -> bool {
+        false
+    }
+
+    fn token(_request: &R) -> Option<&str> {
+        None
+    }
+
 
     fn cache_key(request: &R) -> String;
 
@@ -91,7 +101,11 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
         }
 
         let mut client = Client::new_proxied().await;
-        let response = client.post(QUERY_URL, &Self::query(&req)).await.unwrap();
+        let response = if Self::auth_required() {
+            client.post_with_auth(QUERY_URL, &Self::query(&req), Self::token(&req).unwrap()).await.unwrap()
+        } else {
+            client.post(QUERY_URL, &Self::query(&req)).await.unwrap()
+        };
 
         if response.status().as_u16() != 200 {
             return Client::error_response(response).await;
