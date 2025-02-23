@@ -156,8 +156,8 @@ type Relations = {
 
 type Media = {
     body: {
-        search?:    string;
-        media_id?:  number;
+        search?: string;
+        media_id?: number;
         media_type: MediaType;
     };
     response: BaseResponse & {
@@ -343,19 +343,19 @@ type Viewer = {
 
 type MediaUpdated = {
     body: {
-        status:     MediaListStatus;
-        score:      number;
-        progress:   number;
-        id:         number;
-        token:      string;
+        status: MediaListStatus;
+        score: number;
+        progress: number;
+        id: number;
+        token: string;
     };
     response: BaseResponse & {
-        id:         number;
-        title:      Title;
-        repeats:    number;
-        score:      number;
-        status:     MediaListStatus;
-        progress:   number;
+        id: number;
+        title: Title;
+        repeats: number;
+        score: number;
+        status: MediaListStatus;
+        progress: number;
     };
 };
 
