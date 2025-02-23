@@ -67,13 +67,17 @@ export const interaction: ChatInputCommand = {
                 ephemeral: true,
             });
         }
-        
-        const id        = getCommandOption("name", ApplicationCommandOptionType.Number, interaction.options) as number;
+
+        const id = getCommandOption("name", ApplicationCommandOptionType.Number, interaction.options) as number;
         //const type      = getCommandOption("type", ApplicationCommandOptionType.String, interaction.options) as MediaType;
-        const status    = getCommandOption("status", ApplicationCommandOptionType.String, interaction.options) as MediaListStatus || MediaListStatus.Current;
-        const score     = getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options) as number     || 0.0;
-        const progress  = getCommandOption( "progress", ApplicationCommandOptionType.Number, interaction.options) as number || 0;
-        const token     = inDatabase.token;
+        const status =
+            (getCommandOption("status", ApplicationCommandOptionType.String, interaction.options) as MediaListStatus) ||
+            MediaListStatus.Current;
+        const score =
+            (getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options) as number) || 0.0;
+        const progress =
+            (getCommandOption("progress", ApplicationCommandOptionType.Number, interaction.options) as number) || 0;
+        const token = inDatabase.token;
 
         const { result: updateMedia, error: updateError } = await api.fetch(Routes.UpdateMedia, {
             status,
