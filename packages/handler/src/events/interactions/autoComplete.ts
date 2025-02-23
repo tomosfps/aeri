@@ -18,7 +18,8 @@ export const handler: AutoCompleteHandler = async (interaction, api, client) => 
 
     try {
         logger.infoSingle(`Executing autocomplete: ${interaction.data.name}`, "Handler");
-        autoComplete.execute(interaction);
+        const choices = await autoComplete.execute(interaction);
+        await api.interactions.createAutocompleteResponse(interaction.id, interaction.token, { choices });
     } catch (error: any) {
         logger.error("AutoComplete execution error:", "Handler", error);
     }

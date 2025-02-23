@@ -62,7 +62,7 @@ export interface UserContextCommand extends BaseCommand {
 
 export interface AutoCompleteCommand {
     custom_id: string;
-    execute: (interaction: AutoCompleteInteraction) => Promise<Array<{ name: string; value: string }>>;
+    execute: (interaction: AutoCompleteInteraction) => Promise<Array<{ name: any; value: any }>>;
 }
 
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
