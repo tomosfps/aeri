@@ -4,7 +4,7 @@ import { lazy, Suspense } from "react";
 import { useEffect, useState } from "react";
 import { NavLink as Link } from "react-router-dom";
 import { NavigationLink } from "./navigationLinks";
-import logo from "@/assets/logo.svg";
+import logo from "@/assets/aeri_logo.svg";
 
 const icons = {
     Github: lazy(() => import("react-icons/fa").then((module) => ({ default: module.FaGithub } as const))),
@@ -128,9 +128,10 @@ export default function Navigation() {
     );
 }
 
-function LogoIcon() {
+function LogoIcon(props: any) {
     return (
         <svg
+        {...props}
         xmlns="http://www.w3.org/2000/svg"
         width="32"
         height="32"

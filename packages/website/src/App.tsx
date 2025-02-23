@@ -1,5 +1,9 @@
 import { NavLink as Link } from "react-router-dom";
 import { Features } from "./components/ui/features";
+import mediaSearchClosed from "@/assets/media_search_closed.svg";
+import mediaSearchOpen from "@/assets/media_search_open.svg";
+import userSearch from "@/assets/user_search.svg";
+import updatedStatus from "@/assets/updated_status.svg";
 
 function App() {
     return (
@@ -22,9 +26,9 @@ function App() {
             {/* Features */}
             <section className="w-full h-max rounded-3xl p-4 space-y-6">
                 <div className="flex flex-col items-center space-y-28">
-                    <Features title="Media Search" description="Search for your favorite anime or manga and get detailed information about it." image="https://placehold.co/600x400" alt="Media Search" />
-                    <Features title="User Search" description="Search for a user, or yourself and see up to date information!" image="https://placehold.co/600x400" alt="User Search" />
-                    <Features title="Update Info" description="Update the status of a media, score or anything, right through the bot." image="https://placehold.co/600x400" alt="Updating Info Bot" />
+                    <Features title="Media Search" description="Search for your favorite anime or manga and get detailed information about it." image={mediaSearchClosed} altImage={mediaSearchOpen} clickable={true} alt="Media Search" />
+                    <Features title="User Search" description="Search for a user, or yourself and see up to date information!" image={userSearch} alt="User Search" />
+                    <Features title="Update Info" description="Update the status of a media, score or anything, right through the bot." image={updatedStatus} alt="Updating Info Bot" />
                 </div>
 
                 <div className="pb-32 lg:ml-0 flex justify-center pt-6">
