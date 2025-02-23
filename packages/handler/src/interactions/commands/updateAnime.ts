@@ -11,27 +11,20 @@ const logger = new Logger();
 export const interaction: ChatInputCommand = {
     cooldown: 5,
     data: new SlashCommandBuilder()
-        .setName("update-media")
-        .setDescription("Update a media entry on your Anilist account.")
-        .addExample("/update-media")
-        .addNumberOption((option) =>
+        .setName("update-anime")
+        .setDescription("Update an anime entry on your Anilist account.")
+        .addExample("/update-anime")
+        .addStringOption((option) =>
             option
-                .setName("id")
+                .setName("name")
                 .setAutocomplete(true)
-                .setDescription("The id of the media you want to update.")
+                .setDescription("The name of the anime you want to update.")
                 .setRequired(true),
         )
         .addStringOption((option) =>
             option
-                .setName("type")
-                .setDescription("The type of the media.")
-                .setRequired(true)
-                .addChoices({ name: "Anime", value: "ANIME" }, { name: "Manga", value: "MANGA" }),
-        )
-        .addStringOption((option) =>
-            option
                 .setName("status")
-                .setDescription("The status of the media.")
+                .setDescription("The status of the anime.")
                 .setRequired(false)
                 .addChoices(
                     ...Object.entries(MediaListStatus)
@@ -43,10 +36,10 @@ export const interaction: ChatInputCommand = {
                 ),
         )
         .addNumberOption((option) =>
-            option.setName("score").setDescription("The score you want to give the media.").setRequired(false),
+            option.setName("score").setDescription("The score you want to give the anime.").setRequired(false),
         )
         .addNumberOption((option) =>
-            option.setName("progress").setDescription("The progress you have made in the media.").setRequired(false),
+            option.setName("progress").setDescription("The progress you have made in the anime.").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         if (interaction.guild_id === undefined) {
@@ -56,6 +49,7 @@ export const interaction: ChatInputCommand = {
             });
         }
 
+        const name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) as string;
         const inDatabase = await dbFetchAnilistUser(interaction.user_id);
 
         if (!inDatabase) {
@@ -72,21 +66,43 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        const id = getCommandOption("id", ApplicationCommandOptionType.Number, interaction.options) as number;
-        //const type      = getCommandOption("type", ApplicationCommandOptionType.String, interaction.options) as MediaType;
-        const status =
-            (getCommandOption("status", ApplicationCommandOptionType.String, interaction.options) as MediaListStatus) ||
-            MediaListStatus.Current;
-        const score = getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options) || 0.0;
-        const progress = getCommandOption("progress", ApplicationCommandOptionType.Number, interaction.options) || 0;
-        const token = inDatabase.token;
+        const user_id = Number(inDatabase.id);
+        const { result, error } = await api.fetch(Routes.UserScore, { user_id, media_id: Number.parseInt(name) });
 
+        if (error || result === null) {
+            logger.error("Error while fetching data from the API.", "Anilist", { error });
+
+            return interaction.reply({
+                content: "An error occurred while fetching data from the API",
+                ephemeral: true,
+            });
+        }
+
+        const status =
+            getCommandOption("status", ApplicationCommandOptionType.String, interaction.options) ||
+            (result.status as MediaListStatus);
+        const score =
+            getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options) ||
+            (result.score as number);
+        const progress =
+            getCommandOption("progress", ApplicationCommandOptionType.Number, interaction.options) ||
+            (result.progress as number);
+
+        if (!status && !score && !progress) {
+            return interaction.reply({
+                content: "You must provide at least one of the following: `status, score, progress`",
+                ephemeral: true,
+            });
+        }
+
+        const id = Number(name);
+        const token = inDatabase.token;
         const { result: updateMedia, error: updateError } = await api.fetch(Routes.UpdateMedia, {
-            status,
-            score,
-            progress,
-            id,
-            token,
+            status: status as MediaListStatus,
+            score: score,
+            progress: progress,
+            id: id,
+            token: token,
         });
 
         if (updateError || updateMedia === null) {
@@ -99,7 +115,7 @@ export const interaction: ChatInputCommand = {
         }
 
         return interaction.reply({
-            content: "Media entry updated successfully.",
+            content: "Anime entry updated successfully.",
             ephemeral: true,
         });
     },

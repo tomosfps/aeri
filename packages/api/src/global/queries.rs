@@ -247,6 +247,7 @@ pub fn get_query(query_name: &str) -> String {
     let user_stats: &str = "
     query ($userId: Int, $userName: String, $mediaId: Int) {
         MediaList(userId: $userId, userName: $userName, mediaId: $mediaId) {
+            id
             progressVolumes
             status
             score(format: POINT_10)

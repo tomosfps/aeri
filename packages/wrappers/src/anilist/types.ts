@@ -223,6 +223,7 @@ type UserScore = {
         userName?: string;
     };
     response: BaseResponse & {
+        id: number;
         progress: number | null;
         volumes: number | null;
         score: number | null;

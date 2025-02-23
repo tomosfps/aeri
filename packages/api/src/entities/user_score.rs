@@ -8,6 +8,7 @@ use serde_json::{json, Value};
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserScore {
+    pub id:                 i64,
     pub progress_volumes:   Option<i32>,
     pub progress:           Option<i32>,
     pub score:              Option<i32>,
@@ -24,6 +25,7 @@ pub struct UserScoresName {
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FormattedUserScore {
+    pub id:                 i64,
     pub volumes:            Option<i32>,
     pub progress:           Option<i32>,
     pub score:              Option<i32>,
@@ -49,6 +51,7 @@ impl Entity<FormattedUserScore, UserScoreRequest> for UserScore {
 
     async fn format(self, _request: &UserScoreRequest) -> Result<FormattedUserScore, HttpResponse> {
         Ok(FormattedUserScore {
+            id: self.id,
             volumes: self.progress_volumes,
             progress: self.progress,
             score: self.score,
