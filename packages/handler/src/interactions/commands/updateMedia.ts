@@ -1,7 +1,7 @@
 import { dbFetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
-import { MediaListStatus, type MediaType, Routes, api } from "wrappers/anilist";
+import { MediaListStatus, Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
@@ -14,8 +14,8 @@ export const interaction: ChatInputCommand = {
         .setName("update-media")
         .setDescription("Update a media entry on your Anilist account.")
         .addExample("/update-media")
-        .addStringOption((option) =>
-            option.setName("name").setDescription("The name of the media you want to update.").setRequired(true),
+        .addNumberOption((option) =>
+            option.setName("id").setDescription("The id of the media you want to update.").setRequired(true),
         )
         .addStringOption((option) =>
             option
@@ -30,10 +30,12 @@ export const interaction: ChatInputCommand = {
                 .setDescription("The status of the media.")
                 .setRequired(false)
                 .addChoices(
-                    ...Object.entries(MediaListStatus).map(([key, value]) => ({
-                        name: key,
-                        value: value.toUpperCase(),
-                    })),
+                    ...Object.entries(MediaListStatus)
+                        .slice(0, -1)
+                        .map(([key, value]) => ({
+                            name: key,
+                            value: value.toUpperCase(),
+                        })),
                 ),
         )
         .addNumberOption((option) =>
@@ -54,69 +56,44 @@ export const interaction: ChatInputCommand = {
 
         if (!inDatabase) {
             return interaction.reply({
-                content: "You need to link your Anilist account first. Use `/link` to do so.",
+                content: "You need to setup OAuth first. Use `/login` to do so.",
                 ephemeral: true,
             });
         }
 
-        const name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) as string;
-        const type = getCommandOption("type", ApplicationCommandOptionType.String, interaction.options) as MediaType;
-        const status = getCommandOption(
-            "status",
-            ApplicationCommandOptionType.String,
-            interaction.options,
-        ) as MediaListStatus;
-        const score = getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options) as number;
-        const progress = getCommandOption(
-            "progress",
-            ApplicationCommandOptionType.Number,
-            interaction.options,
-        ) as number;
-
-        const { result, error } = await api.fetch(
-            Routes.Media,
-            {
-                search: name,
-                media_type: type,
-            },
-            { guild_id: interaction.guild_id },
-        );
-
-        if (error || result === null) {
-            logger.error("Error while fetching data from the API.", "Anilist", { error });
-
+        if (inDatabase.token === null || inDatabase.id === null) {
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content: "You need to setup OAuth first. Use `/login` to do so.",
                 ephemeral: true,
             });
         }
+        
+        const id        = getCommandOption("name", ApplicationCommandOptionType.Number, interaction.options) as number;
+        //const type      = getCommandOption("type", ApplicationCommandOptionType.String, interaction.options) as MediaType;
+        const status    = getCommandOption("status", ApplicationCommandOptionType.String, interaction.options) as MediaListStatus || MediaListStatus.Current;
+        const score     = getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options) as number     || 0.0;
+        const progress  = getCommandOption( "progress", ApplicationCommandOptionType.Number, interaction.options) as number || 0;
+        const token     = inDatabase.token;
 
         const { result: updateMedia, error: updateError } = await api.fetch(Routes.UpdateMedia, {
             status,
             score,
             progress,
-            id: inDatabase.id,
-            token: inDatabase.token,
+            id,
+            token,
         });
 
-        if (updateError) {
-            logger.error("Error while fetching data from the API.", "Anilist", updateError);
-            return await interaction.reply({
-                content: "An error occurred while fetching data from the API",
-                ephemeral: true,
-            });
-        }
+        if (updateError || updateMedia === null) {
+            logger.error("Error while fetching MUTATION data from the API.", "Anilist", { updateError });
 
-        if (updateMedia === null) {
-            logger.debugSingle("User could not be found within the Anilist API", "Anilist");
-            return await interaction.reply({
-                content: "An error occurred while fetching data from the API",
+            return interaction.reply({
+                content: "An error occurred while fetching MUTATION data from the API",
                 ephemeral: true,
             });
         }
 
         return interaction.reply({
-            content: updateMedia.status,
+            content: "Media entry updated successfully.",
             ephemeral: true,
         });
     },

@@ -8,26 +8,26 @@ use serde_json::{json, Value};
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateMediaMutation {
-    pub repeat: u8,
-    pub score: f64,
-    pub progress: i64,
-    pub status: MediaListStatus,
-    pub media:  MediaUpdateData
+    pub repeat:     u8,
+    pub score:      f32,
+    pub progress:   i32,
+    pub status:     MediaListStatus,
+    pub media:      MediaUpdateData
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct MediaUpdateData {
-    id:     i64,
+    id:     i32,
     title:  Title
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FormattedUpdateMedia {
-    pub id:         i64,
+    pub id:         i32,
     pub title:      Title,
-    pub score:      f64,
-    pub progress:   i64,
+    pub score:      f32,
+    pub progress:   i32,
     pub repeats:    u8,
     pub status:     MediaListStatus,
 }
@@ -35,9 +35,9 @@ pub struct FormattedUpdateMedia {
 #[derive(Deserialize)]
 pub struct MutationMediaRequest {
     status:     MediaListStatus,
-    score:      i64,
-    progress:   i64,
-    id:         i64,
+    score:      i32,
+    progress:   i32,
+    id:         i32,
     token:      String,
 }
 
