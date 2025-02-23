@@ -15,7 +15,11 @@ export const interaction: ChatInputCommand = {
         .setDescription("Update a media entry on your Anilist account.")
         .addExample("/update-media")
         .addNumberOption((option) =>
-            option.setName("id").setDescription("The id of the media you want to update.").setRequired(true),
+            option
+                .setName("id")
+                .setAutocomplete(true)
+                .setDescription("The id of the media you want to update.")
+                .setRequired(true),
         )
         .addStringOption((option) =>
             option

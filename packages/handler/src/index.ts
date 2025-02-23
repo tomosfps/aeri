@@ -18,6 +18,7 @@ const selectMenus = await load(FileType.SelectMenus);
 const modals = await load(FileType.Modals);
 const messageContextCommands = await load(FileType.MessageContext);
 const userContextCommands = await load(FileType.UserContext);
+const autoCompleteCommands = await load(FileType.AutoComplete);
 
 const commands: CommandData[] = [
     ...chatInputCommands.values().map((c) => c.data.toJSON()),
@@ -35,6 +36,7 @@ const client = new HandlerClient({
     modals,
     messageContextCommands,
     userContextCommands,
+    autoCompleteCommands,
 });
 
 const oauthTokenHandler = new OauthTokenHandler(redis);

@@ -1,5 +1,6 @@
 import { Client, type ClientOptions } from "@discordjs/core";
 import type {
+    AutoCompleteCommand,
     Button,
     ChatInputCommand,
     MessageContextCommand,
@@ -15,6 +16,7 @@ export interface HandlerClientOptions extends ClientOptions {
     selectMenus: Map<string, SelectMenu>;
     messageContextCommands: Map<string, MessageContextCommand>;
     userContextCommands: Map<string, UserContextCommand>;
+    autoCompleteCommands: Map<string, AutoCompleteCommand>;
 }
 
 export class HandlerClient extends Client {
@@ -24,6 +26,7 @@ export class HandlerClient extends Client {
     public selectMenus: Map<string, SelectMenu>;
     public messageContextCommands: Map<string, MessageContextCommand>;
     public userContextCommands: Map<string, UserContextCommand>;
+    public autoCompleteCommands: Map<string, AutoCompleteCommand>;
 
     constructor(public options: HandlerClientOptions) {
         super({
@@ -37,5 +40,6 @@ export class HandlerClient extends Client {
         this.selectMenus = options.selectMenus;
         this.messageContextCommands = options.messageContextCommands;
         this.userContextCommands = options.userContextCommands;
+        this.autoCompleteCommands = options.autoCompleteCommands;
     }
 }

@@ -1,5 +1,6 @@
 import { type API, GatewayDispatchEvents as Events } from "@discordjs/core";
 import { Logger } from "logger";
+import { AutoCompleteInteraction } from "../classes/autoCompleteInteraction.js";
 import { ButtonInteraction } from "../classes/buttonInteraction.js";
 import { ChatInputInteraction } from "../classes/chatInputCommandInteraction.js";
 import type { HandlerClient } from "../classes/handlerClient.js";
@@ -32,6 +33,8 @@ const interactionTransformer = (interaction: any, api: API, client: HandlerClien
     const type = determineInteractionType(interaction);
 
     switch (type) {
+        case InteractType.Autocomplete:
+            return new AutoCompleteInteraction(interaction, api, client);
         case InteractType.ChatInput:
             return new ChatInputInteraction(interaction, api, client);
         case InteractType.SelectMenu:

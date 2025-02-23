@@ -5,6 +5,7 @@ import { REST } from "@discordjs/rest";
 import { env } from "core";
 import { type RESTPostAPIApplicationCommandsJSONBody as CommandData, Routes } from "discord-api-types/v10";
 import { Logger } from "logger";
+import type { AutoCompleteInteraction } from "../classes/autoCompleteInteraction.js";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
 import type { ChatInputInteraction } from "../classes/chatInputCommandInteraction.js";
 import type { MessageContextInteraction } from "../classes/messageContextInteraction.js";
@@ -59,6 +60,11 @@ export interface UserContextCommand extends BaseCommand {
     execute: (interaction: UserContextInteraction) => void;
 }
 
+export interface AutoCompleteCommand {
+    custom_id: string;
+    execute: (interaction: AutoCompleteInteraction) => Promise<Array<{ name: string; value: string }>>;
+}
+
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
 const logger = new Logger();
 
@@ -96,6 +102,7 @@ export enum FileType {
     Modals = "modals",
     MessageContext = "message-context",
     UserContext = "user-context",
+    AutoComplete = "auto-complete",
 }
 
 export async function load<T = ChatInputCommand>(type: FileType.Commands): Promise<Map<string, T>>;
@@ -104,6 +111,7 @@ export async function load<T = SelectMenu>(type: FileType.SelectMenus): Promise<
 export async function load<T = Modal>(type: FileType.Modals): Promise<Map<string, T>>;
 export async function load<T = MessageContextCommand>(type: FileType.MessageContext): Promise<Map<string, T>>;
 export async function load<T = UserContextCommand>(type: FileType.UserContext): Promise<Map<string, T>>;
+export async function load<T = AutoCompleteCommand>(type: FileType.AutoComplete): Promise<Map<string, T>>;
 export async function load<T>(type: FileType): Promise<Map<string, T>> {
     logger.infoSingle(`Started loading ${type} (📝) files.`, "Files");
 
@@ -134,7 +142,7 @@ export async function load<T>(type: FileType): Promise<Map<string, T>> {
 }
 
 function getName(
-    interaction: ChatInputCommand | Button | SelectMenu | Modal | MessageContextCommand | UserContextCommand,
+    interaction: AutoCompleteCommand | ChatInputCommand | Button | SelectMenu | Modal | MessageContextCommand | UserContextCommand,
 ): string {
     if ("data" in interaction) return interaction.data.name;
     return interaction.custom_id;
