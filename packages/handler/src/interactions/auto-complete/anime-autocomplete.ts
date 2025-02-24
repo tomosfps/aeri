@@ -4,19 +4,19 @@ import type { AutoCompleteCommand } from "../../services/commands.js";
 
 const logger = new Logger();
 
-export const interaction: AutoCompleteCommand = {
+export const interaction: AutoCompleteCommand<string> = {
     custom_id: "update-anime",
     async execute(interaction) {
-        logger.info("Returning Data Options", "Data options", interaction.dataOptions);
+        logger.info("Existing options", "Autocomplete", interaction.options);
 
-        if (!interaction.dataOptions || interaction.dataOptions.length === 0) {
+        if (!interaction.options || interaction.options.length === 0) {
             await interaction.reply({
                 content: "No data options provided",
                 ephemeral: true,
             });
         }
 
-        const dataOption = interaction.dataOptions.find((option) => option.name === "name");
+        const dataOption = interaction.options.find((option) => option.name === "name");
         if (!dataOption || !("value" in dataOption)) {
             return [{ name: "ERROR", value: "ERROR" }];
         }

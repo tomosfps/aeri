@@ -22,7 +22,13 @@ export class AutoCompleteInteraction extends BaseInteraction {
         return this.interaction.data;
     }
 
-    get dataOptions() {
+    get options() {
         return this.data.options;
+    }
+
+    public async respond(choices: { name: string; value: string | number }[]) {
+        this.api.interactions.createAutocompleteResponse(this.interaction.id, this.interaction.token, {
+            choices,
+        });
     }
 }

@@ -60,9 +60,9 @@ export interface UserContextCommand extends BaseCommand {
     execute: (interaction: UserContextInteraction) => void;
 }
 
-export interface AutoCompleteCommand {
+export interface AutoCompleteCommand<T extends string | number = string | number> {
     custom_id: string;
-    execute: (interaction: AutoCompleteInteraction) => Promise<Array<{ name: any; value: any }>>;
+    execute: (interaction: AutoCompleteInteraction) => Promise<{ name: string; value: T }[]>;
 }
 
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
