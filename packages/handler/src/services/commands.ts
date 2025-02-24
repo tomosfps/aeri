@@ -61,8 +61,12 @@ export interface UserContextCommand extends BaseCommand {
 }
 
 export interface AutoCompleteCommand<T extends string | number = string | number> {
-    custom_id: string;
-    execute: (interaction: AutoCompleteInteraction) => Promise<{ name: string; value: T }[]>;
+    command?: string;
+    option: string;
+    execute: (
+        interaction: AutoCompleteInteraction,
+        option: { name: string; value: T extends string ? string : string | number },
+    ) => Promise<{ name: string; value: T }[]>;
 }
 
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
@@ -105,6 +109,15 @@ export enum FileType {
     AutoComplete = "auto-complete",
 }
 
+type InteractionUnion =
+    | ChatInputCommand
+    | Button
+    | SelectMenu
+    | Modal
+    | MessageContextCommand
+    | UserContextCommand
+    | AutoCompleteCommand;
+
 export async function load<T = ChatInputCommand>(type: FileType.Commands): Promise<Map<string, T>>;
 export async function load<T = Button>(type: FileType.Buttons): Promise<Map<string, T>>;
 export async function load<T = SelectMenu>(type: FileType.SelectMenus): Promise<Map<string, T>>;
@@ -112,7 +125,7 @@ export async function load<T = Modal>(type: FileType.Modals): Promise<Map<string
 export async function load<T = MessageContextCommand>(type: FileType.MessageContext): Promise<Map<string, T>>;
 export async function load<T = UserContextCommand>(type: FileType.UserContext): Promise<Map<string, T>>;
 export async function load<T = AutoCompleteCommand>(type: FileType.AutoComplete): Promise<Map<string, T>>;
-export async function load<T>(type: FileType): Promise<Map<string, T>> {
+export async function load<T extends InteractionUnion>(type: FileType): Promise<Map<string, T>> {
     logger.infoSingle(`Started loading ${type} (📝) files.`, "Files");
 
     const files = new Map<string, T>();
@@ -127,7 +140,8 @@ export async function load<T>(type: FileType): Promise<Map<string, T>> {
 
     for (const file of jsFiles) {
         try {
-            const interaction = (await import(`../interactions/${type}/${file}`)).interaction;
+            const interaction = (await import(`../interactions/${type}/${file}`)).interaction as T;
+
             files.set(getName(interaction), interaction);
         } catch (error: any) {
             logger.error(`Failed to load ${type} (📝) file: ${file}`, "Files", error);
@@ -141,16 +155,12 @@ export async function load<T>(type: FileType): Promise<Map<string, T>> {
     return files;
 }
 
-function getName(
-    interaction:
-        | AutoCompleteCommand
-        | ChatInputCommand
-        | Button
-        | SelectMenu
-        | Modal
-        | MessageContextCommand
-        | UserContextCommand,
-): string {
+function getName(interaction: InteractionUnion): string {
     if ("data" in interaction) return interaction.data.name;
+
+    if ("option" in interaction) {
+        return `${interaction.command || ""}:${interaction.option}`;
+    }
+
     return interaction.custom_id;
 }

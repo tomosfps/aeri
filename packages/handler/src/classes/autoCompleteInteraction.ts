@@ -1,5 +1,10 @@
 import type { API } from "@discordjs/core";
-import type { APIApplicationCommandAutocompleteInteraction } from "discord-api-types/v10";
+import type {
+    APIApplicationCommandAutocompleteInteraction,
+    APIApplicationCommandInteractionDataIntegerOption,
+    APIApplicationCommandInteractionDataNumberOption,
+    APIApplicationCommandInteractionDataStringOption,
+} from "discord-api-types/v10";
 import { BaseInteraction } from "./baseInteraction.js";
 import type { HandlerClient } from "./handlerClient.js";
 
@@ -23,11 +28,15 @@ export class AutoCompleteInteraction extends BaseInteraction {
     }
 
     get options() {
-        return this.data.options;
+        return this.data.options as (
+            | APIApplicationCommandInteractionDataStringOption
+            | APIApplicationCommandInteractionDataNumberOption
+            | APIApplicationCommandInteractionDataIntegerOption
+        )[];
     }
 
     public async respond(choices: { name: string; value: string | number }[]) {
-        this.api.interactions.createAutocompleteResponse(this.interaction.id, this.interaction.token, {
+        await this.api.interactions.createAutocompleteResponse(this.interaction.id, this.interaction.token, {
             choices,
         });
     }
