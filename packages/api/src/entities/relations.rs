@@ -78,7 +78,7 @@ impl Entity<FormattedRelations, RelationRequest> for Relations {
     }
 
     fn cache_key(request: &RelationRequest) -> String {
-        format!("relation:{}:{}", request.media_name, request.media_type)
+        format!("relation:{}:{}", request.media_name.to_lowercase(), request.media_type)
     }
 
     fn query(request: &RelationRequest) -> Value {

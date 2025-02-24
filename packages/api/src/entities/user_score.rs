@@ -36,7 +36,8 @@ pub struct FormattedUserScore {
 
 #[derive(Deserialize)]
 pub struct UserScoreRequest {
-    user_id: i64,
+    user_id: Option<i64>,
+    user_name: Option<String>,
     media_id: i64,
 }
 
@@ -62,16 +63,20 @@ impl Entity<FormattedUserScore, UserScoreRequest> for UserScore {
     }
 
     fn cache_key(request: &UserScoreRequest) -> String {
-        format!("score:{}:{}", request.media_id, request.user_id)
+        format!("score:{}:{}", request.media_id, if request.user_id.is_none() { request.user_name.clone().unwrap_or_default() } else { request.user_id.unwrap().to_string() })
     }
 
     fn query(request: &UserScoreRequest) -> Value {
-        json!({ "query": get_query("user_scores"), "variables": { "userId": request.user_id, "mediaId": request.media_id }})
+        if !request.user_name.is_none() {
+            return json!({ "query": get_query("user_scores"), "variables": { "userName": request.user_name, "mediaId": request.media_id }});
+        }
+        
+        json!({ "query": get_query("user_scores"), "variables": { "userId": request.user_id.unwrap_or_default(), "mediaId": request.media_id }})
     }
 
     fn validate_request(request: &UserScoreRequest) -> Result<(), String> {
-        if request.user_id == 0 || request.media_id == 0 {
-            return Err("No user id or media id was included".into());
+        if request.user_name.is_none() && request.user_id.is_none() || request.media_id == 0 {
+            return Err("No username, user id or media id was included".into());
         }
 
         Ok(())

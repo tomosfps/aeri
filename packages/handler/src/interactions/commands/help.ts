@@ -18,6 +18,7 @@ export const interaction: ChatInputCommand = {
             ApplicationCommandOptionType.String,
             interaction.options,
         )?.toLowerCase();
+
         const commands = interaction.client.commands;
         const maxLength = Math.max(...Array.from(commands.values()).map((command: any) => command.data.name.length));
 
@@ -38,10 +39,11 @@ export const interaction: ChatInputCommand = {
                 const optionDetails = commandOptions
                     .map((option: any) => {
                         const opt = option.toJSON();
-                        const details = `> ${inlineCode(opt.name)}    : ${opt.description} ${bold(opt.required ? "<Required>" : "<Optional>")}`;
+                        const details = `> ${inlineCode(`${opt.name.padEnd(maxLength)}:`)} ${opt.description} ${bold(opt.required ? "<Required>" : "<Optional>")}`;
 
+                        const maxOptionNameLength = Math.max(...commandOptions.map((opt: any) => opt.name.length));
                         if ("choices" in opt && opt.choices?.length > 0) {
-                            choiceDetails += `> ${inlineCode(opt.name)}    :  ${opt.choices.map((choice: any) => `${choice.name}`).join(", ")}`;
+                            choiceDetails += `> ${inlineCode(`${opt.name.padEnd(maxOptionNameLength)}:`)}    :  ${opt.choices.map((choice: any) => `${choice.name}`).join(", ")}`;
                         }
                         return details;
                     })

@@ -1,5 +1,4 @@
 import { EmbedBuilder } from "@discordjs/builders";
-import { formatSeconds } from "core";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
 import type { SelectMenu } from "../../services/commands.js";
@@ -76,7 +75,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
             .setThumbnail(media.cover)
             .setDescription(media.description)
             .setFooter({
-                text: `${media.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${formatSeconds(media.leftUntilExpire)}`}`,
+                text: media.footer,
             })
             .setColor(0x2f3136);
 

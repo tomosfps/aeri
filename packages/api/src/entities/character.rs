@@ -65,7 +65,7 @@ impl Entity<FormattedCharacter, CharacterRequest> for Character {
     }
 
     fn cache_key(request: &CharacterRequest) -> String {
-        format!("character:{}", request.character_name)
+        format!("character:{}", request.character_name.to_lowercase())
     }
 
     fn query(request: &CharacterRequest) -> Value {

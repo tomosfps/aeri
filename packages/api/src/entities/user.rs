@@ -69,7 +69,7 @@ impl Entity<FormattedUser, UserRequest> for User {
     }
 
     fn cache_key(request: &UserRequest) -> String {
-        format!("user:{}", request.username)
+        format!("user:{}", request.username.to_lowercase())
     }
 
     fn query(request: &UserRequest) -> Value {

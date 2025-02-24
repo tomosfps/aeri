@@ -12,6 +12,7 @@ export enum Routes {
     Recommend = "recommend",
     CurrentUser = "viewer",
     UpdateMedia = "oauth/updateMedia",
+    RefreshUser = "remove-user",
 }
 
 type AffinityUser = {
@@ -176,13 +177,14 @@ type Media = {
         genres: string[];
         popularity: number | null;
         favourites: number | null;
-        status: MediaStatus | null;
+        status: MediaStatus;
         siteUrl: string | null;
         endDate: string | null;
         startDate: string | null;
     };
     transformed: {
         description: string;
+        userResults: Array<{ username: string; score: number; progress: number; status: MediaListStatus }>;
     };
     transformer_args: {
         guild_id: string;
@@ -220,7 +222,7 @@ type UserScore = {
     body: {
         user_id?: number;
         media_id: number;
-        userName?: string;
+        user_name?: string;
     };
     response: BaseResponse & {
         id: number;
@@ -360,6 +362,16 @@ type MediaUpdated = {
     };
 };
 
+type RefreshUser = {
+    body: {
+        user_id: string;
+        username: string;
+    };
+    response: BaseResponse & {
+        message: string;
+    };
+};
+
 export type RouteMap = {
     [Routes.Relations]: Relations;
     [Routes.User]: User;
@@ -372,4 +384,5 @@ export type RouteMap = {
     [Routes.Affinity]: Affinity;
     [Routes.CurrentUser]: Viewer;
     [Routes.UpdateMedia]: MediaUpdated;
+    [Routes.RefreshUser]: RefreshUser;
 };

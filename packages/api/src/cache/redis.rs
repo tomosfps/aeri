@@ -86,7 +86,7 @@ impl Redis {
             let parts: Vec<&str> = key.split(":").collect();
             logger.debug_single(format!("Split up parts: {:?}", &parts).as_str(), "Redis");
 
-            if parts.get(1) == Some(&k.to_string().as_str()) {
+            if parts.iter().any(|&part| part == k.to_string().as_str()) {
                 logger.debug_single(format!("Found Key: {:?}", key).as_str(), "Redis");
                 let _: () = con.del(key)?;
                 count += 1;

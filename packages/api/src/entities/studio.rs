@@ -31,7 +31,7 @@ impl Entity<Studio, StudioRequest> for Studio {
     }
 
     fn cache_key(request: &StudioRequest) -> String {
-        format!("studio:{}", request.studio_name)
+        format!("studio:{}", request.studio_name.to_lowercase())
     }
 
     fn query(request: &StudioRequest) -> Value {

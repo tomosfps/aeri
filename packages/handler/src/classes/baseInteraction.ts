@@ -47,7 +47,12 @@ export class BaseInteraction {
     }
 
     get guild_id() {
-        return this.interaction.guild_id;
+        if (this.interaction.guild_id) {
+            return this.interaction.guild_id;
+        }
+
+        // biome-ignore lint/style/noNonNullAssertion: Guild ID is present
+        return this.interaction.guild_id!;
     }
 
     get guilds() {

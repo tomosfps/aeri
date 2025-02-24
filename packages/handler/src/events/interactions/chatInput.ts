@@ -1,6 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
 import { checkRedis } from "core";
 import { env } from "core";
+import { dbUpdateGuild } from "database";
 import { Logger } from "logger";
 import type { ChatInputHandler } from "../../classes/chatInputCommandInteraction.js";
 
@@ -31,6 +32,7 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
         return;
     }
 
+    await dbUpdateGuild(interaction.guild_id, memberId);
     const redisKey = `${interaction.data.name}_${memberId}`;
     const check = await checkRedis(redisKey, command, memberId);
     if (check !== 0) {

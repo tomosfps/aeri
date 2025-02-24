@@ -40,3 +40,5 @@ export const transformers: TransformersType & UniversalTransformer = {
     [Routes.Relations]: relationsTransformer,
     universal: universalTransformer,
 };
+
+export { filteredDescription } from "./util.js";

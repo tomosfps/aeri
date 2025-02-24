@@ -1,4 +1,4 @@
-import { dbCreateAnilistUser, dbFetchDiscordUser } from "database";
+import { dbCreateAnilistUser, dbFetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
@@ -23,7 +23,7 @@ export const interaction: ChatInputCommand = {
             ApplicationCommandOptionType.String,
             interaction.options,
         ) as string;
-        const isInDatabase = await dbFetchDiscordUser(interaction.user_id);
+        const isInDatabase = await dbFetchAnilistUser(interaction.user_id);
 
         if (!isInDatabase) {
             if (interaction.guild_id === undefined) {

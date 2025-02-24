@@ -1,5 +1,6 @@
 import { MessageFlags } from "@discordjs/core";
 import { checkRedis, env } from "core";
+import { dbUpdateGuild } from "database";
 import { Logger } from "logger";
 import type { UserContextHandler } from "../../classes/userContextInteraction.js";
 
@@ -30,6 +31,7 @@ export const handler: UserContextHandler = async (interaction, api, client) => {
         return;
     }
 
+    await dbUpdateGuild(interaction.guild_id, memberId);
     const redisKey = `${interaction.data.name}_${memberId}`;
     const check = await checkRedis(redisKey, context, memberId);
     if (check !== 0) {

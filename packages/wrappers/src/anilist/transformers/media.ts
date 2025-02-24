@@ -1,7 +1,7 @@
 import { inlineCode } from "@discordjs/formatters";
 import { formatSeconds } from "core";
 import { dbFetchGuildUsers } from "database";
-import { api } from "../index.js";
+import { MediaListStatus, api } from "../index.js";
 import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
 import { filteredDescription } from "./util.js";
@@ -31,14 +31,17 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
         paused: [],
     };
 
+    const userResults: { username: string; score: number; progress: number; status: MediaListStatus }[] = [];
     const allUsers = await dbFetchGuildUsers(guild_id).then((users: any) => {
-        return users.map((user: { anilist: any }) => user.anilist.id);
+        return users.map((user: { anilist: any }) => user.anilist.username);
     });
 
     if (allUsers.length !== 0) {
+        const maxLength = Math.max(...allUsers.map((user: any) => user.length + 2));
+
         for (const member in allUsers) {
             const { result: userScore, error } = await api.fetch(Routes.UserScore, {
-                user_id: Number(allUsers[member]),
+                user_name: String(allUsers[member]),
                 media_id: data.id,
             });
 
@@ -46,23 +49,33 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
                 continue;
             }
 
+            userResults.push({
+                username: userScore.username,
+                score: userScore.score ?? 0,
+                progress: userScore.progress ?? 0,
+                status: userScore.status ?? MediaListStatus.Unknown,
+            });
+            
+            const formatProgress = userScore.progress?.toString().padStart(2, "0") ?? "00";
+            const formatScore = userScore.score?.toString().padStart(2, "0") ?? "00";
+
             switch (userScore?.status) {
                 case "REPEATING":
                     userData.current.push(
-                        `> ${inlineCode(`${userScore.username}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 (${userScore.repeat}) `)}\n`,
+                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10 (${userScore.repeat})`)}\n`,
                     );
                     break;
                 case "CURRENT": {
                     const userRepeats = userScore.repeat && userScore.repeat > 0 ? `(${userScore.repeat})` : "";
                     userData.current.push(
-                        `> ${inlineCode(`${userScore.username}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 ${userRepeats} `)}\n`,
+                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10 ${userRepeats}`)}\n`,
                     );
                     break;
                 }
                 case "COMPLETED": {
                     const userRepeats = userScore.repeat && userScore.repeat > 0 ? `(${userScore.repeat})` : "";
                     userData.completed.push(
-                        `> ${inlineCode(`${userScore.username}:`)} ${inlineCode(` ${userScore.score}/10 ${userRepeats} `)}\n`,
+                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatScore}/10 ${userRepeats}`)}\n`,
                     );
                     break;
                 }
@@ -71,12 +84,12 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
                     break;
                 case "DROPPED":
                     userData.dropped.push(
-                        `> ${inlineCode(`${userScore.username}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 `)}\n`,
+                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10`)}\n`,
                     );
                     break;
                 case "PAUSED":
                     userData.paused.push(
-                        `> ${inlineCode(`${userScore.username}:`)} ${inlineCode(` ${userScore.progress} | ${userScore.score}/10 `)}\n`,
+                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10`)}\n`,
                     );
                     break;
                 default:
@@ -109,5 +122,6 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
 
     return {
         description: filtered,
+        userResults,
     };
 };
