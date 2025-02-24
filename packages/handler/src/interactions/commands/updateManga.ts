@@ -81,7 +81,6 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        logger.debug("Fetched data from the API.", "Anilist", { result });
         const getUserResults = result.userResults.find((userResult) => userResult.username === inDatabase.username);
         if (!getUserResults) {
             return;
@@ -121,7 +120,7 @@ export const interaction: ChatInputCommand = {
             .setThumbnail(result.cover)
             .setDescription(result.description)
             .setFooter({
-                text: `${result.footer} •\nIf the score doesn't update, use /refresh`,
+                text: `${result.footer}\n•If the score doesn't update, use /refresh`,
             })
             .setColor(0x2f3136);
 

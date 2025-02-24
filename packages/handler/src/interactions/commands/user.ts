@@ -27,7 +27,7 @@ export const interaction: ChatInputCommand = {
             const dbUser = await dbFetchAnilistUser(interaction.user_id);
 
             if (!dbUser) {
-                return interaction.reply({ content: "Please setup your account with /link!", ephemeral: true });
+                return interaction.reply({ content: "Please setup your account with /setup!", ephemeral: true });
             }
 
             username = dbUser.username;
@@ -35,7 +35,7 @@ export const interaction: ChatInputCommand = {
 
         if (!username) {
             return interaction.reply({
-                content: "Please provide a username, or setup your account with /link",
+                content: "Please provide a username, or setup your account with /setup",
                 ephemeral: true,
             });
         }

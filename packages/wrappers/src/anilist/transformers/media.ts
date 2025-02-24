@@ -53,7 +53,7 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
                 username: userScore.username,
                 score: userScore.score ?? 0,
                 progress: userScore.progress ?? 0,
-                status: userScore.status ?? MediaListStatus.Unknown,
+                status: userScore.status ?? MediaListStatus.Current,
             });
 
             const formatProgress = userScore.progress?.toString().padStart(2, "0") ?? "00";

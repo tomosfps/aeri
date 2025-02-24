@@ -1,4 +1,4 @@
-import { dbDeleteAnilistUser, dbFetchDiscordUser } from "database";
+import { dbDeleteAnilistUser, dbFetchAnilistUser } from "database";
 import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
@@ -8,7 +8,7 @@ export const interaction: ChatInputCommand = {
         .setDescription("Unlink your anilist account from the bot")
         .addExample("/unlink"),
     async execute(interaction): Promise<void> {
-        const isInDatabase = await dbFetchDiscordUser(interaction.user_id);
+        const isInDatabase = await dbFetchAnilistUser(interaction.user_id);
 
         if (isInDatabase === null) {
             return interaction.reply({
