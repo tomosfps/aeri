@@ -121,7 +121,7 @@ export const interaction: ChatInputCommand = {
             .setColor(interaction.base_colour)
             .setDescription(result.description)
             .setFooter({
-                text: `${result.footer}\n•If the score doesn't update, use /refresh`,
+                text: `${result.footer}\n• If the score doesn't update, use /refresh`,
             });
         interaction.base_colour;
 

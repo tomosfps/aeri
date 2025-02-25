@@ -40,7 +40,6 @@ export async function dbCreateAnilistUser(
             },
         },
         update: {
-            user_id: anilist_id,
             username: anilist_username,
             token: anilist_token ?? null,
         },

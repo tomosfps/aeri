@@ -9,32 +9,14 @@ export function filteredDescription(description: string | string[], set_spoiler:
                 return line;
             })
             .filter((line: any) => {
-                return !(
-                    /^\s*$/.test(line) ||
-                    /null/.test(line) ||
-                    /undefined/.test(line) ||
-                    line === "`completed         :`\n" ||
-                    line === "`current           :`\n" ||
-                    line === "`planning          :`\n" ||
-                    line === "`dropped           :`\n" ||
-                    line === "`paused            :`\n"
-                );
+                return !(/^\s*$/.test(line) || /null/.test(line) || /undefined/.test(line));
             })
             .join("\n");
     }
 
     return description
         .filter((line) => {
-            return !(
-                /^\s*$/.test(line) ||
-                /null/.test(line) ||
-                /undefined/.test(line) ||
-                line === "`completed         :`\n \n" ||
-                line === "`current           :`\n \n" ||
-                line === "`planning          :`\n \n" ||
-                line === "`dropped           :`\n \n" ||
-                line === "`paused            :`\n \n\n"
-            );
+            return !(/^\s*$/.test(line) || /null/.test(line) || /undefined/.test(line));
         })
         .join("");
 }

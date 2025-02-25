@@ -113,12 +113,33 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
         `${formatEmoji("1343816783890743336")} ${inlineCode("start date        :")} ${data.startDate}\n`,
         `${formatEmoji("1343816783890743336")} ${inlineCode("end date          :")} ${data.endDate}\n`,
         `${formatEmoji("1343816843101732946")} ${inlineCode("genres            :")} ${genresDisplay}\n\n`,
-        `${formatEmoji("1343818590037741639")} ${inlineCode("completed         :")}\n${userData.completed.join("")}\n`,
-        `${formatEmoji("1343816800353259541")} ${inlineCode("current           :")}\n${userData.current.join("")}\n`,
-        `${formatEmoji("1343816875770904586")} ${inlineCode("planning          :")}\n${userData.planning.join("")}\n`,
-        `${formatEmoji("1343816819999248444")} ${inlineCode("dropped           :")}\n${userData.dropped.join("")}\n`,
-        `${formatEmoji("1343816867411918918")} ${inlineCode("paused            :")}\n${userData.paused.join("")}\n\n`,
     ];
+
+    if (userData.completed.length > 0) {
+        descriptionBuilder.push(
+            `${formatEmoji("1343818590037741639")} ${inlineCode("completed         :")}\n${userData.completed.join("")}\n`,
+        );
+    }
+    if (userData.current.length > 0) {
+        descriptionBuilder.push(
+            `${formatEmoji("1343816800353259541")} ${inlineCode("current           :")}\n${userData.current.join("")}\n`,
+        );
+    }
+    if (userData.planning.length > 0) {
+        descriptionBuilder.push(
+            `${formatEmoji("1343816875770904586")} ${inlineCode("planning          :")}\n${userData.planning.join("")}\n`,
+        );
+    }
+    if (userData.dropped.length > 0) {
+        descriptionBuilder.push(
+            `${formatEmoji("1343816819999248444")} ${inlineCode("dropped           :")}\n${userData.dropped.join("")}\n`,
+        );
+    }
+    if (userData.paused.length > 0) {
+        descriptionBuilder.push(
+            `${formatEmoji("1343816867411918918")} ${inlineCode("paused            :")}\n${userData.paused.join("")}\n`,
+        );
+    }
 
     const filtered = filteredDescription(descriptionBuilder, false);
 
