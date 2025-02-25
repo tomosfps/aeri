@@ -1,4 +1,4 @@
-import { bold, inlineCode } from "@discordjs/formatters";
+import { bold, formatEmoji, inlineCode } from "@discordjs/formatters";
 import { capitalise } from "core";
 import type { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
@@ -8,13 +8,13 @@ const MAX_DESCRIPTION_LENGTH = 4096;
 
 export const staffTransformer: TransformersType[Routes.Staff] = (data) => {
     const descriptionBuilder = [
-        `${inlineCode("Age               :")} ${data.age}\n`,
-        `${inlineCode("Gender            :")} ${data.gender}\n`,
-        `${inlineCode("Birth             :")} ${data.dateOfBirth}\n`,
-        `${inlineCode("Death             :")} ${data.dateOfDeath}\n`,
-        `${inlineCode("Language          :")} ${data.language}\n`,
-        `${inlineCode("Home Town         :")} ${data.homeTown}\n`,
-        `${inlineCode("Favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1343832864466276372")} ${inlineCode("Age               :")} ${data.age}\n`,
+        `${formatEmoji("1343832855846850621")} ${inlineCode("Gender            :")} ${data.gender}\n`,
+        `${formatEmoji("1343816783890743336")} ${inlineCode("Birth             :")} ${data.dateOfBirth}\n`,
+        `${formatEmoji("1343816783890743336")} ${inlineCode("Death             :")} ${data.dateOfDeath}\n`,
+        `${formatEmoji("1343832845818269716")} ${inlineCode("Language          :")} ${data.language}\n`,
+        `${formatEmoji("1343832836163113002")} ${inlineCode("Home Town         :")} ${data.homeTown}\n`,
+        `${formatEmoji("1343816833488257086")} ${inlineCode("Favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
     ];
 
     const filtered = filteredDescription(descriptionBuilder.join(""), false);
@@ -72,7 +72,7 @@ export const staffTransformer: TransformersType[Routes.Staff] = (data) => {
 
     return {
         description: filtered,
-        animeDescription: `\n${inlineCode("Anime List        :")}\n${animeListString}`,
-        mangaDescription: `\n${inlineCode("Manga List        :")}\n${mangaListString}`,
+        animeDescription: `\n${formatEmoji("1343816800353259541")} ${inlineCode("Anime List        :")}\n${animeListString}`,
+        mangaDescription: `\n${formatEmoji("1343816899493888031")} ${inlineCode("Manga List        :")}\n${mangaListString}`,
     };
 };

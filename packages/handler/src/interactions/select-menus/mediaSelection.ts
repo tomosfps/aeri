@@ -49,6 +49,8 @@ export const interaction: SelectMenu<SelectMenuData> = {
             return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
         }
 
+        logger.debug("Media data fetched", "Anilist", { description: media.description });
+
         const embed = new EmbedBuilder()
             .setTitle(media.title.romaji)
             .setURL(media.siteUrl)

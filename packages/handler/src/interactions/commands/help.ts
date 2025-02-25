@@ -1,4 +1,4 @@
-import { EmbedBuilder, bold, codeBlock, inlineCode } from "@discordjs/builders";
+import { EmbedBuilder, bold, codeBlock, formatEmoji, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
 import { formatSeconds } from "core";
 import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
@@ -50,12 +50,12 @@ export const interaction: ChatInputCommand = {
                     .join("\n");
 
                 const descriptionBuilder = [
-                    `${inlineCode("name             :")} ${command.data.name}\n`,
-                    `${inlineCode("cooldown         :")} ${cooldownTimer}\n`,
-                    `${inlineCode("description      :")} ${command.data.description}\n\n`,
-                    `${inlineCode("options          :")} \n${optionDetails}\n\n`,
-                    `${inlineCode("choices          :")} \n${choiceDetails}\n\n`,
-                    `${inlineCode("examples         :")} \n${codeBlock("js", exampleDetails)}\n`,
+                    `${formatEmoji("1343826563472293911")} ${inlineCode("name             :")} ${command.data.name}\n`,
+                    `${formatEmoji("1343816859690078289")} ${inlineCode("cooldown         :")} ${cooldownTimer}\n`,
+                    `${formatEmoji("1343816899493888031")} ${inlineCode("description      :")} ${command.data.description}\n\n`,
+                    `${formatEmoji("1343816843101732946")} ${inlineCode("options          :")} \n${optionDetails}\n\n`,
+                    `${formatEmoji("1343826550100987995")} ${inlineCode("choices          :")} \n${choiceDetails}\n\n`,
+                    `${formatEmoji("1343826931497439272")} ${inlineCode("examples         :")} \n${codeBlock("js", exampleDetails)}\n`,
                 ];
 
                 const filteredDescription = descriptionBuilder.filter((line) => {
@@ -85,7 +85,7 @@ export const interaction: ChatInputCommand = {
             )
             .join("\n");
         const embed = new EmbedBuilder()
-            .setTitle("Commands")
+            .setTitle(inlineCode("commands".padEnd(maxLength).padStart(maxLength + 3)))
             .setDescription(commandNames)
             .setColor(interaction.base_colour);
         interaction.base_colour;

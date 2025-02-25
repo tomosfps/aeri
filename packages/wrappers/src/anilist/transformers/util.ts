@@ -13,11 +13,11 @@ export function filteredDescription(description: string | string[], set_spoiler:
                     /^\s*$/.test(line) ||
                     /null/.test(line) ||
                     /undefined/.test(line) ||
-                    line === "`completed         :` \n \n" ||
-                    line === "`current           :` \n \n" ||
-                    line === "`planning          :` \n \n" ||
-                    line === "`dropped           :`\n \n" ||
-                    line === "`paused            :`\n \n\n"
+                    line === "`completed         :`\n" ||
+                    line === "`current           :`\n" ||
+                    line === "`planning          :`\n" ||
+                    line === "`dropped           :`\n" ||
+                    line === "`paused            :`\n"
                 );
             })
             .join("\n");
@@ -29,9 +29,9 @@ export function filteredDescription(description: string | string[], set_spoiler:
                 /^\s*$/.test(line) ||
                 /null/.test(line) ||
                 /undefined/.test(line) ||
-                line === "`completed         :` \n \n" ||
-                line === "`current           :` \n \n" ||
-                line === "`planning          :` \n \n" ||
+                line === "`completed         :`\n \n" ||
+                line === "`current           :`\n \n" ||
+                line === "`planning          :`\n \n" ||
                 line === "`dropped           :`\n \n" ||
                 line === "`paused            :`\n \n\n"
             );

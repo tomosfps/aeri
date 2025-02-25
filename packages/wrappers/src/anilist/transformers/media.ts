@@ -1,6 +1,7 @@
-import { inlineCode } from "@discordjs/formatters";
+import { formatEmoji, inlineCode } from "@discordjs/formatters";
 import { formatSeconds } from "core";
 import { dbFetchGuildUsers } from "database";
+import { mediaStatusString } from "../enums.js";
 import { MediaListStatus, api } from "../index.js";
 import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
@@ -32,8 +33,8 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
     };
 
     const userResults: { username: string; score: number; progress: number; status: MediaListStatus }[] = [];
-    const allUsers = await dbFetchGuildUsers(guild_id).then((users: any) => {
-        return users.map((user: { anilist: any }) => user.anilist.username);
+    const allUsers = await dbFetchGuildUsers(guild_id).then((users) => {
+        return users.map((user) => user.anilist?.username).filter((username) => username !== undefined);
     });
 
     if (allUsers.length !== 0) {
@@ -99,25 +100,26 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
     }
 
     const descriptionBuilder = [
-        `${inlineCode("total episodes    :")} ${data.episodes?.toLocaleString("en-US")}\n`,
-        `${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString("en-US")}\n`,
-        `${inlineCode("next airing       :")} ${nextEpisode}\n`,
-        `${inlineCode("chapters          :")} ${data.chapters?.toLocaleString("en-US")}\n`,
-        `${inlineCode("volumes           :")} ${data.volumes?.toLocaleString("en-US")}\n`,
-        `${inlineCode("status            :")} ${data.status}\n`,
-        `${inlineCode("average score     :")} ${data.averageScore}%\n`,
-        `${inlineCode("mean score        :")} ${data.meanScore}%\n`,
-        `${inlineCode("popularity        :")} ${data.popularity?.toLocaleString("en-US")}\n`,
-        `${inlineCode("favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
-        `${inlineCode("start date        :")} ${data.startDate}\n`,
-        `${inlineCode("end date          :")} ${data.endDate}\n`,
-        `${inlineCode("genres            :")} ${genresDisplay}\n\n`,
-        `${inlineCode("completed         :")} \n ${userData.completed.join("")}\n`,
-        `${inlineCode("current           :")} \n ${userData.current.join("")}\n`,
-        `${inlineCode("planning          :")} \n ${userData.planning.join("")}\n`,
-        `${inlineCode("dropped           :")}\n ${userData.dropped.join("")}\n`,
-        `${inlineCode("paused            :")}\n ${userData.paused.join("")}\n\n`,
+        `${formatEmoji("1343816899493888031")} ${inlineCode("total episodes    :")} ${data.episodes?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1343816811325558846")} ${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1343816859690078289")} ${inlineCode("next airing       :")} ${nextEpisode}\n`,
+        `${formatEmoji("1343816792170303580")} ${inlineCode("chapters          :")} ${data.chapters?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1343816899493888031")} ${inlineCode("volumes           :")} ${data.volumes?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1343816883924893746")} ${inlineCode("status            :")} ${mediaStatusString(data.status)}\n`,
+        `${formatEmoji("1343818590037741639")} ${inlineCode("average score     :")} ${data.averageScore}%\n`,
+        `${formatEmoji("1343816851699793930")} ${inlineCode("mean score        :")} ${data.meanScore}%\n`,
+        `${formatEmoji("1343816811325558846")} ${inlineCode("popularity        :")} ${data.popularity?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1343816833488257086")} ${inlineCode("favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1343816783890743336")} ${inlineCode("start date        :")} ${data.startDate}\n`,
+        `${formatEmoji("1343816783890743336")} ${inlineCode("end date          :")} ${data.endDate}\n`,
+        `${formatEmoji("1343816843101732946")} ${inlineCode("genres            :")} ${genresDisplay}\n\n`,
+        `${formatEmoji("1343818590037741639")} ${inlineCode("completed         :")}\n${userData.completed.join("")}\n`,
+        `${formatEmoji("1343816800353259541")} ${inlineCode("current           :")}\n${userData.current.join("")}\n`,
+        `${formatEmoji("1343816875770904586")} ${inlineCode("planning          :")}\n${userData.planning.join("")}\n`,
+        `${formatEmoji("1343816819999248444")} ${inlineCode("dropped           :")}\n${userData.dropped.join("")}\n`,
+        `${formatEmoji("1343816867411918918")} ${inlineCode("paused            :")}\n${userData.paused.join("")}\n\n`,
     ];
+
     const filtered = filteredDescription(descriptionBuilder, false);
 
     return {
