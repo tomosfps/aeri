@@ -52,7 +52,7 @@ export default function Navigation() {
                         <NavigationLink href="/" children="Commands" />
 
                         <Link
-                            to="https://github.com/ehiraa/aeri"
+                            to="https://github.com/tomosfps/aeri"
                             className="fill-white hover:bg-csecondary-light/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light bg-csecondary-light"
                             prefetch="none"
                             target="_blank"
@@ -111,7 +111,7 @@ export default function Navigation() {
 
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
                                         <h1 className="text-cprimary-light">External</h1>
-                                        <NavigationLink href="https://github.com/ehiraa/aeri" children="Github" onClick={toggleSheet} />
+                                        <NavigationLink href="https://github.com/tomosfps/aeri" children="Github" onClick={toggleSheet} />
                                         <NavigationLink href="/" children="Discord" onClick={toggleSheet} />
                                     </div>
                                 </div>

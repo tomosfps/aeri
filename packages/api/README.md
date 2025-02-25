@@ -3,7 +3,7 @@ An API built in Rust to be fast and easy to use.
 
 > [!WARNING]
 > ### INTENDED USE
-> This API is mainly to be used with [Aeri](https://github.com/ehiraa/aeri), a discord bot that I made<br/>
+> This API is mainly to be used with [Aeri](https://github.com/tomosfps/aeri), a discord bot that I made<br/>
 > To automatically grab scores and display information. If you feel the need<br/>
 > That certain things should be implemented, refer to [Contributing to API](#contributing-to-the-api)
 
@@ -125,4 +125,4 @@ Feel free to open a pull requests or issue.
 5. Create the pull request
 
 ## License
-This project uses the following license: [MIT LICENSE](https://github.com/ehiraa/aeri/blob/main/LICENSE.md).
+This project uses the following license: [MIT LICENSE](https://github.com/tomosfps/aeri/blob/main/LICENSE.md).

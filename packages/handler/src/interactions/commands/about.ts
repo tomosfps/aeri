@@ -7,7 +7,7 @@ export const interaction: ChatInputCommand = {
     async execute(interaction): Promise<void> {
         const descriptionBuilder = [
             `${bold("Who is Aeri?")}`,
-            "Created by [tomosfps](https://github.com/ehiraa/) and [Sammy](https://github.com/SammyWhamy), Aeri is a versatile bot with a focus on anime, manga, and related content.\n",
+            "Created by [tomosfps](https://github.com/tomosfps/) and [Sammy](https://github.com/SammyWhamy), Aeri is a versatile bot with a focus on anime, manga, and related content.\n",
 
             `${bold("Why the name Aeri?")}`,
             "The name is inspired by Giselle (Aespa), whose real name is Aeri Uchinaga.\n",
@@ -21,12 +21,12 @@ export const interaction: ChatInputCommand = {
             `${inlineCode("Language     :")} [TypeScript](https://www.typescriptlang.org), [Rust](https://www.rust-lang.org), [Dockerfile](https://www.docker.com/)`,
             `${inlineCode("Created      :")} 19/10/2024`,
             `${inlineCode("Last Updated :")} 24/02/2025`,
-            `${inlineCode("Github       :")} [Github Link](https://github.com/ehiraa/aeri)`,
+            `${inlineCode("Github       :")} [Github Link](https://github.com/tomosfps/aeri)`,
         ];
 
         const embed = new EmbedBuilder()
             .setTitle("About Aeri")
-            .setURL("https://github.com/ehiraa/aeri")
+            .setURL("https://github.com/tomosfps/aeri")
             .setDescription(descriptionBuilder.join("\n"))
             .setThumbnail(interaction.avatar_url)
             .setColor(interaction.base_colour);

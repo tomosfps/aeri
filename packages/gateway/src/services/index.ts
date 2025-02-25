@@ -2,12 +2,34 @@ import { REST } from "@discordjs/rest";
 import { SimpleIdentifyThrottler, WebSocketManager, WebSocketShardEvents, WorkerShardingStrategy } from "@discordjs/ws";
 import { Cache } from "cache";
 import { env } from "core";
-import { GatewayIntentBits } from "discord-api-types/v10";
+import { ActivityType, GatewayIntentBits, GatewayOpcodes, PresenceUpdateStatus } from "discord-api-types/v10";
 import { Logger } from "logger";
 
 const rest = new REST().setToken(env.DISCORD_TOKEN);
 const logger = new Logger();
 const cache = await Cache.new("gateway:");
+
+let currentPresenceIndex = 0;
+const presencesList = [
+    {
+        activities: [{ name: "Sakamoto Days", type: ActivityType.Watching }],
+        status: PresenceUpdateStatus.Online,
+        since: null,
+        afk: false,
+    },
+    {
+        activities: [{ name: "/help", type: ActivityType.Playing }],
+        status: PresenceUpdateStatus.Online,
+        since: null,
+        afk: false,
+    },
+    {
+        activities: [{ name: "Jujutsu Kaisen", type: ActivityType.Watching }],
+        status: PresenceUpdateStatus.Online,
+        since: null,
+        afk: false,
+    },
+];
 
 const manager = new WebSocketManager({
     token: env.DISCORD_TOKEN,
@@ -47,5 +69,20 @@ manager.on(WebSocketShardEvents.Closed, (code, shardId) => {
 manager.on(WebSocketShardEvents.Error, (error, shardId) => {
     logger.error(`Shard ${shardId} errored.`, "Gateway", error);
 });
+
+const shardAmount = await manager.getShardCount();
+(async () => {
+    setInterval(async () => {
+        logger.debugSingle("Updating presences", "Gateway");
+        for (let shard = 0; shard < shardAmount; shard++) {
+            const presences = presencesList[currentPresenceIndex] as any;
+            manager.send(shard, {
+                op: GatewayOpcodes.PresenceUpdate,
+                d: presences,
+            });
+            currentPresenceIndex = (currentPresenceIndex + 1) % presencesList.length;
+        }
+    }, 3_600_000);
+})();
 
 await manager.connect();
