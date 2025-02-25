@@ -72,8 +72,9 @@ export const interaction: ChatInputCommand = {
             .setURL(affinity.comparedAgainst.siteUrl)
             .setThumbnail(affinity.comparedAgainst.avatar.large)
             .setDescription(affinity.description)
-            .setFooter({ text: affinity.footer })
-            .setColor(0x2f3136);
+            .setColor(interaction.base_colour)
+            .setFooter({ text: affinity.footer });
+        interaction.base_colour;
 
         await interaction.reply({ embeds: [embed] });
     },

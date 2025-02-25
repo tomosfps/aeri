@@ -127,7 +127,7 @@ importers:
         version: 1.10.0
       '@discordjs/core':
         specifier: ^2.0.0
-        version: 2.0.1
+        version: 2.0.1(bufferutil@4.0.9)
       '@discordjs/rest':
         specifier: ^2.3.0
         version: 2.4.2
@@ -2472,6 +2472,18 @@ snapshots:
   '@discordjs/collection@2.1.1': {}
 
   '@discordjs/core@2.0.1':
+    dependencies:
+      '@discordjs/rest': 2.4.2
+      '@discordjs/util': 1.1.1
+      '@discordjs/ws': 2.0.1(bufferutil@4.0.9)
+      '@sapphire/snowflake': 3.5.5
+      '@vladfrangu/async_event_emitter': 2.4.6
+      discord-api-types: 0.37.118
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@discordjs/core@2.0.1(bufferutil@4.0.9)':
     dependencies:
       '@discordjs/rest': 2.4.2
       '@discordjs/util': 1.1.1

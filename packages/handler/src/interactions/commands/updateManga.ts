@@ -118,11 +118,12 @@ export const interaction: ChatInputCommand = {
             .setURL(result.siteUrl)
             .setImage(result.banner)
             .setThumbnail(result.cover)
+            .setColor(interaction.base_colour)
             .setDescription(result.description)
             .setFooter({
                 text: `${result.footer}\n•If the score doesn't update, use /refresh`,
-            })
-            .setColor(0x2f3136);
+            });
+        interaction.base_colour;
 
         return interaction.reply({ embeds: [embed] });
     },

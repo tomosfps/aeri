@@ -184,8 +184,9 @@ export const interaction: ChatInputCommand = {
             .setImage(mediaResult.banner)
             .setThumbnail(mediaResult.cover)
             .setDescription(mediaResult.description)
-            .setFooter({ text: mediaResult.footer })
-            .setColor(0x2f3136);
+            .setColor(interaction.base_colour)
+            .setFooter({ text: mediaResult.footer });
+        interaction.base_colour;
 
         await interaction.followUp({ embeds: [embed] });
     },

@@ -69,7 +69,10 @@ export const interaction: ChatInputCommand = {
                     );
                 });
 
-                const embed = new EmbedBuilder().setDescription(filteredDescription.join("")).setColor(0x2f3136);
+                const embed = new EmbedBuilder()
+                    .setDescription(filteredDescription.join(""))
+                    .setColor(interaction.base_colour);
+                interaction.base_colour;
                 return await interaction.reply({ embeds: [embed] });
             }
             return await interaction.reply({ content: "Command not found", ephemeral: true });
@@ -81,7 +84,11 @@ export const interaction: ChatInputCommand = {
                     `${inlineCode(`${command.data.name.padEnd(maxLength)} :`)} ${command.data.description}`,
             )
             .join("\n");
-        const embed = new EmbedBuilder().setTitle("Commands").setDescription(commandNames).setColor(0x2f3136);
+        const embed = new EmbedBuilder()
+            .setTitle("Commands")
+            .setDescription(commandNames)
+            .setColor(interaction.base_colour);
+        interaction.base_colour;
         await interaction.reply({ embeds: [embed] });
     },
 };

@@ -44,8 +44,9 @@ export const interaction: ChatInputCommand = {
             .setURL(character.siteUrl)
             .setDescription(character.description + character.addOnDescription)
             .setThumbnail(character.image)
-            .setFooter({ text: character.footer })
-            .setColor(0x2f3136);
+            .setColor(interaction.base_colour)
+            .setFooter({ text: character.footer });
+        interaction.base_colour;
 
         const descriptionButton = new ButtonBuilder()
             .setCustomId(`characterShow:${character_name}:DESCRIPTION:${interaction.user.id}`)

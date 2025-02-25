@@ -67,8 +67,8 @@ export const interaction: Button<ButtonData> = {
             .setURL(animeStaff.siteUrl)
             .setDescription(description)
             .setThumbnail(animeStaff.image)
-            .setFooter({ text: animeStaff.footer })
-            .setColor(0x2f3136);
+            .setFooter({ text: animeStaff.footer });
+        interaction.base_colour;
 
         await interaction.edit({
             embeds: [embed],

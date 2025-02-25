@@ -74,10 +74,11 @@ export const interaction: SelectMenu<SelectMenuData> = {
             .setImage(media.banner)
             .setThumbnail(media.cover)
             .setDescription(media.description)
+            .setColor(interaction.base_colour)
             .setFooter({
                 text: media.footer,
-            })
-            .setColor(0x2f3136);
+            });
+        interaction.base_colour;
 
         await interaction.editReply({ embeds: [embed] });
     },

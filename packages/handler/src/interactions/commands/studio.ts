@@ -44,8 +44,9 @@ export const interaction: ChatInputCommand = {
             .setTitle(studio.name)
             .setURL(studio.siteUrl)
             .setDescription(studio.description + studio.animeDescription)
-            .setFooter({ text: studio.footer })
-            .setColor(0x2f3136);
+            .setColor(interaction.base_colour)
+            .setFooter({ text: studio.footer });
+        interaction.base_colour;
 
         return interaction.reply({
             embeds: [embed],

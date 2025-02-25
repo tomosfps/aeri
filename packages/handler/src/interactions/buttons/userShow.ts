@@ -63,8 +63,8 @@ export const interaction: Button<ButtonData> = {
             .setDescription(description)
             .setThumbnail(user.avatar)
             .setImage(user.banner)
-            .setFooter({ text: user.footer })
-            .setColor(0x2f3136);
+            .setFooter({ text: user.footer });
+        interaction.base_colour;
 
         await interaction.edit({
             embeds: [embed],

@@ -50,7 +50,10 @@ export const interaction: ChatInputCommand = {
 
         const row = new ActionRowBuilder().addComponents(defaultButton, guildButton);
 
-        const embed = new EmbedBuilder().setTitle(`${getMember.user?.username}'s Avatar`).setImage(userAvatar);
+        const embed = new EmbedBuilder()
+            .setTitle(`${getMember.user?.username}'s Avatar`)
+            .setImage(userAvatar)
+            .setColor(interaction.base_colour);
         await interaction.reply({ embeds: [embed], components: [row] });
     },
 };

@@ -44,8 +44,9 @@ export const interaction: ChatInputCommand = {
             .setURL(staff.siteUrl)
             .setDescription(staff.description)
             .setThumbnail(staff.image)
-            .setFooter({ text: staff.footer })
-            .setColor(0x2f3136);
+            .setColor(interaction.base_colour)
+            .setFooter({ text: staff.footer });
+        interaction.base_colour;
 
         const animeButton = new ButtonBuilder()
             .setCustomId(`staffShow:${staff_name}:ANIME:${interaction.user.id}`)

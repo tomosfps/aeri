@@ -40,17 +40,11 @@ export const interaction: Button<ButtonData> = {
 
         switch (data.type) {
             case "DEFAULT":
-                url =
-                    member.user?.avatar !== null
-                        ? `https://cdn.discordapp.com/avatars/${member.user?.id}/${member.user?.avatar}.png?size=1024`
-                        : `https://cdn.discordapp.com/embed/avatars/${(Number(member.user.id) >> 22) % 6}.png?size=1024`;
+                url = interaction.avatar_url;
                 title = `${member.user?.username}'s Avatar`;
                 break;
             case "GUILD": {
-                const guildMemberAvatar = interaction.guild_id
-                    ? (await interaction.guilds.getMember(interaction.guild_id, data.targetUserId)).avatar
-                    : null;
-                url = `https://cdn.discordapp.com/guilds/${interaction.guild_id}/users/${data.targetUserId}/avatars/${guildMemberAvatar}.png?size=1024`;
+                url = interaction.guild_url(guild_id, data.targetUserId, member.user?.avatar || "");
                 title = `${member.user?.username}'s Guild Avatar`;
                 break;
             }

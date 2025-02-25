@@ -81,8 +81,9 @@ export const interaction: ChatInputCommand = {
             .setDescription(user.description)
             .setThumbnail(user.avatar)
             .setImage(user.banner)
-            .setFooter({ text: user.footer })
-            .setColor(0x2f3136);
+            .setColor(interaction.base_colour)
+            .setFooter({ text: user.footer });
+        interaction.base_colour;
 
         return interaction.reply({
             embeds: [embed],
