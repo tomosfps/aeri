@@ -6,7 +6,8 @@ export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("unlink")
         .setDescription("Unlink your anilist account from the bot")
-        .addExample("/unlink"),
+        .addExample("/unlink")
+        .addCategory("Anime/Manga"),
     async execute(interaction): Promise<void> {
         const isInDatabase = await dbFetchAnilistUser(interaction.user_id);
 

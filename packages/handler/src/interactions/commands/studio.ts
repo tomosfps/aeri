@@ -13,6 +13,7 @@ export const interaction: ChatInputCommand = {
         .setName("studio")
         .setDescription("Find a studio based on the name")
         .addExample("/studio studio:MAPPA")
+        .addCategory("Anime/Manga")
         .addStringOption((option) =>
             option.setName("studio_name").setDescription("The name of the studio").setRequired(true),
         ),

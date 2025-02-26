@@ -36,7 +36,6 @@ const manager = new WebSocketManager({
     intents:
         GatewayIntentBits.Guilds |
         GatewayIntentBits.GuildMessages |
-        GatewayIntentBits.MessageContent |
         GatewayIntentBits.GuildMembers,
     rest,
     shardCount: env.SHARD_COUNT,

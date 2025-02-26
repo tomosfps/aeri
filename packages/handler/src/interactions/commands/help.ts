@@ -11,6 +11,7 @@ export const interaction: ChatInputCommand = {
         .setDescription("View all available commands")
         .addExample("/help")
         .addExample("/help command:anime")
+        .addCategory("Utility")
         .addStringOption((option) => option.setName("command").setDescription("The command you want to view")),
     async execute(interaction): Promise<void> {
         const option = getCommandOption(

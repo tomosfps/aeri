@@ -54,6 +54,8 @@ impl Client {
         if self.using_proxy {
             let response = self.client.post(url)
                 .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Access-Control-Allow-Origin", "*")
                 .json(query)
                 .send()
                 .await?;
@@ -68,6 +70,8 @@ impl Client {
 
         let response = self.client.post(url)
             .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
+            .header("Access-Control-Allow-Origin", "*")
             .json(query)
             .send()
             .await?;
@@ -95,6 +99,7 @@ impl Client {
 
         let response = self.client.post(url)
             .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
             .header("Authorization", auth)
             .json(query)
             .send()

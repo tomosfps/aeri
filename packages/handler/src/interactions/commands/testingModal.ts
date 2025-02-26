@@ -9,7 +9,7 @@ import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
 export const interaction: ChatInputCommand = {
-    data: new SlashCommandBuilder().setName("modal").setDescription("This is just a testing modal"),
+    data: new SlashCommandBuilder().setName("modal").setDescription("This is just a testing modal").addCategory("Beta"),
     owner_only: true,
     async execute(interaction): Promise<void> {
         const modal = new ModalBuilder().setCustomId("test-modal").setTitle("create Post");

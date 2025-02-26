@@ -15,6 +15,7 @@ export const interaction: ChatInputCommand = {
         .setDescription("View a user's anilist account")
         .addExample("/user")
         .addExample("/user username:anilist_username")
+        .addCategory("Anime/Manga")
         .addStringOption((option) =>
             option.setName("username").setDescription("The targets anilist username").setRequired(false),
         ),

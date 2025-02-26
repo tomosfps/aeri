@@ -3,7 +3,7 @@ import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
 export const interaction: ChatInputCommand = {
-    data: new SlashCommandBuilder().setName("about").setDescription("Information About Aeri").addExample("/about"),
+    data: new SlashCommandBuilder().setName("about").setDescription("Information About Aeri").addExample("/about").addCategory("Utility"),
     async execute(interaction): Promise<void> {
         const descriptionBuilder = [
             `${bold("Who is Aeri?")}`,

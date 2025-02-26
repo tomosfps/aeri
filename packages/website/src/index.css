@@ -100,3 +100,14 @@ h6 {
 .feature:nth-child(even) .feature-content {
     flex-direction: row;
 }
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+}

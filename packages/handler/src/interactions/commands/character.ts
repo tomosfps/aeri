@@ -13,6 +13,7 @@ export const interaction: ChatInputCommand = {
         .setName("character")
         .setDescription("Find a character based on the name")
         .addExample("/character name:Saitama")
+        .addCategory("Anime/Manga")
         .addStringOption((option) =>
             option.setName("name").setDescription("The name of the character").setRequired(true),
         ),

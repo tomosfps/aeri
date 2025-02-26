@@ -7,6 +7,7 @@ const App       = lazy(() => import("./App.tsx"));
 const Success   = lazy(() => import("./routes/login/success.tsx"));
 const Layout    = lazy(() => import("./Layout.tsx"));
 const Fail      = lazy(() => import("./routes/login/fail.tsx"));
+const Commands  = lazy(() => import("./routes/commands/commands.tsx"));
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -15,6 +16,7 @@ createRoot(document.getElementById("root")!).render(
                 <Routes>
                     <Route path="/" element={<Layout />}>
                         <Route index element={<App />} />
+                        <Route path="commands" element={<Commands />} />
                         <Route path="fail" element={<Fail />} />
                         <Route path="success" element={<Success />} />
                     </Route>

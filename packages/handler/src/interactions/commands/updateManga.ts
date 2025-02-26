@@ -21,6 +21,7 @@ export const interaction: ChatInputCommand = {
         .addExample(
             "Any choices that are left out, will be automatically grabbed from the user and set to the current value.",
         )
+        .addCategory("OAuth")
         .addStringOption((option) =>
             option
                 .setName("name")

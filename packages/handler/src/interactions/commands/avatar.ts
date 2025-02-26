@@ -10,6 +10,7 @@ export const interaction: ChatInputCommand = {
         .setName("avatar")
         .setDescription("View a users or bots avatar")
         .addExample("/avatar target:@eira.py")
+        .addCategory("Utility")
         .addUserOption((option) =>
             option.setName("target").setDescription("The user/bot to view their avatar").setRequired(true),
         ),

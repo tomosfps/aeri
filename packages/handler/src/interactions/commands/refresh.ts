@@ -12,7 +12,8 @@ export const interaction: ChatInputCommand = {
         .setName("refresh")
         .setDescription("Refresh your scores in the cache")
         .addExample("/refresh")
-        .addExample("Must have used /link before using this command"),
+        .addExample("Must have used /link before using this command")
+        .addCategory("Anime/Manga"),
     async execute(interaction): Promise<void> {
         const anilistUser = await dbFetchAnilistUser(interaction.user_id);
         const userId = anilistUser ? anilistUser.id : null;

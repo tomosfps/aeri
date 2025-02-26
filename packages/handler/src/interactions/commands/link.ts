@@ -14,6 +14,7 @@ export const interaction: ChatInputCommand = {
         .setName("link")
         .setDescription("Link your anilist account with the bot")
         .addExample("/link username:anilist_username")
+        .addCategory("Anime/Manga")
         .addStringOption((option) =>
             option.setName("username").setDescription("Your Anilist username").setRequired(true),
         ),

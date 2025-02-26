@@ -11,7 +11,8 @@ export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("login")
         .setDescription("Setup OAuth with the Discord bot!")
-        .addExample("/login"),
+        .addExample("/login")
+        .addCategory("OAuth"),
     async execute(interaction): Promise<void> {
         if (interaction.guild_id === undefined) {
             return interaction.reply({

@@ -51,6 +51,7 @@ export const interaction: ChatInputCommand = {
         .addExample("/recommend media:Anime score:true")
         .addExample("/recommend media:Manga genre:true")
         .addExample("You can not use both genre and score at the same time")
+        .addCategory("Anime/Manga")
         .addStringOption((option) =>
             option
                 .setName("media")

@@ -18,8 +18,8 @@ function App() {
 
                 {/* Hero Buttons */}
                 <div className="flex flex-col 2xl:flex-row 2xl:space-y-0 2xl:space-x-8 space-y-8 pb-12 text-center xl:w-max">
-                    <Link to="https://discord.com/oauth2/authorize?client_id=795916241193140244" className="hover:bg-cprimary-light/40 bg-cprimary-light text-black  px-8 py-4 rounded-xl text-xl">Add To Discord</Link>
-                    <Link to="/" className="hover:text-csecondary-light/40 hover:border-csecondary-light/40 border-2 border-csecondary-light px-8 text-csecondary-light py-4 rounded-xl text-xl font-semibold">Commands</Link>
+                    <Link to="https://discord.com/oauth2/authorize?client_id=795916241193140244" className="font-bold hover:bg-cprimary-light/40 border-2 border-cborder-light bg-cprimary-light/5 text-cprimary-light px-8 py-4 rounded-xl text-xl">Add To Discord</Link>
+                    <Link to="/" className="font-semibold hover:text-csecondary-light/40 hover:border-csecondary-light/40 border-2 border-csecondary-light px-8 text-csecondary-light py-4 rounded-xl text-xl">Commands</Link>
                 </div>
             </div>
 
@@ -32,7 +32,7 @@ function App() {
                 </div>
 
                 <div className="pb-32 lg:ml-0 flex justify-center pt-6">
-                    <Link to="/" className="hover:bg-cprimary-light/40 text-black inline-flex h-9 items-center justify-center rounded-md bg-cprimary-light px-4 py-6 lg:px-6 lg:py-8 text-base lg:text-xl font-medium text-ctext-light shadow">See More Features</Link>
+                    <Link to="/" className="hover:bg-cprimary-light/40 border-2 border-cborder-light bg-cprimary-light/5 text-cprimary-light inline-flex h-9 items-center justify-center rounded-md bg-cprimary-light px-4 py-6 lg:px-6 lg:py-8 text-base lg:text-xl font-bold shadow">See More Features</Link>
                 </div>
             </section>
 
@@ -41,7 +41,7 @@ function App() {
                 <div className="h-max flex flex-col justify-center items-center text-ctext-light mx-4 rounded-3xl space-y-4 p-4 mb-24 text-center pb-40">
                     <h1 className="text-3xl 2xl:text-5xl font-bold text-ctext-light ">Add Aeri</h1>
                     <p className="text-ctext-light/80 mt-2 text-sm 2xl:text-lg">Start fetching, viewing and updating information today!</p>
-                    <Link to="https://discord.com/oauth2/authorize?client_id=795916241193140244" className="text-black hover:bg-cprimary-light/40 bg-cprimary-light px-8 py-4 2xl:px-12 2xl:py-6 rounded-xl text-base 2xl:text-xl">Add to Discord</Link>
+                    <Link to="https://discord.com/oauth2/authorize?client_id=795916241193140244" className="border-2 border-cborder-light bg-cprimary-light/5 text-cprimary-light font-bold hover:bg-cprimary-light/40 bg-cprimary-light px-8 py-4 2xl:px-12 2xl:py-6 rounded-xl text-base 2xl:text-xl">Add to Discord</Link>
                 </div>
             </section>
 

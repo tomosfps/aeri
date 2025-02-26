@@ -14,6 +14,7 @@ export const interaction: ChatInputCommand = {
         .setName("anime")
         .setDescription("Find an anime based on the name")
         .addExample("/anime name:One Piece")
+        .addCategory("Anime/Manga")
         .addStringOption((option) => option.setName("name").setDescription("The name of the anime").setRequired(true)),
     async execute(interaction): Promise<void> {
         const anime = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";

@@ -2,6 +2,7 @@ use actix_web::{web, App, HttpServer};
 
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
+use routes::get_commands::get_commands;
 use std::env;
 
 mod routes;
@@ -66,6 +67,7 @@ async fn main() -> std::io::Result<()> {
             .service(anilist_oauth)
             .service(viewer)
             .service(remove_user)
+            .service(get_commands)
             .route("/oauth/updateMedia", web::post().to(UpdateMediaMutation::route))
             .route("/studio", web::post().to(Studio::route))
             .route("/staff", web::post().to(Staff::route))

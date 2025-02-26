@@ -2,8 +2,8 @@ import { readdir } from "node:fs/promises";
 import { URL } from "node:url";
 import type { ContextMenuCommandBuilder, SlashCommandOptionsOnlyBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
-import { env } from "core";
-import { type RESTPostAPIApplicationCommandsJSONBody as CommandData, Routes } from "discord-api-types/v10";
+import { env, getRedis } from "core";
+import { type RESTPostAPIApplicationCommandsJSONBody as CommandData, type RESTPutAPIApplicationCommandsResult, Routes } from "discord-api-types/v10";
 import { Logger } from "logger";
 import type { AutoCompleteInteraction } from "../classes/autoCompleteInteraction.js";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
@@ -13,6 +13,8 @@ import type { ModalInteraction } from "../classes/modalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
 import type { SlashCommandBuilder } from "../classes/slashCommandBuilder.js";
 import type { UserContextInteraction } from "../classes/userContextInteraction.js";
+
+const redis = await getRedis();
 
 export type BaseCommand = {
     data: {
@@ -76,9 +78,11 @@ export async function deployCommands(commands: CommandData[]) {
     logger.infoSingle("Started deploying application (/) commands.", "Commands");
 
     try {
-        await rest.put(Routes.applicationCommands(env.DISCORD_APPLICATION_ID), {
+        const putApplicationCommands = await rest.put(Routes.applicationCommands(env.DISCORD_APPLICATION_ID), {
             body: commands,
-        });
+        }) as RESTPutAPIApplicationCommandsResult;
+
+        await redis.set("commands", JSON.stringify(putApplicationCommands));
 
         logger.infoSingle("Successfully deployed global application (/) commands.", "Commands");
 

@@ -13,7 +13,8 @@ export const interaction: ChatInputCommand = {
         .setName("affinity")
         .setDescription("Compare your affinity with server members!")
         .addExample("/affinity")
-        .addExample("Must have a user account linked to Anilist"),
+        .addExample("Must have a user account linked to Anilist")
+        .addCategory("Anime/Manga"),
     async execute(interaction): Promise<void> {
         if (!interaction.guild_id) {
             return interaction.reply({

@@ -13,6 +13,7 @@ export const interaction: ChatInputCommand = {
         .setName("manga")
         .setDescription("Find an manga based on the name")
         .addExample("/manga media_name:One Piece")
+        .addCategory("Anime/Manga")
         .addStringOption((option) =>
             option.setName("media_name").setDescription("The name of the manga").setRequired(true),
         ),

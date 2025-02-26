@@ -49,7 +49,7 @@ export default function Navigation() {
                     {/* Left Side */}
                     <nav className="hidden lg:flex items-center space-x-6">
                         <NavigationLink href="/" children="Home" />
-                        <NavigationLink href="/" children="Commands" />
+                        <NavigationLink href="commands" children="Commands"/>
 
                         <Link
                             to="https://github.com/tomosfps/aeri"
@@ -62,7 +62,7 @@ export default function Navigation() {
                             </Suspense>
                         </Link>
                         <Link
-                            to="#"
+                            to="https://discord.com/oauth2/authorize?client_id=795916241193140244"
                             className="hover:bg-csecondary-light/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light bg-csecondary-light"
                             prefetch="none"
                             target="_blank"
@@ -74,10 +74,10 @@ export default function Navigation() {
                     </nav>
 
                     {/* Right Side */}
-                    <div className="ml-auto flex items-center space-x-4">
+                    <div className=" ml-auto flex items-center space-x-4">
                         <Link
                             to="#"
-                            className="text-black hover:bg-cprimary-light/40 inline-flex h-9 items-center justify-center rounded-md bg-cprimary-light px-4 py-2 text-sm font-medium shadow"
+                            className="hidden text-black hover:bg-cprimary-light/40 inline-flex h-9 items-center justify-center rounded-md bg-cprimary-light px-4 py-2 text-sm font-medium shadow"
                             prefetch="none"
                         >
                             Sign in
@@ -100,19 +100,18 @@ export default function Navigation() {
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
                                         <h1 className="text-cprimary-light">Main Page</h1>
                                         <NavigationLink href="/" children="Home" onClick={toggleSheet} />
-                                        <NavigationLink href="/" children="Commands" onClick={toggleSheet} />
+                                        <NavigationLink href="commands" children="Commands" onClick={toggleSheet} />
                                     </div>
                                     
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
                                         <h1 className="text-cprimary-light">Support</h1>
                                         <NavigationLink href="/" children="Server" onClick={toggleSheet} />
-                                        <NavigationLink href="/" children="Guides" onClick={toggleSheet} />
                                     </div>
 
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
                                         <h1 className="text-cprimary-light">External</h1>
                                         <NavigationLink href="https://github.com/tomosfps/aeri" children="Github" onClick={toggleSheet} />
-                                        <NavigationLink href="/" children="Discord" onClick={toggleSheet} />
+                                        <NavigationLink href="https://discord.com/oauth2/authorize?client_id=795916241193140244" children="Add Aeri" onClick={toggleSheet} />
                                     </div>
                                 </div>
                             </SheetContent>
