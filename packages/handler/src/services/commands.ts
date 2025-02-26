@@ -3,7 +3,11 @@ import { URL } from "node:url";
 import type { ContextMenuCommandBuilder, SlashCommandOptionsOnlyBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
 import { env, getRedis } from "core";
-import { type RESTPostAPIApplicationCommandsJSONBody as CommandData, type RESTPutAPIApplicationCommandsResult, Routes } from "discord-api-types/v10";
+import {
+    type RESTPostAPIApplicationCommandsJSONBody as CommandData,
+    type RESTPutAPIApplicationCommandsResult,
+    Routes,
+} from "discord-api-types/v10";
 import { Logger } from "logger";
 import type { AutoCompleteInteraction } from "../classes/autoCompleteInteraction.js";
 import type { ButtonInteraction } from "../classes/buttonInteraction.js";
@@ -78,9 +82,9 @@ export async function deployCommands(commands: CommandData[]) {
     logger.infoSingle("Started deploying application (/) commands.", "Commands");
 
     try {
-        const putApplicationCommands = await rest.put(Routes.applicationCommands(env.DISCORD_APPLICATION_ID), {
+        const putApplicationCommands = (await rest.put(Routes.applicationCommands(env.DISCORD_APPLICATION_ID), {
             body: commands,
-        }) as RESTPutAPIApplicationCommandsResult;
+        })) as RESTPutAPIApplicationCommandsResult;
 
         await redis.set("commands", JSON.stringify(putApplicationCommands));
 

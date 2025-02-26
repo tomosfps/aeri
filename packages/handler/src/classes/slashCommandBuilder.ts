@@ -2,7 +2,7 @@ import { SlashCommandBuilder as SlashCommandBuilderOriginal } from "@discordjs/b
 
 export class SlashCommandBuilder extends SlashCommandBuilderOriginal {
     examples: string[] = [];
-    category: string   = "";
+    category = "";
 
     addCategory(category: string): this {
         this.category = category;
