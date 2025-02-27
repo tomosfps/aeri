@@ -22,9 +22,8 @@ export const interaction: ChatInputCommand = {
             `${bold("Other Information")}`,
             `${inlineCode("Version      :")} v1.0.0`,
             `${inlineCode("Library      :")} [discord.js](https://discord.js.org/)`,
-            `${inlineCode("Language     :")} [TypeScript](https://www.typescriptlang.org), [Rust](https://www.rust-lang.org), [Dockerfile](https://www.docker.com/)`,
+            `${inlineCode("Languages    :")} [TypeScript](https://www.typescriptlang.org), [Rust](https://www.rust-lang.org), [Dockerfile](https://www.docker.com/)`,
             `${inlineCode("Created      :")} 19/10/2024`,
-            `${inlineCode("Last Updated :")} 24/02/2025`,
             `${inlineCode("Github       :")} [Github Link](https://github.com/tomosfps/aeri)`,
         ];
 

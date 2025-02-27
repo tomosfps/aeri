@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./index.css";
 import LoadingSpinner from "./components/ui/loadingSpinner";
 
-const Fallback = () => <LoadingSpinner message="Loading Page" />;
+const Fallback = () => <LoadingSpinner size="lg" message="Loading Page" />;
 const App = lazy(() => import("./App"));
 const Success = lazy(() => import("./routes/login/success"));
 const Layout = lazy(() => import("./Layout"));

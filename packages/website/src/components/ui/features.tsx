@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from 'react';
 
 interface FeatureProps {
@@ -21,21 +20,33 @@ export function Features({ title, description, image, alt, altImage, clickable }
     };
 
     return (
-        <div className="2xl:even:w-2/3 xl:even:flex-row xl:odd:flex-row-reverse flex flex-col items-center space-y-4 w-full max-w-7xl mx-auto">
-            <div className="text-center">
-                <h2 className="text-3xl xl:text-5xl font-bold text-cprimary-light">{title}</h2>
-                <p className="text-center text-ctext-light mx-12 xl:text-xl md:mx-48 lg:mx-52 xl:mx-12">{description}</p>
+        <div className="feature-content flex flex-col md:flex-row items-center md:items-start justify-between w-full max-w-6xl mx-auto px-4 gap-6 md:gap-8 lg:gap-12">
+
+            <div className="w-full md:w-2/5 space-y-3 md:space-y-4 flex items-center justify-center flex-col">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-cprimary-light text-center">
+                    {title}
+                </h2>
+                <p className="text-sm sm:text-base lg:text-lg text-ctext-light/80 text-center ">
+                    {description}
+                </p>
             </div>
-            <div className={`2xl:w-2/4 md:w-2/3 lg:w-2/4 xl:w-2/4 2xl:w-3/4 px-4 pt-4 ${clickable ? 'cursor-pointer' : ''}`}>
-                <img
-                    loading="lazy"
-                    src={currentImage}
-                    alt={alt}
-                    width="600"
-                    height="400"
-                    className="w-full max-w-4xl mx-auto select-none"
-                    onClick={clickable ? handleImageClick : undefined}
-                />
+            
+
+            <div className={`w-full md:w-3/5 ${clickable ? 'cursor-pointer transition-transform hover:scale-105 duration-300' : ''}`}>
+                <div className="relative w-full max-w-lg mx-auto overflow-hidden rounded-lg">
+                    <img
+                        loading="lazy"
+                        src={currentImage}
+                        alt={alt}
+                        className="w-full h-full object-cover object-center select-none"
+                        onClick={clickable ? handleImageClick : undefined}
+                    />
+                    {clickable && (
+                        <div className="absolute bottom-2 right-2 bg-black/40 text-white text-xs px-2 py-1 rounded-full">
+                            Click to toggle
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -9,6 +9,11 @@ lazy_static! {
 
 #[get("/get_commands")]
 async fn get_commands() -> impl Responder {
-    let get_commands = redis.get("commands").unwrap();
-    HttpResponse::Ok().json(json!({"commands": get_commands}))
+    
+    let command_keys = match redis.hgetall("commands").await {
+        Ok(commands) => commands,
+        Err(_) => vec![]
+    };
+
+    HttpResponse::Ok().json(json!({"commands": command_keys}))
 }

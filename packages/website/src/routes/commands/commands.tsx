@@ -1,6 +1,6 @@
 "use client";
 
-import GetCommands, { Command } from "@/components/requests/get_commands";
+import GetCommands, { Command } from "@/components/requests/getCommands";
 import { CategoryButton } from "@/components/ui/categoryButton";
 import { CommandCard } from "@/components/ui/commandCard";
 import { Input } from "@/components/ui/input";

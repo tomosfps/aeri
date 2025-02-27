@@ -154,23 +154,48 @@ export async function load<T extends InteractionUnion>(type: FileType): Promise<
             files.set(getName(interaction), interaction);
 
             if ("data" in interaction) {
-                const commandName = interaction.data.toJSON().name;
-                const description = "description" in interaction.data ? interaction.data.description : "";
-                const cooldown = interaction.cooldown || 0;
-                const category = "category" in interaction.data ? interaction.data.category : "";
-                const options = "options" in interaction.data ? JSON.stringify(interaction.data.options || []) : "[]";
-                const examples = "examples" in interaction.data ? JSON.stringify(interaction.data.examples || []) : "[]";
+                if (!interaction.owner_only && type === FileType.Commands) {
+                    const interactionData = interaction.data.toJSON();
+                    const commandName = interactionData.name;
 
-                await redis.hset(`commands:${commandName}`, {
-                    commandName,
-                    description,
-                    cooldown,
-                    category,
-                    examples,
-                    options
-                });
+                    let description = "";
+                    let category = "";
+                    let examples: string[] = [];
+                    let options: any[] = [];
+
+                    if ("data" in interaction && interaction.data) {
+                        if ("description" in interaction.data && typeof interaction.data.description === "string") {
+                            description = interaction.data.description;
+                        }
+
+                        if ("category" in interaction.data && typeof interaction.data.category === "string") {
+                            category = interaction.data.category;
+                        }
+
+                        if ("examples" in interaction.data && Array.isArray(interaction.data.examples)) {
+                            examples = interaction.data.examples;
+                        }
+
+                        if ("options" in interaction.data && Array.isArray(interaction.data.options)) {
+                            options = interaction.data.options;
+                        }
+                    }
+
+                    const cooldown = interaction.cooldown || 0;
+                    await redis.hset(
+                        "commands",
+                        commandName,
+                        JSON.stringify({
+                            commandName,
+                            description,
+                            cooldown,
+                            category,
+                            examples: JSON.stringify(examples),
+                            options: JSON.stringify(options),
+                        }),
+                    );
+                }
             }
-
         } catch (error: any) {
             logger.error(`Failed to load ${type} (📝) file: ${file}`, "Files", error);
         }

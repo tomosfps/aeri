@@ -185,4 +185,22 @@ impl Redis {
             }
         }
     }
+
+    pub async fn hgetall<T: ToRedisArgs + std::fmt::Debug>(&self, key: T) -> RedisResult<Vec<(String, String)>> {
+        logger.debug_single(format!("Getting all fields and values from hash {:?}", key).as_str(), "Redis");
+        let mut con = self.client.get_connection()?;
+
+        let result: RedisResult<Vec<(String, String)>> = con.hgetall(key);
+        match result {
+            Ok(data) => {
+                logger.debug_single("Got all fields and values from hash", "Redis");
+                Ok(data)
+            },
+            Err(e) => {
+                logger.error_single(format!("Error getting all fields and values from hash: {:?}", e).as_str(), "Redis");
+                Err(e)
+            }
+        }
+    }
+
 }

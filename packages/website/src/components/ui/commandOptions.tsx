@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Badge } from "./badge";
-import { Command } from "../requests/get_commands";
+import { Command } from "../requests/getCommands";
 
 export const CommandOptions = memo(({ option }: { option: Command['options'][0] }) => {
     return (
