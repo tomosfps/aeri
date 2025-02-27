@@ -36,9 +36,9 @@ export default function LoadingSpinner({
       </div>
       
       {showText && (
-        <p className={"mt-4 text-ctext-light w-16 h-16 border-4 text-lg font-medium flex items-center"}>
-          <span>{message}</span>
-          <span className="inline-block w-7 text-left">{dots}</span>
+        <p className={"mt-4 text-ctext-light text-lg font-medium flex items-center"}>
+          <span className="text-center">{message}</span>
+          <span className="text-center inline-block w-7 text-left">{dots}</span>
         </p>
       )}
     </div>

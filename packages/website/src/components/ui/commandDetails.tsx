@@ -50,9 +50,9 @@ export const CommandDetails = memo(({ command }: { command: Command }) => {
                 command.examples.map((example, index) => (
                   <div
                     key={index}
-                    className={`p-2 font-mono text-sm ${index < command.examples.length - 1 ? 'border-b border-cborder-light' : ''}`}
+                    className={`p-2 text-base ${index < command.examples.length - 1 ? 'border-b border-cborder-light' : ''}`}
                   >
-                    <span className="text-cprimary-light">{example}</span>
+                    <span className="p-3 text-cprimary-light">{example}</span>
                   </div>
                 ))
               ) : (
