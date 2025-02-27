@@ -14,6 +14,12 @@ export default {
             '4k': '3840px',
         },
         extend: {
+            animation: {
+                'spin-slower': 'spin 3s linear infinite',
+            },
+            borderWidth: {
+                '3': '3px',
+            },
             borderRadius: {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",

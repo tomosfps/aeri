@@ -1,4 +1,6 @@
 use actix_web::{web, App, HttpServer};
+use actix_cors::Cors;
+use actix_web::{http, middleware};
 
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
@@ -62,7 +64,15 @@ async fn main() -> std::io::Result<()> {
 
     logger.info_single(&format!("Listening on {}:{}", ip, port), "Main");
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allowed_methods(vec!["GET", "POST"])
+            .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT, http::header::CONTENT_TYPE])
+            .max_age(3600);
+
         App::new()
+            .wrap(middleware::Logger::default())
+            .wrap(cors)
             .service(recommend)
             .service(anilist_oauth)
             .service(viewer)

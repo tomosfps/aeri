@@ -86,7 +86,9 @@ export async function deployCommands(commands: CommandData[]) {
             body: commands,
         })) as RESTPutAPIApplicationCommandsResult;
 
-        await redis.set("commands", JSON.stringify(putApplicationCommands));
+        for (const command of putApplicationCommands) {
+            await redis.hset(`commands:${command.name}`, "id", command.id);
+        }
 
         logger.infoSingle("Successfully deployed global application (/) commands.", "Commands");
 
@@ -149,8 +151,26 @@ export async function load<T extends InteractionUnion>(type: FileType): Promise<
     for (const file of jsFiles) {
         try {
             const interaction = (await import(`../interactions/${type}/${file}`)).interaction as T;
-
             files.set(getName(interaction), interaction);
+
+            if ("data" in interaction) {
+                const commandName = interaction.data.toJSON().name;
+                const description = "description" in interaction.data ? interaction.data.description : "";
+                const cooldown = interaction.cooldown || 0;
+                const category = "category" in interaction.data ? interaction.data.category : "";
+                const options = "options" in interaction.data ? JSON.stringify(interaction.data.options || []) : "[]";
+                const examples = "examples" in interaction.data ? JSON.stringify(interaction.data.examples || []) : "[]";
+
+                await redis.hset(`commands:${commandName}`, {
+                    commandName,
+                    description,
+                    cooldown,
+                    category,
+                    examples,
+                    options
+                });
+            }
+
         } catch (error: any) {
             logger.error(`Failed to load ${type} (📝) file: ${file}`, "Files", error);
         }

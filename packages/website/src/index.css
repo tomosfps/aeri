@@ -60,20 +60,6 @@
     }
 }
 
-::selection {
-    background-color: var(--primary);
-    color: var(--primary-foreground);
-}
-
-@layer base {
-    * {
-        @apply border-border;
-    }
-    body {
-        @apply bg-background text-foreground;
-    }
-}
-
 :root {
     --radius: 0.5rem;
 }
@@ -101,13 +87,11 @@ h6 {
     flex-direction: row;
 }
 
-
-
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+        @apply border-border outline-ring/50;
     }
   body {
-    @apply bg-background text-foreground;
+        @apply bg-background text-foreground;
     }
 }

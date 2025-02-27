@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Suspense } from "react";
@@ -50,6 +52,7 @@ export default function Navigation() {
                     <nav className="hidden lg:flex items-center space-x-6">
                         <NavigationLink href="/" children="Home" />
                         <NavigationLink href="commands" children="Commands"/>
+                        <NavigationLink href="status" children="Status"/>
 
                         <Link
                             to="https://github.com/tomosfps/aeri"
@@ -101,6 +104,7 @@ export default function Navigation() {
                                         <h1 className="text-cprimary-light">Main Page</h1>
                                         <NavigationLink href="/" children="Home" onClick={toggleSheet} />
                                         <NavigationLink href="commands" children="Commands" onClick={toggleSheet} />
+                                        <NavigationLink href="status" children="Status" onClick={toggleSheet} />
                                     </div>
                                     
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
