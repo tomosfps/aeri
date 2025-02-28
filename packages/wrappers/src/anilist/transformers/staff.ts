@@ -12,7 +12,7 @@ export const staffTransformer: TransformersType[Routes.Staff] = (data) => {
         `${formatEmoji("1344752784544628798")} ${inlineCode("Gender            :")} ${data.gender}\n`,
         `${formatEmoji("1344752996965154917")} ${inlineCode("Birth             :")} ${data.dateOfBirth}\n`,
         `${formatEmoji("1344752996965154917")} ${inlineCode("Death             :")} ${data.dateOfDeath}\n`,
-        `${formatEmoji("1343832845818269716")} ${inlineCode("Language          :")} ${data.language}\n`,
+        `${formatEmoji("1344752777045479454")} ${inlineCode("Language          :")} ${data.language}\n`,
         `${formatEmoji("1344752764495990884")} ${inlineCode("Home Town         :")} ${data.homeTown}\n`,
         `${formatEmoji("1344752948055642142")} ${inlineCode("Favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
     ];

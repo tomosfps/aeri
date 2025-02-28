@@ -24,7 +24,7 @@ const presencesList = [
         afk: false,
     },
     {
-        activities: [{ name: "Jujutsu Kaisen", type: ActivityType.Watching }],
+        activities: [{ name: "Zankyou Sanka", type: ActivityType.Listening }],
         status: PresenceUpdateStatus.Online,
         since: null,
         afk: false,

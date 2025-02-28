@@ -18,7 +18,7 @@ export class BaseInteraction {
     ) {}
 
     get base_colour() {
-        return 0x000000;
+        return 0x2f3136;
     }
 
     get id() {
