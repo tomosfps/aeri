@@ -4,7 +4,6 @@ use actix_web::{http, middleware};
 
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
-use routes::get_commands::get_commands;
 use std::env;
 
 mod routes;
@@ -26,12 +25,11 @@ use crate::routes::oauth::anilist::anilist_oauth;
 use crate::routes::viewer::viewer;
 use cache::redis::Redis;
 use client::proxy::Proxy;
+use crate::routes::commands::commands;
 use crate::routes::remove_user::remove_user;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
-    static ref redis:  Redis  = Redis::new();
-    static ref proxy:  Proxy  = Proxy::new();
 }
 
 #[actix_web::main]
@@ -44,6 +42,9 @@ async fn main() -> std::io::Result<()> {
     let check_proxy = env::var("API_PROXY").map_err(|_| {
         logger.error_single("API_PROXY environment variable not set", "Main");
     });
+    
+    let redis = Redis::new().await;
+    let proxy = Proxy::new().await;
 
     if check_proxy.is_ok() {
         tokio::spawn(async move {
@@ -71,13 +72,14 @@ async fn main() -> std::io::Result<()> {
             .max_age(3600);
 
         App::new()
+            .app_data(web::Data::new(redis.clone()))
             .wrap(middleware::Logger::default())
             .wrap(cors)
             .service(recommend)
             .service(anilist_oauth)
             .service(viewer)
             .service(remove_user)
-            .service(get_commands)
+            .service(commands)
             .route("/oauth/updateMedia", web::post().to(UpdateMediaMutation::route))
             .route("/studio", web::post().to(Studio::route))
             .route("/staff", web::post().to(Staff::route))

@@ -1,13 +1,13 @@
 import { type API, GatewayDispatchEvents as Events } from "@discordjs/core";
 import { Logger } from "logger";
-import { AutoCompleteInteraction } from "../classes/autoCompleteInteraction.js";
-import { ButtonInteraction } from "../classes/buttonInteraction.js";
-import { ChatInputInteraction } from "../classes/chatInputCommandInteraction.js";
-import type { HandlerClient } from "../classes/handlerClient.js";
-import { MessageContextInteraction } from "../classes/messageContextInteraction.js";
-import { ModalInteraction } from "../classes/modalInteraction.js";
-import { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
-import { UserContextInteraction } from "../classes/userContextInteraction.js";
+import { AutoCompleteInteraction } from "../classes/AutoCompleteInteraction.js";
+import { ButtonInteraction } from "../classes/ButtonInteraction.js";
+import { ChatInputInteraction } from "../classes/ChatInputCommandInteraction.js";
+import type { HandlerClient } from "../classes/HandlerClient.js";
+import { MessageContextInteraction } from "../classes/MessageContextInteraction.js";
+import { ModalInteraction } from "../classes/ModalInteraction.js";
+import { SelectMenuInteraction } from "../classes/SelectMenuInteraction.js";
+import { UserContextInteraction } from "../classes/UserContextInteraction.js";
 import { event } from "../services/events.js";
 import { InteractType, determineInteractionType } from "../utility/interactionUtils.js";
 import {

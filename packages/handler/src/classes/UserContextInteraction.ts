@@ -1,7 +1,7 @@
 import type { API } from "@discordjs/core";
 import type { APIUser, APIUserApplicationCommandInteraction } from "discord-api-types/v10";
-import { BaseInteraction } from "./baseInteraction.js";
-import type { HandlerClient } from "./handlerClient.js";
+import { BaseInteraction } from "./BaseInteraction.js";
+import type { HandlerClient } from "./HandlerClient.js";
 
 export type UserContextHandler = (
     interaction: UserContextInteraction,

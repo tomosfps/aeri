@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
 import { checkRedis, setExpireCommand } from "core";
 import { Logger } from "logger";
-import type { ButtonHandler } from "../../classes/buttonInteraction.js";
+import type { ButtonHandler } from "../../classes/ButtonInteraction.js";
 
 const logger = new Logger();
 
@@ -10,19 +10,21 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
 
     const [buttonId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
     const button = client.buttons.get(buttonId);
-    const memberId = interaction.user.id;
-    const toggleable = button?.toggleable ?? false;
-    const timeout = button?.timeout ?? 3600;
 
     if (!button) {
         logger.warnSingle(`Button not found: ${buttonId}`, "Handler");
         return;
     }
 
+    const memberId = interaction.user.id;
+
     if (!memberId) {
         logger.warnSingle("Member was not found", "Handler");
         return;
     }
+
+    const toggleable = button.toggleable ?? false;
+    const timeout = button.timeout ?? 3600;
 
     logger.debug("Checking if command is toggleable", "Handler", { toggleable, memberId, data });
     if (toggleable && !data.includes(memberId)) {

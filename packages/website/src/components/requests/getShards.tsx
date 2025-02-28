@@ -15,7 +15,7 @@ export type Shard = {
 
 export default async function GetShards(): Promise<Shard[]> {
     try {
-        const response = await fetch(`${env.API_URL}/get_shards`, {
+        const response = await fetch(`${env.API_URL}/shards`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export default async function GetShards(): Promise<Shard[]> {
             console.error("Unexpected response: ", data);
             return [];
         }
-        
+
         // Do the rest from here
         return [];
     }

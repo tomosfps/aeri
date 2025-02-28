@@ -1,6 +1,6 @@
 import type { API, APIMessageComponentSelectMenuInteraction } from "@discordjs/core";
-import type { HandlerClient } from "./handlerClient.js";
-import { MessageComponentInteraction } from "./messageComponentInteraction.js";
+import type { HandlerClient } from "./HandlerClient.js";
+import { MessageComponentInteraction } from "./MessageComponentInteraction.js";
 
 export type SelectMenuHandler = (interaction: SelectMenuInteraction, api: API, client: HandlerClient) => Promise<void>;
 

@@ -15,9 +15,10 @@ pub struct Proxy {
 }
 
 impl Proxy {
-    pub fn new() -> Self {
+    pub async fn new() -> Self {
         let client: Client = Client::new();
-        let redis = Redis::new();
+        let redis = Redis::new().await;
+        
         Proxy {
             client,
             redis,
@@ -48,7 +49,7 @@ impl Proxy {
 
     async fn remove_all_proxies(&self) -> Result<(), Box<dyn Error>> {
         logger.debug_single("Removing all proxies", "Proxy");
-        self.redis.del("proxies")?;
+        self.redis.del("proxies").await;
         Ok(())
     }
 
@@ -70,7 +71,7 @@ impl Proxy {
             }
 
             logger.debug_single("Updating redis with new proxies", "Proxy");
-            self.redis.sadd("proxies", proxies).await?;
+            self.redis.sadd("proxies", proxies).await;
             logger.debug_single("Updated proxies", "Proxy");
             tokio::time::sleep(tokio::time::Duration::from_secs(18000)).await;
         }

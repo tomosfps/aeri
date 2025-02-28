@@ -7,18 +7,18 @@ import {
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 export const interaction: ChatInputCommand = {
-    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("manga")
         .setDescription("Find an manga based on the name")
         .addExample("/manga media_name:One Piece")
-        .addCategory("Anime/Manga")
+        .setCategory("Anime/Manga")
+        .setCooldown(5)
         .addStringOption((option) =>
             option.setName("media_name").setDescription("The name of the manga").setRequired(true),
         ),

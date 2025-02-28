@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
 import type { GatewayDispatchEvents, MappedEvents as OriginalMappedEvents } from "@discordjs/core";
 import { Logger } from "logger";
-import type { HandlerClient } from "../classes/handlerClient.js";
+import type { HandlerClient } from "../classes/HandlerClient.js";
 
 interface MappedEvents extends OriginalMappedEvents {
     GUILD_SOUNDBOARD_SOUNDS_UPDATE: any;

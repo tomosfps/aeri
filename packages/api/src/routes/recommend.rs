@@ -1,4 +1,3 @@
-use crate::cache::redis::Redis;
 use crate::client::client::Client;
 use crate::global::get_recommend::get_recommendation;
 use crate::global::queries::{get_query, QUERY_URL};
@@ -13,7 +12,6 @@ use serde_json::{json, Value};
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
-    static ref redis:  Redis  = Redis::new();
 }
 
 #[derive(Deserialize)]

@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
 import { checkRedis, setExpireCommand } from "core";
 import { Logger } from "logger";
-import type { SelectMenuHandler } from "../../classes/selectMenuInteraction.js";
+import type { SelectMenuHandler } from "../../classes/SelectMenuInteraction.js";
 
 const logger = new Logger();
 
@@ -10,14 +10,21 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
 
     const [selectId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
     const selectMenu = client.selectMenus.get(selectId);
+
+    if (!selectMenu) {
+        logger.warnSingle(`Select menu not found: ${selectId}`, "Handler");
+        return;
+    }
+
     const memberId = interaction.user.id;
-    const toggleable = selectMenu?.toggleable ?? false;
-    const timeout = selectMenu?.timeout ?? 3600;
 
     if (!memberId) {
         logger.warnSingle("Member was not found", "Handler");
         return;
     }
+
+    const toggleable = selectMenu.toggleable ?? false;
+    const timeout = selectMenu.timeout ?? 3600;
 
     logger.debug("Checking if command is toggleable", "Handler", { toggleable, memberId, data });
     if (toggleable && !data.includes(memberId)) {
@@ -25,11 +32,6 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
             content: "Only the user who toggled this command can use it",
             flags: MessageFlags.Ephemeral,
         });
-        return;
-    }
-
-    if (!selectMenu) {
-        logger.warnSingle(`Select menu not found: ${selectId}`, "Handler");
         return;
     }
 

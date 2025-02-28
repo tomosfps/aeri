@@ -1,19 +1,19 @@
 import { dbFetchAnilistUser } from "database";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
 const logger = new Logger();
 
 export const interaction: ChatInputCommand = {
-    cooldown: 1800,
     data: new SlashCommandBuilder()
         .setName("refresh")
         .setDescription("Refresh your scores in the cache")
         .addExample("/refresh")
         .addExample("Must have used /link before using this command")
-        .addCategory("Anime/Manga"),
+        .setCategory("Anime/Manga")
+        .setCooldown(1800),
     async execute(interaction): Promise<void> {
         const anilistUser = await dbFetchAnilistUser(interaction.user_id);
         const userId = anilistUser ? anilistUser.id : null;

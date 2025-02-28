@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
 export const interaction: ChatInputCommand = {
@@ -6,7 +6,7 @@ export const interaction: ChatInputCommand = {
         .setName("ping")
         .setDescription("Replies with Pong! (Used for testing)")
         .addExample("/ping")
-        .addCategory("Utility"),
+        .setCategory("Utility"),
     async execute(interaction): Promise<void> {
         await interaction.reply({ content: "Pong!" });
     },

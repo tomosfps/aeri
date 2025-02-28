@@ -1,5 +1,5 @@
 import { dbDeleteAnilistUser, dbFetchAnilistUser } from "database";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
 export const interaction: ChatInputCommand = {
@@ -7,7 +7,7 @@ export const interaction: ChatInputCommand = {
         .setName("unlink")
         .setDescription("Unlink your anilist account from the bot")
         .addExample("/unlink")
-        .addCategory("Anime/Manga"),
+        .setCategory("Anime/Manga"),
     async execute(interaction): Promise<void> {
         const isInDatabase = await dbFetchAnilistUser(interaction.user_id);
 

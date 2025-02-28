@@ -67,7 +67,7 @@ impl Entity<FormattedUserScore, UserScoreRequest> for UserScore {
     }
 
     fn query(request: &UserScoreRequest) -> Value {
-        if !request.user_name.is_none() {
+        if request.user_name.is_some() {
             return json!({ "query": get_query("user_scores"), "variables": { "userName": request.user_name, "mediaId": request.media_id }});
         }
         

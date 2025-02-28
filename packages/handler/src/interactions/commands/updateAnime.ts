@@ -3,17 +3,17 @@ import { dbFetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaListStatus, MediaType, Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 
 export const interaction: ChatInputCommand = {
-    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("update-anime")
         .setDescription("Update an anime entry on your Anilist account.")
+        .setCooldown(5)
         .addExample("/update-anime name:Berserk score:10 status:Current progress:153")
         .addExample("/update-anime name:One Piece score:10")
         .addExample("/update-anime name:One Piece status:Paused")
@@ -21,7 +21,7 @@ export const interaction: ChatInputCommand = {
         .addExample(
             "Any choices that are left out, will be automatically grabbed from the user and set to the current value.",
         )
-        .addCategory("OAuth")
+        .setCategory("OAuth")
         .addStringOption((option) =>
             option
                 .setName("name")

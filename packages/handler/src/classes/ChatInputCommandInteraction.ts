@@ -1,6 +1,6 @@
 import type { API, APIChatInputApplicationCommandInteraction } from "@discordjs/core";
-import { BaseInteraction } from "./baseInteraction.js";
-import type { HandlerClient } from "./handlerClient.js";
+import { BaseInteraction } from "./BaseInteraction.js";
+import type { HandlerClient } from "./HandlerClient.js";
 
 export type ChatInputHandler = (interaction: ChatInputInteraction, api: API, client: HandlerClient) => Promise<void>;
 

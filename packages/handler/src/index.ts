@@ -2,7 +2,7 @@ import { REST } from "@discordjs/rest";
 import { getRedis } from "core";
 import { env } from "core/dist/env.js";
 import type { RESTPostAPIApplicationCommandsJSONBody as CommandData } from "discord-api-types/v10";
-import { HandlerClient } from "./classes/handlerClient.js";
+import { HandlerClient } from "./classes/HandlerClient.js";
 import { Gateway } from "./gateway.js";
 import { FileType, load } from "./services/commands.js";
 import { registerEvents } from "./services/events.js";

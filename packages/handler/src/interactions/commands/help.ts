@@ -1,7 +1,7 @@
 import { EmbedBuilder, bold, codeBlock, formatEmoji, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
 import { formatSeconds } from "core";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
@@ -11,7 +11,7 @@ export const interaction: ChatInputCommand = {
         .setDescription("View all available commands")
         .addExample("/help")
         .addExample("/help command:anime")
-        .addCategory("Utility")
+        .setCategory("Utility")
         .addStringOption((option) =>
             option.setName("command").setDescription("The command you want to view").setRequired(false),
         ),
@@ -29,8 +29,7 @@ export const interaction: ChatInputCommand = {
             const command = commands.get(option);
 
             if (command) {
-                const cooldownTimer =
-                    command.cooldown && command.cooldown > 1 ? formatSeconds(command.cooldown) : "No cooldown";
+                const cooldownTimer = command.data.cooldown > 1 ? formatSeconds(command.data.cooldown) : "No cooldown";
                 const commandOptions = command.data.options;
                 let choiceDetails = "";
                 let exampleDetails = "";

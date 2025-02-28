@@ -5,7 +5,6 @@ use crate::structs::shared::DataFrom;
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
-use ::redis::RedisResult;
 use reqwest::Response;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -24,7 +23,6 @@ pub mod update_entry;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
-    static ref redis:  Redis  = Redis::new();
 }
 
 pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
@@ -53,22 +51,20 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
         86400
     }
 
-    fn cache_get(request: &R) -> Option<(F, DataFrom)> {
-        match redis.get(Self::cache_key(request)) {
-            Ok(data) => {
+    async fn cache_get(request: &R, redis: &web::Data<Redis>) -> Option<(F, DataFrom)> {
+        match redis.get::<_, String>(Self::cache_key(request)).await {
+            Some(data) => {
                 let result = serde_json::from_str::<F>(&data).unwrap();
-                let ttl = redis.ttl(Self::cache_key(request)).unwrap();
+                let ttl = redis.ttl(Self::cache_key(request)).await.unwrap_or_default();
                 Some((result, DataFrom::Cache(ttl)))
             },
-            Err(_) => {
-                None
-            }
+            None => None,
         }
     }
 
-    async fn cache_set(data: &F, request: &R) -> RedisResult<()> {
-        let string = serde_json::to_string(data)?;
-        redis.setexp(Self::cache_key(request), string, Self::cache_time()).await
+    async fn cache_set(data: &F, request: &R, redis: &web::Data<Redis>) {
+        let string = serde_json::to_string(data).unwrap();
+        redis.set_ex(Self::cache_key(request), string, Self::cache_time()).await;
     }
 
     fn query(request: &R) -> Value;
@@ -93,27 +89,27 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
         }
     }
 
-    async fn route(body: web::Json<R>, request: HttpRequest) -> impl Responder {
+    async fn route(body: web::Json<R>, request: HttpRequest, redis: web::Data<Redis>) -> impl Responder {
         if let Err(e) = Self::validate_request(&body) {
             return HttpResponse::BadRequest().json(json!({"error": e}));
         }
 
-        if let Some((data, data_from)) = Self::cache_get(&body) {
+        if let Some((data, data_from)) = Self::cache_get(&body, &redis).await {
             return HttpResponse::Ok().json(Self::apply_data_from(data, data_from));
         }
-        
+
         let mut client = Client::new_proxied().await;
-        
+
         let response = if Self::auth_required() {
             let token = Self::token(&request);
-            
+
             let token = match token {
                 Some(token) => token,
                 None => {
                     return HttpResponse::Unauthorized().json(json!({"error": "No token was included in the request"}));
                 }
             };
-            
+
             client.post_with_auth(QUERY_URL, &Self::query(&body), token).await.unwrap()
         } else {
             client.post(QUERY_URL, &Self::query(&body)).await.unwrap()
@@ -133,7 +129,7 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
             Err(response) => return response,
         };
 
-        let _ = Self::cache_set(&formatted, &body).await;
+        Self::cache_set(&formatted, &body, &redis).await;
 
         HttpResponse::Ok().json(Self::apply_data_from(formatted, DataFrom::Api))
     }

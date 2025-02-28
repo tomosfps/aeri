@@ -1,6 +1,5 @@
 import { readdir } from "node:fs/promises";
 import { URL } from "node:url";
-import type { ContextMenuCommandBuilder, SlashCommandOptionsOnlyBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
 import { env, getRedis } from "core";
 import {
@@ -9,14 +8,15 @@ import {
     Routes,
 } from "discord-api-types/v10";
 import { Logger } from "logger";
-import type { AutoCompleteInteraction } from "../classes/autoCompleteInteraction.js";
-import type { ButtonInteraction } from "../classes/buttonInteraction.js";
-import type { ChatInputInteraction } from "../classes/chatInputCommandInteraction.js";
-import type { MessageContextInteraction } from "../classes/messageContextInteraction.js";
-import type { ModalInteraction } from "../classes/modalInteraction.js";
-import type { SelectMenuInteraction } from "../classes/selectMenuInteraction.js";
-import type { SlashCommandBuilder } from "../classes/slashCommandBuilder.js";
-import type { UserContextInteraction } from "../classes/userContextInteraction.js";
+import type { AutoCompleteInteraction } from "../classes/AutoCompleteInteraction.js";
+import type { ButtonInteraction } from "../classes/ButtonInteraction.js";
+import type { ChatInputInteraction } from "../classes/ChatInputCommandInteraction.js";
+import type { ContextMenuCommandBuilder } from "../classes/ContextMenuCommandBuilder.js";
+import type { MessageContextInteraction } from "../classes/MessageContextInteraction.js";
+import type { ModalInteraction } from "../classes/ModalInteraction.js";
+import type { SelectMenuInteraction } from "../classes/SelectMenuInteraction.js";
+import type { SlashCommandBuilder } from "../classes/SlashCommandBuilder.js";
+import type { UserContextInteraction } from "../classes/UserContextInteraction.js";
 
 const redis = await getRedis();
 
@@ -24,8 +24,6 @@ export type BaseCommand = {
     data: {
         toJSON(): CommandData;
     };
-    cooldown?: number;
-    owner_only?: boolean;
 };
 
 export type BaseComponent = {
@@ -36,7 +34,7 @@ export type BaseComponent = {
 };
 
 export interface ChatInputCommand extends BaseCommand {
-    data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
+    data: SlashCommandBuilder;
     execute: (interaction: ChatInputInteraction) => void;
 }
 
@@ -128,6 +126,10 @@ type InteractionUnion =
     | UserContextCommand
     | AutoCompleteCommand;
 
+function isChatInputCommand(type: FileType, _interaction: InteractionUnion): _interaction is ChatInputCommand {
+    return type === FileType.Commands;
+}
+
 export async function load<T = ChatInputCommand>(type: FileType.Commands): Promise<Map<string, T>>;
 export async function load<T = Button>(type: FileType.Buttons): Promise<Map<string, T>>;
 export async function load<T = SelectMenu>(type: FileType.SelectMenus): Promise<Map<string, T>>;
@@ -153,48 +155,21 @@ export async function load<T extends InteractionUnion>(type: FileType): Promise<
             const interaction = (await import(`../interactions/${type}/${file}`)).interaction as T;
             files.set(getName(interaction), interaction);
 
-            if ("data" in interaction) {
-                if (!interaction.owner_only && type === FileType.Commands) {
-                    const interactionData = interaction.data.toJSON();
-                    const commandName = interactionData.name;
+            if (isChatInputCommand(type, interaction)) {
+                if (interaction.data.owner_only) continue;
 
-                    let description = "";
-                    let category = "";
-                    let examples: string[] = [];
-                    let options: any[] = [];
-
-                    if ("data" in interaction && interaction.data) {
-                        if ("description" in interaction.data && typeof interaction.data.description === "string") {
-                            description = interaction.data.description;
-                        }
-
-                        if ("category" in interaction.data && typeof interaction.data.category === "string") {
-                            category = interaction.data.category;
-                        }
-
-                        if ("examples" in interaction.data && Array.isArray(interaction.data.examples)) {
-                            examples = interaction.data.examples;
-                        }
-
-                        if ("options" in interaction.data && Array.isArray(interaction.data.options)) {
-                            options = interaction.data.options;
-                        }
-                    }
-
-                    const cooldown = interaction.cooldown || 0;
-                    await redis.hset(
-                        "commands",
-                        commandName,
-                        JSON.stringify({
-                            commandName,
-                            description,
-                            cooldown,
-                            category,
-                            examples: JSON.stringify(examples),
-                            options: JSON.stringify(options),
-                        }),
-                    );
-                }
+                await redis.hset(
+                    "commands",
+                    interaction.data.name,
+                    JSON.stringify({
+                        name: interaction.data.name,
+                        description: interaction.data.description,
+                        cooldown: interaction.data.cooldown,
+                        category: interaction.data.category,
+                        examples: interaction.data.examples,
+                        options: interaction.data.options,
+                    }),
+                );
             }
         } catch (error: any) {
             logger.error(`Failed to load ${type} (📝) file: ${file}`, "Files", error);

@@ -66,19 +66,16 @@ manager.on(WebSocketShardEvents.Error, (error, shardId) => {
     logger.error(`Shard ${shardId} errored.`, "Gateway", error);
 });
 
-const shardAmount = await manager.getShardCount();
-(async () => {
-    setInterval(async () => {
-        logger.debugSingle("Updating presences", "Gateway");
-        for (let shard = 0; shard < shardAmount; shard++) {
-            const presences = presencesList[currentPresenceIndex] as any;
-            manager.send(shard, {
-                op: GatewayOpcodes.PresenceUpdate,
-                d: presences,
-            });
-            currentPresenceIndex = (currentPresenceIndex + 1) % presencesList.length;
-        }
-    }, 3_600_000);
-})();
+setInterval(async () => {
+    logger.debugSingle("Updating presences", "Gateway");
+    for (let shard = 0; shard < env.SHARD_COUNT; shard++) {
+        const presences = presencesList[currentPresenceIndex] as any;
+        manager.send(shard, {
+            op: GatewayOpcodes.PresenceUpdate,
+            d: presences,
+        });
+        currentPresenceIndex = (currentPresenceIndex + 1) % presencesList.length;
+    }
+}, 3_600_000);
 
 await manager.connect();

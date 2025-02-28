@@ -1,5 +1,5 @@
 import { Logger } from "logger";
-import type { AutoCompleteHandler } from "../../classes/autoCompleteInteraction.js";
+import type { AutoCompleteHandler } from "../../classes/AutoCompleteInteraction.js";
 
 const logger = new Logger();
 

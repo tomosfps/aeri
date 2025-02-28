@@ -1,4 +1,3 @@
-use crate::cache::redis::Redis;
 use crate::client::client::Client;
 use crate::global::queries::{get_query, QUERY_URL};
 use crate::structs::oauth::Viewer;
@@ -9,7 +8,6 @@ use serde_json::{json, Value};
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
-    static ref redis:  Redis  = Redis::new();
 }
 
 #[post("/viewer")]
@@ -39,9 +37,9 @@ async fn viewer(req: HttpRequest) -> impl Responder {
 
     if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
-    let response:       Value = response.json().await.unwrap();
+    let response: Value = response.json().await.unwrap();
 
-    let user:           Viewer  = match serde_json::from_value(response["data"]["Viewer"].clone()) {
+    let user: Viewer  = match serde_json::from_value(response["data"]["Viewer"].clone()) {
         Ok(user) => user,
         Err(err) => {
             logger.error_single(&format!("Error parsing user: {}", err), "User");

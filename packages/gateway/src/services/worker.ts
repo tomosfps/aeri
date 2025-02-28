@@ -1,6 +1,6 @@
-import { workerData } from "node:worker_threads";
+import { parentPort, workerData } from "node:worker_threads";
 import { PubSubRedisBroker } from "@discordjs/brokers";
-import { WebSocketShardEvents, WorkerBootstrapper } from "@discordjs/ws";
+import { WebSocketShardEvents, WorkerBootstrapper, type WorkerSendPayload, WorkerSendPayloadOp } from "@discordjs/ws";
 import { calculateWorkerId, env, getRedis } from "core";
 import { Logger } from "logger";
 
@@ -15,6 +15,15 @@ logger.info("Starting...", `Worker ${workerId}`, { shardIds: workerData.shardIds
 if (workerId === 0) {
     await broker.publish("deploy", null);
 }
+
+// biome-ignore lint/style/noNonNullAssertion: This is always a worker process
+parentPort!.on("message", async (payload: WorkerSendPayload) => {
+    switch (payload.op) {
+        case WorkerSendPayloadOp.Connect: {
+            redis.hset;
+        }
+    }
+});
 
 void bootstrapper.bootstrap({
     forwardEvents: [

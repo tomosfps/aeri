@@ -2,7 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builde
 import { ButtonStyle } from "@discordjs/core";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
@@ -13,7 +13,7 @@ export const interaction: ChatInputCommand = {
         .setName("avatar")
         .setDescription("View a users or bots avatar")
         .addExample("/avatar target:@tomosfps")
-        .addCategory("Utility")
+        .setCategory("Utility")
         .addUserOption((option) =>
             option.setName("target").setDescription("The user/bot to view their avatar").setRequired(true),
         ),

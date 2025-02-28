@@ -10,7 +10,6 @@ use std::env;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
-    static ref redis: Redis = Redis::new();
     static ref oauth_success_url: String = format!("{}{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_SUCCESS_PATH").unwrap());
     static ref oauth_fail_url: String = format!("{}{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_FAIL_PATH").unwrap());
 }
@@ -40,7 +39,7 @@ struct TokenData {
 }
 
 #[get("/oauth/anilist")]
-pub async fn anilist_oauth(params: web::Query<OauthParams>) -> impl Responder {
+pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Redis>) -> impl Responder {
     let json: Value = json!({
         "grant_type": "authorization_code",
         "client_id": env::var("ANILIST_CLIENT_ID").unwrap(),

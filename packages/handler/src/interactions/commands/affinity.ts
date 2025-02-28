@@ -2,18 +2,18 @@ import { EmbedBuilder } from "@discordjs/builders";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
 const logger = new Logger();
 
 export const interaction: ChatInputCommand = {
-    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("affinity")
         .setDescription("Compare your affinity with server members!")
-        .addExample("/affinity")
-        .addCategory("Anime/Manga"),
+        .setCategory("Anime/Manga")
+        .setCooldown(5)
+        .addExample("/affinity"),
     async execute(interaction): Promise<void> {
         if (!interaction.guild_id) {
             return interaction.reply({

@@ -1,6 +1,5 @@
 import {
     ActionRowBuilder,
-    ContextMenuCommandBuilder,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
     inlineCode,
@@ -8,6 +7,7 @@ import {
 import { ApplicationCommandType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
+import { ContextMenuCommandBuilder } from "../../classes/ContextMenuCommandBuilder.js";
 import type { MessageContextCommand } from "../../services/commands.js";
 
 const logger = new Logger();

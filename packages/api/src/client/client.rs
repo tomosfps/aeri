@@ -20,9 +20,9 @@ pub struct Client {
 
 impl Client {
     #[allow(dead_code)]
-    pub fn new() -> Self {
+    pub async fn new() -> Self {
         let client = reqwest::Client::new();
-        let redis = Redis::new();
+        let redis = Redis::new().await;
         Client {
             client,
             redis,
@@ -32,7 +32,7 @@ impl Client {
     }
 
     pub async fn new_proxied() -> Self {
-        let redis = Redis::new();
+        let redis = Redis::new().await;
         let proxy_url = Self::fetch_proxy(&redis).await.unwrap();
         let proxy = Proxy::http(&proxy_url).unwrap();
         let client = reqwest::Client::builder().proxy(proxy).build().unwrap();
@@ -106,14 +106,17 @@ impl Client {
         Ok(response)
     }
 
-    async fn fetch_proxy(redis: &Redis) -> Result<String, Box<dyn std::error::Error>> {
+    async fn fetch_proxy(redis: &Redis) -> Result<String, String> {
         logger.debug_single("Getting random proxy", "Proxy");
-        let proxy = redis.srandmember("proxies").await?;
+        let proxy: Option<String> = redis.srandmember("proxies").await;
 
-        if proxy.is_empty() {
-            logger.error_single("Failed to find a proxy", "Proxy");
-            return Err("No proxies found".into());
-        }
+        let proxy = match proxy {
+            Some(proxy) => proxy,
+            None => {
+                logger.error_single("Failed to find a proxy", "Proxy");
+                return Err("No proxies found".into());
+            }
+        };
 
         logger.debug("Returning random proxy in redis", "Proxy", false, proxy.clone());
         Ok(proxy)
@@ -121,7 +124,7 @@ impl Client {
 
     pub async fn remove_proxy(&self) -> Result<(), Box<dyn std::error::Error>> {
         logger.debug_single(&format!("Removing proxy: {}", self.current_proxy), "Proxy");
-        let _: () = self.redis.srem("proxies", &self.current_proxy).await?;
+        let _ = self.redis.srem("proxies", &self.current_proxy).await;
         Ok(())
     }
 

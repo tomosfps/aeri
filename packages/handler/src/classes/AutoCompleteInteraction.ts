@@ -5,8 +5,8 @@ import type {
     APIApplicationCommandInteractionDataNumberOption,
     APIApplicationCommandInteractionDataStringOption,
 } from "discord-api-types/v10";
-import { BaseInteraction } from "./baseInteraction.js";
-import type { HandlerClient } from "./handlerClient.js";
+import { BaseInteraction } from "./BaseInteraction.js";
+import type { HandlerClient } from "./HandlerClient.js";
 
 export type AutoCompleteHandler = (
     interaction: AutoCompleteInteraction,

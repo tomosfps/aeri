@@ -10,7 +10,7 @@ import { dbFetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
@@ -43,16 +43,16 @@ const genreList = [
 ];
 
 export const interaction: ChatInputCommand = {
-    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("recommend")
         .setDescription("Recommend an anime or manga based on genre(s) or score")
+        .setCooldown(5)
         .addExample("/recommend media:Anime genre:true")
         .addExample("/recommend media:Manga score:true")
         .addExample("/recommend media:Anime score:true")
         .addExample("/recommend media:Manga genre:true")
         .addExample("You can not use both genre and score at the same time")
-        .addCategory("Anime/Manga")
+        .setCategory("Anime/Manga")
         .addStringOption((option) =>
             option
                 .setName("media")

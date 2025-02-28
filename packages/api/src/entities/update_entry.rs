@@ -1,10 +1,10 @@
 use crate::entities::Entity;
 use crate::global::mutations::get_mutation;
 use crate::structs::shared::{Title, MediaListStatus, DataFrom};
-use actix_web::HttpResponse;
-use redis::RedisResult;
+use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use crate::cache::redis::Redis;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -69,13 +69,11 @@ impl Entity<FormattedUpdateMedia, MutationMediaRequest> for UpdateMediaMutation 
         String::new()
     }
 
-    fn cache_get(_request: &MutationMediaRequest) -> Option<(FormattedUpdateMedia, DataFrom)> {
+    async fn cache_get(_request: &MutationMediaRequest, _redis: &web::Data<Redis>) -> Option<(FormattedUpdateMedia, DataFrom)> {
         None
     }
-    
-    async fn cache_set(_data: &FormattedUpdateMedia, _request: &MutationMediaRequest) -> RedisResult<()> {
-        Ok(())
-    }
+
+    async fn cache_set(_data: &FormattedUpdateMedia, _request: &MutationMediaRequest, _redis: &web::Data<Redis>) { }
 
     fn query(request: &MutationMediaRequest) -> Value {
         json!({ "query": get_mutation("update_media"), "variables": { "status": request.status, "score": request.score, "progress": request.progress, "id": request.id } })

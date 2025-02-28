@@ -2,18 +2,18 @@ import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, inlineCode } from "@disc
 import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 export const interaction: ChatInputCommand = {
-    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("staff")
         .setDescription("Find a staff member on the name")
         .addExample("/staff name:Eiichirou Oda")
-        .addCategory("Anime/Manga")
+        .setCategory("Anime/Manga")
+        .setCooldown(5)
         .addStringOption((option) =>
             option.setName("name").setDescription("The name of the staff member").setRequired(true),
         ),

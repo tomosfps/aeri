@@ -8,7 +8,7 @@ import {
     MessageFlags,
 } from "@discordjs/core";
 import { env } from "core";
-import type { HandlerClient } from "./handlerClient.js";
+import type { HandlerClient } from "./HandlerClient.js";
 
 export class BaseInteraction {
     constructor(

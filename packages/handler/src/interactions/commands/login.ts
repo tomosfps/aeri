@@ -1,18 +1,18 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { env, getRedis } from "core";
 import { ButtonStyle } from "discord-api-types/v10";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
 const redis = await getRedis();
 
 export const interaction: ChatInputCommand = {
-    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("login")
         .setDescription("Setup OAuth with the Discord bot!")
         .addExample("/login")
-        .addCategory("OAuth"),
+        .setCooldown(5)
+        .setCategory("OAuth"),
     async execute(interaction): Promise<void> {
         if (interaction.guild_id === undefined) {
             return interaction.reply({

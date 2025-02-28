@@ -7,7 +7,6 @@ use serde_json::json;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
-    static ref redis:  Redis  = Redis::new();
 }
 
 #[derive(Deserialize)]
@@ -17,30 +16,14 @@ struct UserExpireRequest {
 }
 
 #[post("/remove-user")]
-async fn remove_user(req: web::Json<UserExpireRequest>) -> impl Responder {
+async fn remove_user(req: web::Json<UserExpireRequest>, redis: web::Data<Redis>) -> impl Responder {
     if req.username.is_empty() || req.user_id.is_empty() {
         return HttpResponse::BadRequest().json(json!({
             "status": "No username or user_id was included"
         }));
     }
 
-    match redis.expire_user(&req.user_id).await {
-        Ok(_) => {
-            logger.debug_single(&format!("Expired user data for {}", req.user_id), "Expire User");
-        },
-        Err(e) => {
-            logger.error_single(&format!("Error expiring user data for {}: {}", req.user_id, e), "Expire User");
-        }
-    }
-
-    match redis.expire_user(&req.username).await {
-        Ok(_) => {
-            logger.debug_single(&format!("Expired user data for {}", req.username), "Expire User");
-        },
-        Err(e) => {
-            logger.error_single(&format!("Error expiring user data for {}: {}", req.username, e), "Expire User");
-        }
-    }
+    redis.expire_user(&req.user_id, &req.username).await;
 
     HttpResponse::Ok().json(json!({
         "message": "User data has been expired"

@@ -2,18 +2,18 @@ import { EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/slashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
 export const interaction: ChatInputCommand = {
-    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName("studio")
         .setDescription("Find a studio based on the name")
         .addExample("/studio studio:MAPPA")
-        .addCategory("Anime/Manga")
+        .setCategory("Anime/Manga")
+        .setCooldown(5)
         .addStringOption((option) =>
             option.setName("studio_name").setDescription("The name of the studio").setRequired(true),
         ),

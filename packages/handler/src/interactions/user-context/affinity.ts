@@ -1,8 +1,9 @@
-import { ContextMenuCommandBuilder, EmbedBuilder } from "@discordjs/builders";
+import { EmbedBuilder } from "@discordjs/builders";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
 import { ApplicationCommandType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
+import { ContextMenuCommandBuilder } from "../../classes/ContextMenuCommandBuilder.js";
 import type { UserContextCommand } from "../../services/commands.js";
 
 const logger = new Logger();
