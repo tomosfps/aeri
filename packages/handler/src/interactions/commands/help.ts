@@ -53,12 +53,12 @@ export const interaction: ChatInputCommand = {
                     .join("\n");
 
                 const descriptionBuilder = [
-                    `${formatEmoji("1343826563472293911")} ${inlineCode("name             :")} ${command.data.name}\n`,
-                    `${formatEmoji("1343816859690078289")} ${inlineCode("cooldown         :")} ${cooldownTimer}\n`,
-                    `${formatEmoji("1343816899493888031")} ${inlineCode("description      :")} ${command.data.description}\n\n`,
-                    `${formatEmoji("1343816843101732946")} ${inlineCode("options          :")} \n${optionDetails}\n\n`,
-                    `${formatEmoji("1343826550100987995")} ${inlineCode("choices          :")} \n${choiceDetails}\n\n`,
-                    `${formatEmoji("1343826931497439272")} ${inlineCode("examples         :")} \n${codeBlock("js", exampleDetails)}\n`,
+                    `${formatEmoji("1344752820875825282")} ${inlineCode("name             :")} ${command.data.name}\n`,
+                    `${formatEmoji("1344752908679516233")} ${inlineCode("cooldown         :")} ${cooldownTimer}\n`,
+                    `${formatEmoji("1344752859702366311")} ${inlineCode("description      :")} ${command.data.description}\n\n`,
+                    `${formatEmoji("1344752926308171859")} ${inlineCode("options          :")} \n${optionDetails}\n\n`,
+                    `${formatEmoji("1344752808351498322")} ${inlineCode("choices          :")} \n${choiceDetails}\n\n`,
+                    `${formatEmoji("1344752799317102593")} ${inlineCode("examples         :")} \n${codeBlock("js", exampleDetails)}\n`,
                 ];
 
                 const filteredDescription = descriptionBuilder.filter((line) => {

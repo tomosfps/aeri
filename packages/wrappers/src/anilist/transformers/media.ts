@@ -100,44 +100,44 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
     }
 
     const descriptionBuilder = [
-        `${formatEmoji("1343816899493888031")} ${inlineCode("total episodes    :")} ${data.episodes?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1343816811325558846")} ${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1343816859690078289")} ${inlineCode("next airing       :")} ${nextEpisode}\n`,
-        `${formatEmoji("1343816792170303580")} ${inlineCode("chapters          :")} ${data.chapters?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1343816899493888031")} ${inlineCode("volumes           :")} ${data.volumes?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1343816883924893746")} ${inlineCode("status            :")} ${mediaStatusString(data.status)}\n`,
-        `${formatEmoji("1343818590037741639")} ${inlineCode("average score     :")} ${data.averageScore}%\n`,
-        `${formatEmoji("1343816851699793930")} ${inlineCode("mean score        :")} ${data.meanScore}%\n`,
-        `${formatEmoji("1343816811325558846")} ${inlineCode("popularity        :")} ${data.popularity?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1343816833488257086")} ${inlineCode("favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1343816783890743336")} ${inlineCode("start date        :")} ${data.startDate}\n`,
-        `${formatEmoji("1343816783890743336")} ${inlineCode("end date          :")} ${data.endDate}\n`,
-        `${formatEmoji("1343816843101732946")} ${inlineCode("genres            :")} ${genresDisplay}\n\n`,
+        `${formatEmoji("1344752868753801336")} ${inlineCode("total episodes    :")} ${data.episodes?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1344752971816112158")} ${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1344752908679516233")} ${inlineCode("next airing       :")} ${nextEpisode}\n`,
+        `${formatEmoji("1344752987582496829")} ${inlineCode("chapters          :")} ${data.chapters?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1344752859702366311")} ${inlineCode("volumes           :")} ${data.volumes?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1344752878794838016")} ${inlineCode("status            :")} ${mediaStatusString(data.status)}\n`,
+        `${formatEmoji("1344753004443734017")} ${inlineCode("average score     :")} ${data.averageScore}%\n`,
+        `${formatEmoji("1344752918041067635")} ${inlineCode("mean score        :")} ${data.meanScore}%\n`,
+        `${formatEmoji("1344752971816112158")} ${inlineCode("popularity        :")} ${data.popularity?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1344752948055642142")} ${inlineCode("favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
+        `${formatEmoji("1344752996965154917")} ${inlineCode("start date        :")} ${data.startDate}\n`,
+        `${formatEmoji("1344752996965154917")} ${inlineCode("end date          :")} ${data.endDate}\n`,
+        `${formatEmoji("1344752926308171859")} ${inlineCode("genres            :")} ${genresDisplay}\n\n`,
     ];
 
     if (userData.completed.length > 0) {
         descriptionBuilder.push(
-            `${formatEmoji("1343818590037741639")} ${inlineCode("completed         :")}\n${userData.completed.join("")}\n`,
+            `${formatEmoji("1344753004443734017")} ${inlineCode("completed         :")}\n${userData.completed.join("")}\n`,
         );
     }
     if (userData.current.length > 0) {
         descriptionBuilder.push(
-            `${formatEmoji("1343816800353259541")} ${inlineCode("current           :")}\n${userData.current.join("")}\n`,
+            `${formatEmoji("1344752979236094024")} ${inlineCode("current           :")}\n${userData.current.join("")}\n`,
         );
     }
     if (userData.planning.length > 0) {
         descriptionBuilder.push(
-            `${formatEmoji("1343816875770904586")} ${inlineCode("planning          :")}\n${userData.planning.join("")}\n`,
+            `${formatEmoji("1344752889003773994")} ${inlineCode("planning          :")}\n${userData.planning.join("")}\n`,
         );
     }
     if (userData.dropped.length > 0) {
         descriptionBuilder.push(
-            `${formatEmoji("1343816819999248444")} ${inlineCode("dropped           :")}\n${userData.dropped.join("")}\n`,
+            `${formatEmoji("1344752960705400933")} ${inlineCode("dropped           :")}\n${userData.dropped.join("")}\n`,
         );
     }
     if (userData.paused.length > 0) {
         descriptionBuilder.push(
-            `${formatEmoji("1343816867411918918")} ${inlineCode("paused            :")}\n${userData.paused.join("")}\n`,
+            `${formatEmoji("1344752900328525926")} ${inlineCode("paused            :")}\n${userData.paused.join("")}\n`,
         );
     }
 
