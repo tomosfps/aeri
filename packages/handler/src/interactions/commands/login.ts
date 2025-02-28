@@ -24,7 +24,6 @@ export const interaction: ChatInputCommand = {
         const embed = new EmbedBuilder()
             .setDescription("Click the button below to link your Anilist account with the bot.")
             .setColor(interaction.base_colour);
-        interaction.base_colour;
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()

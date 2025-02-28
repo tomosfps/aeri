@@ -1,3 +1,4 @@
+import { EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { dbCreateAnilistUser, dbFetchAnilistUser } from "database";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
@@ -40,21 +41,28 @@ export const interaction: ChatInputCommand = {
                 logger.error("Error while fetching data from the API.", "Anilist", { error });
 
                 return interaction.reply({
-                    content: "An error occurred while fetching your Anilist account.",
+                    content:
+                        "An error occurred while fetching your Anilist account.\nPlease try again later. If the issue persists, contact the bot owner.",
                     ephemeral: true,
                 });
             }
 
             if (!user) {
                 return interaction.reply({
-                    content: "Anilist user not found.",
+                    content: `Could not find user with username ${inlineCode(username)}`,
                     ephemeral: true,
                 });
             }
 
             await dbCreateAnilistUser(interaction.user_id, user.id, user.name, interaction.guild_id);
+
+            const embed = new EmbedBuilder()
+                .setTitle(`Anilist Account Linked | ${user.name}`)
+                .setDescription(user.description)
+                .setColor(interaction.base_colour);
+
             return interaction.reply({
-                content: `Successfully linked ${user.name} to your discord account.`,
+                embeds: [embed],
                 ephemeral: true,
             });
         }

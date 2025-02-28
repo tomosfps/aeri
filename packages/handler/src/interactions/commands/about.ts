@@ -4,17 +4,14 @@ import type { ChatInputCommand } from "../../services/commands.js";
 
 export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
-        .setName("about")
+        .setName("info")
         .setDescription("Information About Aeri")
-        .addExample("/about")
+        .addExample("/info")
         .addCategory("Utility"),
     async execute(interaction): Promise<void> {
         const descriptionBuilder = [
             `${bold("Who is Aeri?")}`,
             "Created by [tomosfps](https://github.com/tomosfps/) and [Sammy](https://github.com/SammyWhamy), Aeri is a versatile bot with a focus on anime, manga, and related content.\n",
-
-            `${bold("Why the name Aeri?")}`,
-            "The name is inspired by Giselle (Aespa), whose real name is Aeri Uchinaga.\n",
 
             `${bold("GitHub Repository")}`,
             "Aeri is open source, allowing you to host your own instance or contribute to the project.\n",

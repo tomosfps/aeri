@@ -28,7 +28,7 @@ export const interaction: ChatInputCommand = {
             const dbUser = await dbFetchAnilistUser(interaction.user_id);
 
             if (!dbUser) {
-                return interaction.reply({ content: "Please setup your account with /setup!", ephemeral: true });
+                return interaction.reply({ content: "Please setup your account with `/link`!", ephemeral: true });
             }
 
             username = dbUser.username;
@@ -36,19 +36,19 @@ export const interaction: ChatInputCommand = {
 
         if (!username) {
             return interaction.reply({
-                content: "Please provide a username, or setup your account with /setup",
+                content: "Please provide a username, or setup your account with /link",
                 ephemeral: true,
             });
         }
 
-        logger.debug(`Fetching user: ${username}`, "User");
         const { result: user, error } = await api.fetch(Routes.User, { username });
 
         if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", error);
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API.",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
                 ephemeral: true,
             });
         }
@@ -84,7 +84,6 @@ export const interaction: ChatInputCommand = {
             .setImage(user.banner)
             .setColor(interaction.base_colour)
             .setFooter({ text: user.footer });
-        interaction.base_colour;
 
         return interaction.reply({
             embeds: [embed],

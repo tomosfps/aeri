@@ -8,7 +8,9 @@ export const interaction: AutoCompleteCommand<string> = {
     command: "update-anime",
     option: "name",
     async execute(_interaction, option) {
-        logger.info("Existing option", "Autocomplete", option);
+        if (!option.value) {
+            return [{ name: "No results found...", value: "" }];
+        }
 
         const { result, error } = await api.fetch(Routes.Relations, {
             media_name: option.value,

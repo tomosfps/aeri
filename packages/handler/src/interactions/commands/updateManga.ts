@@ -77,7 +77,8 @@ export const interaction: ChatInputCommand = {
             logger.error("Error while fetching data MEDIA from the API.", "Anilist", { error });
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
@@ -109,7 +110,8 @@ export const interaction: ChatInputCommand = {
             logger.error("Error while fetching data MUTATION from the API.", "Anilist", { updateError });
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
@@ -124,7 +126,6 @@ export const interaction: ChatInputCommand = {
             .setFooter({
                 text: `${result.footer}\n• If the score doesn't update, use /refresh`,
             });
-        interaction.base_colour;
 
         return interaction.reply({ embeds: [embed] });
     },

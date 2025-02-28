@@ -27,7 +27,8 @@ export const interaction: ChatInputCommand = {
             logger.error("Error while fetching data from the API.", "Anilist", error);
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
@@ -47,7 +48,6 @@ export const interaction: ChatInputCommand = {
             .setDescription(studio.description + studio.animeDescription)
             .setColor(interaction.base_colour)
             .setFooter({ text: studio.footer });
-        interaction.base_colour;
 
         return interaction.reply({
             embeds: [embed],

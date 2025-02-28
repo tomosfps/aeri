@@ -12,7 +12,9 @@ export const interaction: ChatInputCommand = {
         .addExample("/help")
         .addExample("/help command:anime")
         .addCategory("Utility")
-        .addStringOption((option) => option.setName("command").setDescription("The command you want to view")),
+        .addStringOption((option) =>
+            option.setName("command").setDescription("The command you want to view").setRequired(false),
+        ),
     async execute(interaction): Promise<void> {
         const option = getCommandOption(
             "command",
@@ -73,7 +75,6 @@ export const interaction: ChatInputCommand = {
                 const embed = new EmbedBuilder()
                     .setDescription(filteredDescription.join(""))
                     .setColor(interaction.base_colour);
-                interaction.base_colour;
                 return await interaction.reply({ embeds: [embed] });
             }
             return await interaction.reply({ content: "Command not found", ephemeral: true });
@@ -89,7 +90,6 @@ export const interaction: ChatInputCommand = {
             .setTitle(inlineCode("commands".padEnd(maxLength).padStart(maxLength + 3)))
             .setDescription(commandNames)
             .setColor(interaction.base_colour);
-        interaction.base_colour;
         await interaction.reply({ embeds: [embed] });
     },
 };

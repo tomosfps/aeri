@@ -36,20 +36,15 @@ export const interaction: SelectMenu<SelectMenuData> = {
             { guild_id: interaction.guild_id },
         );
 
-        if (error) {
-            logger.error("Error while fetching data from the API.", "Anilist", error);
+        if (error || !media) {
+            logger.error("Error while fetching data from the API.", "Anilist", { error });
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
-
-        if (media === null) {
-            return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
-        }
-
-        logger.debug("Media data fetched", "Anilist", { description: media.description });
 
         const embed = new EmbedBuilder()
             .setTitle(media.title.romaji)
@@ -60,7 +55,6 @@ export const interaction: SelectMenu<SelectMenuData> = {
             .setColor(interaction.base_colour)
             .setFooter({ text: media.footer });
 
-        interaction.base_colour;
         await interaction.edit({ embeds: [embed] });
     },
 };

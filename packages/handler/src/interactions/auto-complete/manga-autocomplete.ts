@@ -8,7 +8,9 @@ export const interaction: AutoCompleteCommand<string> = {
     command: "update-manga",
     option: "name",
     async execute(_interaction, option) {
-        logger.info("Existing option", "Autocomplete", option);
+        if (!option.value) {
+            return [{ name: "No results found...", value: "" }];
+        }
 
         const { result, error } = await api.fetch(Routes.Relations, {
             media_name: option.value as string,
@@ -17,7 +19,7 @@ export const interaction: AutoCompleteCommand<string> = {
 
         if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
-            return [];
+            return [{ name: "No results found...", value: "" }];
         }
 
         if (!result) {

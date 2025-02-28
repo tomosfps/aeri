@@ -3,6 +3,7 @@ import {
     ContextMenuCommandBuilder,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
+    inlineCode,
 } from "@discordjs/builders";
 import { ApplicationCommandType } from "discord-api-types/v10";
 import { Logger } from "logger";
@@ -26,14 +27,17 @@ export const interaction: MessageContextCommand = {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
 
         if (result.relations.length === 0) {
-            logger.debugSingle("No relations found", "Anilist");
-            return interaction.reply({ content: "No manga found", ephemeral: true });
+            return interaction.reply({
+                content: `Could not find a relation close to ${inlineCode(manga)}`,
+                ephemeral: true,
+            });
         }
 
         const select = new StringSelectMenuBuilder()

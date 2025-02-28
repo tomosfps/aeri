@@ -3,6 +3,7 @@ import {
     EmbedBuilder,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
+    inlineCode,
 } from "@discordjs/builders";
 
 import { dbFetchAnilistUser } from "database";
@@ -90,19 +91,17 @@ export const interaction: ChatInputCommand = {
                     }),
                 );
 
-            logger.debugSingle("Select Menu Created", "Recommend");
             const row = new ActionRowBuilder().addComponents(select);
             return await interaction.reply({ components: [row] });
         }
 
         await interaction.defer();
-
         const dbUser = await dbFetchAnilistUser(interaction.user_id);
 
         if (!dbUser) {
             return interaction.followUp({
                 content:
-                    "Could not find your Anilist account. If you haven't please link your account using the `/setup` command.",
+                    "Could not find your Anilist account. If you haven't please link your account using the `/link` command.",
                 ephemeral: true,
             });
         }
@@ -113,13 +112,16 @@ export const interaction: ChatInputCommand = {
             logger.error("Error while fetching data from the API.", "Anilist", error);
 
             return interaction.followUp({
-                content: "An error occurred while fetching data from the API.",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
                 ephemeral: true,
             });
         }
 
         if (!user) {
-            return interaction.followUp({ content: "User not found" });
+            return interaction.followUp({
+                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${inlineCode("/unlink")} and ${inlineCode("/link")} again.`,
+            });
         }
 
         const topGenres = user.statistics.anime.genres
@@ -128,8 +130,8 @@ export const interaction: ChatInputCommand = {
             .map((genre) => genre.genre);
 
         if (topGenres.length === 0) {
-            logger.error("User genres are undefined or empty", "Recommend");
-            return interaction.followUp({ content: "Error: User genres are undefined or empty" });
+            logger.error("User genres are undefined or empty.", "Recommend"); // Unlikely to ever occur, but this is here incase.
+            return interaction.followUp({ content: "Could not get an recommendation based on your genres." });
         }
 
         const { result: recommendation, error: recommendationsError } = await api.fetch(Routes.Recommend, {
@@ -141,13 +143,16 @@ export const interaction: ChatInputCommand = {
             logger.error("Error while fetching recommendations from the API.", "Anilist", recommendationsError);
 
             return interaction.followUp({
-                content: "An error occurred while fetching data from the API.",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
                 ephemeral: true,
             });
         }
 
         if (!recommendation) {
-            return interaction.followUp({ content: "User not found" });
+            return interaction.followUp({
+                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${inlineCode("/unlink")} and ${inlineCode("/link")} again.`,
+            });
         }
 
         const media_id = Number(recommendation.id);
@@ -162,13 +167,16 @@ export const interaction: ChatInputCommand = {
             logger.error("Error while fetching Media data from the API.", "Anilist", mediaError);
 
             return interaction.followUp({
-                content: "An error occurred while fetching data from the API.",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
                 ephemeral: true,
             });
         }
 
         if (!mediaResult) {
-            return interaction.followUp({ content: "User not found" });
+            return interaction.followUp({
+                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${inlineCode("/unlink")} and ${inlineCode("/link")} again.`,
+            });
         }
 
         const embed = new EmbedBuilder()
@@ -179,7 +187,6 @@ export const interaction: ChatInputCommand = {
             .setDescription(mediaResult.description)
             .setColor(interaction.base_colour)
             .setFooter({ text: mediaResult.footer });
-        interaction.base_colour;
 
         await interaction.followUp({ embeds: [embed] });
     },

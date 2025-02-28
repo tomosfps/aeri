@@ -32,7 +32,8 @@ export const interaction: Button<ButtonData> = {
             logger.error("Error while fetching data from the API.", "Anilist", error);
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API.",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
                 ephemeral: true,
             });
         }
@@ -64,7 +65,6 @@ export const interaction: Button<ButtonData> = {
             .setDescription(description)
             .setThumbnail(character.image)
             .setFooter({ text: character.footer });
-        interaction.base_colour;
 
         await interaction.edit({
             embeds: [embed],

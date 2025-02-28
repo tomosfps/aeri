@@ -13,7 +13,7 @@ export const interaction: ChatInputCommand = {
 
         if (isInDatabase === null) {
             return interaction.reply({
-                content: "You don't have an anilist account linked to your discord account.",
+                content: "You do not have an anilist account linked. Use `/link` to link your account.",
                 ephemeral: true,
             });
         }

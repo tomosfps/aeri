@@ -1,4 +1,9 @@
-import { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
+import {
+    ActionRowBuilder,
+    StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder,
+    inlineCode,
+} from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
@@ -28,14 +33,17 @@ export const interaction: ChatInputCommand = {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
 
         if (result.relations.length === 0) {
-            logger.debugSingle("No relations found", "Anilist");
-            return interaction.reply({ content: "No anime found", ephemeral: true });
+            return interaction.reply({
+                content: `Could not find a relation close to ${inlineCode(anime)}`,
+                ephemeral: true,
+            });
         }
 
         const select = new StringSelectMenuBuilder()

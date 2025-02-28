@@ -26,7 +26,8 @@ export const interaction: ChatInputCommand = {
             logger.error("Error while fetching data from the API.", "Anilist", error);
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
@@ -47,7 +48,6 @@ export const interaction: ChatInputCommand = {
             .setThumbnail(character.image)
             .setColor(interaction.base_colour)
             .setFooter({ text: character.footer });
-        interaction.base_colour;
 
         const descriptionButton = new ButtonBuilder()
             .setCustomId(`characterShow:${character_name}:DESCRIPTION:${interaction.user.id}`)

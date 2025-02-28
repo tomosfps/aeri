@@ -57,7 +57,8 @@ export const interaction: UserContextCommand = {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
@@ -69,7 +70,6 @@ export const interaction: UserContextCommand = {
             .setDescription(affinity.description)
             .setColor(interaction.base_colour)
             .setFooter({ text: affinity.footer });
-        interaction.base_colour;
 
         await interaction.reply({ embeds: [embed] });
     },

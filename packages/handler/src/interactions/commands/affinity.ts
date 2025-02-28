@@ -13,7 +13,6 @@ export const interaction: ChatInputCommand = {
         .setName("affinity")
         .setDescription("Compare your affinity with server members!")
         .addExample("/affinity")
-        .addExample("Must have a user account linked to Anilist")
         .addCategory("Anime/Manga"),
     async execute(interaction): Promise<void> {
         if (!interaction.guild_id) {
@@ -28,7 +27,7 @@ export const interaction: ChatInputCommand = {
 
         if (!user) {
             return interaction.reply({
-                content: "This user hasn't set up their anilist account yet!",
+                content: "You must link your Anilist account to use this command!\nUse `/link` to link your account.",
                 ephemeral: true,
             });
         }
@@ -44,7 +43,7 @@ export const interaction: ChatInputCommand = {
 
         if (guildMembers.length === 0) {
             return interaction.reply({
-                content: "There must be at least 1 other member in the server to use this command!",
+                content: "There must be at least 1 other member in the server to use this command.",
                 ephemeral: true,
             });
         }
@@ -63,7 +62,8 @@ export const interaction: ChatInputCommand = {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
@@ -75,7 +75,6 @@ export const interaction: ChatInputCommand = {
             .setDescription(affinity.description)
             .setColor(interaction.base_colour)
             .setFooter({ text: affinity.footer });
-        interaction.base_colour;
 
         await interaction.reply({ embeds: [embed] });
     },

@@ -39,7 +39,8 @@ export const interaction: SelectMenu<SelectMenuData> = {
             logger.error("Error while fetching recommendations from the API.", "Anilist", recommendationsError);
 
             return interaction.followUp({
-                content: "An error occurred while fetching data from the API.",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
                 ephemeral: true,
             });
         }
@@ -55,17 +56,14 @@ export const interaction: SelectMenu<SelectMenuData> = {
             { guild_id: interaction.guild_id },
         );
 
-        if (mediaError) {
-            logger.error("Error while fetching data from the API.", "Anilist", mediaError);
+        if (mediaError || !media) {
+            logger.error("Error while fetching data from the API.", "Anilist", { mediaError });
 
             return interaction.editReply({
-                content: "An error occurred while fetching data from the API.",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
                 ephemeral: true,
             });
-        }
-
-        if (!media) {
-            return interaction.followUp({ content: "Media not found" });
         }
 
         const embed = new EmbedBuilder()
@@ -78,7 +76,6 @@ export const interaction: SelectMenu<SelectMenuData> = {
             .setFooter({
                 text: media.footer,
             });
-        interaction.base_colour;
 
         await interaction.editReply({ embeds: [embed] });
     },

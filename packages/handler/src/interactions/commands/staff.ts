@@ -25,7 +25,8 @@ export const interaction: ChatInputCommand = {
             logger.error("Error while fetching data from the API.", "Anilist", error);
 
             return interaction.reply({
-                content: "An error occurred while fetching data from the API",
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
@@ -46,7 +47,6 @@ export const interaction: ChatInputCommand = {
             .setThumbnail(staff.image)
             .setColor(interaction.base_colour)
             .setFooter({ text: staff.footer });
-        interaction.base_colour;
 
         const animeButton = new ButtonBuilder()
             .setCustomId(`staffShow:${staff_name}:ANIME:${interaction.user.id}`)
@@ -55,7 +55,7 @@ export const interaction: ChatInputCommand = {
 
         const mangaButton = new ButtonBuilder()
             .setCustomId(`staffShow:${staff_name}:MANGA:${interaction.user.id}`)
-            .setLabel("See Manga Worked On")
+            .setLabel("See Manga Created")
             .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder().addComponents(animeButton, mangaButton);
