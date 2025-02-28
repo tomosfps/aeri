@@ -1,3 +1,5 @@
+import { env } from "@/env";
+
 interface CommandOption {
   name: string;
   description: string;
@@ -19,7 +21,7 @@ export interface Command {
 
 export default async function GetCommands(): Promise<Command[]> {
   try {
-    const response = await fetch("http://0.0.0.0:8080/get_commands", {
+    const response = await fetch(`${env.API_URL}/get_commands`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

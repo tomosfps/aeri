@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { Logger } from "logger";
-import { Routes, api } from "wrappers/anilist";
+import { MediaType, Routes, api } from "wrappers/anilist";
 import type { Button } from "../../services/commands.js";
 
 const logger = new Logger();
@@ -26,12 +26,27 @@ export const interaction: Button<ButtonData> = {
     async execute(interaction, data): Promise<void> {
         const staffName = data.staffName;
 
-        const { result, error } = await api.fetch(Routes.Staff, {
+        const { result: animeResult, error: animeError } = await api.fetch(Routes.Staff, {
             staff_name: staffName,
+            media_type: MediaType.Anime,
         });
 
-        if (error || !result) {
-            logger.error("Error while fetching data from the API.", "Anilist", { error });
+        const { result: mangaResult, error: mangaError } = await api.fetch(Routes.Staff, {
+            staff_name: staffName,
+            media_type: MediaType.Manga,
+        });
+
+        if (animeError || !animeResult) {
+            logger.error("Error while fetching data from the API.", "Anilist", { animeError });
+
+            return interaction.reply({
+                content: "An error occurred while fetching data from the API.",
+                ephemeral: true,
+            });
+        }
+
+        if (mangaError || !mangaResult) {
+            logger.error("Error while fetching data from the API.", "Anilist", { mangaError });
 
             return interaction.reply({
                 content: "An error occurred while fetching data from the API.",
@@ -42,19 +57,19 @@ export const interaction: Button<ButtonData> = {
         let description = "";
         switch (data.type) {
             case "ANIME":
-                description = result.description + result.animeDescription;
+                description = animeResult.description + animeResult.animeDescription;
                 break;
             case "MANGA":
-                description = result.description + result.mangaDescription;
+                description = mangaResult.description + mangaResult.mangaDescription;
                 break;
         }
 
         const embed = new EmbedBuilder()
-            .setTitle(result.fullName)
-            .setURL(result.siteUrl)
+            .setTitle(animeResult.fullName)
+            .setURL(animeResult.siteUrl)
             .setDescription(description)
-            .setThumbnail(result.image)
-            .setFooter({ text: result.footer });
+            .setThumbnail(animeResult.image)
+            .setFooter({ text: animeResult.footer });
         interaction.base_colour;
 
         await interaction.edit({

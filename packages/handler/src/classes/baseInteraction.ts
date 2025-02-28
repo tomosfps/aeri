@@ -18,7 +18,7 @@ export class BaseInteraction {
     ) {}
 
     get base_colour() {
-        return 0xf9a8d4;
+        return 0x000000;
     }
 
     get id() {
@@ -61,7 +61,7 @@ export class BaseInteraction {
 
     get avatar_url() {
         return this.user.avatar
-            ? `https://cdn.discordapp.com/avatars/${this.user.id}/${this.user.avatar}.png`
+            ? `https://cdn.discordapp.com/avatars/${this.user.id}/${this.user.avatar}.png?size=1024`
             : `https://cdn.discordapp.com/embed/avatars/${(Number(this.user.id) >> 22) % 6}.png?size=1024`;
     }
 

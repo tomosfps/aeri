@@ -59,11 +59,12 @@ export const interaction: ChatInputCommand = {
                 .setRequired(true)
                 .addChoices({ name: "Anime", value: "ANIME" }, { name: "Manga", value: "MANGA" }),
         )
-        .addBooleanOption((option) =>
-            option.setName("genre").setDescription("Base recommendation on genre(s)").setRequired(false),
-        )
-        .addBooleanOption((option) =>
-            option.setName("score").setDescription("Base recommendation on scores").setRequired(false),
+        .addStringOption((option) =>
+            option
+                .setName("based_on")
+                .setDescription("Recommendation based on genre or score")
+                .setRequired(true)
+                .addChoices({ name: "Genre", value: "Genre" }, { name: "Score", value: "Score" }),
         ),
     async execute(interaction): Promise<void> {
         if (!interaction.guild_id) {
@@ -71,19 +72,10 @@ export const interaction: ChatInputCommand = {
         }
 
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";
-        const genre = getCommandOption("genre", ApplicationCommandOptionType.Boolean, interaction.options) || false;
-        const score = getCommandOption("score", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+        const basedOn = getCommandOption("based_on", ApplicationCommandOptionType.String, interaction.options) || "";
         const media_type = media === "ANIME" ? MediaType.Anime : MediaType.Manga;
 
-        if (genre && score) {
-            return interaction.reply({ content: "Please select only one option", ephemeral: true });
-        }
-
-        if (!genre && !score) {
-            return interaction.reply({ content: "Please select at least one option", ephemeral: true });
-        }
-
-        if (genre) {
+        if (basedOn === "Genre") {
             const select = new StringSelectMenuBuilder()
                 .setCustomId(`genre_selection:${media}:${interaction.user_id}`)
                 .setPlaceholder("Choose Some Genres...")

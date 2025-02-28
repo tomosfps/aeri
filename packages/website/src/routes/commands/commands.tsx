@@ -1,5 +1,3 @@
-"use client";
-
 import GetCommands, { Command } from "@/components/requests/getCommands";
 import { CategoryButton } from "@/components/ui/categoryButton";
 import { CommandCard } from "@/components/ui/commandCard";

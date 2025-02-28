@@ -9,14 +9,14 @@ export function filteredDescription(description: string | string[], set_spoiler:
                 return line;
             })
             .filter((line: any) => {
-                return !(/^\s*$/.test(line) || /null/.test(line) || /undefined/.test(line));
+                return !(/^\s*$/.test(line) || /null/.test(line) || /undefined/.test(line) || /0\/0\/0/.test(line));
             })
             .join("\n");
     }
 
     return description
         .filter((line) => {
-            return !(/^\s*$/.test(line) || /null/.test(line) || /undefined/.test(line));
+            return !(/^\s*$/.test(line) || /null/.test(line) || /undefined/.test(line) || /0\/0\/0/.test(line));
         })
         .join("");
 }

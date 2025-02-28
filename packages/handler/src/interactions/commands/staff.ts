@@ -19,7 +19,6 @@ export const interaction: ChatInputCommand = {
         ),
     async execute(interaction): Promise<void> {
         const staff_name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
-
         const { result: staff, error } = await api.fetch(Routes.Staff, { staff_name });
 
         if (error) {

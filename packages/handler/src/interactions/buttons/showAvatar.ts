@@ -1,11 +1,12 @@
+import { Logger } from "logger";
 import type { Button } from "../../services/commands.js";
 
-type DescriptionType = "DEFAULT" | "GUILD";
+const logger = new Logger();
 
+type DescriptionType = "DEFAULT" | "GUILD";
 type ButtonData = {
     targetUserId: string;
     type: DescriptionType;
-    userId: string;
 };
 
 export const interaction: Button<ButtonData> = {
@@ -13,14 +14,14 @@ export const interaction: Button<ButtonData> = {
     toggleable: true,
     timeout: 3600,
     parse(data) {
-        if (!data[0] || !data[1] || !data[2]) {
+        if (!data[0] || !data[1]) {
             throw new Error("Invalid button data");
         }
-        return { targetUserId: data[0], type: data[1] as DescriptionType, userId: data[2] };
+        return { targetUserId: data[0], type: data[1] as DescriptionType };
     },
     async execute(interaction, data): Promise<void> {
         const embedData = interaction.embed_data;
-        const guild_id = interaction.interaction.guild_id;
+        const guild_id = interaction.guild_id;
 
         if (!embedData) {
             return;
@@ -44,7 +45,7 @@ export const interaction: Button<ButtonData> = {
                 title = `${member.user?.username}'s Avatar`;
                 break;
             case "GUILD": {
-                url = interaction.guild_url(guild_id, data.targetUserId, member.user?.avatar || "");
+                url = interaction.guild_url(guild_id, member.user.id, member.avatar || "");
                 title = `${member.user?.username}'s Guild Avatar`;
                 break;
             }
@@ -54,6 +55,13 @@ export const interaction: Button<ButtonData> = {
         embedData.image = {
             url: url,
         };
+
+        logger.debug("Showing avatar", "ShowAvatar", {
+            hash: member.user?.avatar,
+            targetUserId: data.targetUserId,
+            type: data.type,
+            url: url,
+        });
 
         await interaction.edit({
             embeds: [embedData],

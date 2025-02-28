@@ -74,7 +74,7 @@ impl Entity<FormattedStaff, StaffRequest> for Staff {
     }
 
     fn cache_key(request: &StaffRequest) -> String {
-        format!("staff:{}", request.staff_name.to_lowercase())
+        format!("staff:{}:{}", request.staff_name.to_lowercase(), request.media_type.clone().unwrap_or_default())
     }
 
     fn query(request: &StaffRequest) -> Value {
