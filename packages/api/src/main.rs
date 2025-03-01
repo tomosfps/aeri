@@ -27,6 +27,7 @@ use cache::redis::Redis;
 use client::proxy::Proxy;
 use crate::routes::commands::commands;
 use crate::routes::remove_user::remove_user;
+use crate::routes::shards::shards;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -80,6 +81,7 @@ async fn main() -> std::io::Result<()> {
             .service(viewer)
             .service(remove_user)
             .service(commands)
+            .service(shards)
             .route("/oauth/updateMedia", web::post().to(UpdateMediaMutation::route))
             .route("/studio", web::post().to(Studio::route))
             .route("/staff", web::post().to(Staff::route))

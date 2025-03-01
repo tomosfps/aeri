@@ -20,7 +20,11 @@ if (workerId === 0) {
 parentPort!.on("message", async (payload: WorkerSendPayload) => {
     switch (payload.op) {
         case WorkerSendPayloadOp.Connect: {
-            redis.hset;
+            redis.hset(`shardstatus:${payload.shardId}`, {
+                id: payload.shardId,
+                status: "starting",
+                eventsPerSecond: 0,
+            });
         }
     }
 });

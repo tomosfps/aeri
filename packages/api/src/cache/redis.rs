@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
 use redis::{Client, AsyncCommands, RedisResult, ToRedisArgs, FromRedisValue, AsyncIter};
@@ -138,5 +139,19 @@ impl Redis {
                 let _ = conn.del::<_, ()>(key).await;
             }
         }
+    }
+    
+    pub async fn get_shard_statuses(&self) -> Vec<HashMap<String, String>> {
+        let shard_count = env::var("SHARD_COUNT").unwrap().parse::<i32>().unwrap();
+        let keys = (0..shard_count).map(|i| format!("shardstatus:{}", i)).collect::<Vec<String>>();
+        
+        let mut pipe = redis::pipe();
+        for key in keys {
+            pipe.hgetall(key);
+        }
+        
+        let shards = pipe.query_async::<Vec<HashMap<String, String>>>(&mut self.connection.clone()).await.unwrap_or_default();
+        
+        shards.into_iter().filter(|x| !x.is_empty()).collect()
     }
 }
