@@ -104,6 +104,7 @@ export const interaction: ChatInputCommand = {
             progress: progress,
             id: Number(name),
             token: inDatabase.token,
+            volumes: getUserResults.volumes,
         });
 
         if (updateError || updateMedia === null) {

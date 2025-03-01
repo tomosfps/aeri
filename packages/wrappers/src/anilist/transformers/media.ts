@@ -32,7 +32,13 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
         paused: [],
     };
 
-    const userResults: { username: string; score: number; progress: number; status: MediaListStatus }[] = [];
+    const userResults: {
+        username: string;
+        score: number;
+        progress: number;
+        volumes: number;
+        status: MediaListStatus;
+    }[] = [];
     const allUsers = await dbFetchGuildUsers(guild_id).then((users) => {
         return users.map((user) => user.anilist?.username).filter((username) => username !== undefined);
     });
@@ -54,6 +60,7 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
                 username: userScore.username,
                 score: userScore.score ?? 0,
                 progress: userScore.progress ?? 0,
+                volumes: userScore.volumes ?? 0,
                 status: userScore.status ?? MediaListStatus.Current,
             });
 

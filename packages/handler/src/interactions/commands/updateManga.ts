@@ -14,10 +14,11 @@ export const interaction: ChatInputCommand = {
         .setName("update-manga")
         .setDescription("Update an manga entry on your Anilist account.")
         .setCooldown(5)
-        .addExample("/update-manga name:Berserk score:10 status:Current progress:153")
+        .addExample("/update-manga name:Berserk score:10 status:Current progress:153 volumes:40")
         .addExample("/update-manga name:One Piece score:10")
         .addExample("/update-manga name:One Piece status:Paused")
         .addExample("/update-manga name:One Piece progress:1140")
+        .addExample("/update-manga name:One Piece volumes:100")
         .addExample(
             "Any choices that are left out, will be automatically grabbed from the user and set to the current value.",
         )
@@ -48,6 +49,9 @@ export const interaction: ChatInputCommand = {
         )
         .addNumberOption((option) =>
             option.setName("progress").setDescription("The progress you have made in the manga.").setRequired(false),
+        )
+        .addNumberOption((option) =>
+            option.setName("volumes").setDescription("The amount of volumes read for the manga.").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         if (interaction.guild_id === undefined) {
@@ -83,20 +87,23 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        const getUserResults = result.userResults.find((userResult) => userResult.username === inDatabase.username);
-        if (!getUserResults) {
+        const userResults = result.userResults.find((userResult) => userResult.username === inDatabase.username);
+        if (!userResults) {
             return;
         } // This shouldn't get called
 
         const status =
             getCommandOption("status", ApplicationCommandOptionType.String, interaction.options) ||
-            (getUserResults.status as MediaListStatus);
+            (userResults.status as MediaListStatus);
         const score =
             getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options) ||
-            (getUserResults.score as number);
+            (userResults.score as number);
         const progress =
             getCommandOption("progress", ApplicationCommandOptionType.Number, interaction.options) ||
-            (getUserResults.progress as number);
+            (userResults.progress as number);
+        const volumes =
+            getCommandOption("volume", ApplicationCommandOptionType.Number, interaction.options) ||
+            (userResults.volumes as number);
 
         const { result: updateMedia, error: updateError } = await api.fetch(Routes.UpdateMedia, {
             status: status as MediaListStatus,
@@ -104,6 +111,7 @@ export const interaction: ChatInputCommand = {
             progress: progress,
             id: Number(name),
             token: inDatabase.token,
+            volumes,
         });
 
         if (updateError || updateMedia === null) {

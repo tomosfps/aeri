@@ -184,7 +184,13 @@ type Media = {
     };
     transformed: {
         description: string;
-        userResults: Array<{ username: string; score: number; progress: number; status: MediaListStatus }>;
+        userResults: Array<{
+            username: string;
+            score: number;
+            progress: number;
+            volumes: number;
+            status: MediaListStatus;
+        }>;
     };
     transformer_args: {
         guild_id: string;
@@ -350,6 +356,7 @@ type MediaUpdated = {
         score: number;
         progress: number;
         id: number;
+        volumes: number;
         token: string;
     };
     response: BaseResponse & {
@@ -359,6 +366,7 @@ type MediaUpdated = {
         score: number;
         status: MediaListStatus;
         progress: number;
+        volumes: number;
     };
 };
 
