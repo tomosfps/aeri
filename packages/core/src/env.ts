@@ -28,6 +28,8 @@ export const envSchema = z.object({
     REDIS_URL: z.string().optional(),
     SHARD_COUNT: z.coerce.number(),
     SHARDS_PER_WORKER: z.coerce.number(),
+    METRICS_HOST: z.string().default("gateway"),
+    METRICS_PORT: z.coerce.number().default(3000),
     LOG_LEVEL: z.coerce.number().default(3),
 });
 

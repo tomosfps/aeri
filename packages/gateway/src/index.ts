@@ -1,12 +1,21 @@
 import { REST } from "@discordjs/rest";
 import { SimpleIdentifyThrottler, WebSocketManager, WebSocketShardEvents, WorkerShardingStrategy } from "@discordjs/ws";
 import { Cache } from "cache";
-import { env } from "core";
+import { env, getRedis } from "core";
 import { ActivityType, GatewayIntentBits, GatewayOpcodes, PresenceUpdateStatus } from "discord-api-types/v10";
 import { Logger } from "logger";
+import { MetricsClient } from "metrics";
+import { aggregateHandlerMetrics } from "./services/metricsAggregator.js";
+import { setupMetricsServer } from "./services/metricsServer.js";
+import type { CustomWorkerPayload } from "./services/worker.js";
+
+const metricsClient = new MetricsClient();
+await aggregateHandlerMetrics(metricsClient);
+await setupMetricsServer();
 
 const rest = new REST().setToken(env.DISCORD_TOKEN);
 const logger = new Logger();
+const redis = await getRedis();
 const cache = await Cache.new("gateway:");
 
 let currentPresenceIndex = 0;
@@ -43,7 +52,15 @@ const manager = new WebSocketManager({
     buildStrategy: (manager) => {
         return new WorkerShardingStrategy(manager, {
             shardsPerWorker: env.SHARDS_PER_WORKER,
-            workerPath: `${import.meta.dirname}/worker.js`,
+            workerPath: `${import.meta.dirname}/services/worker.js`,
+            unknownPayloadHandler: async ({ op, data }: CustomWorkerPayload) => {
+                switch (op) {
+                    case "metrics": {
+                        metricsClient.mergeWorkerMetrics(data);
+                        break;
+                    }
+                }
+            },
         });
     },
     retrieveSessionInfo: cache.gateway.getSession.bind(cache.gateway),
@@ -52,14 +69,26 @@ const manager = new WebSocketManager({
 
 manager.on(WebSocketShardEvents.Resumed, (shardId) => {
     logger.debugSingle(`Shard ${shardId} resumed.`, "Gateway");
+
+    redis.hset(`shardstatus:${shardId}`, {
+        status: "online",
+    });
 });
 
 manager.on(WebSocketShardEvents.Ready, (_data, shardId) => {
     logger.infoSingle(`Shard ${shardId} ready.`, "Gateway");
+
+    redis.hset(`shardstatus:${shardId}`, {
+        status: "online",
+    });
 });
 
 manager.on(WebSocketShardEvents.Closed, (code, shardId) => {
     logger.debugSingle(`Shard ${shardId} closed (Code ${code}).`, "Gateway");
+
+    redis.hset(`shardstatus:${shardId}`, {
+        status: "offline",
+    });
 });
 
 manager.on(WebSocketShardEvents.Error, (error, shardId) => {

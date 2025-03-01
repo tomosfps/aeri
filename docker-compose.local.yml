@@ -24,6 +24,21 @@ services:
     volumes:
       - database-data:/var/lib/postgresql/data
 
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    restart: unless-stopped
+    tty: true
+    env_file:
+      - .env
+    ports:
+      - "9090:9090"
+    network_mode: "host"
+    volumes:
+      - prometheus-data:/prometheus
+      - ./config/prometheus/config.yml:/etc/prometheus/prometheus.yml
+
 volumes:
   cache-data:
   database-data:
+  prometheus-data:
