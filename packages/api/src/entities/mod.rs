@@ -47,7 +47,7 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
 
     fn cache_key(request: &R) -> String;
 
-    fn cache_time() -> u64 {
+    fn cache_time(_data: &F) -> u64 {
         86400
     }
 
@@ -64,7 +64,7 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
 
     async fn cache_set(data: &F, request: &R, redis: &web::Data<Redis>) {
         let string = serde_json::to_string(data).unwrap();
-        redis.set_ex(Self::cache_key(request), string, Self::cache_time()).await;
+        redis.set_ex(Self::cache_key(request), string, Self::cache_time(data)).await;
     }
 
     fn query(request: &R) -> Value;

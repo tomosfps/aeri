@@ -5,7 +5,7 @@ import { mediaStatusString } from "../enums.js";
 import { MediaListStatus, api } from "../index.js";
 import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
-import { filteredDescription } from "./util.js";
+import { filteredDescription, getNextAiringEpisode } from "./util.js";
 
 export const mediaTransformer: TransformersType[Routes.Media] = async (data, { guild_id }) => {
     const genresToShow = data.genres.slice(0, 3);
@@ -13,10 +13,9 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
     const genresDisplay =
         genresToShow.join(", ") + (additionalGenresCount > 0 ? ` + ${additionalGenresCount} more` : "");
 
-    const currentEpisode = data.airing?.[0]?.nodes?.[0]?.episode ? data.airing[0].nodes[0].episode - 1 : null;
-    const nextEpisode = data.airing?.[0]?.nodes?.[0]?.episode
-        ? formatSeconds(data.airing[0].nodes[0].timeUntilAiring)
-        : null;
+    const { nextEpisodeNumber, timeUntilNextEpisode } = getNextAiringEpisode(data.airing);
+    const currentEpisode = nextEpisodeNumber ? nextEpisodeNumber - 1 : null;
+    const nextEpisode = timeUntilNextEpisode ? formatSeconds(timeUntilNextEpisode) : null;
 
     const userData: {
         current: string[];

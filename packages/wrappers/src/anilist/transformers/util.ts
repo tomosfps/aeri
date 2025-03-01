@@ -36,3 +36,24 @@ export function truncateAnilistIfExceedsDescription(description: string, maxLeng
     }
     return description;
 }
+
+export function getNextAiringEpisode(airingData: any) {
+    if (airingData?.nodes && airingData.nodes.length > 0) {
+        const sortedNodes = [...airingData.nodes].sort(
+            (a, b) => (a.timeUntilAiring || Number.POSITIVE_INFINITY) - (b.timeUntilAiring || Number.POSITIVE_INFINITY),
+        );
+
+        const nextNode = sortedNodes[0];
+        if (nextNode?.episode && nextNode.timeUntilAiring !== undefined) {
+            return {
+                nextEpisodeNumber: nextNode.episode,
+                timeUntilNextEpisode: nextNode.timeUntilAiring,
+            };
+        }
+    }
+
+    return {
+        nextEpisodeNumber: null,
+        timeUntilNextEpisode: null,
+    };
+}

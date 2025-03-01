@@ -107,7 +107,6 @@ impl Client {
     }
 
     async fn fetch_proxy(redis: &Redis) -> Result<String, String> {
-        logger.debug_single("Getting random proxy", "Proxy");
         let proxy: Option<String> = redis.srandmember("proxies").await;
 
         let proxy = match proxy {

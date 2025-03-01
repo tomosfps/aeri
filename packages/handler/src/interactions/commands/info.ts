@@ -21,8 +21,18 @@ export const interaction: ChatInputCommand = {
             `${inlineCode("Library      :")} [discord.js](https://discord.js.org/)`,
             `${inlineCode("Languages    :")} [TypeScript](https://www.typescriptlang.org), [Rust](https://www.rust-lang.org), [Dockerfile](https://www.docker.com/)`,
             `${inlineCode("Created      :")} 19/10/2024`,
-            `${inlineCode("Github       :")} [Github Link](https://github.com/tomosfps/aeri)`,
+            `${inlineCode("Github       :")} [Github Link](https://github.com/tomosfps/aeri)\n`,
+
+            `${bold("Third Party Libraries")}`,
+            `${inlineCode("AniList API   :")} [GraphQL API](https://docs.anilist.co/) for anime/manga data`,
+            `${inlineCode("Prometheus    :")} [Prometheus](https://prometheus.io/) for metrics/monitoring`,
+            `${inlineCode("Actix Web     :")} [Rust web server framework](https://actix.rs/) for the backend`,
+            `${inlineCode("Postgres      :")} [PostgreSQL](https://www.postgresql.org/) for database storage`,
+            `${inlineCode("Redis         :")} [Redis](https://redis.io/) for caching`,
         ];
+
+        // Leaving this here since eventually it'll be implemented.
+        //`${inlineCode("trace.moe     :")} [Anime scene search API](https://soruly.github.io/trace.moe-api/) for image recognition`
 
         const embed = new EmbedBuilder()
             .setTitle("About Aeri")

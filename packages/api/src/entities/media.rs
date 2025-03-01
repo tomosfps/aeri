@@ -91,6 +91,14 @@ impl Entity<FormattedMedia, MediaRequest> for Media {
         })
     }
 
+    fn cache_time(data: &FormattedMedia) -> u64 {
+        data.airing
+            .as_ref()
+            .and_then(|airing| airing.nodes.as_ref())
+            .and_then(|nodes| nodes.first())
+            .map_or(86400, |next_airing| next_airing.time_until_airing as u64)
+    }
+
     fn cache_key(request: &MediaRequest) -> String {
         format!("media:{}:{}", request.media_type, request.media_id)
     }
