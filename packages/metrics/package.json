@@ -9,6 +9,7 @@
     },
     "license": "MIT",
     "dependencies": {
+        "discord-api-types": "^0.37.119",
         "prom-client": "^15.1.3"
     },
     "devDependencies": {

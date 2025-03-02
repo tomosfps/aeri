@@ -1,10 +1,12 @@
+use std::sync::Arc;
 use crate::entities::format::user_addon::user_addon;
 use crate::entities::Entity;
 use crate::global::queries::get_query;
 use crate::structs::shared::{Avatar, Favourites, MediaFormat, Statistics};
-use actix_web::HttpResponse;
+use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use crate::global::metrics::Metrics;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -48,7 +50,7 @@ impl Entity<FormattedUser, UserRequest> for User {
         "User".into()
     }
 
-    async fn format(self, _request: &UserRequest) -> Result<FormattedUser, HttpResponse> {
+    async fn format(self, _request: &UserRequest, _metrics: web::Data<Arc<Metrics>>) -> Result<FormattedUser, HttpResponse> {
         let addon = user_addon(&self);
 
         Ok(FormattedUser {

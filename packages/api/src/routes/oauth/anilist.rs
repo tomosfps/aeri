@@ -7,6 +7,8 @@ use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::env;
+use std::sync::Arc;
+use crate::global::metrics::Metrics;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -39,7 +41,7 @@ struct TokenData {
 }
 
 #[get("/oauth/anilist")]
-pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Redis>) -> impl Responder {
+pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Redis>, metrics: web::Data<Arc<Metrics>>) -> impl Responder {
     let json: Value = json!({
         "grant_type": "authorization_code",
         "client_id": env::var("ANILIST_CLIENT_ID").unwrap(),
@@ -48,7 +50,7 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Red
         "code": params.code,
     });
 
-    let mut client = Client::new_proxied().await;
+    let mut client = Client::new_proxied(metrics).await;
     let response = client.post("https://anilist.co/api/v2/oauth/token", &json).await;
 
     let response = match response {
@@ -71,7 +73,7 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Red
     let params: Vec<&str> = params.state.split("_").collect();
 
     let response_json = response.json::<TokenResponse>().await;
-    
+
     let response_json = match response_json {
         Ok(response_json) => response_json,
         Err(err) => {
@@ -79,7 +81,7 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Red
             return Redirect::to(oauth_fail_url.clone());
         }
     };
-    
+
     let token_data = TokenData {
         r#type: TokenTypes::Anilist,
         user_id: params[0].to_string(),

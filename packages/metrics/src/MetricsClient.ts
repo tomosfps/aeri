@@ -1,30 +1,49 @@
-import { Counter, collectDefaultMetrics } from "prom-client";
-import type { HandlerMetricsMessage } from "./HandlerMetricsClient.js";
-import type { WorkerMetricsMessage } from "./WorkerMetricsClient.js";
+import { Counter } from "prom-client";
+import type { SerializedHandlerMetrics } from "./HandlerMetricsClient.js";
+import type { SerializedWorkerMetrics } from "./WorkerMetricsClient.js";
 
 export class MetricsClient {
-    constructor() {
-        collectDefaultMetrics();
-    }
-
-    public events = new Counter({
-        name: "gateway_events_total",
+    public gateway_events = new Counter({
+        name: "gateway_events_received_total",
         help: "Total number of events received",
-        labelNames: ["shard_id", "worker_id", "handler_id"] as const,
+        labelNames: ["type", "shard_id", "worker_id"] as const,
     });
 
-    public mergeWorkerMetrics({ metrics, workerId, shardIds }: WorkerMetricsMessage) {
-        this.events.inc(metrics.events.total);
+    public handler_events = new Counter({
+        name: "handler_events_received_total",
+        help: "Total number of events received per handler",
+        labelNames: ["handler_id"] as const,
+    });
 
-        for (const shardId of shardIds) {
-            const value = metrics.events[`shard_${shardId}`];
-            this.events.inc({ shard_id: shardId }, value);
+    public media_commands = new Counter({
+        name: "handler_media_commands_total",
+        help: "Total number of media commands received",
+        labelNames: ["media_type", "media_id", "media_name"] as const,
+    });
+
+    public interaction_types = new Counter({
+        name: "handler_interaction_types_total",
+        help: "Total number of commands received",
+        labelNames: ["type"] as const,
+    });
+
+    public async mergeGatewayMetrics(data: SerializedWorkerMetrics) {
+        for (const item of data.values) {
+            this.gateway_events.inc(item.labels, item.value);
         }
-
-        this.events.inc({ worker_id: workerId }, metrics.events[`worker_${workerId}`]);
     }
 
-    public mergeHandlerMetrics({ metrics, handlerId }: HandlerMetricsMessage) {
-        this.events.inc({ handler_id: handlerId }, metrics.events[`handler_${handlerId}`]);
+    public mergeHandlerMetrics(data: SerializedHandlerMetrics) {
+        for (const item of data.events.values) {
+            this.handler_events.inc(item.labels, item.value);
+        }
+
+        for (const item of data.mediaCommands.values) {
+            this.media_commands.inc(item.labels, item.value);
+        }
+
+        for (const item of data.interactionTypes.values) {
+            this.interaction_types.inc(item.labels, item.value);
+        }
     }
 }

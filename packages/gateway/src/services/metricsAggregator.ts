@@ -1,9 +1,9 @@
 import { PubSubRedisBroker } from "@discordjs/brokers";
 import { getRedis } from "core";
-import type { HandlerMetricsMessage, MetricsClient } from "metrics";
+import type { MetricsClient, SerializedHandlerMetrics } from "metrics";
 
 type EventPayload = {
-    data: HandlerMetricsMessage;
+    data: SerializedHandlerMetrics;
     ack(): Promise<void>;
 };
 

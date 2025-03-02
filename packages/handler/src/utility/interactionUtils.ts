@@ -148,14 +148,14 @@ export function isSelectMenuInteraction(
 }
 
 export enum InteractType {
-    Autocomplete = 0,
-    ChatInput = 1,
-    Modal = 2,
-    UserContext = 3,
-    MessageContext = 4,
-    Button = 5,
-    SelectMenu = 6,
-    Unknown = 7,
+    Autocomplete = "Autocomplete",
+    ChatInput = "ChatInput",
+    Modal = "Modal",
+    UserContext = "UserContext",
+    MessageContext = "MessageContext",
+    Button = "Button",
+    SelectMenu = "SelectMenu",
+    Unknown = "Unknown",
 }
 
 export function determineInteractionType(interaction: APIInteraction): InteractType {

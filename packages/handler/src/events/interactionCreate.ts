@@ -32,6 +32,8 @@ export default event(Events.InteractionCreate, async ({ data: interaction, api, 
 const interactionTransformer = (interaction: any, api: API, client: HandlerClient) => {
     const type = determineInteractionType(interaction);
 
+    client.metricsClient.interaction_types.inc({ type: type });
+
     switch (type) {
         case InteractType.Autocomplete:
             return new AutoCompleteInteraction(interaction, api, client);

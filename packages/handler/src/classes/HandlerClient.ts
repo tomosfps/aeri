@@ -1,4 +1,5 @@
 import { Client, type ClientOptions } from "@discordjs/core";
+import type { HandlerMetricsClient } from "metrics";
 import type {
     AutoCompleteCommand,
     Button,
@@ -10,6 +11,7 @@ import type {
 } from "../services/commands.js";
 
 export interface HandlerClientOptions extends ClientOptions {
+    metricsClient: HandlerMetricsClient;
     commands: Map<string, ChatInputCommand>;
     buttons: Map<string, Button>;
     modals: Map<string, Modal>;
@@ -20,6 +22,7 @@ export interface HandlerClientOptions extends ClientOptions {
 }
 
 export class HandlerClient extends Client {
+    public metricsClient: HandlerMetricsClient;
     public commands: Map<string, ChatInputCommand>;
     public buttons: Map<string, Button>;
     public modals: Map<string, Modal>;
@@ -34,6 +37,7 @@ export class HandlerClient extends Client {
             gateway: options.gateway,
         });
 
+        this.metricsClient = options.metricsClient;
         this.commands = options.commands;
         this.buttons = options.buttons;
         this.modals = options.modals;

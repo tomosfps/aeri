@@ -56,7 +56,7 @@ const manager = new WebSocketManager({
             unknownPayloadHandler: async ({ op, data }: CustomWorkerPayload) => {
                 switch (op) {
                     case "metrics": {
-                        metricsClient.mergeWorkerMetrics(data);
+                        metricsClient.mergeGatewayMetrics(data);
                         break;
                     }
                 }

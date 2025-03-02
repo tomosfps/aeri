@@ -1,10 +1,12 @@
+use std::sync::Arc;
 use crate::entities::format::relation_addon::relation_addon;
 use crate::entities::Entity;
 use crate::global::queries::get_query;
 use crate::structs::shared::{MediaFormat, MediaStatus, Title, Type};
-use actix_web::HttpResponse;
+use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use crate::global::metrics::Metrics;
 
 #[derive(Deserialize)]
 pub struct Relations {
@@ -55,7 +57,7 @@ impl Entity<FormattedRelations, RelationRequest> for Relations {
         vec!["data".into(), "Page".into()]
     }
 
-    async fn format(self, request: &RelationRequest) -> Result<FormattedRelations, HttpResponse> {
+    async fn format(self, request: &RelationRequest, _metrics: web::Data<Arc<Metrics>>) -> Result<FormattedRelations, HttpResponse> {
         let mut relations: Vec<FormattedRelation> = vec![];
 
         for relation in &self.media {

@@ -3,14 +3,14 @@ import { PubSubRedisBroker } from "@discordjs/brokers";
 import { WebSocketShardEvents, WorkerBootstrapper, type WorkerSendPayload, WorkerSendPayloadOp } from "@discordjs/ws";
 import { calculateWorkerId, env, getRedis } from "core";
 import { Logger } from "logger";
-import { WorkerMetricsClient, type WorkerMetricsMessage } from "metrics";
+import { type SerializedWorkerMetrics, WorkerMetricsClient } from "metrics";
 
 export enum CustomWorkerPayloadOp {
     Metrics = "metrics",
 }
 
 export interface CustomWorkerPayloadMap {
-    [CustomWorkerPayloadOp.Metrics]: WorkerMetricsMessage;
+    [CustomWorkerPayloadOp.Metrics]: SerializedWorkerMetrics;
 }
 
 export type CustomWorkerPayload = {
@@ -60,7 +60,7 @@ void bootstrapper.bootstrap({
                 data: event,
             });
 
-            metricsClient.incEvents(shard.id);
+            metricsClient.record(shard.id, event.t);
 
             logger.debugSingle(`Shard ${shard.id} received event ${event.t}`, `Gateway worker ${workerId}`);
         });
@@ -68,13 +68,11 @@ void bootstrapper.bootstrap({
 });
 
 setInterval(async () => {
-    const metrics = metricsClient.serialize();
+    const metrics = await metricsClient.serialize();
 
     // biome-ignore lint/style/noNonNullAssertion: This is always a worker process
     parentPort!.postMessage({
         op: CustomWorkerPayloadOp.Metrics,
         data: metrics,
     });
-
-    metricsClient.reset();
 }, 10000);

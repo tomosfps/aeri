@@ -1,13 +1,16 @@
+use std::sync::Arc;
+use actix_web::web;
 use crate::client::client::Client;
 use crate::global::queries::{get_query, QUERY_URL};
 use crate::structs::recommendation::Recommendation;
 use rand::Rng;
 use reqwest::Response;
 use serde_json::{json, Value};
+use crate::global::metrics::Metrics;
 
-pub async fn get_recommendation(pages: i32, genres: Vec<String>, media: String) -> Value {
+pub async fn get_recommendation(pages: i32, genres: Vec<String>, media: String, metrics: web::Data<Arc<Metrics>>) -> Value {
     let mut rng:        rand::prelude::ThreadRng = rand::rng();
-    let mut client:     Client = Client::new_proxied().await;
+    let mut client:     Client = Client::new_proxied(metrics).await;
     let json:           Value = json!({
         "query": get_query("recommendation"),
         "variables": {

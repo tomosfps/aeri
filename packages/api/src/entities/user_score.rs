@@ -1,9 +1,11 @@
+use std::sync::Arc;
 use crate::entities::Entity;
 use crate::global::queries::get_query;
 use crate::structs::shared::MediaListStatus;
-use actix_web::HttpResponse;
+use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use crate::global::metrics::Metrics;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -50,7 +52,7 @@ impl Entity<FormattedUserScore, UserScoreRequest> for UserScore {
         vec!["data".into(), "MediaList".into()]
     }
 
-    async fn format(self, _request: &UserScoreRequest) -> Result<FormattedUserScore, HttpResponse> {
+    async fn format(self, _request: &UserScoreRequest, _metrics: web::Data<Arc<Metrics>>) -> Result<FormattedUserScore, HttpResponse> {
         Ok(FormattedUserScore {
             id: self.id,
             volumes: self.progress_volumes,
@@ -70,7 +72,7 @@ impl Entity<FormattedUserScore, UserScoreRequest> for UserScore {
         if request.user_name.is_some() {
             return json!({ "query": get_query("user_scores"), "variables": { "userName": request.user_name, "mediaId": request.media_id }});
         }
-        
+
         json!({ "query": get_query("user_scores"), "variables": { "userId": request.user_id.unwrap_or_default(), "mediaId": request.media_id }})
     }
 

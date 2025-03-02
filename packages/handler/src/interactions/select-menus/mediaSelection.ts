@@ -46,8 +46,16 @@ export const interaction: SelectMenu<SelectMenuData> = {
             });
         }
 
+        const title = (media.title.romaji || media.title.english || media.title.native) as string;
+
+        interaction.client.metricsClient.media_commands.inc({
+            media_type: media_type,
+            media_id: media_id,
+            media_name: title,
+        });
+
         const embed = new EmbedBuilder()
-            .setTitle(media.title.romaji)
+            .setTitle(title)
             .setURL(media.siteUrl)
             .setImage(media.banner)
             .setThumbnail(media.cover)

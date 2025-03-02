@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::entities::Entity;
 use crate::global::mutations::get_mutation;
 use crate::structs::shared::{Title, MediaListStatus, DataFrom};
@@ -5,6 +6,7 @@ use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use crate::cache::redis::Redis;
+use crate::global::metrics::Metrics;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -50,7 +52,7 @@ impl Entity<FormattedUpdateMedia, MutationMediaRequest> for UpdateMediaMutation 
         vec!["data".into(), Self::entity_name()]
     }
 
-    async fn format(self, _request: &MutationMediaRequest) -> Result<FormattedUpdateMedia, HttpResponse> {
+    async fn format(self, _request: &MutationMediaRequest, _metrics: web::Data<Arc<Metrics>>) -> Result<FormattedUpdateMedia, HttpResponse> {
         Ok(FormattedUpdateMedia {
             id:         self.media.id,
             title:      self.media.title,

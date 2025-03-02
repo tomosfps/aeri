@@ -1,9 +1,11 @@
+use std::sync::Arc;
 use crate::entities::Entity;
 use crate::global::queries::get_query;
 use crate::structs::shared::{Avatar, Date, Name, StaffNodes};
-use actix_web::HttpResponse;
+use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use crate::global::metrics::Metrics;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -55,7 +57,7 @@ impl Entity<FormattedStaff, StaffRequest> for Staff {
         vec!["data".into(), "Page".into(), Self::entity_name().to_lowercase(), "0".into()]
     }
 
-    async fn format(self, _request: &StaffRequest) -> Result<FormattedStaff, HttpResponse> {
+    async fn format(self, _request: &StaffRequest, _metrics: web::Data<Arc<Metrics>>) -> Result<FormattedStaff, HttpResponse> {
         Ok(FormattedStaff {
             id: self.id,
             age: self.age,

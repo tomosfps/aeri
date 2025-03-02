@@ -1,9 +1,11 @@
+use std::sync::Arc;
 use crate::entities::Entity;
 use crate::global::queries::get_query;
 use crate::structs::shared::{AiringSchedule, Date, MediaCoverImage, MediaFormat, MediaStatus, Title};
-use actix_web::HttpResponse;
+use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use crate::global::metrics::Metrics;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -66,7 +68,7 @@ impl Entity<FormattedMedia, MediaRequest> for Media {
         "Media".into()
     }
 
-    async fn format(self, _request: &MediaRequest) -> Result<FormattedMedia, HttpResponse> {
+    async fn format(self, _request: &MediaRequest, _metrics: web::Data<Arc<Metrics>>) -> Result<FormattedMedia, HttpResponse> {
         Ok(FormattedMedia {
             id: self.id,
             title: self.title,

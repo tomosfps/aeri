@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::client::client::Client;
 use crate::global::get_recommend::get_recommendation;
 use crate::global::queries::{get_query, QUERY_URL};
@@ -9,6 +10,7 @@ use rand::Rng;
 use reqwest::Response;
 use serde::Deserialize;
 use serde_json::{json, Value};
+use crate::global::metrics::Metrics;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -21,7 +23,7 @@ struct RecommendRequest {
 }
 
 #[post("/recommend")]
-async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
+async fn recommend(req: web::Json<RecommendRequest>, metrics: web::Data<Arc<Metrics>>) -> impl Responder {
     if req.media.is_empty() {
         return HttpResponse::NotFound().json(json!({"error": "No Media Type was included"}));
     }
@@ -42,7 +44,7 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
     };
 
     let mut rng:        rand::prelude::ThreadRng = rand::rng();
-    let mut client:     Client = Client::new_proxied().await;
+    let mut client:     Client = Client::new_proxied(metrics.clone()).await;
     let json:           Value = json!({"query": get_query("recommendations"), "variables": { "page": 1, "perPage": 50 }});
     let response:       Response = client.post(QUERY_URL, &json).await.unwrap();
 
@@ -53,10 +55,10 @@ async fn recommend(req: web::Json<RecommendRequest>) -> impl Responder {
 
     let last_page:      i32 = recommendation.page_info.last_page.unwrap();
     let pages:          i32 = rng.random_range(1..last_page);
-    let mut recommend:  Value = get_recommendation(pages, genres.clone(), req.media.clone()).await;
+    let mut recommend:  Value = get_recommendation(pages, genres.clone(), req.media.clone(), metrics.clone()).await;
 
     if recommend["error"].is_string() {
-        recommend = get_recommendation(1, genres.clone(), req.media.clone()).await;
+        recommend = get_recommendation(1, genres.clone(), req.media.clone(), metrics).await;
     }
 
     logger.debug_single(&format!("Recommendation for {} found", recommend), "Recommend");

@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::cache::redis::Redis;
 use crate::client::client::Client;
 use crate::global::queries::QUERY_URL;
@@ -9,6 +10,7 @@ use reqwest::Response;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use serde_json::{json, Value};
+use crate::global::metrics::{Metrics, ResponseMetadata};
 
 pub mod studio;
 pub mod staff;
@@ -32,7 +34,7 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
         vec!["data".to_string(), Self::entity_name()]
     }
 
-    async fn format(self, request: &R) -> Result<F, HttpResponse>;
+    async fn format(self, request: &R, metrics: web::Data<Arc<Metrics>>) -> Result<F, HttpResponse>;
 
     fn auth_required() -> bool {
         false
@@ -89,16 +91,18 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
         }
     }
 
-    async fn route(body: web::Json<R>, request: HttpRequest, redis: web::Data<Redis>) -> impl Responder {
+    async fn route(body: web::Json<R>, request: HttpRequest, redis: web::Data<Redis>, metrics: web::Data<Arc<Metrics>>) -> impl Responder {
         if let Err(e) = Self::validate_request(&body) {
             return HttpResponse::BadRequest().json(json!({"error": e}));
         }
 
         if let Some((data, data_from)) = Self::cache_get(&body, &redis).await {
-            return HttpResponse::Ok().json(Self::apply_data_from(data, data_from));
+            let mut response = HttpResponse::Ok().json(Self::apply_data_from(data, data_from));
+            response.extensions_mut().insert(ResponseMetadata { cached: true, });
+            return response;
         }
 
-        let mut client = Client::new_proxied().await;
+        let mut client = Client::new_proxied(metrics.clone()).await;
 
         let response = if Self::auth_required() {
             let token = Self::token(&request);
@@ -124,7 +128,7 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
             Err(e) => return HttpResponse::InternalServerError().json(json!({"error": e})),
         };
 
-        let formatted = match data.format(&body).await {
+        let formatted = match data.format(&body, metrics).await {
             Ok(data) => data,
             Err(response) => return response,
         };

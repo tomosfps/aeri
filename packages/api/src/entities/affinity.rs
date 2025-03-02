@@ -3,11 +3,13 @@ use crate::entities::Entity;
 use crate::global::pearson_correlation::pearson;
 use crate::global::queries::{get_query, QUERY_URL};
 use crate::structs::shared::{Avatar, MediaListStatus};
-use actix_web::HttpResponse;
+use actix_web::{web, HttpResponse};
 use futures::future::join_all;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashMap;
+use std::sync::Arc;
+use crate::global::metrics::Metrics;
 
 #[derive(Deserialize)]
 pub struct AffinityLists {
@@ -65,8 +67,8 @@ impl Entity<FormattedAffinity, AffinityRequest> for Affinity {
         vec!["data".into(), "MediaListCollection".into()]
     }
 
-    async fn format(self, request: &AffinityRequest) -> Result<FormattedAffinity, HttpResponse> {
-        let client = Client::new_proxied().await;
+    async fn format(self, request: &AffinityRequest, metrics: web::Data<Arc<Metrics>>) -> Result<FormattedAffinity, HttpResponse> {
+        let client = Client::new_proxied(metrics).await;
 
         let futures = request.other_users.iter().map(|user| {
             let mut client = client.clone();

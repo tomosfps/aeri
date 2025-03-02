@@ -5,6 +5,8 @@ use actix_web::{http, middleware};
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
 use std::env;
+use std::sync::Arc;
+use prometheus_client::registry::Registry;
 
 mod routes;
 mod cache;
@@ -25,7 +27,9 @@ use crate::routes::oauth::anilist::anilist_oauth;
 use crate::routes::viewer::viewer;
 use cache::redis::Redis;
 use client::proxy::Proxy;
+use crate::global::metrics::{Metrics, MetricsMiddleware};
 use crate::routes::commands::commands;
+use crate::routes::metrics::metrics;
 use crate::routes::remove_user::remove_user;
 use crate::routes::shards::shards;
 
@@ -43,9 +47,12 @@ async fn main() -> std::io::Result<()> {
     let check_proxy = env::var("API_PROXY").map_err(|_| {
         logger.error_single("API_PROXY environment variable not set", "Main");
     });
-    
+
     let redis = Redis::new().await;
     let proxy = Proxy::new().await;
+    let mut registry = Registry::default();
+    let metrics_data = Arc::new(Metrics::new().register(&mut registry));
+    let registry_arc = Arc::new(registry);
 
     if check_proxy.is_ok() {
         tokio::spawn(async move {
@@ -74,14 +81,18 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .app_data(web::Data::new(redis.clone()))
+            .app_data(web::Data::new(registry_arc.clone()))
+            .app_data(web::Data::new(metrics_data.clone()))
             .wrap(middleware::Logger::default())
             .wrap(cors)
+            .wrap(MetricsMiddleware::new(metrics_data.clone()))
             .service(recommend)
             .service(anilist_oauth)
             .service(viewer)
             .service(remove_user)
             .service(commands)
             .service(shards)
+            .service(metrics)
             .route("/oauth/updateMedia", web::post().to(UpdateMediaMutation::route))
             .route("/studio", web::post().to(Studio::route))
             .route("/staff", web::post().to(Staff::route))

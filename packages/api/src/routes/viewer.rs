@@ -1,17 +1,19 @@
+use std::sync::Arc;
 use crate::client::client::Client;
 use crate::global::queries::{get_query, QUERY_URL};
 use crate::structs::oauth::Viewer;
-use actix_web::{post, HttpRequest, HttpResponse, Responder};
+use actix_web::{post, web, HttpRequest, HttpResponse, Responder};
 use colourful_logger::Logger;
 use lazy_static::lazy_static;
 use serde_json::{json, Value};
+use crate::global::metrics::Metrics;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
 }
 
 #[post("/viewer")]
-async fn viewer(req: HttpRequest) -> impl Responder {
+async fn viewer(req: HttpRequest, metrics: web::Data<Arc<Metrics>>) -> impl Responder {
     let auth = req.headers().get("Authorization");
 
     let auth = match auth {
@@ -31,7 +33,7 @@ async fn viewer(req: HttpRequest) -> impl Responder {
         }));
     }
 
-    let mut client = Client::new_proxied().await;
+    let mut client = Client::new_proxied(metrics).await;
     let json = json!({"query": get_query("viewer")});
     let response = client.post_with_auth(QUERY_URL, &json, auth).await.unwrap();
 

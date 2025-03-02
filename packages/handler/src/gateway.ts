@@ -25,7 +25,7 @@ export class Gateway extends EventEmitter implements IGateway {
     private readonly pubSubBroker: PubSubRedisBroker<Record<string, any>>;
     private readonly env: Environment;
     private readonly commands: CommandData[];
-    private metricsClient: HandlerMetricsClient;
+    public metricsClient: HandlerMetricsClient;
 
     constructor({ redis, env, commands }: gatewayOptions) {
         super();
@@ -39,7 +39,7 @@ export class Gateway extends EventEmitter implements IGateway {
             this.emit("dispatch", data.data, data.shardId);
             void ack();
 
-            this.metricsClient.incEvents();
+            this.metricsClient.recordEvent();
         });
 
         this.pubSubBroker.on("deploy", async ({ ack }: eventPayload) => {
@@ -52,11 +52,8 @@ export class Gateway extends EventEmitter implements IGateway {
         });
 
         setInterval(async () => {
-            const metrics = this.metricsClient.serialize();
-
+            const metrics = await this.metricsClient.serialize();
             await this.pubSubBroker.publish("metrics", metrics);
-
-            this.metricsClient.reset();
         }, 10000);
     }
 

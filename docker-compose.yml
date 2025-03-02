@@ -50,6 +50,9 @@ services:
     tty: true
     env_file:
       - .env
+    depends_on:
+      cache:
+        condition: service_started
 
   cache:
     container_name: cache
@@ -83,6 +86,23 @@ services:
     volumes:
       - prometheus-data:/prometheus
       - ./config/prometheus/config.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      prometheus:
+        condition: service_started
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./config/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards
 
 volumes:
   cache-data:

@@ -22,7 +22,7 @@ export async function setupMetricsServer() {
         }
     });
 
-    server.listen(env.METRICS_PORT, "0.0.0.0", () => {
-        logger.infoSingle(`Metrics server listening on port ${env.METRICS_PORT}`, "Metrics");
+    server.listen(env.GATEWAY_METRICS_PORT, "0.0.0.0", () => {
+        logger.infoSingle(`Metrics server listening on port ${env.GATEWAY_METRICS_PORT}`, "Metrics");
     });
 }

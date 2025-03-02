@@ -30,6 +30,7 @@ const gateway = new Gateway({ redis, env, commands });
 const client = new HandlerClient({
     rest,
     gateway,
+    metricsClient: gateway.metricsClient,
     commands: chatInputCommands,
     buttons,
     selectMenus,
