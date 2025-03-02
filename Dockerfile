@@ -11,6 +11,7 @@ RUN apk add --no-cache bash curl \
     && chmod 755 /usr/sbin/wait-for-it
 
 FROM base AS build
+ENV VITE_API_URL="https://api.aeri.live"
 COPY . /app
 WORKDIR /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
