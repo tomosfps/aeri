@@ -9,6 +9,9 @@
         "lint": "eslint .",
         "preview": "vite preview"
     },
+    "files": [
+        "dist"
+    ],
     "dependencies": {
         "@radix-ui/react-dialog": "^1.1.5",
         "@radix-ui/react-scroll-area": "^1.2.3",

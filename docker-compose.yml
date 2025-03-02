@@ -54,6 +54,14 @@ services:
       cache:
         condition: service_started
 
+  website:
+    build:
+      context: .
+      target: website
+    container_name: website
+    restart: unless-stopped
+    tty: true
+
   cache:
     container_name: cache
     image: eqalpha/keydb:alpine
@@ -91,8 +99,6 @@ services:
     container_name: grafana
     image: grafana/grafana
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     env_file:
       - .env
     depends_on:
@@ -108,3 +114,4 @@ volumes:
   cache-data:
   database-data:
   prometheus-data:
+  grafana-data:
