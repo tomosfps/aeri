@@ -1,20 +1,24 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { deleteAnilistUser, fetchUser } from "database";
-import type { Command } from "../../services/commands.js";
+import { dbDeleteAnilistUser, dbFetchAnilistUser } from "database";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 
-export const interaction: Command = {
-    data: new SlashCommandBuilder().setName("unlink").setDescription("Unlink your anilist account from the bot"),
+export const interaction: ChatInputCommand = {
+    data: new SlashCommandBuilder()
+        .setName("unlink")
+        .setDescription("Unlink your anilist account from the bot")
+        .addExample("/unlink")
+        .setCategory("Anime/Manga"),
     async execute(interaction): Promise<void> {
-        const isInDatabase = await fetchUser(interaction.member_id);
+        const isInDatabase = await dbFetchAnilistUser(interaction.user_id);
 
         if (isInDatabase === null) {
             return interaction.reply({
-                content: "You don't have an anilist account linked to your discord account.",
+                content: "You do not have an anilist account linked. Use `/link` to link your account.",
                 ephemeral: true,
             });
         }
 
-        const deleteAccount = await deleteAnilistUser(interaction.member_id);
+        const deleteAccount = await dbDeleteAnilistUser(interaction.user_id);
         if (deleteAccount) {
             return interaction.reply({
                 content: "Your anilist account has been unlinked.",

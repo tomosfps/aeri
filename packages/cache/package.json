@@ -7,7 +7,7 @@
         "build": "tsc",
         "start": "node dist/index.js"
     },
-    "license": "GPL-3.0",
+    "license": "MIT",
     "devDependencies": {
         "@discordjs/ws": "^2.0.1",
         "@types/node": "^22.12.0",

@@ -1,123 +1,157 @@
-use std::env;
-use redis::{Client, ToRedisArgs, RedisResult, Commands};
+use std::collections::HashMap;
 use colourful_logger::Logger as Logger;
 use lazy_static::lazy_static;
+use redis::{Client, AsyncCommands, RedisResult, ToRedisArgs, FromRedisValue, AsyncIter};
+use std::env;
+use redis::aio::MultiplexedConnection;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
 }
 
+#[derive(Debug, Clone)]
 pub struct Redis {
-    client: Client,
+    connection: MultiplexedConnection,
 }
 
 impl Redis {
-    pub fn new() -> Self {
+    pub async fn new() -> Self {
         let redis_url = env::var("REDIS_URL").unwrap_or("redis://localhost:6379".to_string()).to_string();
-        logger.debug_single(&format!("Created Client with URL : {}", redis_url), "Redis");
-        Redis {
-            client: Client::open(redis_url).unwrap(),
-        }
+        logger.debug_single(format!("Created Client with URL : {}", redis_url).as_str(), "Redis");
+
+        let client = Client::open(redis_url).unwrap();
+        let connection = client.get_multiplexed_tokio_connection().await.unwrap();
+
+        Redis { connection }
     }
 
-    pub fn get_client(&self) -> Client {
-        self.client.clone()
+    pub async fn get<K: ToRedisArgs + Send + Sync, RV: FromRedisValue>(&self, key: K) -> Option<RV> {
+        self.connection.clone().get::<_, Option<RV>>(key).await.unwrap_or_else(|e| {
+            logger.error("GET", "Redis", false, format!("{:?}", e));
+            None
+        })
     }
 
-    pub fn get<T: ToRedisArgs + std::fmt::Debug>(&self, key: T) -> RedisResult<String> {
-        logger.debug_single(&format!("Trying to grab key : {:?}", key), "Redis");
-        let mut con = self.client.get_connection()?;
-        let rv: Option<String> = con.get(key)?;
-
-        match rv {
-            Some(data) => {
-                let data: serde_json::Value = serde_json::from_str(data.as_str()).unwrap();
-                logger.debug_single("Found value for key", "Redis");
-
-                let data = data.to_string();
-                return Ok(data);
-            },
-            None => {
-                logger.warn_single("No value found for key", "Redis");
-                return Err(redis::RedisError::from((redis::ErrorKind::ResponseError, "No value found for key")));
-            }
-        }
-    }
-
-    pub fn set<T: ToRedisArgs + std::fmt::Debug, V: ToRedisArgs + std::fmt::Debug>(&self, key: T, value: V) -> RedisResult<()> {
-        logger.debug_single(&format!("Setting Key with data {:?}", key).as_str(), "Redis");
-        let mut con = self.client.get_connection()?;
-        
-        let result: RedisResult<()> = con.set(key, value);
-        match result {
-            Ok(_) => {
-                logger.debug_single("Key and Value have been set", "Redis");
-                return Ok(());
-            },
+    pub async fn set_ex<K: ToRedisArgs + Send + Sync, V: ToRedisArgs + Send + Sync>(&self, key: K, value: V, seconds: u64) -> bool {
+        match self.connection.clone().set_ex::<_, _, ()>(key, value, seconds).await {
+            Ok(_) => true,
             Err(e) => {
-                logger.error_single(&format!("Error setting key : {:?}", e).as_str(), "Redis");
-                return Err(e);
+                logger.error("SETEX", "Redis", false, format!("{:?}", e));
+                false
             }
         }
     }
 
-    pub fn expire<T: ToRedisArgs + std::fmt::Debug>(&self, key: T, seconds: i64) -> RedisResult<()> {
-        logger.debug_single(&format!("Setting Key to expire in {} seconds : {:?}", seconds, key).as_str(), "Redis");
-        let mut con = self.client.get_connection()?;
-        let result: RedisResult<()> = con.expire(key, seconds);
-        
-        match result {
-            Ok(_) => {
-                logger.debug_single("Key has been set to expire", "Redis");
-                return Ok(());
-            },
+    pub async fn ttl<K: ToRedisArgs + Send + Sync>(&self, key: K) -> Option<i64> {
+        match self.connection.clone().ttl(key).await {
+            Ok(data) => Some(data),
             Err(e) => {
-                logger.error_single(&format!("Error setting key to expire : {:?}", e).as_str(), "Redis");
-                return Err(e);
+                logger.error("TTL", "Redis", false, format!("{:?}", e));
+                None
             }
         }
     }
 
-    pub fn ttl<T: ToRedisArgs + std::fmt::Debug>(&self, key: T) -> RedisResult<i64> {
-        logger.debug_single(&format!("Getting TTL for key : {:?}", key).as_str(), "Redis");
-        let mut con = self.client.get_connection()?;
-        let result: RedisResult<i64> = con.ttl(key);
-
-        match result {
-            Ok(data) => {
-                logger.debug_single(&format!("TTL for key is : {}", data).as_str(), "Redis");
-                return Ok(data);
-            },
+    pub async fn del<K: ToRedisArgs + Send + Sync>(&self, key: K) -> bool {
+        match self.connection.clone().del::<_, ()>(key).await {
+            Ok(_) => true,
             Err(e) => {
-                logger.error_single(&format!("Error getting TTL for key : {:?}", e).as_str(), "Redis");
-                return Err(e);
+                logger.error("DEL", "Redis", false, format!("{:?}", e));
+                false
             }
         }
     }
 
-    pub async fn expire_user<T: ToRedisArgs + std::fmt::Debug + std::fmt::Display>(&self, user_id: T) -> RedisResult<()> {
-        logger.debug_single(&format!("Deleting all cached related for user ID {:?}", user_id).as_str(), "Redis");
-        let mut con = self.client.get_connection()?;
+    pub async fn xadd<T: ToRedisArgs + Send + Sync + Clone, F: ToRedisArgs + Send + Sync, V: ToRedisArgs + Send + Sync>(&self, stream: T, field: F, data: V) -> Option<()> {
+        let mut conn = self.connection.clone();
+
+        let _: RedisResult<()> = conn.xgroup_create_mkstream(stream.clone(), "api", "0").await;
+
+        match conn.xadd::<_, _, _, _, ()>(stream, "*", &[(field, data)]).await {
+            Ok(_) => Some(()),
+            Err(e) => {
+                logger.error("XADD", "Redis", false, format!("{:?}", e));
+                None
+            }
+        }
+    }
+
+    pub async fn sadd<T: ToRedisArgs + Send + Sync, V: ToRedisArgs + Send + Sync>(&self, key: T, value: V) -> Option<()> {
+        match self.connection.clone().sadd::<_, _, ()>(key, value).await {
+            Ok(_) => Some(()),
+            Err(e) => {
+                logger.error("SADD", "Redis", false, format!("{:?}", e));
+                None
+            }
+        }
+    }
+
+    pub async fn srem<T: ToRedisArgs + Send + Sync, V: ToRedisArgs + Send + Sync>(&self, key: T, value: V) -> Option<()> {
+        match self.connection.clone().srem::<_, _, ()>(key, value).await {
+            Ok(_) => Some(()),
+            Err(e) => {
+                logger.error("SREM", "Redis", false, format!("{:?}", e));
+                None
+            }
+        }
+    }
+
+    pub async fn srandmember<T: ToRedisArgs + Send + Sync, RV: FromRedisValue>(&self, key: T) -> Option<RV> {
+        match self.connection.clone().srandmember(key).await {
+            Ok(data) => Some(data),
+            Err(e) => {
+                logger.error("SRANDMEMBER", "Redis", false, format!("{:?}", e));
+                None
+            }
+        }
+    }
+
+    pub async fn hvals<T: ToRedisArgs + Send + Sync, RV: FromRedisValue>(&self, key: T) -> Option<RV> {
+        match self.connection.clone().hvals(key).await {
+            Ok(data) => Some(data),
+            Err(e) => {
+                logger.error("HVALS", "Redis", false, format!("{:?}", e));
+                None
+            }
+        }
+    }
+
+    pub async fn expire_user(&self, user_id: &str, username: &str) {
+        let mut conn = self.connection.clone();
+        let mut iter_conn1 = self.connection.clone();
+        let mut iter_conn2 = self.connection.clone();
+
+        let _ = conn.del::<_, ()>(format!("user:{}", username)).await;
+        let _ = conn.del::<_, ()>(format!("affinity:{}", username)).await;
+
+        let iter: Result<AsyncIter<String>, _> = iter_conn1.scan_match(format!("score:*:{}", username)).await;
+
+        if let Ok(mut iter) = iter {
+            while let Some(key) = iter.next_item().await {
+                let _ = conn.del::<_, ()>(key).await;
+            }
+        }
+
+        let iter: Result<AsyncIter<String>, _> = iter_conn2.scan_match(format!("score:*:{}", user_id)).await;
+
+        if let Ok(mut iter) = iter {
+            while let Some(key) = iter.next_item().await {
+                let _ = conn.del::<_, ()>(key).await;
+            }
+        }
+    }
     
-        let mut count = 0;
-        let iter: redis::Iter<String> = con.scan()?;
-        let keys: Vec<String> = iter.collect();
+    pub async fn get_shard_statuses(&self) -> Vec<HashMap<String, String>> {
+        let shard_count = env::var("SHARD_COUNT").unwrap().parse::<i32>().unwrap();
+        let keys = (0..shard_count).map(|i| format!("shardstatus:{}", i)).collect::<Vec<String>>();
+        
+        let mut pipe = redis::pipe();
         for key in keys {
-            let parts: Vec<&str> = key.split(":").collect();
-            logger.debug_single(&format!("Split up parts: {:?}", &parts), "Redis");
-
-            if parts.get(1) == Some(&user_id.to_string().as_str()) {
-                logger.debug_single(&format!("Found Key: {:?}", key), "Redis");
-                let _: () = con.del(key)?;
-                count += 1;
-            }
+            pipe.hgetall(key);
         }
-
-        if count == 0 {
-            logger.warn_single("No keys found for user ID", "Redis");
-            return Err(redis::RedisError::from((redis::ErrorKind::ResponseError, "No keys found for user ID")));
-        }
-
-        Ok(())
+        
+        let shards = pipe.query_async::<Vec<HashMap<String, String>>>(&mut self.connection.clone()).await.unwrap_or_default();
+        
+        shards.into_iter().filter(|x| !x.is_empty()).collect()
     }
 }

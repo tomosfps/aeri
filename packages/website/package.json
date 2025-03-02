@@ -1,0 +1,50 @@
+{
+    "name": "website",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc -b && vite build",
+        "lint": "eslint .",
+        "preview": "vite preview"
+    },
+    "files": [
+        "dist"
+    ],
+    "dependencies": {
+        "@radix-ui/react-dialog": "^1.1.5",
+        "@radix-ui/react-scroll-area": "^1.2.3",
+        "@radix-ui/react-slot": "^1.1.1",
+        "@radix-ui/react-tabs": "^1.1.3",
+        "autoprefixer": "^10.4.20",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "framer-motion": "^12.4.7",
+        "lucide-react": "^0.476.0",
+        "postcss": "^8.5.3",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "react-router-dom": "^7.1.5",
+        "tailwind-merge": "^3.0.1",
+        "tailwindcss-animate": "^1.0.7",
+        "zod": "3.24.2"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.19.0",
+        "@types/node": "^22.13.0",
+        "@types/react": "^19.0.10",
+        "@types/react-dom": "^19.0.4",
+        "@vitejs/plugin-react": "^4.3.4",
+        "eslint": "^9.17.0",
+        "eslint-plugin-react-hooks": "^5.0.0",
+        "eslint-plugin-react-refresh": "^0.4.16",
+        "globals": "^15.14.0",
+        "tailwindcss": "^3.4.17",
+        "terser": "^5.39.0",
+        "typescript": "~5.7.2",
+        "typescript-eslint": "^8.18.2",
+        "vite": "^6.0.5",
+        "vite-plugin-compression": "^0.5.1"
+    }
+}

@@ -1,16 +1,20 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { Logger } from "logger";
+import { MediaType, Routes, api } from "wrappers/anilist";
 import type { SelectMenu } from "../../services/commands.js";
-import { fetchAnilistMedia, intervalTime } from "../../utility/anilistUtil.js";
 
 type SelectMenuData = {
     custom_id: string;
     userId: string;
 };
 
+const logger = new Logger();
+
 export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "media_selection",
     cooldown: 1,
-    toggable: true,
+    toggleable: true,
+    timeout: 3600,
     parse(data) {
         if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");
@@ -18,28 +22,47 @@ export const interaction: SelectMenu<SelectMenuData> = {
         return { custom_id: data[0], userId: data[1] };
     },
     async execute(interaction, data): Promise<void> {
-        const mediaType = data.custom_id === "anime" ? "ANIME" : "MANGA";
-        const media = await fetchAnilistMedia(mediaType, Number(interaction.menuValues[0]), interaction);
+        const media_type = data.custom_id === "anime" ? MediaType.Anime : MediaType.Manga;
+        const media_id = Number(interaction.menuValues[0]);
 
-        if (media === null) {
-            return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
+        if (!interaction.guild_id) {
+            return interaction.reply({ content: "This command can only be used in a server", ephemeral: true });
         }
+
+        logger.debug("Fetching media data", "Anilist", { media_type, media_id });
+        const { result: media, error } = await api.fetch(
+            Routes.Media,
+            { media_type, media_id },
+            { guild_id: interaction.guild_id },
+        );
+
+        if (error || !media) {
+            logger.error("Error while fetching data from the API.", "Anilist", { error });
+
+            return interaction.reply({
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
+                ephemeral: true,
+            });
+        }
+
+        const title = (media.title.romaji || media.title.english || media.title.native) as string;
+
+        interaction.client.metricsClient.media_commands.inc({
+            media_type: media_type,
+            media_id: media_id,
+            media_name: title,
+        });
 
         const embed = new EmbedBuilder()
-            .setTitle(media.result.romaji)
-            .setURL(media.result.url)
-            .setImage(media.result.banner)
-            .setThumbnail(media.result.cover.extraLarge)
-            .setDescription(media.description.join(""))
-            .setFooter({
-                text: `${media.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${intervalTime(media.result.leftUntilExpire)}`}`,
-            })
-            .setColor(0x2f3136);
+            .setTitle(title)
+            .setURL(media.siteUrl)
+            .setImage(media.banner)
+            .setThumbnail(media.cover)
+            .setDescription(media.description)
+            .setColor(interaction.base_colour)
+            .setFooter({ text: media.footer });
 
-        try {
-            await interaction.edit({ embeds: [embed] });
-        } catch (error: any) {
-            await interaction.reply({ embeds: [embed] });
-        }
+        await interaction.edit({ embeds: [embed] });
     },
 };

@@ -1,17 +1,21 @@
-import { EmbedBuilder, SlashCommandBuilder } from "@discordjs/builders";
-import { fetchAnilistUser } from "database";
-import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import { Logger } from "log";
-import type { Command } from "../../services/commands.js";
-import { fetchAnilistUserData, intervalTime } from "../../utility/anilistUtil.js";
+import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
+import { dbFetchAnilistUser } from "database";
+import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10";
+import { Logger } from "logger";
+import { Routes, api } from "wrappers/anilist";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
-export const interaction: Command = {
-    cooldown: 1,
+export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("user")
         .setDescription("View a user's anilist account")
+        .addExample("/user")
+        .addExample("/user username:anilist_username")
+        .setCategory("Anime/Manga")
+        .setCooldown(5)
         .addStringOption((option) =>
             option.setName("username").setDescription("The targets anilist username").setRequired(false),
         ),
@@ -19,36 +23,71 @@ export const interaction: Command = {
         let username = getCommandOption("username", ApplicationCommandOptionType.String, interaction.options);
 
         if (username === null) {
-            logger.debug("Attemping fetching user from database", "User");
-            try {
-                username = (await fetchAnilistUser(interaction.member_id)).username;
-            } catch (error: any) {
-                logger.error(`Error fetching user from database: ${error}`, "User");
-                return interaction.reply({ content: "Please setup your account with /setup!", ephemeral: true });
+            logger.debug("Attempting fetching user from database", "User");
+
+            const dbUser = await dbFetchAnilistUser(interaction.user_id);
+
+            if (!dbUser) {
+                return interaction.reply({ content: "Please setup your account with `/link`!", ephemeral: true });
             }
+
+            username = dbUser.username;
         }
 
-        logger.debug(`Fetching user: ${username}`, "User");
-        const userFetch = await fetchAnilistUserData(username, interaction);
-        if (userFetch === null) {
+        if (!username) {
+            return interaction.reply({
+                content: "Please provide a username, or setup your account with /link",
+                ephemeral: true,
+            });
+        }
+
+        const { result: user, error } = await api.fetch(Routes.User, { username });
+
+        if (error) {
+            logger.error("Error while fetching data from the API.", "Anilist", error);
+
+            return interaction.reply({
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
+                ephemeral: true,
+            });
+        }
+
+        if (user === null) {
             return interaction.reply({
                 content: "User could not be found. Are you sure you have the correct username?",
                 ephemeral: true,
             });
         }
 
-        const footer = `${userFetch.result.dataFrom === "API" ? "Data from Anilist API" : `Displaying cached data : refreshes in ${intervalTime(userFetch.result.leftUntilExpire)}`}`;
+        const informationButton = new ButtonBuilder()
+            .setCustomId(`userShow:${user.name}:INFORMATION:${interaction.user.id}`)
+            .setLabel("Main Information")
+            .setStyle(ButtonStyle.Primary);
+
+        const animeButton = new ButtonBuilder()
+            .setCustomId(`userShow:${user.name}:ANIME:${interaction.user.id}`)
+            .setLabel("Favourite Anime")
+            .setStyle(ButtonStyle.Secondary);
+
+        const mangaButton = new ButtonBuilder()
+            .setCustomId(`userShow:${user.name}:MANGA:${interaction.user.id}`)
+            .setLabel("Favourite Manga")
+            .setStyle(ButtonStyle.Secondary);
+
+        const row = new ActionRowBuilder().addComponents(informationButton, animeButton, mangaButton);
         const embed = new EmbedBuilder()
-            .setTitle(userFetch.result.name)
-            .setURL(userFetch.result.url)
-            .setDescription(userFetch.description)
-            .setThumbnail(userFetch.result.avatar)
-            .setImage(userFetch.result.banner)
-            .setFooter({ text: footer })
-            .setColor(0x2f3136);
+            .setTitle(user.name)
+            .setURL(user.siteUrl)
+            .setDescription(user.description)
+            .setThumbnail(user.avatar)
+            .setImage(user.banner)
+            .setColor(interaction.base_colour)
+            .setFooter({ text: user.footer });
 
         return interaction.reply({
             embeds: [embed],
+            components: [row],
         });
     },
 };

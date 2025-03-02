@@ -47,15 +47,25 @@ services:
       context: .
       dockerfile: Dockerfile.api
     container_name: api
-    ports:
-      - "8080:8080"
     tty: true
     env_file:
       - .env
-  
+    depends_on:
+      cache:
+        condition: service_started
+
+  website:
+    build:
+      context: .
+      target: website
+    container_name: website
+    restart: unless-stopped
+    tty: true
+
   cache:
     container_name: cache
     image: eqalpha/keydb:alpine
+    command: [ "keydb-server", "--notify-keyspace-events", "Ex" ]
     restart: unless-stopped
     tty: true
     env_file:
@@ -63,7 +73,7 @@ services:
     volumes:
       - cache-data:/data
       - ./config/cache/keydb.conf:/etc/keydb/keydb.conf
-  
+
   database:
     container_name: database
     image: postgres:alpine
@@ -71,11 +81,37 @@ services:
     tty: true
     env_file:
       - .env
-    ports:
-      - "5432:5432"
     volumes:
       - database-data:/var/lib/postgresql/data
-      
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    restart: unless-stopped
+    tty: true
+    env_file:
+      - .env
+    volumes:
+      - prometheus-data:/prometheus
+      - ./config/prometheus/config.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      prometheus:
+        condition: service_started
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./config/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards
+
 volumes:
   cache-data:
   database-data:
+  prometheus-data:
+  grafana-data:

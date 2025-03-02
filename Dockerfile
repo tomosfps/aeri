@@ -16,9 +16,10 @@ WORKDIR /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run --filter database generate
 RUN pnpm run -r build
-RUN pnpm deploy --filter=gateway --prod /prod/gateway
-RUN pnpm deploy --filter=handler --prod /prod/handler
-RUN pnpm deploy --filter=database --prod /prod/database
+RUN pnpm --filter=gateway --prod deploy /prod/gateway
+RUN pnpm --filter=handler --prod deploy /prod/handler
+RUN pnpm --filter=database --prod deploy /prod/database
+RUN pnpm --filter=website --prod deploy /prod/website
 
 FROM base AS database-setup
 COPY --from=build /prod/database /prod/database
@@ -38,3 +39,7 @@ COPY --from=build /prod/handler /prod/handler
 WORKDIR /prod/handler
 RUN corepack install
 CMD [ "pnpm", "--silent", "start" ]
+
+FROM nginx:alpine AS website
+COPY --from=build /prod/website/dist /usr/share/nginx/html
+CMD [ "nginx", "-g", "daemon off;" ]

@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
 import type { GatewayDispatchEvents, MappedEvents as OriginalMappedEvents } from "@discordjs/core";
-import { Logger } from "log";
-import type { HandlerClient } from "../classes/handlerClient.js";
+import { Logger } from "logger";
+import type { HandlerClient } from "../classes/HandlerClient.js";
 
 interface MappedEvents extends OriginalMappedEvents {
     GUILD_SOUNDBOARD_SOUNDS_UPDATE: any;
@@ -41,17 +41,13 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
         throw new Error("Failed to find events (📝)");
     }
 
+    const events = new Map<string, Event<GatewayDispatchEvents>>();
     const jsFiles = allFiles.filter((file) => file.endsWith(".js"));
 
     for (const file of jsFiles) {
-        logger.debug(`Event (📝) file: ${file}`, "Files");
-
         try {
-            logger.debugSingle(`Importing event module: ${file}`, "Files");
             const eventModule = await import(`../events/${file}`);
-
             const event = eventModule.default as Event<GatewayDispatchEvents>;
-            logger.debug(`Parsed event: ${file}`, "Files", event);
 
             if (!event || !event.name || !event.on) {
                 logger.error(`Failed to load event (📝) file: ${file}`, "Files", {
@@ -65,10 +61,13 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
                 logger.debugSingle(`Received event: ${event.name}`, "Files");
                 event.on({ ...data, client });
             });
-            logger.info("Registered event (📝)", "Files", { event: event.name });
+            events.set(event.name, event);
         } catch (error: any) {
             logger.error(`Failed to load event (📝) file: ${file}`, "Files", error);
         }
     }
-    logger.infoSingle("Successfully registered events (📝)", "Files");
+    logger.info("Successfully registered events (📝) files.", "Files", {
+        events: Array.from(events.keys()),
+        count: events.size,
+    });
 }

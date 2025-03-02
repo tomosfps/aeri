@@ -1,0 +1,11 @@
+apiVersion: 1
+
+prune: true
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    url: $__env{PROMETHEUS_URL}
+    access: proxy
+    isDefault: true
+    editable: true

@@ -2,14 +2,18 @@ import {
     ActionRowBuilder,
     type ModalActionRowComponentBuilder,
     ModalBuilder,
-    SlashCommandBuilder,
     TextInputBuilder,
 } from "@discordjs/builders";
 import { TextInputStyle } from "@discordjs/core";
-import type { Command } from "../../services/commands.js";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 
-export const interaction: Command = {
-    data: new SlashCommandBuilder().setName("testing-modal").setDescription("This is just a testing modal"),
+export const interaction: ChatInputCommand = {
+    data: new SlashCommandBuilder()
+        .setName("modal")
+        .setDescription("This is just a testing modal")
+        .setCategory("Beta")
+        .setOwnerOnly(true),
     async execute(interaction): Promise<void> {
         const modal = new ModalBuilder().setCustomId("test-modal").setTitle("create Post");
 

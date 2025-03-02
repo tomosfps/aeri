@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "@discordjs/builders";
-import { Logger } from "log";
+import { Logger } from "logger";
+import { MediaType, Routes, api } from "wrappers/anilist";
 import type { SelectMenu } from "../../services/commands.js";
-import { fetchAnilistMedia, fetchRecommendation, intervalTime } from "../../utility/anilistUtil.js";
 
 const logger = new Logger();
 type SelectMenuData = {
@@ -12,7 +12,8 @@ type SelectMenuData = {
 export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "genre_selection",
     cooldown: 1,
-    toggable: true,
+    toggleable: true,
+    timeout: 3600,
     parse(data) {
         if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");
@@ -20,35 +21,62 @@ export const interaction: SelectMenu<SelectMenuData> = {
         return { custom_id: data[0], userId: data[1] };
     },
     async execute(interaction, data): Promise<void> {
-        const mediaType = data.custom_id === "ANIME" ? "ANIME" : "MANGA";
-        const result = await fetchRecommendation(mediaType, interaction.menuValues);
-        const media = await fetchAnilistMedia(mediaType, Number(result), interaction);
+        const media_type = data.custom_id === "ANIME" ? MediaType.Anime : MediaType.Manga;
+        const genres = interaction.menuValues;
 
-        if (result === null) {
-            logger.errorSingle("Problem trying to fetch data in result", "genreSelection");
-            return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
+        if (!interaction.guild_id) {
+            return interaction.followUp({ content: "This command can only be used in a server." });
         }
 
-        if (media === null) {
-            logger.errorSingle("Problem trying to fetch data in media", "genreSelection");
-            return interaction.reply({ content: "Problem trying to fetch data", ephemeral: true });
+        await interaction.deferUpdate();
+
+        const { result: recommendation, error: recommendationsError } = await api.fetch(Routes.Recommend, {
+            media: media_type,
+            genres: genres,
+        });
+
+        if (recommendationsError) {
+            logger.error("Error while fetching recommendations from the API.", "Anilist", recommendationsError);
+
+            return interaction.followUp({
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
+                ephemeral: true,
+            });
+        }
+
+        if (!recommendation) {
+            return interaction.followUp({ content: "User not found" });
+        }
+
+        const media_id = Number(recommendation.id);
+        const { result: media, error: mediaError } = await api.fetch(
+            Routes.Media,
+            { media_type, media_id },
+            { guild_id: interaction.guild_id },
+        );
+
+        if (mediaError || !media) {
+            logger.error("Error while fetching data from the API.", "Anilist", { mediaError });
+
+            return interaction.editReply({
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
+                ephemeral: true,
+            });
         }
 
         const embed = new EmbedBuilder()
-            .setTitle(media.result.romaji)
-            .setURL(media.result.url)
-            .setImage(media.result.banner)
-            .setThumbnail(media.result.cover.extraLarge)
-            .setDescription(media.description.join(""))
+            .setTitle(media.title.romaji)
+            .setURL(media.siteUrl)
+            .setImage(media.banner)
+            .setThumbnail(media.cover)
+            .setDescription(media.description)
+            .setColor(interaction.base_colour)
             .setFooter({
-                text: `${media.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${intervalTime(media.result.leftUntilExpire)}`}`,
-            })
-            .setColor(0x2f3136);
+                text: media.footer,
+            });
 
-        try {
-            await interaction.edit({ embeds: [embed] });
-        } catch (error: any) {
-            await interaction.reply({ embeds: [embed] });
-        }
+        await interaction.editReply({ embeds: [embed] });
     },
 };

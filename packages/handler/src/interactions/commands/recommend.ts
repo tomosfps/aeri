@@ -1,22 +1,19 @@
 import {
     ActionRowBuilder,
     EmbedBuilder,
-    SlashCommandBuilder,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
+    inlineCode,
 } from "@discordjs/builders";
-import { fetchAnilistUser } from "database";
-import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import { Logger } from "log";
-import type { Command } from "../../services/commands.js";
-import {
-    fetchAnilistMedia,
-    fetchAnilistUserData,
-    fetchRecommendation,
-    intervalTime,
-} from "../../utility/anilistUtil.js";
 
+import { dbFetchAnilistUser } from "database";
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
+import { Logger } from "logger";
+import { MediaType, Routes, api } from "wrappers/anilist";
+import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
+
 const logger = new Logger();
 const genreList = [
     "Action",
@@ -45,11 +42,17 @@ const genreList = [
     "Martial Arts",
 ];
 
-export const interaction: Command = {
-    cooldown: 1,
+export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("recommend")
         .setDescription("Recommend an anime or manga based on genre(s) or score")
+        .setCooldown(5)
+        .addExample("/recommend media:Anime genre:true")
+        .addExample("/recommend media:Manga score:true")
+        .addExample("/recommend media:Anime score:true")
+        .addExample("/recommend media:Manga genre:true")
+        .addExample("You can not use both genre and score at the same time")
+        .setCategory("Anime/Manga")
         .addStringOption((option) =>
             option
                 .setName("media")
@@ -57,31 +60,25 @@ export const interaction: Command = {
                 .setRequired(true)
                 .addChoices({ name: "Anime", value: "ANIME" }, { name: "Manga", value: "MANGA" }),
         )
-        .addBooleanOption((option) =>
-            option.setName("genre").setDescription("Base recommendation on genre(s)").setRequired(false),
-        )
-        .addBooleanOption((option) =>
-            option.setName("score").setDescription("Base recommendation on scores").setRequired(false),
+        .addStringOption((option) =>
+            option
+                .setName("based_on")
+                .setDescription("Recommendation based on genre or score")
+                .setRequired(true)
+                .addChoices({ name: "Genre", value: "Genre" }, { name: "Score", value: "Score" }),
         ),
     async execute(interaction): Promise<void> {
-        await interaction.defer();
+        if (!interaction.guild_id) {
+            return interaction.reply({ content: "This command can only be used in a server.", ephemeral: true });
+        }
 
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";
-        const mediaType = media === "ANIME" ? "ANIME" : "MANGA";
-        const genre = getCommandOption("genre", ApplicationCommandOptionType.Boolean, interaction.options) || false;
-        const score = getCommandOption("score", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+        const basedOn = getCommandOption("based_on", ApplicationCommandOptionType.String, interaction.options) || "";
+        const media_type = media === "ANIME" ? MediaType.Anime : MediaType.Manga;
 
-        if (genre && score) {
-            return interaction.followUp({ content: "Please select only one option" });
-        }
-
-        if (genre === null && score === null) {
-            return interaction.followUp({ content: "Please select an option" });
-        }
-
-        if (genre) {
+        if (basedOn === "Genre") {
             const select = new StringSelectMenuBuilder()
-                .setCustomId(`genre_selection:${media}:${interaction.member_id}`)
+                .setCustomId(`genre_selection:${media}:${interaction.user_id}`)
                 .setPlaceholder("Choose Some Genres...")
                 .setMinValues(1)
                 .setMaxValues(24)
@@ -94,62 +91,102 @@ export const interaction: Command = {
                     }),
                 );
 
-            logger.debugSingle("Select Menu Created", "Recommend");
             const row = new ActionRowBuilder().addComponents(select);
-            return await interaction.followUp({ components: [row] });
+            return await interaction.reply({ components: [row] });
         }
 
-        const username = (await fetchAnilistUser(interaction.member_id)).username ?? null;
-        if (username === null) {
+        await interaction.defer();
+        const dbUser = await dbFetchAnilistUser(interaction.user_id);
+
+        if (!dbUser) {
             return interaction.followUp({
                 content:
-                    "Could not find your Anilist account. If you haven't please link your account using the `/setup` command.",
+                    "Could not find your Anilist account. If you haven't please link your account using the `/link` command.",
                 ephemeral: true,
             });
         }
 
-        const userFetch = await fetchAnilistUserData(username, interaction);
-        if (!userFetch) {
-            return interaction.followUp({ content: "User not found" });
+        const { result: user, error } = await api.fetch(Routes.User, { username: dbUser.username });
+
+        if (error) {
+            logger.error("Error while fetching data from the API.", "Anilist", error);
+
+            return interaction.followUp({
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
+                ephemeral: true,
+            });
         }
-        logger.debug("Gained user data", "Recommend", userFetch.result);
 
-        const topGenres = userFetch.result.animeStats.genres
-            ? userFetch.result.animeStats.genres
-                  .sort((a: any, b: any) => b.count - a.count)
-                  .slice(0, 5)
-                  .map((genre: any) => genre.genre)
-            : [];
+        if (!user) {
+            return interaction.followUp({
+                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${inlineCode("/unlink")} and ${inlineCode("/link")} again.`,
+            });
+        }
 
-        logger.debug("Got top 5 genres", "Recommend", topGenres);
+        const topGenres = user.statistics.anime.genres
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5)
+            .map((genre) => genre.genre);
+
         if (topGenres.length === 0) {
-            logger.error("User genres are undefined or empty", "Recommend");
-            return interaction.followUp({ content: "Error: User genres are undefined or empty" });
+            logger.error("User genres are undefined or empty.", "Recommend"); // Unlikely to ever occur, but this is here incase.
+            return interaction.followUp({ content: "Could not get an recommendation based on your genres." });
         }
 
-        const recommendation = await fetchRecommendation(media, topGenres);
-        if (recommendation === null) {
-            logger.errorSingle("Problem trying to fetch data in result", "recommend");
-            return interaction.followUp({ content: "Problem trying to fetch data" });
+        const { result: recommendation, error: recommendationsError } = await api.fetch(Routes.Recommend, {
+            media: media_type,
+            genres: topGenres,
+        });
+
+        if (recommendationsError) {
+            logger.error("Error while fetching recommendations from the API.", "Anilist", recommendationsError);
+
+            return interaction.followUp({
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
+                ephemeral: true,
+            });
         }
 
-        const result = await fetchAnilistMedia(mediaType, Number(recommendation), interaction);
-
-        if (result.result === null) {
-            logger.errorSingle("Problem trying to fetch data in result", "recommend");
-            return interaction.followUp({ content: "Problem trying to fetch a media", ephemeral: true });
+        if (!recommendation) {
+            return interaction.followUp({
+                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${inlineCode("/unlink")} and ${inlineCode("/link")} again.`,
+            });
         }
 
+        const media_id = Number(recommendation.id);
+
+        const { result: mediaResult, error: mediaError } = await api.fetch(
+            Routes.Media,
+            { media_type, media_id },
+            { guild_id: interaction.guild_id },
+        );
+
+        if (mediaError) {
+            logger.error("Error while fetching Media data from the API.", "Anilist", mediaError);
+
+            return interaction.followUp({
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
+                ephemeral: true,
+            });
+        }
+
+        if (!mediaResult) {
+            return interaction.followUp({
+                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${inlineCode("/unlink")} and ${inlineCode("/link")} again.`,
+            });
+        }
+      
         const embed = new EmbedBuilder()
-            .setTitle(result.result.romaji)
-            .setURL(result.result.url)
-            .setImage(result.result.banner)
-            .setThumbnail(result.result.cover.extraLarge)
-            .setDescription(result.description.join(""))
-            .setFooter({
-                text: `${result.result.dataFrom === "API" ? "Displaying API data" : `Displaying cache data : expires in ${intervalTime(result.result.leftUntilExpire)}`}`,
-            })
-            .setColor(0x2f3136);
+            .setTitle(mediaResult.title.romaji)
+            .setURL(mediaResult.siteUrl)
+            .setImage(mediaResult.banner)
+            .setThumbnail(mediaResult.cover)
+            .setDescription(mediaResult.description)
+            .setColor(interaction.base_colour)
+            .setFooter({ text: mediaResult.footer });
 
         await interaction.followUp({ embeds: [embed] });
     },

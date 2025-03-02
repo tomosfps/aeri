@@ -1,24 +1,24 @@
 import { connectPrisma } from "./sql.js";
-import { createAnilistUser } from "./utility/createAnilistUser.js";
-import { createGuild } from "./utility/createGuild.js";
-import { deleteAnilistUser } from "./utility/deleteAnilistUser.js";
-import { fetchAllUsers } from "./utility/fetchAllUsers.js";
-import { fetchAnilistUser } from "./utility/fetchAnilistUser.js";
-import { fetchGuild } from "./utility/fetchGuild.js";
-import { fetchUser } from "./utility/fetchUser.js";
-import { removeFromGuild } from "./utility/removeFromGuild.js";
-import { updateGuild } from "./utility/updateGuild.js";
+import { dbCreateAnilistUser } from "./utility/dbCreateAnilistUser.js";
+import { dbCreateGuild } from "./utility/dbCreateGuild.js";
+import { dbDeleteAnilistUser } from "./utility/dbDeleteUser.js";
+import { dbFetchAnilistUser } from "./utility/dbFetchAnilistUser.js";
+import { dbFetchDiscordUser } from "./utility/dbFetchDiscordUser.js";
+import { dbFetchGuildUser } from "./utility/dbFetchGuildUser.js";
+import { dbFetchGuildUsers } from "./utility/dbFetchGuildUsers.js";
+import { dbRemoveFromGuild } from "./utility/dbRemoveFromGuild.js";
+import { dbUpdateGuild } from "./utility/dbUpdateGuild.js";
 
 export {
-    fetchUser,
-    createAnilistUser,
-    fetchAllUsers,
-    fetchGuild,
-    updateGuild,
-    fetchAnilistUser,
-    removeFromGuild,
-    deleteAnilistUser,
-    createGuild,
+    dbFetchDiscordUser,
+    dbCreateAnilistUser,
+    dbFetchGuildUsers,
+    dbFetchGuildUser,
+    dbUpdateGuild,
+    dbFetchAnilistUser,
+    dbRemoveFromGuild,
+    dbDeleteAnilistUser,
+    dbCreateGuild,
 };
 const prisma = connectPrisma();
 export default prisma;
