@@ -58,12 +58,11 @@ void bootstrapper.bootstrap({
         WebSocketShardEvents.Hello,
     ],
     shardCallback: (shard) => {
-
         // Safety measure to ensure that the event counter is always initialized
         if (!eventCounters.has(shard.id)) {
             eventCounters.set(shard.id, new EventCounter());
         }
-        
+
         shard.on(WebSocketShardEvents.Dispatch, async (event) => {
             await broker.publish("dispatch", {
                 shardId: shard.id,
