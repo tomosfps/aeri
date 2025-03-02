@@ -25,7 +25,7 @@ export default async function GetShards(): Promise<Shard[]> {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        
         return await response.json();
     }
     catch (error: any) {

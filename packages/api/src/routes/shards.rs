@@ -8,8 +8,8 @@ use serde_json::json;
 struct Shard {
     #[serde(deserialize_with = "parse_to_i32")]
     id: i32,
-    #[serde(deserialize_with = "parse_to_i32")]
-    events_per_second: i32,
+    #[serde(deserialize_with = "parse_to_f32")]
+    events_per_second: f32,
     status: String,
 }
 
@@ -19,6 +19,14 @@ where
 {
     let s: String = serde::Deserialize::deserialize(deserializer)?;
     s.parse::<i32>().map_err(serde::de::Error::custom)
+}
+
+fn parse_to_f32<'de, D>(deserializer: D) -> Result<f32, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s: String = serde::Deserialize::deserialize(deserializer)?;
+    s.parse::<f32>().map_err(serde::de::Error::custom)
 }
 
 #[get("/shards")]

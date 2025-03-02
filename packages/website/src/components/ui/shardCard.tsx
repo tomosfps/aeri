@@ -84,7 +84,7 @@ export function ShardCard({ shard, className }: ShardCardProps) {
                         "font-mono text-lg", 
                         animate ? `text-${accentColor}` : "text-ctext-light"
                     )}>
-                        {shard.eventsPerSecond.toFixed(0)}
+                        {shard.eventsPerSecond.toFixed(1)}
                     </div>
                 </div>
             </div>
