@@ -42,7 +42,7 @@ const presencesList = [
 
 const manager = new WebSocketManager({
     token: env.DISCORD_TOKEN,
-    intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages | GatewayIntentBits.GuildMembers,
+    intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMembers,
     rest,
     shardCount: env.SHARD_COUNT,
     buildIdentifyThrottler: async (manager) => {
