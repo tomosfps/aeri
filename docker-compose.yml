@@ -61,6 +61,8 @@ services:
     container_name: website
     restart: unless-stopped
     tty: true
+    volumes:
+      - ./config/nginx/default.conf:/etc/nginx/conf.d/default.conf
 
   cache:
     container_name: cache
