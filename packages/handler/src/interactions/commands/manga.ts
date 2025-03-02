@@ -59,6 +59,8 @@ export const interaction: ChatInputCommand = {
                         .setValue(`${relation.id}`)
                         .setDescription(`${relation.format} - (${relation.airingType})`.slice(0, 100));
                 }),
+            );
+
         const row = new ActionRowBuilder().addComponents(select);
         await interaction.reply({ components: [row] });
     },

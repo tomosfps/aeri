@@ -178,7 +178,7 @@ export const interaction: ChatInputCommand = {
                 content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${inlineCode("/unlink")} and ${inlineCode("/link")} again.`,
             });
         }
-      
+
         const embed = new EmbedBuilder()
             .setTitle(mediaResult.title.romaji)
             .setURL(mediaResult.siteUrl)
