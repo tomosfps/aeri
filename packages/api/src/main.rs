@@ -42,7 +42,7 @@ async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().unwrap_or_default();
 
     logger.info_single("Starting The API", "Main");
-    let ip = env::var("API_HOST").unwrap_or("0.0.0.0".to_string());
+    let ip = "0.0.0.0".to_string();
     let port = env::var("API_PORT").unwrap().parse::<u16>().unwrap_or(8080);
     let check_proxy = env::var("API_PROXY").map_err(|_| {
         logger.error_single("API_PROXY environment variable not set", "Main");
