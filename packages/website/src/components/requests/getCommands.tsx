@@ -1,5 +1,3 @@
-import { env } from "@/env";
-
 interface CommandOption {
   name: string;
   description: string;
@@ -20,8 +18,10 @@ export interface Command {
 }
 
 export default async function GetCommands(): Promise<Command[]> {
+  console.log(`${import.meta.env.VITE_API_URL}/commands`)
+
   try {
-    const response = await fetch(`${env.API_URL}/commands`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/commands`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

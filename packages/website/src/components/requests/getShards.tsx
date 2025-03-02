@@ -1,5 +1,3 @@
-import { env } from "@/env";
-
 export enum Status {
     Online = "online",
     Starting = "starting",
@@ -15,7 +13,7 @@ export type Shard = {
 
 export default async function GetShards(): Promise<Shard[]> {
     try {
-        const response = await fetch(`${env.API_URL}/shards`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/shards`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -25,7 +23,7 @@ export default async function GetShards(): Promise<Shard[]> {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return await response.json();
     }
     catch (error: any) {
