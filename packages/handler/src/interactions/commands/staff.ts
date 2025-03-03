@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
+import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -14,6 +15,7 @@ export const interaction: ChatInputCommand = {
         .addExample("/staff name:Eiichirou Oda")
         .setCategory("Anime/Manga")
         .setCooldown(5)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .addStringOption((option) =>
             option.setName("name").setDescription("The name of the staff member").setRequired(true),
         ),

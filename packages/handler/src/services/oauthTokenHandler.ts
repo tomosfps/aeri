@@ -20,7 +20,7 @@ enum TokenType {
 type TokenData = {
     type: TokenType;
     user_id: string;
-    guild_id: string;
+    guild_id?: string;
     access_token: string;
 };
 
@@ -103,7 +103,7 @@ export class OauthTokenHandler {
         });
     }
 
-    private async createAnilistUser(userId: string, guildId: string, token: string) {
+    private async createAnilistUser(userId: string, guildId: string | undefined, token: string) {
         const { result: currentUser, error } = await api.fetch(Routes.CurrentUser, { token });
 
         if (error) {

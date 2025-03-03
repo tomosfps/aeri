@@ -7,7 +7,7 @@ import {
 } from "@discordjs/builders";
 
 import { dbFetchAnilistUser } from "database";
-import { ApplicationCommandOptionType } from "discord-api-types/v10";
+import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -53,6 +53,7 @@ export const interaction: ChatInputCommand = {
         .addExample("/recommend media:Manga genre:true")
         .addExample("You can not use both genre and score at the same time")
         .setCategory("Anime/Manga")
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .addStringOption((option) =>
             option
                 .setName("media")

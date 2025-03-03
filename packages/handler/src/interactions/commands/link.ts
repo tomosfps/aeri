@@ -1,6 +1,6 @@
 import { EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { dbCreateAnilistUser, dbFetchAnilistUser } from "database";
-import { ApplicationCommandOptionType } from "discord-api-types/v10";
+import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -16,6 +16,7 @@ export const interaction: ChatInputCommand = {
         .addExample("/link username:anilist_username")
         .setCategory("Anime/Manga")
         .setCooldown(5)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .addStringOption((option) =>
             option.setName("username").setDescription("Your Anilist username").setRequired(true),
         ),
@@ -26,15 +27,7 @@ export const interaction: ChatInputCommand = {
             interaction.options,
         ) as string;
         const isInDatabase = await dbFetchAnilistUser(interaction.user_id);
-
         if (!isInDatabase) {
-            if (interaction.guild_id === undefined) {
-                return interaction.reply({
-                    content: "This command can only be used in a server.",
-                    ephemeral: true,
-                });
-            }
-
             const { result: user, error } = await api.fetch(Routes.User, { username });
 
             if (error) {

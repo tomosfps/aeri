@@ -4,7 +4,7 @@ import {
     StringSelectMenuOptionBuilder,
     inlineCode,
 } from "@discordjs/builders";
-import { ApplicationCommandType } from "discord-api-types/v10";
+import { ApplicationCommandType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
 import { ContextMenuCommandBuilder } from "../../classes/ContextMenuCommandBuilder.js";
@@ -13,7 +13,10 @@ import type { MessageContextCommand } from "../../services/commands.js";
 const logger = new Logger();
 
 export const interaction: MessageContextCommand = {
-    data: new ContextMenuCommandBuilder().setName("anime").setType(ApplicationCommandType.Message),
+    data: new ContextMenuCommandBuilder()
+        .setName("anime")
+        .setType(ApplicationCommandType.Message)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall),
     async execute(interaction) {
         const anime = interaction.target.content;
 

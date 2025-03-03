@@ -1,4 +1,5 @@
 import { dbDeleteAnilistUser, dbFetchAnilistUser } from "database";
+import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
@@ -6,6 +7,7 @@ export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("unlink")
         .setDescription("Unlink your anilist account from the bot")
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .addExample("/unlink")
         .setCategory("Anime/Manga"),
     async execute(interaction): Promise<void> {

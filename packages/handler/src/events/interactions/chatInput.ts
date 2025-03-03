@@ -31,7 +31,11 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
             flags: MessageFlags.Ephemeral,
         });
     }
-    await dbUpdateGuild(interaction.guild_id, memberId);
+
+    if (interaction.guild_id) {
+        await dbUpdateGuild(interaction.guild_id, memberId);
+    }
+
     const redisKey = `${interaction.data.name}_${memberId}`;
     const check = await checkRedis(redisKey, command, memberId);
     if (check !== 0) {

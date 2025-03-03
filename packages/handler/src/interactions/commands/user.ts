@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { dbFetchAnilistUser } from "database";
-import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10";
+import { ApplicationCommandOptionType, ApplicationIntegrationType, ButtonStyle } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -16,6 +16,7 @@ export const interaction: ChatInputCommand = {
         .addExample("/user username:anilist_username")
         .setCategory("Anime/Manga")
         .setCooldown(5)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .addStringOption((option) =>
             option.setName("username").setDescription("The targets anilist username").setRequired(false),
         ),

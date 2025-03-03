@@ -1,6 +1,7 @@
 import { EmbedBuilder, bold, codeBlock, formatEmoji, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
 import { formatSeconds } from "core";
+import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
@@ -12,6 +13,7 @@ export const interaction: ChatInputCommand = {
         .addExample("/help")
         .addExample("/help command:anime")
         .setCategory("Utility")
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .addStringOption((option) =>
             option.setName("command").setDescription("The command you want to view").setRequired(false),
         ),

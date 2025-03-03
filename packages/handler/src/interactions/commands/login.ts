@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { env, getRedis } from "core";
-import { ButtonStyle } from "discord-api-types/v10";
+import { ApplicationIntegrationType, ButtonStyle } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
@@ -12,15 +12,9 @@ export const interaction: ChatInputCommand = {
         .setDescription("Setup OAuth with the Discord bot!")
         .addExample("/login")
         .setCooldown(5)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .setCategory("OAuth"),
     async execute(interaction): Promise<void> {
-        if (interaction.guild_id === undefined) {
-            return interaction.reply({
-                content: "This command can only be used in a server.",
-                ephemeral: true,
-            });
-        }
-
         const embed = new EmbedBuilder()
             .setDescription("Click the button below to link your Anilist account with the bot.")
             .setColor(interaction.base_colour);
@@ -30,7 +24,7 @@ export const interaction: ChatInputCommand = {
                 .setLabel("Link Anilist Account")
                 .setStyle(ButtonStyle.Link)
                 .setURL(
-                    `https://anilist.co/api/v2/oauth/authorize?client_id=${env.ANILIST_CLIENT_ID}&response_type=code&state=${interaction.user_id}_${interaction.guild_id}`,
+                    `https://anilist.co/api/v2/oauth/authorize?client_id=${env.ANILIST_CLIENT_ID}&response_type=code&state=${interaction.user_id}_${interaction.guild_id || ""}`,
                 ),
         );
 

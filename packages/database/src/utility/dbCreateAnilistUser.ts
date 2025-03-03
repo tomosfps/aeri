@@ -4,14 +4,13 @@ export async function dbCreateAnilistUser(
     discord_id: string,
     anilist_id: number,
     anilist_username: string,
-    guild_id: string,
+    guild_id: string | undefined,
     anilist_token?: string | null,
 ) {
     const db = await prisma;
 
     const discord_id_bigint = BigInt(discord_id);
     const anilist_id_bigint = BigInt(anilist_id);
-    const guild_id_bigint = BigInt(guild_id);
 
     let user = await db.user.findUnique({
         where: {
@@ -45,24 +44,28 @@ export async function dbCreateAnilistUser(
         },
     });
 
-    await db.guild.upsert({
-        where: { id: guild_id_bigint },
-        create: {
-            id: guild_id_bigint,
-            users: {
-                connect: {
-                    discord_id: discord_id_bigint,
+    if (guild_id) {
+        const guild_id_bigint = BigInt(guild_id);
+
+        await db.guild.upsert({
+            where: { id: guild_id_bigint },
+            create: {
+                id: guild_id_bigint,
+                users: {
+                    connect: {
+                        discord_id: discord_id_bigint,
+                    },
                 },
             },
-        },
-        update: {
-            users: {
-                connect: {
-                    discord_id: discord_id_bigint,
+            update: {
+                users: {
+                    connect: {
+                        discord_id: discord_id_bigint,
+                    },
                 },
             },
-        },
-    });
+        });
+    }
 
     return user;
 }

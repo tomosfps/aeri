@@ -1,4 +1,5 @@
 import { dbFetchAnilistUser } from "database";
+import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -13,7 +14,8 @@ export const interaction: ChatInputCommand = {
         .addExample("/refresh")
         .addExample("Must have used /link before using this command")
         .setCategory("Anime/Manga")
-        .setCooldown(1800),
+        .setCooldown(1800)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall),
     async execute(interaction): Promise<void> {
         const anilistUser = await dbFetchAnilistUser(interaction.user_id);
         const userId = anilistUser ? anilistUser.id : null;
