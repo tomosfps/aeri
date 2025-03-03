@@ -24,7 +24,7 @@ export const interaction: ChatInputCommand = {
                 .setLabel("Link Anilist Account")
                 .setStyle(ButtonStyle.Link)
                 .setURL(
-                    `https://anilist.co/api/v2/oauth/authorize?client_id=${env.ANILIST_CLIENT_ID}&response_type=code&state=${interaction.user_id}_${interaction.guild_id}`,
+                    `https://anilist.co/api/v2/oauth/authorize?client_id=${env.ANILIST_CLIENT_ID}&response_type=code&state=${interaction.user_id}_${interaction.guild_id || ""}`,
                 ),
         );
 
