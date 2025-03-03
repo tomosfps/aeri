@@ -31,7 +31,7 @@ export const interaction: ChatInputCommand = {
                 media_name: anime,
                 media_type: MediaType.Anime,
             },
-            { isAutoComplete: false },
+            { isNotAutoComplete: true },
         );
 
         if (error || result === null) {

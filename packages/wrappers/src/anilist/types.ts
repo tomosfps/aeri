@@ -159,7 +159,7 @@ type Relations = {
         }[];
     };
     transformer_args: {
-        isAutoComplete: boolean;
+        isNotAutoComplete: boolean;
     };
 };
 
@@ -203,6 +203,7 @@ type Media = {
     };
     transformer_args: {
         guild_id: string | undefined;
+        user_id: string | undefined;
     };
 };
 

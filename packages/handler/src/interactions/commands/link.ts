@@ -59,6 +59,7 @@ export const interaction: ChatInputCommand = {
             const embed = new EmbedBuilder()
                 .setTitle(`Anilist Account Linked | ${user.name}`)
                 .setDescription(user.description)
+                .setThumbnail(user.avatar)
                 .setColor(interaction.base_colour);
 
             return interaction.reply({

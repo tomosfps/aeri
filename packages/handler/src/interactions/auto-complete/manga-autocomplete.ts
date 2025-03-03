@@ -18,7 +18,7 @@ export const interaction: AutoCompleteCommand<string> = {
                 media_name: option.value as string,
                 media_type: MediaType.Manga,
             },
-            { isAutoComplete: interaction.nsfw },
+            { isNotAutoComplete: interaction.nsfw },
         );
 
         if (error) {

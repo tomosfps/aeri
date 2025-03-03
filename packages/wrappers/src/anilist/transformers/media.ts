@@ -7,7 +7,7 @@ import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
 import { filteredDescription, getNextAiringEpisode } from "./util.js";
 
-export const mediaTransformer: TransformersType[Routes.Media] = async (data, { guild_id }) => {
+export const mediaTransformer: TransformersType[Routes.Media] = async (data, { guild_id, user_id }) => {
     const genresToShow = data.genres.slice(0, 3);
     const additionalGenresCount = data.genres.length - genresToShow.length;
     const genresDisplay =
@@ -42,12 +42,24 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
     let allUsers: string[] = [];
 
     if (guild_id !== undefined) {
-        allUsers = await dbFetchGuildUsers(guild_id).then((users) => {
-            return users
-                .map((user) => user.anilist?.username)
-                .filter((username) => username !== undefined)
-                .slice(0, 15);
-        });
+        const usersData = await dbFetchGuildUsers(guild_id);
+        const users = usersData
+            .map((user) => user.anilist?.username)
+            .filter((username): username is string => username !== undefined);
+
+        const currentUserData = usersData.find(
+            (user) => user.anilist?.username !== undefined && user.discord_id.toString() === user_id,
+        )?.anilist?.username;
+
+        const shuffled = users.sort(() => 0.5 - Math.random());
+        const selectedUsers = shuffled.slice(0, 14);
+
+        if (currentUserData && !selectedUsers.includes(currentUserData)) {
+            selectedUsers.pop();
+            selectedUsers.push(currentUserData);
+        }
+
+        allUsers = selectedUsers;
     }
 
     if (allUsers.length !== 0) {

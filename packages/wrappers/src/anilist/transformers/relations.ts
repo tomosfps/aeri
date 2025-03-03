@@ -2,11 +2,11 @@ import { mediaFormatString, mediaStatusString, mediaTypeString } from "../enums.
 import type { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
 
-export const relationsTransformer: TransformersType[Routes.Relations] = async (data, { isAutoComplete }) => {
+export const relationsTransformer: TransformersType[Routes.Relations] = async (data, { isNotAutoComplete = true }) => {
     return {
         relations: data.relations
             .filter((relation) => {
-                if (isAutoComplete === false) {
+                if (isNotAutoComplete === false) {
                     if (relation.isAdult === true || relation.genres?.includes("Hentai")) {
                         return false;
                     }

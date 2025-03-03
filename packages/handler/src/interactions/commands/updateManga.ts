@@ -78,7 +78,7 @@ export const interaction: ChatInputCommand = {
         const { result, error } = await api.fetch(
             Routes.Media,
             { media_type: MediaType.Manga, media_id: Number(name) },
-            { guild_id: interaction.guild_id },
+            { guild_id: interaction.guild_id, user_id: interaction.user_id },
         );
 
         if (error || result === null) {

@@ -91,7 +91,7 @@ export function getCommandOption(
     return option.value;
 }
 
-export function isAutocompleteInteraction(
+export function isNotAutoCompleteInteraction(
     interaction: APIInteraction,
 ): interaction is APIApplicationCommandAutocompleteInteraction {
     return interaction.type === InteractionType.ApplicationCommandAutocomplete;
@@ -159,7 +159,7 @@ export enum InteractType {
 }
 
 export function determineInteractionType(interaction: APIInteraction): InteractType {
-    if (isAutocompleteInteraction(interaction)) return InteractType.Autocomplete;
+    if (isNotAutoCompleteInteraction(interaction)) return InteractType.Autocomplete;
     if (isChatInputInteraction(interaction)) return InteractType.ChatInput;
     if (isModalInteraction(interaction)) return InteractType.Modal;
     if (isUserContextInteraction(interaction)) return InteractType.UserContext;

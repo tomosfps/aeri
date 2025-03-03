@@ -23,7 +23,7 @@ export const interaction: MessageContextCommand = {
                 media_name: manga,
                 media_type: MediaType.Manga,
             },
-            { isAutoComplete: false },
+            { isNotAutoComplete: true },
         );
 
         if (error || result === null) {
