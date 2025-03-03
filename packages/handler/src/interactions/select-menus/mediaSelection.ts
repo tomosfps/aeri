@@ -25,11 +25,6 @@ export const interaction: SelectMenu<SelectMenuData> = {
         const media_type = data.custom_id === "anime" ? MediaType.Anime : MediaType.Manga;
         const media_id = Number(interaction.menuValues[0]);
 
-        if (!interaction.guild_id) {
-            return interaction.reply({ content: "This command can only be used in a server", ephemeral: true });
-        }
-
-        logger.debug("Fetching media data", "Anilist", { media_type, media_id });
         const { result: media, error } = await api.fetch(
             Routes.Media,
             { media_type, media_id },

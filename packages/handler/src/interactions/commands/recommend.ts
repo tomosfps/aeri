@@ -68,10 +68,6 @@ export const interaction: ChatInputCommand = {
                 .addChoices({ name: "Genre", value: "Genre" }, { name: "Score", value: "Score" }),
         ),
     async execute(interaction): Promise<void> {
-        if (!interaction.guild_id) {
-            return interaction.reply({ content: "This command can only be used in a server.", ephemeral: true });
-        }
-
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";
         const basedOn = getCommandOption("based_on", ApplicationCommandOptionType.String, interaction.options) || "";
         const media_type = media === "ANIME" ? MediaType.Anime : MediaType.Manga;

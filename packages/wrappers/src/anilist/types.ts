@@ -193,7 +193,7 @@ type Media = {
         }>;
     };
     transformer_args: {
-        guild_id: string;
+        guild_id: string | undefined;
     };
 };
 

@@ -38,9 +38,17 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
         volumes: number;
         status: MediaListStatus;
     }[] = [];
-    const allUsers = await dbFetchGuildUsers(guild_id).then((users) => {
-        return users.map((user) => user.anilist?.username).filter((username) => username !== undefined);
-    });
+
+    let allUsers: string[] = [];
+
+    if (guild_id !== undefined) {
+        allUsers = await dbFetchGuildUsers(guild_id).then((users) => {
+            return users
+                .map((user) => user.anilist?.username)
+                .filter((username) => username !== undefined)
+                .slice(0, 15);
+        });
+    }
 
     if (allUsers.length !== 0) {
         const maxLength = Math.max(...allUsers.map((user: any) => user.length + 2));

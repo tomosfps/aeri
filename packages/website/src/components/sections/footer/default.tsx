@@ -9,6 +9,10 @@ export default function FooterSection() {
             <div className="flex flex-row items-center gap-4">
               <p>© 2025 Aeri. All rights reserved</p>
             </div>
+            <div className="flex flex-row items-center gap-4">
+              <a href="/privacy" className="hover:underline">Privacy Policy</a>
+              <a href="/terms-of-service" className="hover:underline">Terms of Service</a>
+            </div>
           </FooterBottom>
         </Footer>
       </div>
