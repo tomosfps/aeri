@@ -5,6 +5,7 @@ import { calculateWorkerId, env, getRedis } from "core";
 import { Logger } from "logger";
 import { type SerializedWorkerMetrics, WorkerMetricsClient } from "metrics";
 import { EventCounter } from "../classes/EventCounter.js";
+import { isUnwantedEvent } from "../utility/eventUtils.js";
 
 export enum CustomWorkerPayloadOp {
     Metrics = "metrics",
@@ -64,10 +65,13 @@ void bootstrapper.bootstrap({
         }
 
         shard.on(WebSocketShardEvents.Dispatch, async (event) => {
+            if (isUnwantedEvent(event.t)) return;
+
             await broker.publish("dispatch", {
                 shardId: shard.id,
                 data: event,
             });
+
             metricsClient.record(shard.id, event.t);
 
             const counter = eventCounters.get(shard.id);
