@@ -124,12 +124,12 @@ function updatePresences() {
     }
 }
 
-updateGuildUserMetrics().catch();
+await manager.connect();
+
+await updateGuildUserMetrics().catch();
 updatePresences();
 
 setInterval(async () => {
     updatePresences();
-    await updateGuildUserMetrics();
+    await updateGuildUserMetrics().catch();
 }, 3_600_000);
-
-await manager.connect();
