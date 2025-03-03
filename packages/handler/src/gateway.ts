@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { EventEmitter } from "node:events";
 import { PubSubRedisBroker } from "@discordjs/brokers";
 import type { GatewayDispatchPayload, GatewaySendPayload, Gateway as IGateway } from "@discordjs/core";
@@ -32,7 +33,9 @@ export class Gateway extends EventEmitter implements IGateway {
 
         this.env = env;
         this.pubSubBroker = new PubSubRedisBroker(redis, { group: "handler" });
-        this.metricsClient = new HandlerMetricsClient(-1); // TODO use actual IDs, probably from dockers local container api
+
+        const metricsClientId = process.env["HOSTNAME"] || randomBytes(6).toString("hex");
+        this.metricsClient = new HandlerMetricsClient(metricsClientId);
         this.commands = commands;
 
         this.pubSubBroker.on("dispatch", ({ data, ack }: eventPayload & { data: { shardId: number } }) => {

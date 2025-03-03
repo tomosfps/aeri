@@ -25,7 +25,7 @@ export class HandlerMetricsClient {
         labelNames: ["type"] as const,
     });
 
-    public constructor(public handlerId: number) {}
+    public constructor(public handlerId: string) {}
 
     public async serialize() {
         const eventsData = await this.events.get();

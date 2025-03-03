@@ -1,4 +1,4 @@
-import { Counter } from "prom-client";
+import { Counter, Gauge } from "prom-client";
 import type { SerializedHandlerMetrics } from "./HandlerMetricsClient.js";
 import type { SerializedWorkerMetrics } from "./WorkerMetricsClient.js";
 
@@ -25,6 +25,16 @@ export class MetricsClient {
         name: "handler_interaction_types_total",
         help: "Total number of commands received",
         labelNames: ["type"] as const,
+    });
+
+    public guild_count = new Gauge({
+        name: "bot_guild_count",
+        help: "Total number of guilds",
+    });
+
+    public user_install_counter = new Gauge({
+        name: "bot_user_install_count",
+        help: "Total number of users",
     });
 
     public async mergeGatewayMetrics(data: SerializedWorkerMetrics) {

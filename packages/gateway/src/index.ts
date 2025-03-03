@@ -2,7 +2,14 @@ import { REST } from "@discordjs/rest";
 import { SimpleIdentifyThrottler, WebSocketManager, WebSocketShardEvents, WorkerShardingStrategy } from "@discordjs/ws";
 import { Cache } from "cache";
 import { env, getRedis } from "core";
-import { ActivityType, GatewayIntentBits, GatewayOpcodes, PresenceUpdateStatus } from "discord-api-types/v10";
+import {
+    ActivityType,
+    GatewayIntentBits,
+    GatewayOpcodes,
+    PresenceUpdateStatus,
+    type RESTGetCurrentApplicationResult,
+    Routes,
+} from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MetricsClient } from "metrics";
 import { aggregateHandlerMetrics } from "./services/metricsAggregator.js";
@@ -104,6 +111,14 @@ setInterval(async () => {
             d: presences,
         });
         currentPresenceIndex = (currentPresenceIndex + 1) % presencesList.length;
+    }
+
+    logger.debugSingle("Updating guild and user install counts", "Gateway");
+    const application = (await rest.get(Routes.currentApplication())) as RESTGetCurrentApplicationResult;
+
+    if (application.approximate_guild_count && application.approximate_user_install_count) {
+        metricsClient.guild_count.set(application.approximate_guild_count);
+        metricsClient.user_install_counter.set(application.approximate_user_install_count);
     }
 }, 3_600_000);
 
