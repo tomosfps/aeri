@@ -17,6 +17,8 @@ pub struct Relations {
 pub struct RelationData {
     pub id:              i32,
     pub title:           Title,
+    pub is_adult:        Option<bool>,
+    pub genres:          Option<Vec<String>>,
     pub format:          Option<MediaFormat>,
     pub r#type:          Option<Type>,
     pub synonyms:        Option<Vec<String>>,
@@ -28,7 +30,9 @@ pub struct RelationData {
 pub struct FormattedRelation {
     pub id:              i32,
     pub romaji:          String,
+    pub is_adult:        bool,
     pub english:         String,
+    pub genres:          Vec<String>,
     pub native:          String,
     pub synonyms:        Vec<String>,
     pub r#type:          Type,
@@ -66,7 +70,9 @@ impl Entity<FormattedRelations, RelationRequest> for Relations {
                 id:             relation.id,
                 romaji:         relation.title.romaji.clone().unwrap_or_default(),
                 english:        relation.title.english.clone().unwrap_or_default(),
+                genres:         relation.genres.clone().unwrap_or_default(),
                 native:         relation.title.native.clone().unwrap_or_default(),
+                is_adult:       relation.is_adult.unwrap_or_default(),
                 synonyms:       relation.synonyms.clone().unwrap_or_default(),
                 r#type:         relation.r#type.unwrap_or_default(),
                 format:         relation.format.unwrap_or_default(),

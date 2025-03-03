@@ -7,15 +7,19 @@ const logger = new Logger();
 export const interaction: AutoCompleteCommand<string> = {
     command: "update-manga",
     option: "name",
-    async execute(_interaction, option) {
+    async execute(interaction, option) {
         if (!option.value) {
             return [{ name: "No results found...", value: "" }];
         }
 
-        const { result, error } = await api.fetch(Routes.Relations, {
-            media_name: option.value as string,
-            media_type: MediaType.Manga,
-        });
+        const { result, error } = await api.fetch(
+            Routes.Relations,
+            {
+                media_name: option.value as string,
+                media_type: MediaType.Manga,
+            },
+            { isNotAutoComplete: interaction.nsfw },
+        );
 
         if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", { error });

@@ -131,6 +131,8 @@ type Relations = {
         relations: {
             airingType: MediaStatus;
             english: string;
+            isAdult: boolean;
+            genres: string[];
             format: MediaFormat;
             id: number;
             native: string;
@@ -145,13 +147,19 @@ type Relations = {
             airingType: string;
             english: string;
             format: string;
+            isAdult: boolean;
+            genres: string[];
             id: number;
             native: string;
             romaji: string;
             similarity: number;
             synonyms: string[];
             type: string;
+            isNSFW: boolean;
         }[];
+    };
+    transformer_args: {
+        isNotAutoComplete: boolean;
     };
 };
 
@@ -165,6 +173,7 @@ type Media = {
         id: number;
         title: Title;
         airing: AiringSchedule[] | null;
+        isAdult: boolean;
         averageScore: number | null;
         meanScore: number | null;
         banner: string | null;
@@ -193,7 +202,8 @@ type Media = {
         }>;
     };
     transformer_args: {
-        guild_id: string;
+        guild_id: string | undefined;
+        user_id: string | undefined;
     };
 };
 

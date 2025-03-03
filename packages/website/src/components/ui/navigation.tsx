@@ -63,7 +63,7 @@ export default function Navigation() {
                         </Link>
                         
                         <Link
-                            to="https://discord.com/oauth2/authorize?client_id=795916241193140244"
+                            to="https://discord.gg/MwGjd9nHsh"
                             className="hover:bg-csecondary-light/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light bg-csecondary-light"
                             prefetch="none"
                             target="_blank"
@@ -96,7 +96,7 @@ export default function Navigation() {
                                     
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
                                         <h1 className="text-cprimary-light">Support</h1>
-                                        <NavigationLink href="/" children="Server" onClick={toggleSheet} />
+                                        <NavigationLink href="https://discord.gg/MwGjd9nHsh" children="Server" onClick={toggleSheet} />
                                     </div>
 
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">

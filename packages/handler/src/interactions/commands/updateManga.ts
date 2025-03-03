@@ -52,6 +52,9 @@ export const interaction: ChatInputCommand = {
         )
         .addNumberOption((option) =>
             option.setName("volumes").setDescription("The amount of volumes read for the manga.").setRequired(false),
+        )
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         if (interaction.guild_id === undefined) {
@@ -62,6 +65,7 @@ export const interaction: ChatInputCommand = {
         }
 
         const name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) as string;
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const inDatabase = await dbFetchAnilistUser(interaction.user_id);
 
         if (!inDatabase || inDatabase.token === null) {
@@ -74,7 +78,7 @@ export const interaction: ChatInputCommand = {
         const { result, error } = await api.fetch(
             Routes.Media,
             { media_type: MediaType.Manga, media_id: Number(name) },
-            { guild_id: interaction.guild_id },
+            { guild_id: interaction.guild_id, user_id: interaction.user_id },
         );
 
         if (error || result === null) {
@@ -88,6 +92,7 @@ export const interaction: ChatInputCommand = {
         }
 
         const userResults = result.userResults.find((userResult) => userResult.username === inDatabase.username);
+
         if (!userResults) {
             return;
         } // This shouldn't get called
@@ -135,6 +140,6 @@ export const interaction: ChatInputCommand = {
                 text: `${result.footer}\n• If the score doesn't update, use /refresh`,
             });
 
-        return interaction.reply({ embeds: [embed] });
+        return interaction.reply({ embeds: [embed], ephemeral: hidden });
     },
 };

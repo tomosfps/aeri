@@ -1,20 +1,21 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { HomeIcon } from "lucide-react";
+import { HomeIcon, ArrowLeft } from "lucide-react";
 
-export default function Fail() {
+export default function NotFound() {
     return (
-        <main className="min-h-dvh w-full flex flex-col items-center py-24 px-4 bg-cbackground-light">
+        <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-8 bg-cbackground-light">
             <div className="max-w-2xl mx-auto w-full">
-                <div className="bg-cbackground-light rounded-xl shadow-sm p-8 md:p-12 text-center">
-                    {/* Error Header */}
-                    <div className="relative h-36 md:h-40 mb-6 md:mb-8">
-                        <div className="text-7xl md:text-8xl font-bold tracking-tighter leading-none text-red-500/10 absolute inset-0 flex items-center justify-center">
-                            Error
+                <div className="bg-cbackground-light rounded-xl shadow-sm p-6 md:p-12 text-center">
+                    
+                    {/* 404 Header */}
+                    <div className="relative h-36 md:h-48 mb-6 md:mb-10">
+                        <div className="text-8xl md:text-[10rem] font-bold tracking-tighter leading-none text-cprimary-light/10 absolute inset-0 flex items-center justify-center">
+                            404
                         </div>
                         <div className="absolute inset-0 flex items-center justify-center">
                             <svg
-                                className="h-28 w-28 md:h-40 md:w-40 text-red-500"
+                                className="h-28 w-28 md:h-40 md:w-40 text-cprimary-light"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -38,37 +39,36 @@ export default function Fail() {
                         </div>
                     </div>
 
-                    <h1 className="text-2xl md:text-3xl font-bold mb-4 text-cprimary-light">Login Failed</h1>
+                    <h1 className="text-2xl md:text-4xl font-bold mb-4 text-cprimary-light">Page Not Found</h1>
                     
-                    <div className="mb-8 px-4">
+                    <div className="mb-6 md:mb-8 px-2 md:px-4">
                         <p className="text-base md:text-lg text-ctext-light/80">
-                            An error occurred while trying to link your account. This could be due to an expired 
-                            session or authentication issues.
+                            Looks like you've ventured into unknown territory. The page you're looking for doesn't exist.
                         </p>
                     </div>
 
                     {/* Suggestions Section */}
-                    <div className="mb-8 bg-cprimary-light/5 p-4 rounded-lg inline-block">
-                        <h2 className="text-lg font-medium text-cprimary-light mb-2">You can try:</h2>
+                    <div className="mb-6 md:mb-8 bg-cprimary-light/5 p-4 rounded-lg mx-auto max-w-fit">
+                        <h2 className="text-base md:text-lg font-medium text-cprimary-light mb-2">You might want to try:</h2>
                         <ul className="text-sm text-ctext-light space-y-1 text-left">
                             <li className="flex items-center">
                                 <span className="text-csecondary-light mr-2">•</span> 
-                                Attempting to login again
+                                <span>Checking the URL for typos</span>
                             </li>
                             <li className="flex items-center">
                                 <span className="text-csecondary-light mr-2">•</span> 
-                                Clearing your browser cookies
+                                <span>Navigating to our <Link to="/commands" className="text-csecondary-light hover:underline">commands page</Link></span>
                             </li>
                             <li className="flex items-center">
                                 <span className="text-csecondary-light mr-2">•</span> 
-                                Waiting a few minutes before trying again
+                                <span>Returning to the homepage</span>
                             </li>
                         </ul>
                     </div>
 
                     {/* Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link to="/">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center w-full">
+                        <Link to="/" className="w-full sm:w-auto">
                             <Button
                                 variant="default"
                                 className="bg-cprimary-light hover:bg-cprimary-light/50 text-black flex items-center gap-2 px-6 py-2 h-11 w-full"
@@ -77,14 +77,22 @@ export default function Fail() {
                                 Go Home
                             </Button>
                         </Link>
+                        <Button
+                            onClick={() => window.history.back()}
+                            variant="outline"
+                            className="border-cborder-light bg-transparent hover:bg-cbackground-light/40 hover:text-cprimary-light text-ctext-light flex items-center gap-2 px-6 py-2 h-11 w-full sm:w-auto"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Go Back
+                        </Button>
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="mt-8 text-center text-sm text-ctext-light/60">
-                    <p>If you continue experiencing issues, please contact our support team.</p>
+                <div className="mt-6 md:mt-8 text-center text-sm text-ctext-light/60 px-4">
+                    <p>If you believe this is an error, please contact our support team.</p>
                     <a 
-                        href="https://discord.gg/MwGjd9nHsh" 
+                        href="https://discord.gg/MwGjd9nHsh"
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="inline-flex items-center text-csecondary-light hover:underline mt-2"

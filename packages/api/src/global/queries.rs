@@ -5,6 +5,7 @@ pub fn get_query(query_name: &str) -> String {
     query ($id: Int, $search: String, $type: MediaType) {
     Media (id: $id, search: $search, type: $type) {
             id
+            isAdult
             season
             format
             episodes
@@ -265,6 +266,8 @@ pub fn get_query(query_name: &str) -> String {
         media (id: $id, search: $search, type: $type) {
             id
             type
+            isAdult
+            genres
             synonyms
             status
             format

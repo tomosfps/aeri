@@ -12,6 +12,7 @@ use crate::global::metrics::Metrics;
 pub struct Media {
     pub id:              i32,
     pub season:          Option<String>,
+    pub is_adult:        Option<bool>,
     pub format:          Option<MediaFormat>,
     pub episodes:        Option<i32>,
     pub chapters:        Option<i32>,
@@ -38,6 +39,7 @@ pub struct FormattedMedia {
     pub id:              i32,
     pub title:           Title,
     pub airing:          Option<AiringSchedule>,
+    pub is_adult:        Option<bool>,
     pub season:          Option<String>,
     pub average_score:   Option<i32>,
     pub mean_score:      Option<i32>,
@@ -73,6 +75,7 @@ impl Entity<FormattedMedia, MediaRequest> for Media {
             id: self.id,
             title: self.title,
             airing: self.airing_schedule,
+            is_adult: self.is_adult,
             season: self.season,
             average_score: self.average_score,
             mean_score: self.mean_score,

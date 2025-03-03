@@ -24,10 +24,6 @@ export const interaction: SelectMenu<SelectMenuData> = {
         const media_type = data.custom_id === "ANIME" ? MediaType.Anime : MediaType.Manga;
         const genres = interaction.menuValues;
 
-        if (!interaction.guild_id) {
-            return interaction.followUp({ content: "This command can only be used in a server." });
-        }
-
         await interaction.deferUpdate();
 
         const { result: recommendation, error: recommendationsError } = await api.fetch(Routes.Recommend, {
@@ -53,7 +49,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
         const { result: media, error: mediaError } = await api.fetch(
             Routes.Media,
             { media_type, media_id },
-            { guild_id: interaction.guild_id },
+            { guild_id: interaction.guild_id, user_id: interaction.user_id },
         );
 
         if (mediaError || !media) {
