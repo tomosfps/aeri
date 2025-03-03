@@ -41,12 +41,12 @@ export default function Navigation() {
 
                 {/* Navigation */}
                 <div className="border-csecondary-light min-h-max mx-4 lg:mx-6 xl:mx-8 2xl:mx-auto max-w-7xl flex w-full items-center border-2 rounded-lg p-4 my-8 bg-cbackground-light">
-    
+
                     {/* Left Side */}
                     <nav className="hidden lg:flex items-center space-x-6">
                         <NavigationLink href="/" children="Home" />
-                        <NavigationLink href="commands" children="Commands"/>
-                        <NavigationLink href="status" children="Status"/>
+                        <NavigationLink href="commands" children="Commands" />
+                        <NavigationLink href="status" children="Status" />
                     </nav>
 
                     {/* Right Side */}
@@ -57,18 +57,18 @@ export default function Navigation() {
                             prefetch="none"
                             target="_blank"
                         >
-                            <Suspense fallback={<LoadingSpinner fullScreen={false} message="Loading Icon..."/>}>
+                            <Suspense fallback={<LoadingSpinner fullScreen={false} message="Loading Icon..." />}>
                                 <GithubIcon className="h-6 w-6" />
                             </Suspense>
                         </Link>
-                        
+
                         <Link
-                            to="https://discord.gg/MwGjd9nHsh"
+                            to="https://discord.gg/kKqsaKYUfz"
                             className="hover:bg-csecondary-light/40 inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-2xl font-medium shadow text-ctext-light bg-csecondary-light"
                             prefetch="none"
                             target="_blank"
                         >
-                            <Suspense fallback={<LoadingSpinner fullScreen={false} message="Loading Icon..."/>}>
+                            <Suspense fallback={<LoadingSpinner fullScreen={false} message="Loading Icon..." />}>
                                 <DiscordIcon className="h-6 w-6" />
                             </Suspense>
                         </Link>
@@ -77,8 +77,8 @@ export default function Navigation() {
                         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                             <SheetTrigger asChild>
                                 <Button variant="outline" size="icon" className="lg:hidden bg-csecondary-light border-transparent">
-                                    
-                                    <Suspense fallback={<LoadingSpinner fullScreen={false} message="Loading Icon..."/>}>
+
+                                    <Suspense fallback={<LoadingSpinner fullScreen={false} message="Loading Icon..." />}>
                                         <MenuIcon className="h-6 w-6 text-black" />
                                     </Suspense>
                                     <span className="sr-only">Toggle navigation menu</span>
@@ -93,10 +93,10 @@ export default function Navigation() {
                                         <NavigationLink href="commands" children="Commands" onClick={toggleSheet} />
                                         <NavigationLink href="status" children="Status" onClick={toggleSheet} />
                                     </div>
-                                    
+
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
                                         <h1 className="text-cprimary-light">Support</h1>
-                                        <NavigationLink href="https://discord.gg/MwGjd9nHsh" children="Server" onClick={toggleSheet} />
+                                        <NavigationLink href="https://discord.gg/kKqsaKYUfz" children="Server" onClick={toggleSheet} />
                                     </div>
 
                                     <div className="flex flex-col space-y-4 pl-6 pb-4">
@@ -116,38 +116,38 @@ export default function Navigation() {
 
 function MenuIcon(props: any) {
     return (
-      <svg
-        {...props}
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <line x1="4" x2="20" y1="12" y2="12" />
-        <line x1="4" x2="20" y1="6" y2="6" />
-        <line x1="4" x2="20" y1="18" y2="18" />
-      </svg>
+        <svg
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <line x1="4" x2="20" y1="12" y2="12" />
+            <line x1="4" x2="20" y1="6" y2="6" />
+            <line x1="4" x2="20" y1="18" y2="18" />
+        </svg>
     )
 }
 
 function GithubIcon(props: any) {
     return (
         <svg
-        {...props}
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
         >
             <image href={github} width="24" height="24" />
         </svg>
@@ -157,16 +157,16 @@ function GithubIcon(props: any) {
 function DiscordIcon(props: any) {
     return (
         <svg
-        {...props}
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
         >
             <image href={discord} width="24" height="24" />
         </svg>

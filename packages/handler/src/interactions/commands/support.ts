@@ -12,11 +12,11 @@ export const interaction: ChatInputCommand = {
         const embed = new EmbedBuilder()
             .setTitle("Support Server")
             .setDescription(
-                "Join the support server for help with the bot.\n[Click here to join](https://discord.gg/MwGjd9nHsh)",
+                "Join the support server for help with the bot.\n[Click here to join](https://discord.gg/kKqsaKYUfz)",
             )
             .setColor(interaction.base_colour)
             .setThumbnail(interaction.avatar_url)
-            .setURL("https://discord.gg/MwGjd9nHsh");
+            .setURL("https://discord.gg/kKqsaKYUfz");
 
         await interaction.reply({ embeds: [embed] });
     },
