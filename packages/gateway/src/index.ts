@@ -102,7 +102,17 @@ manager.on(WebSocketShardEvents.Error, (error, shardId) => {
     logger.error(`Shard ${shardId} errored.`, "Gateway", error);
 });
 
-setInterval(async () => {
+async function updateGuildUserMetrics() {
+    logger.debugSingle("Updating guild and user install counts", "Gateway");
+    const application = (await rest.get(Routes.currentApplication())) as RESTGetCurrentApplicationResult;
+
+    if (application.approximate_guild_count && application.approximate_user_install_count) {
+        metricsClient.guild_count.set(application.approximate_guild_count);
+        metricsClient.user_install_counter.set(application.approximate_user_install_count);
+    }
+}
+
+function updatePresences() {
     logger.debugSingle("Updating presences", "Gateway");
     for (let shard = 0; shard < env.SHARD_COUNT; shard++) {
         const presences = presencesList[currentPresenceIndex] as any;
@@ -112,14 +122,14 @@ setInterval(async () => {
         });
         currentPresenceIndex = (currentPresenceIndex + 1) % presencesList.length;
     }
+}
 
-    logger.debugSingle("Updating guild and user install counts", "Gateway");
-    const application = (await rest.get(Routes.currentApplication())) as RESTGetCurrentApplicationResult;
+updateGuildUserMetrics().catch();
+updatePresences();
 
-    if (application.approximate_guild_count && application.approximate_user_install_count) {
-        metricsClient.guild_count.set(application.approximate_guild_count);
-        metricsClient.user_install_counter.set(application.approximate_user_install_count);
-    }
+setInterval(async () => {
+    updatePresences();
+    await updateGuildUserMetrics();
 }, 3_600_000);
 
 await manager.connect();
