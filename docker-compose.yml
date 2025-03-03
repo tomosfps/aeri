@@ -112,6 +112,17 @@ services:
       - ./config/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
       - ./config/grafana/dashboards:/var/lib/grafana/dashboards
 
+  file_server:
+    container_name: file_server
+    image: nginx:alpine
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8081:80"
+    volumes:
+      - ./config/nginx/file_server.conf:/etc/nginx/conf.d/default.conf
+      # Path to static content folder
+
 volumes:
   cache-data:
   database-data:
