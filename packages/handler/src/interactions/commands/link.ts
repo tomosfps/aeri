@@ -27,15 +27,7 @@ export const interaction: ChatInputCommand = {
             interaction.options,
         ) as string;
         const isInDatabase = await dbFetchAnilistUser(interaction.user_id);
-
         if (!isInDatabase) {
-            if (interaction.guild_id === undefined) {
-                return interaction.reply({
-                    content: "This command can only be used in a server.",
-                    ephemeral: true,
-                });
-            }
-
             const { result: user, error } = await api.fetch(Routes.User, { username });
 
             if (error) {

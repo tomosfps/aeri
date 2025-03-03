@@ -15,13 +15,6 @@ export const interaction: ChatInputCommand = {
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .setCategory("OAuth"),
     async execute(interaction): Promise<void> {
-        if (interaction.guild_id === undefined) {
-            return interaction.reply({
-                content: "This command can only be used in a server.",
-                ephemeral: true,
-            });
-        }
-
         const embed = new EmbedBuilder()
             .setDescription("Click the button below to link your Anilist account with the bot.")
             .setColor(interaction.base_colour);

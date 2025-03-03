@@ -36,7 +36,7 @@ enum TokenTypes {
 struct TokenData {
     r#type: TokenTypes,
     user_id: String,
-    guild_id: String,
+    guild_id: Option<String>,
     access_token: String,
 }
 
@@ -85,7 +85,7 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Red
     let token_data = TokenData {
         r#type: TokenTypes::Anilist,
         user_id: params[0].to_string(),
-        guild_id: params[1].to_string(),
+        guild_id: if params.len() == 2 { Some(params[1].to_string()) } else { None },
         access_token: response_json.access_token,
     };
 
