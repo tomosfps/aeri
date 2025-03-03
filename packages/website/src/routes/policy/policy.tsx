@@ -91,8 +91,8 @@ export default function PrivacyPolicy() {
             Introduction
           </h2>
           <p className="text-ctext-light leading-relaxed">
-            Welcome to Aeri (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;). We respect your privacy and are committed to 
-            protecting your personal data. This privacy policy explains how we collect, use, and protect information 
+            Welcome to Aeri (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;). We respect your privacy and are committed to
+            protecting your personal data. This privacy policy explains how we collect, use, and protect information
             that identifies you (&quot;personal data&quot;) when you use our Discord bot services.
           </p>
         </div>
@@ -104,16 +104,12 @@ export default function PrivacyPolicy() {
             Information We Collect
           </h2>
           <p className="text-ctext-light leading-relaxed mb-4">We may collect, use, store and transfer the following kinds of data about you:</p>
-          
+
           <div className="mb-4 pl-4 border-l-2 border-csecondary-light/30">
             <h3 className="text-xl font-medium text-csecondary-light mb-2">2.1. Information Collected Through Discord</h3>
             <ul className="list-disc pl-5 text-ctext-light space-y-1">
               <li>Discord User ID</li>
-              <li>Discord Username</li>
-              <li>Discord Guild ID (Server ID)</li>
-              <li>Discord Guild Name (Server Name)</li>
-              <li>Discord Channel IDs where our commands are used</li>
-              <li>Command usage data (which commands you use and when)</li>
+              <li>IDs of Discord guilds in which you have made use of the service</li>
             </ul>
           </div>
 
@@ -125,8 +121,7 @@ export default function PrivacyPolicy() {
             <ul className="list-disc pl-5 text-ctext-light space-y-1">
               <li>AniList username</li>
               <li>AniList user ID</li>
-              <li>Authentication tokens for accessing your AniList data</li>
-              <li>Data about your anime and manga lists, including titles, ratings, and progress</li>
+              <li>OAuth2 token for accessing your AniList data</li>
             </ul>
           </div>
         </div>
@@ -143,7 +138,6 @@ export default function PrivacyPolicy() {
             <li>To personalize commands and features for your specific use</li>
             <li>To link your Discord account with AniList (only if you specifically request this)</li>
             <li>To save your preferences for future interactions</li>
-            <li>To analyze command usage and improve our services</li>
             <li>To detect and prevent abuse or unauthorized use</li>
             <li>To respond to your requests or questions</li>
           </ul>
@@ -156,12 +150,11 @@ export default function PrivacyPolicy() {
             Data Storage and Security
           </h2>
           <p className="text-ctext-light leading-relaxed mb-4">
-            We use modern security practices to store your personal information securely. All data is 
+            We use modern security practices to store your personal information securely. All data is
             stored in secure databases and we implement appropriate technical safeguards to protect your information.
           </p>
           <p className="text-ctext-light leading-relaxed">
-            Your data is stored on secure servers located in the European Union. Authentication tokens are 
-            encrypted, and we regularly update our security practices to enhance protection.
+            Your data is stored on secure servers located in the European Union.
           </p>
         </div>
 
@@ -173,8 +166,7 @@ export default function PrivacyPolicy() {
           </h2>
           <p className="text-ctext-light leading-relaxed mb-4">We do not sell, trade, or otherwise transfer your personal information to outside parties. We may share limited data with:</p>
           <ul className="list-disc pl-5 text-ctext-light space-y-2">
-            <li><span className="font-medium text-csecondary-light">AniList API:</span> To perform the functions you request (searching anime/manga, updating profiles)</li>
-            <li><span className="font-medium text-csecondary-light">Service providers:</span> For hosting and operating our services</li>
+            <li><span className="font-medium text-csecondary-light">AniList API:</span> To perform the functions you request</li>
             <li><span className="font-medium text-csecondary-light">Legal requirements:</span> When required by law or to protect our rights</li>
           </ul>
         </div>
@@ -186,13 +178,9 @@ export default function PrivacyPolicy() {
             Data Retention
           </h2>
           <p className="text-ctext-light leading-relaxed mb-4">
-            We retain your personal data only for as long as necessary to fulfill the purposes we collected 
-            it for. User data related to preferences and linked accounts is stored until you explicitly 
+            We retain your personal data only for as long as necessary to fulfill the purposes we collected
+            it for. User data related to preferences and linked accounts is stored until you explicitly
             request its removal or unlink your accounts.
-          </p>
-          <p className="text-ctext-light leading-relaxed">
-            Command usage data is retained for analytical purposes for up to 90 days, after which it is aggregated 
-            and anonymized.
           </p>
         </div>
 
@@ -247,7 +235,7 @@ export default function PrivacyPolicy() {
           </ul>
           <div className="bg-csecondary-light/5 border border-csecondary-light/20 rounded p-4">
             <p className="text-ctext-light leading-relaxed">
-              To exercise these rights, you can use the <code className="bg-csecondary-light/10 text-csecondary-light px-1.5 py-0.5 rounded">/unlink</code> command to remove AniList connections, 
+              To exercise these rights, you can use the <code className="bg-csecondary-light/10 text-csecondary-light px-1.5 py-0.5 rounded">/unlink</code> command to remove AniList connections,
               or contact us directly.
             </p>
           </div>
@@ -260,8 +248,8 @@ export default function PrivacyPolicy() {
             Children&apos;s Privacy
           </h2>
           <p className="text-ctext-light leading-relaxed">
-            Our services are not intended for use by children under 13 years of age. We do not knowingly collect 
-            personal information from children under 13. If you are a parent or guardian and believe we may have 
+            Our services are not intended for use by children under 13 years of age. We do not knowingly collect
+            personal information from children under 13. If you are a parent or guardian and believe we may have
             collected information about a child, please contact us.
           </p>
         </div>
@@ -273,7 +261,7 @@ export default function PrivacyPolicy() {
             Changes to This Privacy Policy
           </h2>
           <p className="text-ctext-light leading-relaxed">
-            We may update our privacy policy from time to time. We will notify users of any material changes by posting 
+            We may update our privacy policy from time to time. We will notify users of any material changes by posting
             the new privacy policy in our Discord support server and updating the &quot;Last updated&quot; date.
           </p>
         </div>
@@ -290,7 +278,7 @@ export default function PrivacyPolicy() {
           <div className="flex flex-col md:flex-row gap-4">
             <a href="https://discord.gg/MwGjd9nHsh" className="bg-[#5865F2]/10 hover:bg-[#5865F2]/20 border border-[#5865F2]/30 text-white rounded-lg p-4 flex items-center transition-colors">
               <svg className="h-6 w-6 mr-3 text-[#5865F2]" viewBox="0 0 127.14 96.36" fill="currentColor">
-                <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
               </svg>
               Discord Support Server
             </a>
@@ -310,7 +298,7 @@ export default function PrivacyPolicy() {
             Consent
           </h2>
           <p className="text-ctext-light leading-relaxed">
-            By using Aeri&apos;s services, you consent to our privacy policy and agree to its terms. If you do not 
+            By using Aeri&apos;s services, you consent to our privacy policy and agree to its terms. If you do not
             agree with this policy, please do not use our services.
           </p>
         </div>
