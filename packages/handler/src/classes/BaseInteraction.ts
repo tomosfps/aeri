@@ -7,6 +7,7 @@ import {
     type APIModalInteractionResponseCallbackData,
     MessageFlags,
 } from "@discordjs/core";
+import { ChannelType } from "@discordjs/core";
 import { env } from "core";
 import type { HandlerClient } from "./HandlerClient.js";
 
@@ -27,6 +28,12 @@ export class BaseInteraction {
 
     get token() {
         return this.interaction.token;
+    }
+
+    get nsfw() {
+        if (this.interaction.channel?.type === ChannelType.DM || this.interaction.channel?.type === ChannelType.GroupDM)
+            return false;
+        return this.interaction.channel?.nsfw || false;
     }
 
     get user() {
