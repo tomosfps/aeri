@@ -1,5 +1,6 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
+import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -13,6 +14,7 @@ export const interaction: ChatInputCommand = {
         .setDescription("Compare your affinity with server members!")
         .setCategory("Anime/Manga")
         .setCooldown(5)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
         .addExample("/affinity"),
     async execute(interaction): Promise<void> {
         if (!interaction.guild_id) {

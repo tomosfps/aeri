@@ -1,4 +1,5 @@
 import { EmbedBuilder, bold, inlineCode } from "@discordjs/builders";
+import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
@@ -7,7 +8,8 @@ export const interaction: ChatInputCommand = {
         .setName("info")
         .setDescription("Information About Aeri")
         .addExample("/info")
-        .setCategory("Utility"),
+        .setCategory("Utility")
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall),
     async execute(interaction): Promise<void> {
         const descriptionBuilder = [
             `${bold("Who is Aeri?")}`,

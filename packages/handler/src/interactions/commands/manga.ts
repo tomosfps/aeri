@@ -4,7 +4,7 @@ import {
     StringSelectMenuOptionBuilder,
     inlineCode,
 } from "@discordjs/builders";
-import { ApplicationCommandOptionType } from "discord-api-types/v10";
+import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -20,6 +20,7 @@ export const interaction: ChatInputCommand = {
         .addExample("NSFW media will be filtered out if the command is used in a SFW channel")
         .setCategory("Anime/Manga")
         .setCooldown(5)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .addStringOption((option) => option.setName("name").setDescription("The name of the manga").setRequired(true)),
     async execute(interaction): Promise<void> {
         const manga = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";

@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { env, getRedis } from "core";
-import { ButtonStyle } from "discord-api-types/v10";
+import { ApplicationIntegrationType, ButtonStyle } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
@@ -12,6 +12,7 @@ export const interaction: ChatInputCommand = {
         .setDescription("Setup OAuth with the Discord bot!")
         .addExample("/login")
         .setCooldown(5)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .setCategory("OAuth"),
     async execute(interaction): Promise<void> {
         if (interaction.guild_id === undefined) {
