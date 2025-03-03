@@ -14,6 +14,7 @@ const Commands = lazy(() => import("./routes/commands/commands"));
 const Status = lazy(() => import("./routes/status/status"));
 const Privacy = lazy(() => import("./routes/policy/policy"));
 const TOS = lazy(() => import("./routes/termsOfService/tos"));
+const NotFound = lazy(() => import("./routes/404/not-found"));
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -24,11 +25,12 @@ createRoot(document.getElementById("root")!).render(
                         <Route index element={<App />} />
                         <Route path="commands" element={<Commands />} />
                         <Route path="status" element={<Status />} />
-                        <Route path="fail" element={<Fail />} />
-                        <Route path="success" element={<Success />} />
                         <Route path="privacy" element={<Privacy />} />
                         <Route path="terms-of-service" element={<TOS />} />
                     </Route>
+                    <Route path="fail" element={<Fail />} />
+                    <Route path="success" element={<Success />} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </Suspense>
         </Router>

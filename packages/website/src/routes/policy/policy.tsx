@@ -322,7 +322,7 @@ export default function PrivacyPolicy() {
           This document was last updated on March 3, 2025 and applies to the Aeri Discord bot and related services.
         </p>
         <p className="mt-4">
-          <Link to="/tos" className="text-csecondary-light hover:underline">View our Terms of Service</Link>
+          <Link to="/terms-of-service" className="text-csecondary-light hover:underline">View our Terms of Service</Link>
         </p>
       </div>
     </main>
