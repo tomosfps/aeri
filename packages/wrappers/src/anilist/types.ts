@@ -362,11 +362,11 @@ type Viewer = {
 
 type MediaUpdated = {
     body: {
-        status: MediaListStatus;
-        score: number;
-        progress: number;
+        status: MediaListStatus | null;
+        score: number | null;
+        progress: number | null;
         id: number;
-        volumes: number;
+        volumes: number | null;
         token: string;
     };
     response: BaseResponse & {

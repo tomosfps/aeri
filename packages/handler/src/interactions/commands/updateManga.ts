@@ -69,11 +69,34 @@ export const interaction: ChatInputCommand = {
 
         const name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) as string;
         const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+        const status = getCommandOption("status", ApplicationCommandOptionType.String, interaction.options);
+        const score = getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options);
+        const progress = getCommandOption("progress", ApplicationCommandOptionType.Number, interaction.options);
+        const volumes = getCommandOption("volume", ApplicationCommandOptionType.Number, interaction.options);
         const inDatabase = await dbFetchAnilistUser(interaction.user_id);
 
         if (!inDatabase || inDatabase.token === null) {
             return interaction.reply({
                 content: "You need to setup OAuth first. Use `/login` to do so.",
+                ephemeral: true,
+            });
+        }
+
+        const { result: updateMedia, error: updateError } = await api.fetch(Routes.UpdateMedia, {
+            status: status as MediaListStatus,
+            score,
+            progress,
+            id: Number(name),
+            token: inDatabase.token,
+            volumes,
+        });
+
+        if (updateError || updateMedia === null) {
+            logger.error("Error while fetching data MUTATION from the API.", "Anilist", { updateError });
+
+            return interaction.reply({
+                content:
+                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 ephemeral: true,
             });
         }
@@ -86,44 +109,6 @@ export const interaction: ChatInputCommand = {
 
         if (error || result === null) {
             logger.error("Error while fetching data MEDIA from the API.", "Anilist", { error });
-
-            return interaction.reply({
-                content:
-                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                ephemeral: true,
-            });
-        }
-
-        const userResults = result.userResults.find((userResult) => userResult.username === inDatabase.username);
-
-        if (!userResults) {
-            return;
-        } // This shouldn't get called
-
-        const status =
-            getCommandOption("status", ApplicationCommandOptionType.String, interaction.options) ||
-            (userResults.status as MediaListStatus);
-        const score =
-            getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options) ||
-            (userResults.score as number);
-        const progress =
-            getCommandOption("progress", ApplicationCommandOptionType.Number, interaction.options) ||
-            (userResults.progress as number);
-        const volumes =
-            getCommandOption("volume", ApplicationCommandOptionType.Number, interaction.options) ||
-            (userResults.volumes as number);
-
-        const { result: updateMedia, error: updateError } = await api.fetch(Routes.UpdateMedia, {
-            status: status as MediaListStatus,
-            score: score,
-            progress: progress,
-            id: Number(name),
-            token: inDatabase.token,
-            volumes,
-        });
-
-        if (updateError || updateMedia === null) {
-            logger.error("Error while fetching data MUTATION from the API.", "Anilist", { updateError });
 
             return interaction.reply({
                 content:

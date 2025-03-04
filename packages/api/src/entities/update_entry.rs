@@ -7,18 +7,24 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use crate::cache::redis::Redis;
 use crate::global::metrics::Metrics;
+use lazy_static::lazy_static;
+use colourful_logger::Logger;
+
+lazy_static! {
+    static ref logger: Logger = Logger::default();
+}
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateMediaMutation {
-    pub repeat:     u8,
-    pub score:      f32,
-    pub progress:   i32,
-    pub status:     MediaListStatus,
-    pub media:      MediaUpdateData
+    pub repeat:     Option<u8>,
+    pub score:      Option<f32>,
+    pub progress:   Option<i32>,
+    pub status:     Option<MediaListStatus>,
+    pub media:      Option<MediaUpdateData>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct MediaUpdateData {
     id:     i32,
     title:  Title
@@ -37,9 +43,9 @@ pub struct FormattedUpdateMedia {
 
 #[derive(Deserialize)]
 pub struct MutationMediaRequest {
-    status:     MediaListStatus,
-    score:      i32,
-    progress:   i32,
+    status:     Option<MediaListStatus>,
+    score:      Option<i32>,
+    progress:   Option<i32>,
     id:         i32,
 }
 
@@ -53,13 +59,17 @@ impl Entity<FormattedUpdateMedia, MutationMediaRequest> for UpdateMediaMutation 
     }
 
     async fn format(self, _request: &MutationMediaRequest, _metrics: web::Data<Arc<Metrics>>) -> Result<FormattedUpdateMedia, HttpResponse> {
+        let media = self.media.unwrap();
+
+        logger.debug_single(format!("Debugging Media: {:?}", media).as_str(), "Media");
+
         Ok(FormattedUpdateMedia {
-            id:         self.media.id,
-            title:      self.media.title,
-            score:      self.score,
-            progress:   self.progress,
-            status:     self.status,
-            repeats:    self.repeat,
+            id:         media.id,
+            title:      media.title,
+            score:      self.score.unwrap_or(0.0),
+            progress:   self.progress.unwrap_or(0),
+            status:     self.status.unwrap_or(MediaListStatus::Current),
+            repeats:    self.repeat.unwrap_or(0),
         })
     }
 
@@ -78,7 +88,25 @@ impl Entity<FormattedUpdateMedia, MutationMediaRequest> for UpdateMediaMutation 
     async fn cache_set(_data: &FormattedUpdateMedia, _request: &MutationMediaRequest, _redis: &web::Data<Redis>) { }
 
     fn query(request: &MutationMediaRequest) -> Value {
-        json!({ "query": get_mutation("update_media"), "variables": { "status": request.status, "score": request.score, "progress": request.progress, "id": request.id } })
+        let mut variables = serde_json::Map::new();
+        variables.insert("id".to_string(), request.id.to_string().into());
+        
+        if let Some(status) = &request.status {
+            variables.insert("status".to_string(), json!(status));
+        }
+        
+        if let Some(score) = &request.score {
+            variables.insert("score".to_string(), json!(score));
+        }
+        
+        if let Some(progress) = &request.progress {
+            variables.insert("progress".to_string(), json!(progress));
+        }
+        
+        json!({
+            "query": get_mutation("update_media"),
+            "variables": variables
+        })
     }
 
     fn validate_request(_request: &MutationMediaRequest) -> Result<(), String> {

@@ -1,6 +1,6 @@
 import { formatEmoji, inlineCode } from "@discordjs/formatters";
 import { formatSeconds } from "core";
-import { dbFetchGuildUsers } from "database";
+import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
 import { mediaStatusString } from "../enums.js";
 import { MediaListStatus, api } from "../index.js";
 import { Routes } from "../types.js";
@@ -41,7 +41,7 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
 
     let allUsers: string[] = [];
 
-    if (guild_id !== undefined) {
+    if (guild_id) {
         const usersData = await dbFetchGuildUsers(guild_id);
         const users = usersData
             .map((user) => user.anilist?.username)
@@ -60,6 +60,12 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
         }
 
         allUsers = selectedUsers;
+    } else if (user_id) {
+        const userData = await dbFetchAnilistUser(user_id);
+
+        if (userData) {
+            allUsers = [userData.username];
+        }
     }
 
     if (allUsers.length !== 0) {

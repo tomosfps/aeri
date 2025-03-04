@@ -21,7 +21,7 @@ export const interaction: ChatInputCommand = {
             "Aeri is open source, allowing you to host your own instance or contribute to the project.\n",
 
             `${bold("Other Information")}`,
-            `${inlineCode("Version      :")} v1.0.0`,
+            `${inlineCode("Version      :")} v1.0.2`,
             `${inlineCode("Library      :")} [discord.js](https://discord.js.org/)`,
             `${inlineCode("Languages    :")} [TypeScript](https://www.typescriptlang.org), [Rust](https://www.rust-lang.org), [Dockerfile](https://www.docker.com/)`,
             `${inlineCode("Created      :")} 19/10/2024`,

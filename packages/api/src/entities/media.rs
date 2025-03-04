@@ -6,8 +6,14 @@ use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use crate::global::metrics::Metrics;
+use lazy_static::lazy_static;
+use colourful_logger::Logger;
 
-#[derive(Deserialize)]
+lazy_static! {
+    static ref logger: Logger = Logger::default();
+}
+
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Media {
     pub id:              i32,
@@ -71,6 +77,9 @@ impl Entity<FormattedMedia, MediaRequest> for Media {
     }
 
     async fn format(self, _request: &MediaRequest, _metrics: web::Data<Arc<Metrics>>) -> Result<FormattedMedia, HttpResponse> {
+
+        logger.debug_single(format!("Debugging Media: {:?}", self).as_str(), "Media");
+
         Ok(FormattedMedia {
             id: self.id,
             title: self.title,
