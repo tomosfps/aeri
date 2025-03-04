@@ -20,9 +20,14 @@ export const interaction: ChatInputCommand = {
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addStringOption((option) =>
             option.setName("name").setDescription("The name of the staff member").setRequired(true),
+        )
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         const staff_name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+
         const { result: staff, error } = await api.fetch(Routes.Staff, { staff_name });
 
         if (error) {
@@ -66,6 +71,7 @@ export const interaction: ChatInputCommand = {
         return interaction.reply({
             embeds: [embed],
             components: [row],
+            ephemeral: hidden,
         });
     },
 };

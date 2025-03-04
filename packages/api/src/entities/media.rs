@@ -71,6 +71,7 @@ impl Entity<FormattedMedia, MediaRequest> for Media {
     }
 
     async fn format(self, _request: &MediaRequest, _metrics: web::Data<Arc<Metrics>>) -> Result<FormattedMedia, HttpResponse> {
+
         Ok(FormattedMedia {
             id: self.id,
             title: self.title,

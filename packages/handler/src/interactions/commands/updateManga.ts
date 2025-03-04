@@ -69,6 +69,10 @@ export const interaction: ChatInputCommand = {
 
         const name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) as string;
         const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+        const status = getCommandOption("status", ApplicationCommandOptionType.String, interaction.options);
+        const score = getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options);
+        const progress = getCommandOption("progress", ApplicationCommandOptionType.Number, interaction.options);
+        const volumes = getCommandOption("volume", ApplicationCommandOptionType.Number, interaction.options);
         const inDatabase = await dbFetchAnilistUser(interaction.user_id);
 
         if (!inDatabase || inDatabase.token === null) {
@@ -78,14 +82,17 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        const { result, error } = await api.fetch(
-            Routes.Media,
-            { media_type: MediaType.Manga, media_id: Number(name) },
-            { guild_id: interaction.guild_id, user_id: interaction.user_id },
-        );
+        const { result: updateMedia, error: updateError } = await api.fetch(Routes.UpdateMedia, {
+            status: status as MediaListStatus,
+            score,
+            progress,
+            id: Number(name),
+            token: inDatabase.token,
+            volumes,
+        });
 
-        if (error || result === null) {
-            logger.error("Error while fetching data MEDIA from the API.", "Anilist", { error });
+        if (updateError || updateMedia === null) {
+            logger.error("Error while fetching data MUTATION from the API.", "Anilist", { updateError });
 
             return interaction.reply({
                 content:
@@ -94,36 +101,14 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        const userResults = result.userResults.find((userResult) => userResult.username === inDatabase.username);
+        const { result, error } = await api.fetch(
+            Routes.Media,
+            { media_type: MediaType.Manga, media_id: Number(name) },
+            { user_id: interaction.user_id, guild_id: interaction.guild_id },
+        );
 
-        if (!userResults) {
-            return;
-        } // This shouldn't get called
-
-        const status =
-            getCommandOption("status", ApplicationCommandOptionType.String, interaction.options) ||
-            (userResults.status as MediaListStatus);
-        const score =
-            getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options) ||
-            (userResults.score as number);
-        const progress =
-            getCommandOption("progress", ApplicationCommandOptionType.Number, interaction.options) ||
-            (userResults.progress as number);
-        const volumes =
-            getCommandOption("volume", ApplicationCommandOptionType.Number, interaction.options) ||
-            (userResults.volumes as number);
-
-        const { result: updateMedia, error: updateError } = await api.fetch(Routes.UpdateMedia, {
-            status: status as MediaListStatus,
-            score: score,
-            progress: progress,
-            id: Number(name),
-            token: inDatabase.token,
-            volumes,
-        });
-
-        if (updateError || updateMedia === null) {
-            logger.error("Error while fetching data MUTATION from the API.", "Anilist", { updateError });
+        if (error || result === null) {
+            logger.error("Error while fetching data MEDIA from the API.", "Anilist", { error });
 
             return interaction.reply({
                 content:

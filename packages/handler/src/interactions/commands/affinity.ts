@@ -38,6 +38,7 @@ export const interaction: ChatInputCommand = {
 
         const guildMembers = (await dbFetchGuildUsers(interaction.guild_id))
             .filter((user) => user.anilist !== null)
+            .slice(0, 15)
             // biome-ignore lint/style/noNonNullAssertion: filtered above
             .map((user) => user.anilist!.username);
 
@@ -78,7 +79,9 @@ export const interaction: ChatInputCommand = {
             .setThumbnail(affinity.comparedAgainst.avatar.large)
             .setDescription(affinity.description)
             .setColor(interaction.base_colour)
-            .setFooter({ text: affinity.footer });
+            .setFooter({
+                text: `${affinity.footer}\nThis could be wrong, if you think so head over to the github page and help!`,
+            });
 
         await interaction.reply({ embeds: [embed] });
     },

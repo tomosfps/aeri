@@ -28,7 +28,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
         const { result: media, error } = await api.fetch(
             Routes.Media,
             { media_type, media_id },
-            { guild_id: interaction.guild_id, user_id: interaction.user_id },
+            { user_id: interaction.user_id, guild_id: interaction.guild_id },
         );
 
         if (error || !media) {

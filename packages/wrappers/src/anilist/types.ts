@@ -202,8 +202,8 @@ type Media = {
         }>;
     };
     transformer_args: {
+        user_id: string;
         guild_id: string | undefined;
-        user_id: string | undefined;
     };
 };
 
@@ -362,11 +362,11 @@ type Viewer = {
 
 type MediaUpdated = {
     body: {
-        status: MediaListStatus;
-        score: number;
-        progress: number;
+        status: MediaListStatus | null;
+        score: number | null;
+        progress: number | null;
         id: number;
-        volumes: number;
+        volumes: number | null;
         token: string;
     };
     response: BaseResponse & {

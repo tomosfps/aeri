@@ -69,11 +69,15 @@ export const interaction: ChatInputCommand = {
                 .setDescription("Recommendation based on genre or score")
                 .setRequired(true)
                 .addChoices({ name: "Genre", value: "Genre" }, { name: "Score", value: "Score" }),
+        )
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";
         const basedOn = getCommandOption("based_on", ApplicationCommandOptionType.String, interaction.options) || "";
         const media_type = media === "ANIME" ? MediaType.Anime : MediaType.Manga;
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
 
         if (basedOn === "Genre") {
             const select = new StringSelectMenuBuilder()
@@ -91,7 +95,7 @@ export const interaction: ChatInputCommand = {
                 );
 
             const row = new ActionRowBuilder().addComponents(select);
-            return await interaction.reply({ components: [row] });
+            return await interaction.reply({ components: [row], ephemeral: hidden });
         }
 
         await interaction.defer();
@@ -159,7 +163,7 @@ export const interaction: ChatInputCommand = {
         const { result: mediaResult, error: mediaError } = await api.fetch(
             Routes.Media,
             { media_type, media_id },
-            { guild_id: interaction.guild_id, user_id: interaction.user_id },
+            { user_id: interaction.user_id, guild_id: interaction.guild_id },
         );
 
         if (mediaError) {
@@ -187,6 +191,6 @@ export const interaction: ChatInputCommand = {
             .setColor(interaction.base_colour)
             .setFooter({ text: mediaResult.footer });
 
-        await interaction.followUp({ embeds: [embed] });
+        await interaction.followUp({ embeds: [embed], ephemeral: hidden });
     },
 };

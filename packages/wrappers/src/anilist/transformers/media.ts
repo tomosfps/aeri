@@ -1,13 +1,13 @@
 import { formatEmoji, inlineCode } from "@discordjs/formatters";
 import { formatSeconds } from "core";
-import { dbFetchGuildUsers } from "database";
+import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
 import { mediaStatusString } from "../enums.js";
 import { MediaListStatus, api } from "../index.js";
 import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
 import { filteredDescription, getNextAiringEpisode } from "./util.js";
 
-export const mediaTransformer: TransformersType[Routes.Media] = async (data, { guild_id, user_id }) => {
+export const mediaTransformer: TransformersType[Routes.Media] = async (data, { user_id, guild_id }) => {
     const genresToShow = data.genres.slice(0, 3);
     const additionalGenresCount = data.genres.length - genresToShow.length;
     const genresDisplay =
@@ -41,26 +41,25 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
 
     let allUsers: string[] = [];
 
-    if (guild_id !== undefined) {
-        const usersData = await dbFetchGuildUsers(guild_id);
-        const users = usersData
-            .map((user) => user.anilist?.username)
-            .filter((username): username is string => username !== undefined);
+    const currentUserData = await dbFetchAnilistUser(user_id);
 
-        const currentUserData = usersData.find(
-            (user) => user.anilist?.username !== undefined && user.discord_id.toString() === user_id,
-        )?.anilist?.username;
+    if (currentUserData) {
+        allUsers.push(currentUserData.username);
+    }
+
+    if (guild_id) {
+        const guildUsersData = await dbFetchGuildUsers(guild_id);
+
+        const users = guildUsersData
+            .filter((user) => user.discord_id.toString() !== user_id)
+            .map((user) => user.anilist?.username)
+            .filter(Boolean) as string[];
 
         const shuffled = users.sort(() => 0.5 - Math.random());
-        const selectedUsers = shuffled.slice(0, 14);
-
-        if (currentUserData && !selectedUsers.includes(currentUserData)) {
-            selectedUsers.pop();
-            selectedUsers.push(currentUserData);
-        }
-
-        allUsers = selectedUsers;
+        allUsers.push(...shuffled);
     }
+
+    allUsers = allUsers.slice(0, 15);
 
     if (allUsers.length !== 0) {
         const maxLength = Math.max(...allUsers.map((user: any) => user.length + 2));
