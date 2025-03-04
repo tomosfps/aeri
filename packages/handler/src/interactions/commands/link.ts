@@ -1,5 +1,6 @@
 import { EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { dbCreateAnilistUser, dbFetchAnilistUser } from "database";
+import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
@@ -17,6 +18,7 @@ export const interaction: ChatInputCommand = {
         .setCategory("Anime/Manga")
         .setCooldown(5)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
+        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addStringOption((option) =>
             option.setName("username").setDescription("Your Anilist username").setRequired(true),
         ),

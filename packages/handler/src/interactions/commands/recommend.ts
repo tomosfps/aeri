@@ -7,6 +7,7 @@ import {
 } from "@discordjs/builders";
 
 import { dbFetchAnilistUser } from "database";
+import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
@@ -54,6 +55,7 @@ export const interaction: ChatInputCommand = {
         .addExample("You can not use both genre and score at the same time")
         .setCategory("Anime/Manga")
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
+        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addStringOption((option) =>
             option
                 .setName("media")

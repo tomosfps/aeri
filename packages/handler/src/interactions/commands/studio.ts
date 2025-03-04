@@ -1,5 +1,6 @@
 import { EmbedBuilder, inlineCode } from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
+import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
@@ -16,6 +17,7 @@ export const interaction: ChatInputCommand = {
         .setCategory("Anime/Manga")
         .setCooldown(5)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
+        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addStringOption((option) =>
             option.setName("studio_name").setDescription("The name of the studio").setRequired(true),
         ),

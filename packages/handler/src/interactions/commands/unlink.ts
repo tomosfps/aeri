@@ -1,4 +1,5 @@
 import { dbDeleteAnilistUser, dbFetchAnilistUser } from "database";
+import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
@@ -8,6 +9,7 @@ export const interaction: ChatInputCommand = {
         .setName("unlink")
         .setDescription("Unlink your anilist account from the bot")
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
+        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addExample("/unlink")
         .setCategory("Anime/Manga"),
     async execute(interaction): Promise<void> {

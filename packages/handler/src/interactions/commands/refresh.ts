@@ -1,4 +1,5 @@
 import { dbFetchAnilistUser } from "database";
+import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
@@ -15,7 +16,8 @@ export const interaction: ChatInputCommand = {
         .addExample("Must have used /link before using this command")
         .setCategory("Anime/Manga")
         .setCooldown(1800)
-        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall),
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
+        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM),
     async execute(interaction): Promise<void> {
         const anilistUser = await dbFetchAnilistUser(interaction.user_id);
         const userId = anilistUser ? anilistUser.id : null;

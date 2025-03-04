@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { ButtonStyle } from "@discordjs/core";
+import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -15,6 +16,7 @@ export const interaction: ChatInputCommand = {
         .addExample("/avatar target:@tomosfps")
         .setCategory("Utility")
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
+        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addUserOption((option) =>
             option.setName("target").setDescription("The user/bot to view their avatar").setRequired(true),
         ),

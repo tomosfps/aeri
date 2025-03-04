@@ -4,6 +4,7 @@ import {
     StringSelectMenuOptionBuilder,
     inlineCode,
 } from "@discordjs/builders";
+import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
@@ -21,6 +22,7 @@ export const interaction: ChatInputCommand = {
         .setCategory("Anime/Manga")
         .setCooldown(5)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
+        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addStringOption((option) => option.setName("name").setDescription("The name of the manga").setRequired(true)),
     async execute(interaction): Promise<void> {
         const manga = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";

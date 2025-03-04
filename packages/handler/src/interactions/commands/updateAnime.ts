@@ -1,5 +1,6 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { dbFetchAnilistUser } from "database";
+import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaListStatus, MediaType, Routes, api } from "wrappers/anilist";
@@ -14,7 +15,8 @@ export const interaction: ChatInputCommand = {
         .setName("update-anime")
         .setDescription("Update an anime entry on your Anilist account.")
         .setCooldown(5)
-        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
+        .setContexts(InteractionContextType.Guild)
         .addExample("/update-anime name:Berserk score:10 status:Current progress:153")
         .addExample("/update-anime name:One Piece score:10")
         .addExample("/update-anime name:One Piece status:Paused")

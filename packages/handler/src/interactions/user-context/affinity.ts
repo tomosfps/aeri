@@ -1,6 +1,7 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
-import { ApplicationCommandType } from "discord-api-types/v10";
+import { InteractionContextType } from "discord-api-types/v9";
+import { ApplicationCommandType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { ContextMenuCommandBuilder } from "../../classes/ContextMenuCommandBuilder.js";
@@ -9,7 +10,11 @@ import type { UserContextCommand } from "../../services/commands.js";
 const logger = new Logger();
 
 export const interaction: UserContextCommand = {
-    data: new ContextMenuCommandBuilder().setName("affinity").setType(ApplicationCommandType.User),
+    data: new ContextMenuCommandBuilder()
+        .setName("affinity")
+        .setType(ApplicationCommandType.User)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
+        .setContexts(InteractionContextType.Guild),
     async execute(interaction) {
         if (!interaction.guild_id) {
             return interaction.reply({
