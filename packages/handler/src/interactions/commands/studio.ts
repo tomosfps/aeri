@@ -20,10 +20,14 @@ export const interaction: ChatInputCommand = {
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addStringOption((option) =>
             option.setName("studio_name").setDescription("The name of the studio").setRequired(true),
+        )
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         const studio_name =
             getCommandOption("studio_name", ApplicationCommandOptionType.String, interaction.options) || "";
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
 
         const { result: studio, error } = await api.fetch(Routes.Studio, { studio_name });
 
@@ -55,6 +59,7 @@ export const interaction: ChatInputCommand = {
 
         return interaction.reply({
             embeds: [embed],
+            ephemeral: hidden,
         });
     },
 };

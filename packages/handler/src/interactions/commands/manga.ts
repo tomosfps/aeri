@@ -23,9 +23,13 @@ export const interaction: ChatInputCommand = {
         .setCooldown(5)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
-        .addStringOption((option) => option.setName("name").setDescription("The name of the manga").setRequired(true)),
+        .addStringOption((option) => option.setName("name").setDescription("The name of the manga").setRequired(true))
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
+        ),
     async execute(interaction): Promise<void> {
         const manga = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
 
         const { result, error } = await api.fetch(
             Routes.Relations,
@@ -78,6 +82,6 @@ export const interaction: ChatInputCommand = {
             );
 
         const row = new ActionRowBuilder().addComponents(select);
-        await interaction.reply({ components: [row] });
+        await interaction.reply({ components: [row], ephemeral: hidden });
     },
 };

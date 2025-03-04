@@ -1,6 +1,6 @@
-import { EmbedBuilder, bold, inlineCode } from "@discordjs/builders";
+import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, bold, inlineCode } from "@discordjs/builders";
 import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationIntegrationType } from "discord-api-types/v10";
+import { ApplicationIntegrationType, ButtonStyle } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
@@ -33,18 +33,28 @@ export const interaction: ChatInputCommand = {
             `${inlineCode("Actix Web     :")} [Rust web server framework](https://actix.rs/) for the backend`,
             `${inlineCode("Postgres      :")} [PostgreSQL](https://www.postgresql.org/) for database storage`,
             `${inlineCode("Redis         :")} [Redis](https://redis.io/) for caching`,
+            `${inlineCode("trace.moe     :")} [Anime scene search API](https://soruly.github.io/trace.moe-api/) for image recognition`,
         ];
 
-        // Leaving this here since eventually it'll be implemented.
-        //`${inlineCode("trace.moe     :")} [Anime scene search API](https://soruly.github.io/trace.moe-api/) for image recognition`
+        const inviteButton = new ButtonBuilder()
+            .setCustomId("infoAdd:INVITE:${interaction.user.id}")
+            .setLabel("Invite Bot")
+            .setStyle(ButtonStyle.Primary);
+
+        const supportButton = new ButtonBuilder()
+            .setCustomId("infoAdd:SUPPORT")
+            .setLabel("Support Server")
+            .setStyle(ButtonStyle.Secondary);
+
+        const row = new ActionRowBuilder().addComponents(inviteButton, supportButton);
 
         const embed = new EmbedBuilder()
             .setTitle("About Aeri")
             .setURL("https://github.com/tomosfps/aeri")
             .setDescription(descriptionBuilder.join("\n"))
-            .setThumbnail(interaction.avatar_url)
+            .setThumbnail("https://cdn.aeri.live/bot_pfp.png")
             .setColor(interaction.base_colour);
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed], components: [row] });
     },
 };

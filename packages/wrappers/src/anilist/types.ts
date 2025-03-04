@@ -204,6 +204,7 @@ type Media = {
     transformer_args: {
         guild_id: string | undefined;
         user_id: string | undefined;
+        isGroupDM: boolean;
     };
 };
 

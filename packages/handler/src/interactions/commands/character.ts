@@ -20,6 +20,9 @@ export const interaction: ChatInputCommand = {
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addStringOption((option) =>
             option.setName("name").setDescription("The name of the character").setRequired(true),
+        )
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         const character_name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";

@@ -7,7 +7,7 @@ import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
 import { filteredDescription, getNextAiringEpisode } from "./util.js";
 
-export const mediaTransformer: TransformersType[Routes.Media] = async (data, { guild_id, user_id }) => {
+export const mediaTransformer: TransformersType[Routes.Media] = async (data, { guild_id, user_id, isGroupDM }) => {
     const genresToShow = data.genres.slice(0, 3);
     const additionalGenresCount = data.genres.length - genresToShow.length;
     const genresDisplay =
@@ -41,7 +41,9 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
 
     let allUsers: string[] = [];
 
-    if (guild_id) {
+    if (isGroupDM) {
+        allUsers = []; // Do stuff here
+    } else if (guild_id) {
         const usersData = await dbFetchGuildUsers(guild_id);
         const users = usersData
             .map((user) => user.anilist?.username)
@@ -60,7 +62,7 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
         }
 
         allUsers = selectedUsers;
-    } else if (user_id) {
+    } else if (user_id && !isGroupDM) {
         const userData = await dbFetchAnilistUser(user_id);
 
         if (userData) {

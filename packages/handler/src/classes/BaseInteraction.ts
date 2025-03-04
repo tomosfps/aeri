@@ -36,6 +36,23 @@ export class BaseInteraction {
         return this.interaction.channel?.nsfw || false;
     }
 
+    get isGroupDM() {
+        return (
+            this.interaction.channel?.type === ChannelType.DM || this.interaction.channel?.type === ChannelType.GroupDM
+        );
+    }
+
+    get groupDMUsers() {
+        if (
+            this.interaction.channel?.type === ChannelType.GroupDM ||
+            this.interaction.channel?.type === ChannelType.DM
+        ) {
+            return JSON.stringify(this.interaction.channel);
+        }
+
+        return [];
+    }
+
     get user() {
         if (this.interaction.member) {
             return this.interaction.member.user;
