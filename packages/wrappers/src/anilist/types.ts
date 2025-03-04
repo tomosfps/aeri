@@ -202,9 +202,9 @@ type Media = {
         }>;
     };
     transformer_args: {
+        user_id: string;
         guild_id: string | undefined;
-        user_id: string | undefined;
-        isGroupDM: boolean;
+        additional_users?: string[] | undefined;
     };
 };
 

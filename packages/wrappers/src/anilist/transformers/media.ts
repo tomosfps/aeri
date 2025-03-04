@@ -7,7 +7,7 @@ import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
 import { filteredDescription, getNextAiringEpisode } from "./util.js";
 
-export const mediaTransformer: TransformersType[Routes.Media] = async (data, { guild_id, user_id, isGroupDM }) => {
+export const mediaTransformer: TransformersType[Routes.Media] = async (data, { user_id, guild_id, additional_users }) => {
     const genresToShow = data.genres.slice(0, 3);
     const additionalGenresCount = data.genres.length - genresToShow.length;
     const genresDisplay =
@@ -41,34 +41,38 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { g
 
     let allUsers: string[] = [];
 
-    if (isGroupDM) {
-        allUsers = []; // Do stuff here
-    } else if (guild_id) {
-        const usersData = await dbFetchGuildUsers(guild_id);
-        const users = usersData
-            .map((user) => user.anilist?.username)
-            .filter((username): username is string => username !== undefined);
+    const currentUserData = await dbFetchAnilistUser(user_id);
 
-        const currentUserData = usersData.find(
-            (user) => user.anilist?.username !== undefined && user.discord_id.toString() === user_id,
-        )?.anilist?.username;
+    if (currentUserData) {
+        allUsers.push(currentUserData.username);
+    }
+
+    if (additional_users) {
+        const additionalUsersData = await Promise.all(
+            additional_users.map((user) => dbFetchAnilistUser(user)),
+        );
+
+        const additionalUsersUsernames = additionalUsersData
+            .map((user) => user?.username)
+            .filter(Boolean) as string[];
+
+        allUsers.push(...additionalUsersUsernames);
+    }
+
+    if (guild_id) {
+        const guildUsersData = await dbFetchGuildUsers(guild_id);
+
+        const users = guildUsersData
+            .filter((user) => user.discord_id.toString() !== user_id)
+            .map((user) => user.anilist?.username)
+            .filter(Boolean) as string[];
 
         const shuffled = users.sort(() => 0.5 - Math.random());
-        const selectedUsers = shuffled.slice(0, 14);
 
-        if (currentUserData && !selectedUsers.includes(currentUserData)) {
-            selectedUsers.pop();
-            selectedUsers.push(currentUserData);
-        }
-
-        allUsers = selectedUsers;
-    } else if (user_id && !isGroupDM) {
-        const userData = await dbFetchAnilistUser(user_id);
-
-        if (userData) {
-            allUsers = [userData.username];
-        }
+        allUsers.push(...shuffled);
     }
+
+    allUsers = allUsers.slice(0, 15);
 
     if (allUsers.length !== 0) {
         const maxLength = Math.max(...allUsers.map((user: any) => user.length + 2));

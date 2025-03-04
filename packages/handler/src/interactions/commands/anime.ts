@@ -32,8 +32,6 @@ export const interaction: ChatInputCommand = {
         const anime = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
         const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
 
-        logger.debug("Fetching data from the API.", "Anilist", { interaction: interaction.groupDMUsers });
-
         const { result, error } = await api.fetch(
             Routes.Relations,
             {
