@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Default, Clone, Copy, Debug)]
+#[derive(Deserialize, Serialize, Default, Clone, Copy)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum MediaFormat {
     Tv,
@@ -30,7 +30,7 @@ pub enum MediaListStatus {
     Unknown,
 }
 
-#[derive(Deserialize, Serialize, Default, Clone, Copy, Debug)]
+#[derive(Deserialize, Serialize, Default, Clone, Copy)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum MediaStatus {
     Finished,
@@ -56,7 +56,7 @@ pub struct Favourites {
     pub manga:  MediaNodes,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MediaCoverImage {
     pub extra_large: Option<String>,
@@ -68,19 +68,19 @@ pub struct Avatar {
     pub medium:     Option<String>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize)]
 pub struct AiringSchedule {
     pub nodes: Option<Vec<AiringScheduleNode>>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AiringScheduleNode {
     pub time_until_airing:  i32,
     pub episode:            i32,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize)]
 pub struct Title {
     pub romaji:  Option<String>,
     pub native:  Option<String>,
@@ -94,7 +94,7 @@ pub struct Name {
     pub alternative: Option<Vec<String>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 pub struct Date {
     pub year:   Option<i32>,
     pub month:  Option<i32>,

@@ -7,12 +7,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use crate::cache::redis::Redis;
 use crate::global::metrics::Metrics;
-use lazy_static::lazy_static;
-use colourful_logger::Logger;
-
-lazy_static! {
-    static ref logger: Logger = Logger::default();
-}
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -24,7 +18,7 @@ pub struct UpdateMediaMutation {
     pub media:      Option<MediaUpdateData>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize)]
 pub struct MediaUpdateData {
     id:     i32,
     title:  Title
@@ -60,8 +54,6 @@ impl Entity<FormattedUpdateMedia, MutationMediaRequest> for UpdateMediaMutation 
 
     async fn format(self, _request: &MutationMediaRequest, _metrics: web::Data<Arc<Metrics>>) -> Result<FormattedUpdateMedia, HttpResponse> {
         let media = self.media.unwrap();
-
-        logger.debug_single(format!("Debugging Media: {:?}", media).as_str(), "Media");
 
         Ok(FormattedUpdateMedia {
             id:         media.id,
