@@ -5,6 +5,7 @@ import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
+import { getCommandAsMention } from "../../utility/formatUtils.js";
 
 const logger = new Logger();
 
@@ -25,8 +26,7 @@ export const interaction: ChatInputCommand = {
 
         if (username === null || userId === null) {
             return interaction.reply({
-                content:
-                    "You must link your Anilist account to use this command. You can do so by using the `/link` command.",
+                content: `You must link your Anilist account to use this command. You can do so by using the ${await getCommandAsMention("link")} command.`,
                 ephemeral: true,
             });
         }

@@ -6,6 +6,7 @@ import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
+import { getCommandAsMention } from "../../utility/formatUtils.js";
 
 const logger = new Logger();
 
@@ -31,7 +32,7 @@ export const interaction: ChatInputCommand = {
 
         if (!user) {
             return interaction.reply({
-                content: "You must link your Anilist account to use this command!\nUse `/link` to link your account.",
+                content: `You must link your Anilist account to use this command!\nUse ${await getCommandAsMention("link")} to link your account.`,
                 ephemeral: true,
             });
         }

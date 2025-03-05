@@ -6,6 +6,7 @@ import { Logger } from "logger";
 import { MediaListStatus, MediaType, Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
+import { getCommandAsMention } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
@@ -72,7 +73,7 @@ export const interaction: ChatInputCommand = {
 
         if (!inDatabase || inDatabase.token === null) {
             return interaction.reply({
-                content: "You need to setup OAuth first. Use `/login` to do so.",
+                content: `You need to setup OAuth first. Use ${await getCommandAsMention("login")} to do so.`,
                 ephemeral: true,
             });
         }

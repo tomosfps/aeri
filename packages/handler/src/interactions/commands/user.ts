@@ -6,6 +6,7 @@ import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
+import { getCommandAsMention } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
@@ -31,7 +32,10 @@ export const interaction: ChatInputCommand = {
             const dbUser = await dbFetchAnilistUser(interaction.user_id);
 
             if (!dbUser) {
-                return interaction.reply({ content: "Please setup your account with `/link`!", ephemeral: true });
+                return interaction.reply({
+                    content: `Please setup your account with ${await getCommandAsMention("link")}`,
+                    ephemeral: true,
+                });
             }
 
             username = dbUser.username;
@@ -39,7 +43,7 @@ export const interaction: ChatInputCommand = {
 
         if (!username) {
             return interaction.reply({
-                content: "Please provide a username, or setup your account with /link",
+                content: `Please provide a username, or setup your account with ${await getCommandAsMention("link")}`,
                 ephemeral: true,
             });
         }

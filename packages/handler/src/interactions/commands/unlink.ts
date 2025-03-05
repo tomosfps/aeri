@@ -3,6 +3,7 @@ import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
+import { getCommandAsMention } from "../../utility/formatUtils.js";
 
 export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
@@ -17,7 +18,7 @@ export const interaction: ChatInputCommand = {
 
         if (isInDatabase === null) {
             return interaction.reply({
-                content: "You do not have an anilist account linked. Use `/link` to link your account.",
+                content: `You do not have an anilist account linked. Use ${await getCommandAsMention("link")} to link your account.`,
                 ephemeral: true,
             });
         }

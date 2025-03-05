@@ -3,7 +3,6 @@ import {
     EmbedBuilder,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
-    inlineCode,
 } from "@discordjs/builders";
 
 import { dbFetchAnilistUser } from "database";
@@ -13,6 +12,7 @@ import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
+import { getCommandAsMention } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
@@ -103,8 +103,7 @@ export const interaction: ChatInputCommand = {
 
         if (!dbUser) {
             return interaction.followUp({
-                content:
-                    "Could not find your Anilist account. If you haven't please link your account using the `/link` command.",
+                content: `Could not find your Anilist account. If you haven't please link your account using the ${await getCommandAsMention("link")} command.`,
                 ephemeral: true,
             });
         }
@@ -123,7 +122,7 @@ export const interaction: ChatInputCommand = {
 
         if (!user) {
             return interaction.followUp({
-                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${inlineCode("/unlink")} and ${inlineCode("/link")} again.`,
+                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${await getCommandAsMention("unlink")} and ${await getCommandAsMention("link")} again.`,
             });
         }
 
@@ -154,7 +153,7 @@ export const interaction: ChatInputCommand = {
 
         if (!recommendation) {
             return interaction.followUp({
-                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${inlineCode("/unlink")} and ${inlineCode("/link")} again.`,
+                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${await getCommandAsMention("unlink")} and ${await getCommandAsMention("link")} again.`,
             });
         }
 
@@ -178,7 +177,7 @@ export const interaction: ChatInputCommand = {
 
         if (!mediaResult) {
             return interaction.followUp({
-                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${inlineCode("/unlink")} and ${inlineCode("/link")} again.`,
+                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${await getCommandAsMention("unlink")} and ${await getCommandAsMention("link")} again.`,
             });
         }
 
