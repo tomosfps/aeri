@@ -6,6 +6,7 @@ import {
     type APIInteraction,
     type APIModalInteractionResponseCallbackData,
     MessageFlags,
+    PermissionFlagsBits,
 } from "@discordjs/core";
 import { ChannelType } from "@discordjs/core";
 import { env } from "core";
@@ -75,6 +76,16 @@ export class BaseInteraction {
         return this.api.guilds;
     }
 
+    get can_embed() {
+        const permissions = BigInt(this.interaction.app_permissions);
+
+        return Boolean(
+            permissions & PermissionFlagsBits.EmbedLinks &&
+                permissions & PermissionFlagsBits.SendMessages &&
+                permissions & PermissionFlagsBits.SendMessagesInThreads,
+        );
+    }
+
     public async reply(
         options: {
             content?: string;
@@ -83,7 +94,7 @@ export class BaseInteraction {
             ephemeral?: boolean;
         } = {},
     ) {
-        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : 0;
+        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : this.can_embed ? 0 : MessageFlags.Ephemeral;
 
         await this.api.interactions.reply(this.id, this.token, {
             content: options.content,
@@ -111,7 +122,7 @@ export class BaseInteraction {
             ephemeral?: boolean;
         } = {},
     ) {
-        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : 0;
+        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : this.can_embed ? 0 : MessageFlags.Ephemeral;
 
         await this.api.interactions.updateMessage(this.id, this.token, {
             content: options.content,
@@ -139,7 +150,7 @@ export class BaseInteraction {
             ephemeral?: boolean;
         } = {},
     ) {
-        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : 0;
+        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : this.can_embed ? 0 : MessageFlags.Ephemeral;
 
         await this.api.interactions.editReply(env.DISCORD_APPLICATION_ID, this.token, {
             content: options.content,
@@ -167,7 +178,7 @@ export class BaseInteraction {
             ephemeral?: boolean;
         } = {},
     ) {
-        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : 0;
+        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : this.can_embed ? 0 : MessageFlags.Ephemeral;
         await this.api.interactions.followUp(env.DISCORD_APPLICATION_ID, this.token, {
             content: options.content,
             embeds: options.embeds?.map((embed) => {
