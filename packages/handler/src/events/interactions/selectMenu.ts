@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
-import { checkRedis, setExpireCommand } from "core";
 import { Logger } from "logger";
 import type { SelectMenuHandler } from "../../classes/SelectMenuInteraction.js";
+import { checkCommandCooldown } from "../../utility/redisUtil.js";
 
 const logger = new Logger();
 
@@ -17,14 +17,12 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
     }
 
     const memberId = interaction.user.id;
-
     if (!memberId) {
         logger.warnSingle("Member was not found", "Handler");
         return;
     }
 
     const toggleable = selectMenu.toggleable ?? false;
-    const timeout = selectMenu.timeout ?? 3600;
 
     logger.debug("Checking if command is toggleable", "Handler", { toggleable, memberId, data });
     if (toggleable && !data.includes(memberId)) {
@@ -35,22 +33,14 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
         return;
     }
 
-    const redisKey = `${selectId}_${memberId}`;
-    const check = await checkRedis(redisKey, selectMenu, memberId);
-    if (check !== 0) {
+    const redisKey = `select:${selectId}:${interaction.channel.id}:${interaction.message.id}:${memberId}`;
+    const timeout = selectMenu.cooldown ?? 3600;
+    const check = await checkCommandCooldown(redisKey, memberId, timeout);
+    if (!check.canUse) {
         return api.interactions.reply(interaction.id, interaction.token, {
-            content: `You may use this command again in <t:${check}:R>`,
+            content: `You may use this command again in <t:${check.expirationTime}:R>`,
             flags: MessageFlags.Ephemeral,
         });
-    }
-
-    const expireKey = `select:${interaction.channel.id}:${interaction.message.id}`;
-    const setExpire = await setExpireCommand(expireKey, timeout);
-
-    if (!setExpire) {
-        logger.debugSingle(`${selectId} already exists in redis`, "Handler");
-    } else {
-        logger.debugSingle(`Set expire time for select menu: ${selectId}`, "Handler");
     }
 
     try {

@@ -26,7 +26,7 @@ export const CommandCard = memo(({
         onClick={() => onToggleExpand(command.name)}
         >
         <CardHeader className="flex flex-row items-center justify-between py-3">
-          <div className="flex-1 min-w-0"> {/* Container for all content */}
+          <div className="flex-1 min-w-0">
             <CardTitle className="text-lg flex items-center text-cprimary-light flex-nowrap">
               <div className="overflow-hidden text-ellipsis whitespace-nowrap mr-2 flex-shrink" title={`/${command.name}`}>
                 /{command.name}

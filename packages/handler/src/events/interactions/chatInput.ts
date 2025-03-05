@@ -1,9 +1,9 @@
 import { MessageFlags } from "@discordjs/core";
-import { checkRedis } from "core";
 import { env } from "core";
 import { dbUpdateGuild } from "database";
 import { Logger } from "logger";
 import type { ChatInputHandler } from "../../classes/ChatInputCommandInteraction.js";
+import { checkCommandCooldown } from "../../utility/redisUtil.js";
 
 const logger = new Logger();
 
@@ -36,11 +36,12 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
         await dbUpdateGuild(interaction.guild_id, memberId);
     }
 
-    const redisKey = `${interaction.data.name}_${memberId}`;
-    const check = await checkRedis(redisKey, command, memberId);
-    if (check !== 0) {
+    const redisKey = `${interaction.data.name}:${memberId}`;
+    const timeout = command.data.cooldown ?? 3600;
+    const check = await checkCommandCooldown(redisKey, memberId, timeout);
+    if (!check.canUse) {
         return api.interactions.reply(interaction.id, interaction.token, {
-            content: `You may use this command again in <t:${check}:R>`,
+            content: `You may use this command again in <t:${check.expirationTime}:R>`,
             flags: MessageFlags.Ephemeral,
         });
     }

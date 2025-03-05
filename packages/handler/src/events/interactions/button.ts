@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
-import { checkRedis, setExpireCommand } from "core";
 import { Logger } from "logger";
 import type { ButtonHandler } from "../../classes/ButtonInteraction.js";
+import { checkCommandCooldown } from "../../utility/redisUtil.js";
 
 const logger = new Logger();
 
@@ -24,9 +24,6 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
     }
 
     const toggleable = button.toggleable ?? false;
-    const timeout = button.timeout ?? 3600;
-
-    logger.debug("Checking if command is toggleable", "Handler", { toggleable, memberId, data });
     if (toggleable && !data.includes(memberId)) {
         await api.interactions.reply(interaction.id, interaction.token, {
             content: "Only the user who toggled this command can use it",
@@ -35,20 +32,12 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
         return;
     }
 
-    const expireKey = `button:${interaction.channel.id}:${interaction.message.id}`;
-    const setExpire = await setExpireCommand(expireKey, timeout);
-
-    if (!setExpire) {
-        logger.debugSingle(`${buttonId} already exists in redis`, "Handler");
-    } else {
-        logger.debugSingle(`Set expire time for select menu: ${buttonId}`, "Handler");
-    }
-
-    const redisKey = `${buttonId}_${memberId}`;
-    const check = await checkRedis(redisKey, button, memberId);
-    if (check !== 0) {
+    const redisKey = `button:${buttonId}:${interaction.channel.id}:${interaction.message.id}:${memberId}`;
+    const timeout = button.cooldown ?? 3600;
+    const check = await checkCommandCooldown(redisKey, memberId, timeout);
+    if (!check.canUse) {
         return api.interactions.reply(interaction.id, interaction.token, {
-            content: `You may use this command again in <t:${check}:R>`,
+            content: `You may use this command again in <t:${check.expirationTime}:R>`,
             flags: MessageFlags.Ephemeral,
         });
     }
