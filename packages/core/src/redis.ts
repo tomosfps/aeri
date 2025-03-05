@@ -76,8 +76,9 @@ export async function handleExpiration(redisKey: string): Promise<void> {
         return;
     }
 
-    const message = await api.channels.getMessage(channelId, messageId);
-    if (message.id) {
+    const message = await api.channels.getMessage(channelId, messageId).catch(() => null);
+
+    if (message?.id) {
         try {
             await api.channels.editMessage(channelId, messageId, {
                 components: [],
