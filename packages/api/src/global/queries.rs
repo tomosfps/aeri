@@ -245,6 +245,31 @@ pub fn get_query(query_name: &str) -> String {
         }
     }";
 
+
+    let user_list: &str = "
+    query ($userName: String, $type: MediaType) {
+    MediaListCollection(userName: $userName, type: $type) {
+    user {
+        id
+        name
+        bannerImage
+        avatar { large }
+        siteUrl
+    }
+    lists {
+        status
+        entries {
+            media {
+                id
+                title { romaji english native }
+                format
+                siteUrl
+                }
+            }
+        }
+        }
+    }";
+
     let user_stats: &str = "
     query ($userId: Int, $userName: String, $mediaId: Int) {
         MediaList(userId: $userId, userName: $userName, mediaId: $mediaId) {
@@ -339,6 +364,7 @@ pub fn get_query(query_name: &str) -> String {
         "user_scores" => user_stats.to_string(),
         "relation_stats" => relation_stats.to_string(),
         "user" => user.to_string(),
+        "user_list" => user_list.to_string(),
         "affinity" => affinity.to_string(),
         "recommendation" => recommendation.to_string(),
         "recommendations" => recommendation_amount.to_string(),

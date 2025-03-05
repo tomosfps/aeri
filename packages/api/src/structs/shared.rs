@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 #[derive(Deserialize, Serialize, Default, Clone, Copy)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -17,7 +18,7 @@ pub enum MediaFormat {
     Unknown,
 }
 
-#[derive(Deserialize, Serialize, Default, PartialEq, Clone, Copy)]
+#[derive(Deserialize, Serialize, Default, PartialEq, Clone, Copy, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum MediaListStatus {
     Current,
@@ -28,6 +29,36 @@ pub enum MediaListStatus {
     Repeating,
     #[default]
     Unknown,
+}
+
+impl FromStr for MediaListStatus {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_uppercase().as_str() {
+            "CURRENT" => Ok(Self::Current),
+            "PLANNING" => Ok(Self::Planning),
+            "COMPLETED" => Ok(Self::Completed),
+            "DROPPED" => Ok(Self::Dropped),
+            "PAUSED" => Ok(Self::Paused),
+            "REPEATING" => Ok(Self::Repeating),
+            _ => Err(()),
+        }
+    }
+}
+
+impl ToString for MediaListStatus {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Current => "CURRENT".into(),
+            Self::Planning => "PLANNING".into(),
+            Self::Completed => "COMPLETED".into(),
+            Self::Dropped => "DROPPED".into(),
+            Self::Paused => "PAUSED".into(),
+            Self::Repeating => "REPEATING".into(),
+            Self::Unknown => "UNKNOWN".into(),
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, Default, Clone, Copy)]
@@ -42,7 +73,7 @@ pub enum MediaStatus {
     Unknown,
 }
 
-#[derive(Deserialize, Serialize, Default, Clone, Copy)]
+#[derive(Deserialize, Serialize, Default, Clone, Copy, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Type {
     #[default]
@@ -80,7 +111,7 @@ pub struct AiringScheduleNode {
     pub episode:            i32,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Title {
     pub romaji:  Option<String>,
     pub native:  Option<String>,

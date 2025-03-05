@@ -13,7 +13,24 @@ export enum Routes {
     CurrentUser = "viewer",
     UpdateMedia = "oauth/updateMedia",
     RefreshUser = "remove-user",
+    WatchList = "watchlist",
 }
+
+type WatchListInfo = {
+    id: number;
+    title: Title;
+    format: MediaFormat;
+    site_url: string;
+    status: MediaListStatus;
+};
+
+type WatchListUser = {
+    id: number;
+    name: string;
+    avatar: string;
+    siteUrl: string;
+    bannerImage: string;
+};
 
 type AffinityUser = {
     name: string;
@@ -390,6 +407,21 @@ type RefreshUser = {
     };
 };
 
+type WatchList = {
+    body: {
+        username: string;
+        status: MediaListStatus;
+        type: MediaType;
+    };
+    response: BaseResponse & {
+        user: WatchListUser;
+        list: WatchListInfo[];
+    };
+    transformed: {
+        description: string;
+    };
+};
+
 export type RouteMap = {
     [Routes.Relations]: Relations;
     [Routes.User]: User;
@@ -403,4 +435,5 @@ export type RouteMap = {
     [Routes.CurrentUser]: Viewer;
     [Routes.UpdateMedia]: MediaUpdated;
     [Routes.RefreshUser]: RefreshUser;
+    [Routes.WatchList]: WatchList;
 };

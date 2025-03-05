@@ -6,7 +6,7 @@ export default function TermsOfService() {
       {/* Header Section */}
       <div className="mb-12 border-b border-cborder-light pb-6">
         <h1 className="text-4xl font-bold text-cprimary-light mb-4">Terms of Service</h1>
-        <p className="text-sm text-ctext-light/70">Last updated: March 3, 2025</p>
+        <p className="text-sm text-ctext-light/70">Last updated: March 4th, 2025</p>
       </div>
 
       {/* Table of Contents */}
@@ -170,10 +170,6 @@ export default function TermsOfService() {
             <li className="flex items-start">
               <div className="text-csecondary-light mr-2 mt-1">•</div>
               <span>Not use the bot for spam or harassment purposes</span>
-            </li>
-            <li className="flex items-start">
-              <div className="text-csecondary-light mr-2 mt-1">•</div>
-              <span>Not attempt to reverse engineer or extract the bot's code</span>
             </li>
             <li className="flex items-start">
               <div className="text-csecondary-light mr-2 mt-1">•</div>
@@ -389,7 +385,7 @@ export default function TermsOfService() {
       {/* Footer */}
       <div className="mt-12 pt-6 border-t border-cborder-light text-ctext-light/70 text-sm">
         <p>
-          These Terms of Service were last updated on March 3, 2025 and apply to all users of the Aeri Discord bot.
+          These Terms of Service were last updated on March 4th, 2025 and apply to all users of the Aeri Discord bot.
         </p>
         <p className="mt-4">
           <Link to="/privacy" className="text-csecondary-light hover:underline">View our Privacy Policy</Link>

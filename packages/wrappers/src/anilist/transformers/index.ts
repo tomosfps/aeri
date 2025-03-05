@@ -8,6 +8,7 @@ import { staffTransformer } from "./staff.js";
 import { studioTransformer } from "./studio.js";
 import { universalTransformer } from "./universal.js";
 import { userTransformer } from "./user.js";
+import { watchListTransformer } from "./watchlist.js";
 
 type Awaitable<T> = T | Promise<T>;
 
@@ -38,6 +39,7 @@ export const transformers: TransformersType & UniversalTransformer = {
     [Routes.Media]: mediaTransformer,
     [Routes.Affinity]: affinityTransformer,
     [Routes.Relations]: relationsTransformer,
+    [Routes.WatchList]: watchListTransformer,
     universal: universalTransformer,
 };
 

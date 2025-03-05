@@ -1,54 +1,25 @@
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import { NavLink as Link } from "react-router-dom";
 
-const Footer = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("pb-4 pt-12 text-foreground", className)}
-    {...props}
-  />
-));
-Footer.displayName = "Footer";
-
-const FooterContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "grid grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
-      className,
-    )}
-    {...props}
-  />
-));
-FooterContent.displayName = "FooterContent";
-
-const FooterColumn = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex flex-col gap-4", className)} {...props} />
-));
-FooterColumn.displayName = "FooterColumn";
-
-const FooterBottom = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "mt-8 flex flex-col items-center justify-between gap-4 border-t pt-4 text-xs text-muted-foreground sm:flex-row",
-      className,
-    )}
-    {...props}
-  />
-));
-FooterBottom.displayName = "FooterBottom";
-
-export { Footer, FooterColumn, FooterBottom, FooterContent };
+export default function FooterSection() {
+  return (
+    <footer className="border-t border-white/10 py-12 px-4">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
+        <div className="mb-6 md:mb-0">
+          <h3 className="text-2xl font-bold text-cprimary-light mb-2">Aeri</h3>
+          <p className="text-sm text-ctext-light/60">Your Anime & Manga Discord Companion</p>
+         </div>
+                        
+        <div className="flex space-x-6">
+            <Link to="/commands" className="text-ctext-light/70 hover:text-cprimary-light transition-colors" onClick={() => window.scrollTo(0, 0)}>Commands</Link>
+            <Link to="/privacy" className="text-ctext-light/70 hover:text-cprimary-light transition-colors" onClick={() => window.scrollTo(0, 0)}>Privacy</Link>
+            <Link to="/terms-of-service" className="text-ctext-light/70 hover:text-cprimary-light transition-colors" onClick={() => window.scrollTo(0, 0)}>Terms</Link>
+            <Link to="https://discord.gg/kKqsaKYUfz" className="text-ctext-light/70 hover:text-cprimary-light transition-colors" onClick={() => window.scrollTo(0, 0)}>Support</Link>
+        </div>
+      </div>
+                    
+      <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-white/5 text-center text-sm text-ctext-light/50">
+        <p>© {new Date().getFullYear()} Aeri. Not affiliated with AniList or Discord</p>
+      </div>
+    </footer>
+  );
+}

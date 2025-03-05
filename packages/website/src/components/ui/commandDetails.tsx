@@ -4,6 +4,7 @@ import { memo } from "react";
 import { Command } from "../requests/getCommands";
 import { Clock } from "lucide-react";
 import { CommandOptions } from "./commandOptions";
+import { formatSeconds } from "../utils/formatUtils";
 
 export const CommandDetails = memo(({ command }: { command: Command }) => {
     const formatExample = (example: string) => {
@@ -93,7 +94,7 @@ export const CommandDetails = memo(({ command }: { command: Command }) => {
               {command.cooldown !== undefined && command.cooldown > 0 && (
                 <p className="mt-2 flex items-center text-ctext-light/80">
                   <Clock className="h-4 w-4 mr-1 inline" />
-                  Cooldown: {command.cooldown} seconds
+                  Cooldown: {formatSeconds(command.cooldown)}
                 </p>
               )}
             </div>

@@ -8,7 +8,7 @@ import { getCommandAsMention } from "../../utility/formatUtils.js";
 export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("unlink")
-        .setDescription("Unlink your anilist account from the bot")
+        .setDescription("Unlink or logout from your anilist account.")
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addExample("/unlink")

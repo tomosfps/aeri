@@ -41,7 +41,7 @@ export const interaction: ChatInputCommand = {
             { isNotAutoComplete: true },
         );
 
-        if (error || result === null) {
+        if (error || !result) {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
 
             return interaction.reply({

@@ -3,19 +3,23 @@ import { Command } from "../requests/getCommands";
 import { Card, CardDescription, CardHeader, CardTitle } from "./card";
 import { ChevronDown, ChevronRight, Clock } from "lucide-react";
 import { CommandDetails } from "./commandDetails";
+import { formatSeconds } from "../utils/formatUtils";
 
 export const CommandCard = memo(({ 
     command, 
-    isExpanded, 
+    isExpanded,
+    id,
     onToggleExpand 
   }: { 
     command: Command; 
-    isExpanded: boolean; 
+    isExpanded: boolean;
+    id: string;
     onToggleExpand: (name: string) => void;
   }) => {
     return (
     <Card
       className="overflow-hidden border-cborder-light bg-cbackground-light odd:bg-cprimary-light/5 even:bg-csecondary-light/5 transition-colors"
+      id={id}
     >
       <button
         className="w-full text-left"
@@ -31,7 +35,7 @@ export const CommandCard = memo(({
               {command.cooldown !== undefined && command.cooldown > 0 && (
               <span className="ml-2 px-1.5 py-0.5 text-xs flex items-center text-ctext-light/80">
                 <Clock className="h-3 w-3 mr-1" />
-                {command.cooldown}s
+                {formatSeconds(command.cooldown)}
               </span>
               )}
             </CardTitle>

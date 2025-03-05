@@ -6,7 +6,7 @@ export default function PrivacyPolicy() {
       {/* Header Section */}
       <div className="mb-12 border-b border-cborder-light pb-6">
         <h1 className="text-4xl font-bold text-cprimary-light mb-4">Privacy Policy</h1>
-        <p className="text-sm text-ctext-light/70">Last updated: March 3, 2025</p>
+        <p className="text-sm text-ctext-light/70">Last updated: March 4th, 2025</p>
       </div>
 
       {/* Table of Contents */}
@@ -307,7 +307,7 @@ export default function PrivacyPolicy() {
       {/* Footer */}
       <div className="mt-12 pt-6 border-t border-cborder-light text-ctext-light/70 text-sm">
         <p>
-          This document was last updated on March 3, 2025 and applies to the Aeri Discord bot and related services.
+          This document was last updated on March 4th, 2025 and applies to the Aeri Discord bot and related services.
         </p>
         <p className="mt-4">
           <Link to="/terms-of-service" className="text-csecondary-light hover:underline">View our Terms of Service</Link>

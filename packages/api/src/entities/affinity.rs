@@ -154,7 +154,7 @@ pub fn compare_scores(user: &Affinity, other_user: &Affinity) -> (f64, i32) {
     }
 
     if !user_scores.is_empty() && !other_user_scores.is_empty() {
-        (pearson(&user_scores, &other_user_scores), user_scores.len() as i32)
+        ((pearson(&user_scores, &other_user_scores) * 100.0f64).clamp(0.0, 100.0), user_scores.len() as i32)
     } else {
         (0.0, 0)
     }

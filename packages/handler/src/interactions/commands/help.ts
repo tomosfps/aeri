@@ -1,4 +1,12 @@
-import { EmbedBuilder, bold, codeBlock, formatEmoji, inlineCode } from "@discordjs/builders";
+import {
+    ActionRowBuilder,
+    EmbedBuilder,
+    StringSelectMenuBuilder,
+    bold,
+    codeBlock,
+    formatEmoji,
+    inlineCode,
+} from "@discordjs/builders";
 import { ApplicationCommandOptionType } from "@discordjs/core";
 import { formatSeconds } from "core";
 import { InteractionContextType } from "discord-api-types/v9";
@@ -18,8 +26,12 @@ export const interaction: ChatInputCommand = {
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addStringOption((option) =>
             option.setName("command").setDescription("The command you want to view").setRequired(false),
+        )
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Show hidden commands").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const option = getCommandOption(
             "command",
             ApplicationCommandOptionType.String,
@@ -83,16 +95,32 @@ export const interaction: ChatInputCommand = {
             return await interaction.reply({ content: "Command not found", ephemeral: true });
         }
 
-        const commandNames = Array.from(commands.values())
-            .map(
-                (command: any) =>
-                    `${inlineCode(`${command.data.name.padEnd(maxLength)} :`)} ${command.data.description}`,
-            )
-            .join("\n");
-        const embed = new EmbedBuilder()
-            .setTitle(inlineCode("commands".padEnd(maxLength).padStart(maxLength + 3)))
-            .setDescription(commandNames)
-            .setColor(interaction.base_colour);
-        await interaction.reply({ embeds: [embed] });
+        const uniqueCategories = new Set();
+        const categoryOptions = Array.from(commands.values())
+            .map((command: any) => {
+                return {
+                    label: command.data.category,
+                    value: command.data.category,
+                };
+            })
+            .filter((option) => {
+                // Only keep the first occurrence of each category
+                if (!uniqueCategories.has(option.value)) {
+                    uniqueCategories.add(option.value);
+                    return true;
+                }
+                return false;
+            })
+            .sort((a, b) => a.label.localeCompare(b.label));
+
+        const select = new StringSelectMenuBuilder()
+            .setCustomId(`help_selection:${interaction.user_id}`)
+            .setPlaceholder("Choose A Category...")
+            .setMinValues(1)
+            .setMaxValues(1)
+            .addOptions(categoryOptions);
+
+        const row = new ActionRowBuilder().addComponents(select);
+        await interaction.reply({ components: [row], ephemeral: hidden });
     },
 };

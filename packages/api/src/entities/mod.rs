@@ -22,6 +22,7 @@ pub mod media;
 pub mod affinity;
 pub mod format;
 pub mod update_entry;
+pub mod watch_list;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
