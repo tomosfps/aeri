@@ -112,19 +112,19 @@ function App() {
                                     <LoadingSpinner fullScreen={false} message="Loading Statistics"/>
                                 </div>
                             ) : (
-                                <div className="flex flex-row justify-around md:grid md:grid-cols-4 md:gap-4 mt-4">
+                                <div className="flex flex-row justify-around md:grid md:grid-cols-3 md:gap-4 mt-4">
                                     {stats.length > 0 && (
                                         <>
                                             <div className="text-center">
-                                                <p className="text-lg md:text-3xl font-bold text-cprimary-light">{stats[0].guilds.toLocaleString('en-US')}</p>
+                                                <p className="text-lg md:text-3xl font-bold text-cprimary-light">{typeof stats[0] === 'object' ? stats[0]?.guilds : (typeof stats[0] === 'number' ? stats[0] : '0')}</p>
                                                 <p className="text-xs md:text-sm text-ctext-light/60">Guilds</p>
                                             </div>
                                             <div className="text-center">
-                                                <p className="text-lg md:text-3xl font-bold text-cprimary-light">{stats[0].userInstalls.toLocaleString('en-US')}</p>
+                                                <p className="text-lg md:text-3xl font-bold text-cprimary-light">{typeof stats[1] === 'object' ? stats[1]?.userInstalls : (typeof stats[1] === 'number' ? stats[1] : '0')}</p>
                                                 <p className="text-xs md:text-sm text-ctext-light/60">User Installs</p>
                                             </div>
                                             <div className="text-center">
-                                                <p className="text-lg md:text-3xl font-bold text-cprimary-light">{stats[0].commands.toLocaleString('en-US')}</p>
+                                                <p className="text-lg md:text-3xl font-bold text-cprimary-light">{typeof stats[2] === 'object' ? stats[2]?.commands : (typeof stats[2] === 'number' ? stats[2] : '0')}</p>
                                                 <p className="text-xs md:text-sm text-ctext-light/60">Commands</p>
                                             </div>
                                         </>

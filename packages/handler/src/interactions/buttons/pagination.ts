@@ -28,6 +28,11 @@ export const interaction: Button<PaginationData> = {
 
         const getPageContent = async (page: number) => {
             const pages = await command.page?.(page, interaction);
+
+            if (!pages) {
+                throw new Error("Failed to get page content");
+            }
+
             return pages;
         };
 

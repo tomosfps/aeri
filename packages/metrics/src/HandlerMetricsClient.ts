@@ -4,6 +4,7 @@ export type SerializedHandlerMetrics = {
     events: MetricObjectWithValues<MetricValue<"handler_id">>;
     mediaCommands: MetricObjectWithValues<MetricValue<"media_type" | "media_id" | "media_name">>;
     interactionTypes: MetricObjectWithValues<MetricValue<"type">>;
+    commandCounter: MetricObjectWithValues<MetricValue<"command_type">>;
 };
 
 export class HandlerMetricsClient {
@@ -25,6 +26,12 @@ export class HandlerMetricsClient {
         labelNames: ["type"] as const,
     });
 
+    public command_counter = new Counter({
+        name: "handler_interaction_commands_total",
+        help: "Total number of interaction commands received",
+        labelNames: ["command_type"] as const,
+    });
+
     public constructor(public handlerId: string) {}
 
     public async serialize() {
@@ -37,10 +44,14 @@ export class HandlerMetricsClient {
         const interactionTypesData = await this.interaction_types.get();
         this.interaction_types.reset();
 
+        const commandCounterData = await this.command_counter.get();
+        this.command_counter.reset();
+
         return {
             events: eventsData,
             mediaCommands: mediaCommandsData,
             interactionTypes: interactionTypesData,
+            commandCounter: commandCounterData,
         };
     }
 

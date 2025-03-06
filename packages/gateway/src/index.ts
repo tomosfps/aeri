@@ -109,6 +109,11 @@ async function updateGuildUserMetrics() {
     if (application.approximate_guild_count && application.approximate_user_install_count) {
         metricsClient.guild_count.set(application.approximate_guild_count);
         metricsClient.user_install_counter.set(application.approximate_user_install_count);
+
+        await redis.hmset("statistics", {
+            guilds: application.approximate_guild_count.toString(),
+            userInstalls: application.approximate_user_install_count.toString(),
+        });
     }
 }
 

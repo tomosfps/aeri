@@ -37,6 +37,12 @@ export class MetricsClient {
         help: "Total number of users",
     });
 
+    public command_counter = new Counter({
+        name: "handler_interaction_commands_total",
+        help: "Total number of interaction commands received",
+        labelNames: ["command_type"] as const,
+    });
+
     public async mergeGatewayMetrics(data: SerializedWorkerMetrics) {
         for (const item of data.values) {
             this.gateway_events.inc(item.labels, item.value);
@@ -54,6 +60,10 @@ export class MetricsClient {
 
         for (const item of data.interactionTypes.values) {
             this.interaction_types.inc(item.labels, item.value);
+        }
+
+        for (const item of data.commandCounter.values) {
+            this.command_counter.inc(item.labels, item.value);
         }
     }
 }

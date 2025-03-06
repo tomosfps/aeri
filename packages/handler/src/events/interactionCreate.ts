@@ -1,4 +1,5 @@
 import { type API, GatewayDispatchEvents as Events } from "@discordjs/core";
+import { getRedis } from "core";
 import { Logger } from "logger";
 import { AutoCompleteInteraction } from "../classes/AutoCompleteInteraction.js";
 import { ButtonInteraction } from "../classes/ButtonInteraction.js";
@@ -21,18 +22,24 @@ import {
 } from "./interactions/index.js";
 
 const logger = new Logger();
+const redis = await getRedis();
 
 export default event(Events.InteractionCreate, async ({ data: interaction, api, client }) => {
     logger.debugSingle(`Received interaction: ${interaction.id}`, "Handler");
     const type = determineInteractionType(interaction);
-    const transformedInteraction = interactionTransformer(interaction, api, client);
+    const transformedInteraction = await interactionTransformer(interaction, api, client);
     interactionHandlers[type](transformedInteraction, api, client);
 });
 
-const interactionTransformer = (interaction: any, api: API, client: HandlerClient) => {
+const interactionTransformer = async (interaction: any, api: API, client: HandlerClient) => {
     const type = determineInteractionType(interaction);
 
     client.metricsClient.interaction_types.inc({ type: type });
+    client.metricsClient.command_counter.inc({ command_type: type });
+
+    await redis.hincrby("statistics", "commands", 1).catch((err) => {
+        logger.error("Failed to update commands count in Redis", "Handler", err);
+    });
 
     switch (type) {
         case InteractType.Autocomplete:
