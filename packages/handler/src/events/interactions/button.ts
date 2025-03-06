@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
 import { Logger } from "logger";
 import type { ButtonHandler } from "../../classes/ButtonInteraction.js";
-import { checkCommandCooldown } from "../../utility/redisUtil.js";
+import { checkCommandCooldown, setComponentExpiry } from "../../utility/redisUtil.js";
 
 const logger = new Logger();
 
@@ -32,7 +32,7 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
         return;
     }
 
-    const redisKey = `button:${buttonId}:${interaction.channel.id}:${interaction.message.id}:${memberId}`;
+    const redisKey = `${buttonId}:${interaction.token}:${memberId}`;
     const timeout = button.cooldown ?? 3600;
     const check = await checkCommandCooldown(redisKey, memberId, timeout);
     if (!check.canUse) {
@@ -41,6 +41,8 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
             flags: MessageFlags.Ephemeral,
         });
     }
+
+    await setComponentExpiry("button", redisKey, button.timeout);
 
     try {
         logger.infoSingle(`Executing button: ${buttonId}`, "Handler");

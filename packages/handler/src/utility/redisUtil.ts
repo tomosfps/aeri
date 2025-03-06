@@ -28,21 +28,23 @@ export async function checkCommandCooldown(
     return { canUse: true };
 }
 
-export async function handlerComponentExpiry(channelID: string, messageID: string): Promise<void> {
-    const message = await api.channels.getMessage(channelID, messageID).catch(() => null);
-
-    if (message?.id) {
-        try {
-            await api.channels.editMessage(channelID, messageID, {
-                components: [],
-            });
-            logger.debugSingle(`Removed component from message: ${channelID}:${messageID}`, "Redis");
-        } catch (error: any) {
-            if (error.rawError.code !== 50006) {
-                logger.error(`Error while removing component: ${channelID}:${messageID}`, "Redis", error);
-            }
+export async function handlerComponentExpiry(interactionToken: string): Promise<void> {
+    try {
+        await api.interactions.editReply(env.DISCORD_APPLICATION_ID, interactionToken, {
+            components: [],
+        });
+        logger.debugSingle("Removed component from message", "Redis");
+    } catch (error: any) {
+        if (error.rawError.code !== 50006) {
+            logger.error("Error while removing component", "Redis", error);
         }
-    } else {
-        logger.warnSingle(`Message not found for component: ${channelID}:${messageID}`, "Redis");
+
+        logger.errorSingle("Component already removed", "Redis");
     }
+}
+
+export async function setComponentExpiry(prefix: "select" | "button", redisKey: string, ttl: number): Promise<void> {
+    const expireKey = `${prefix}:${redisKey}`;
+    await redis.setex(expireKey, ttl, "");
+    logger.debugSingle(`Set component expiry for ${expireKey}`, "Redis");
 }

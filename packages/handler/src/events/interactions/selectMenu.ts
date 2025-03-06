@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
 import { Logger } from "logger";
 import type { SelectMenuHandler } from "../../classes/SelectMenuInteraction.js";
-import { checkCommandCooldown } from "../../utility/redisUtil.js";
+import { checkCommandCooldown, setComponentExpiry } from "../../utility/redisUtil.js";
 
 const logger = new Logger();
 
@@ -33,7 +33,7 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
         return;
     }
 
-    const redisKey = `select:${selectId}:${interaction.channel.id}:${interaction.message.id}:${memberId}`;
+    const redisKey = `${selectId}:${interaction.token}:${memberId}`;
     const timeout = selectMenu.cooldown ?? 3600;
     const check = await checkCommandCooldown(redisKey, memberId, timeout);
     if (!check.canUse) {
@@ -42,6 +42,8 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
             flags: MessageFlags.Ephemeral,
         });
     }
+
+    await setComponentExpiry("select", redisKey, selectMenu.timeout);
 
     try {
         logger.infoSingle(`Executing select menu: ${selectId}`, "Handler");
