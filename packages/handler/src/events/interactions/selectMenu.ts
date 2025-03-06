@@ -16,16 +16,11 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
         return;
     }
 
-    const memberId = interaction.user.id;
-    if (!memberId) {
-        logger.warnSingle("Member was not found", "Handler");
-        return;
-    }
-
+    const userId = interaction.user.id;
     const toggleable = selectMenu.toggleable ?? false;
 
-    logger.debug("Checking if command is toggleable", "Handler", { toggleable, memberId, data });
-    if (toggleable && !data.includes(memberId)) {
+    logger.debug("Checking if command is toggleable", "Handler", { toggleable, userId, data });
+    if (toggleable && !data.includes(userId)) {
         await api.interactions.reply(interaction.id, interaction.token, {
             content: "Only the user who toggled this command can use it",
             flags: MessageFlags.Ephemeral,
@@ -33,9 +28,10 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
         return;
     }
 
-    const redisKey = `${selectId}:${interaction.token}:${memberId}`;
+    const redisKey = `${selectId}:${interaction.token}:${userId}`;
     const timeout = selectMenu.cooldown ?? 3600;
-    const check = await checkCommandCooldown(redisKey, memberId, timeout);
+    const check = await checkCommandCooldown(redisKey, userId, timeout);
+
     if (!check.canUse) {
         return api.interactions.reply(interaction.id, interaction.token, {
             content: `You may use this command again in <t:${check.expirationTime}:R>`,
@@ -43,7 +39,7 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
         });
     }
 
-    await setComponentExpiry("select", redisKey, selectMenu.timeout);
+    await setComponentExpiry(selectId, interaction.token, userId);
 
     try {
         logger.infoSingle(`Executing select menu: ${selectId}`, "Handler");

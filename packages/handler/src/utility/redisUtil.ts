@@ -28,7 +28,7 @@ export async function checkCommandCooldown(
     return { canUse: true };
 }
 
-export async function handlerComponentExpiry(interactionToken: string): Promise<void> {
+export async function handleComponentExpiry(interactionToken: string): Promise<void> {
     try {
         await api.interactions.editReply(env.DISCORD_APPLICATION_ID, interactionToken, {
             components: [],
@@ -38,13 +38,11 @@ export async function handlerComponentExpiry(interactionToken: string): Promise<
         if (error.rawError.code !== 50006) {
             logger.error("Error while removing component", "Redis", error);
         }
-
-        logger.errorSingle("Component already removed", "Redis");
     }
 }
 
-export async function setComponentExpiry(prefix: "select" | "button", redisKey: string, ttl: number): Promise<void> {
-    const expireKey = `${prefix}:${redisKey}`;
-    await redis.setex(expireKey, ttl, "");
-    logger.debugSingle(`Set component expiry for ${expireKey}`, "Redis");
+export async function setComponentExpiry(customId: string, interactionToken: string, userId: string): Promise<void> {
+    const expireKey = `component:${customId}:${interactionToken}:${userId}`;
+    await redis.setex(expireKey, 3600, "");
+    logger.debugSingle(`Set component expiry for ${customId} for ${userId}`, "Redis");
 }

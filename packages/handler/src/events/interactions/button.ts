@@ -16,15 +16,10 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
         return;
     }
 
-    const memberId = interaction.user.id;
-
-    if (!memberId) {
-        logger.warnSingle("Member was not found", "Handler");
-        return;
-    }
+    const userId = interaction.user.id;
 
     const toggleable = button.toggleable ?? false;
-    if (toggleable && !data.includes(memberId)) {
+    if (toggleable && !data.includes(userId)) {
         await api.interactions.reply(interaction.id, interaction.token, {
             content: "Only the user who toggled this command can use it",
             flags: MessageFlags.Ephemeral,
@@ -32,9 +27,10 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
         return;
     }
 
-    const redisKey = `${buttonId}:${interaction.token}:${memberId}`;
+    const redisKey = `${buttonId}:${interaction.token}:${userId}`;
     const timeout = button.cooldown ?? 3600;
-    const check = await checkCommandCooldown(redisKey, memberId, timeout);
+    const check = await checkCommandCooldown(redisKey, userId, timeout);
+
     if (!check.canUse) {
         return api.interactions.reply(interaction.id, interaction.token, {
             content: `You may use this command again in <t:${check.expirationTime}:R>`,
@@ -42,7 +38,7 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
         });
     }
 
-    await setComponentExpiry("button", redisKey, button.timeout);
+    await setComponentExpiry(buttonId, interaction.token, userId);
 
     try {
         logger.infoSingle(`Executing button: ${buttonId}`, "Handler");
