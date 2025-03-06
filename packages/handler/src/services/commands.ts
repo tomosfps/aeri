@@ -24,6 +24,7 @@ export type BaseCommand = {
     data: {
         toJSON(): CommandData;
     };
+    page?: (pageNumber: number, interaction: ChatInputInteraction | ButtonInteraction) => Promise<{ embeds: any[] }>;
 };
 
 export type BaseComponent = {

@@ -160,6 +160,34 @@ export class BaseInteraction {
         });
     }
 
+    public async updateMessage(
+        options: {
+            content?: string;
+            embeds?: EmbedBuilder[] | APIEmbed[];
+            components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
+            ephemeral?: boolean;
+        } = {},
+    ) {
+        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : this.can_embed ? 0 : MessageFlags.Ephemeral;
+
+        await this.api.interactions.updateMessage(this.id, this.token, {
+            content: options.content,
+            embeds: options.embeds?.map((embed) => {
+                if (embed instanceof EmbedBuilder) {
+                    return embed.toJSON();
+                }
+                return embed;
+            }),
+            components: options.components?.map((component) => {
+                if (component instanceof ActionRowBuilder) {
+                    return component.toJSON();
+                }
+                return component;
+            }),
+            flags,
+        });
+    }
+
     public async followUp(
         options: {
             content?: string;

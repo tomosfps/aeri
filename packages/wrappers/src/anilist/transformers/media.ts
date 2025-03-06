@@ -88,7 +88,7 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
             switch (userScore?.status) {
                 case "REPEATING":
                     userData.current.push(
-                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10 (${userScore.repeat})`)}\n`,
+                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10 (${userScore.repeat}) `)}\n`,
                     );
                     break;
                 case "CURRENT": {
@@ -110,12 +110,12 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
                     break;
                 case "DROPPED":
                     userData.dropped.push(
-                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10`)}\n`,
+                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10 `)}\n`,
                     );
                     break;
                 case "PAUSED":
                     userData.paused.push(
-                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10`)}\n`,
+                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10 `)}\n`,
                     );
                     break;
                 default:
