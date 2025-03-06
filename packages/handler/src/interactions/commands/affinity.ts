@@ -81,7 +81,7 @@ export const interaction: ChatInputCommand = {
             .setDescription(affinity.description)
             .setColor(interaction.base_colour)
             .setFooter({
-                text: `${affinity.footer}\nThis could be wrong, if you think so head over to the github page and help!`,
+                text: `${affinity.footer}\nIf you believe the calculations are wrong, head over to GitHub and open an issue.`,
             });
 
         await interaction.reply({ embeds: [embed] });

@@ -62,16 +62,6 @@ export class BaseInteraction {
         return this.interaction.guild_id;
     }
 
-    get avatar_url() {
-        return this.user.avatar
-            ? `https://cdn.discordapp.com/avatars/${this.user.id}/${this.user.avatar}.png?size=1024`
-            : `https://cdn.discordapp.com/embed/avatars/${(Number(this.user.id) >> 22) % 6}.png?size=1024`;
-    }
-
-    public guild_url(guild_id: string, target_id: string, avatar: string) {
-        return `https://cdn.discordapp.com/guilds/${guild_id}/users/${target_id}/avatars/${avatar}.png?size=1024`;
-    }
-
     get guilds() {
         return this.api.guilds;
     }

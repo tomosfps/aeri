@@ -107,7 +107,8 @@ export default function Commands() {
                 <div className="space-y-3">
                     {filteredCommands.length > 0 ? (
                     filteredCommands.map((command) => (
-                        <CommandCard 
+                        <CommandCard
+                        id={command.name}
                         key={command.name}
                         command={command}
                         isExpanded={expandedCommand === command.name}

@@ -21,7 +21,7 @@ use crate::entities::{
     affinity::Affinity, character::Character,
     media::Media, relations::Relations, staff::Staff,
     studio::Studio, user::User, user_score::UserScore, Entity,
-    update_entry::UpdateMediaMutation
+    update_entry::UpdateMediaMutation, watch_list::WatchList,
 };
 use crate::routes::oauth::anilist::anilist_oauth;
 use crate::routes::viewer::viewer;
@@ -93,6 +93,7 @@ async fn main() -> std::io::Result<()> {
             .service(commands)
             .service(shards)
             .service(metrics)
+            .route("/watchlist", web::post().to(WatchList::route))
             .route("/oauth/updateMedia", web::post().to(UpdateMediaMutation::route))
             .route("/studio", web::post().to(Studio::route))
             .route("/staff", web::post().to(Staff::route))
