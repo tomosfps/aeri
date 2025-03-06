@@ -1,7 +1,5 @@
-import { Logger } from "logger";
 import type { Button } from "../../services/commands.js";
-
-const logger = new Logger();
+import { getUserAvatar, getUserGuildAvatar } from "../../utility/formatUtils.js";
 
 type DescriptionType = "DEFAULT" | "GUILD";
 type ButtonData = {
@@ -23,45 +21,27 @@ export const interaction: Button<ButtonData> = {
         const embedData = interaction.embed_data;
         const guild_id = interaction.guild_id;
 
-        if (!embedData) {
-            return;
-        }
-        if (!guild_id) {
+        if (!embedData || !guild_id || !embedData.image) {
             return;
         }
 
-        const member = await interaction.guilds.getMember(guild_id, data.targetUserId);
+        const member = await interaction.api.guilds.getMember(guild_id, data.targetUserId);
 
         if (!member) {
             return;
         }
 
-        let url = "";
-        let title = "";
-
         switch (data.type) {
             case "DEFAULT":
-                url = interaction.avatar_url;
-                title = `${member.user?.username}'s Avatar`;
+                embedData.image.url = getUserAvatar(data.targetUserId, member.user.avatar);
+                embedData.title = `${member.user.username}'s Avatar`;
                 break;
             case "GUILD": {
-                url = interaction.guild_url(guild_id, member.user.id, member.avatar || "");
-                title = `${member.user?.username}'s Guild Avatar`;
+                embedData.image.url = getUserGuildAvatar(guild_id, data.targetUserId, member.avatar);
+                embedData.title = `${member.user.username}'s Guild Avatar`;
                 break;
             }
         }
-
-        embedData.title = title;
-        embedData.image = {
-            url: url,
-        };
-
-        logger.debug("Showing avatar", "ShowAvatar", {
-            hash: member.user?.avatar,
-            targetUserId: data.targetUserId,
-            type: data.type,
-            url: url,
-        });
 
         await interaction.edit({
             embeds: [embedData],
