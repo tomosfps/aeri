@@ -24,12 +24,13 @@ export type BaseCommand = {
     data: {
         toJSON(): CommandData;
     };
-    page?: (pageNumber: number, interaction: ChatInputInteraction | ButtonInteraction) => Promise<{ embeds: any[] }>;
+    page?: (pageNumber: number, interaction: ChatInputInteraction) => Promise<{ embeds: any[] }>;
 };
 
 export type BaseComponent = {
     custom_id: string;
     cooldown?: number;
+    pageLimit?: number;
     toggleable?: boolean;
     timeout: number;
 };
@@ -41,11 +42,13 @@ export interface ChatInputCommand extends BaseCommand {
 
 export interface Button<T = undefined> extends BaseComponent {
     parse?: (data: string[]) => T;
+    page?: (pageNumber: number, interaction: ButtonInteraction) => Promise<{ embeds: any[] }>;
     execute: (interaction: ButtonInteraction, data: T) => void;
 }
 
 export interface SelectMenu<T = undefined> extends BaseComponent {
     parse?: (data: string[]) => T;
+    page?: (pageNumber: number, interaction: SelectMenuInteraction) => Promise<{ embeds: any[] }>;
     execute: (interaction: SelectMenuInteraction, data: T) => void;
 }
 

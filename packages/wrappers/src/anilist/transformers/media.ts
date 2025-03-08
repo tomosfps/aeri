@@ -7,7 +7,7 @@ import { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
 import { filteredDescription, getNextAiringEpisode } from "./util.js";
 
-export const mediaTransformer: TransformersType[Routes.Media] = async (data, { user_id, guild_id }) => {
+export const mediaTransformer: TransformersType[Routes.Media] = async (data, { user_id, guild_id, pageOptions }) => {
     const genresToShow = data.genres.slice(0, 3);
     const additionalGenresCount = data.genres.length - genresToShow.length;
     const genresDisplay =
@@ -40,26 +40,24 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
     }[] = [];
 
     let allUsers: string[] = [];
-
     const currentUserData = await dbFetchAnilistUser(user_id);
-
-    if (currentUserData) {
-        allUsers.push(currentUserData.username);
-    }
 
     if (guild_id) {
         const guildUsersData = await dbFetchGuildUsers(guild_id);
+        let allPotentialUsers = guildUsersData.map((user) => user.anilist?.username).filter(Boolean) as string[];
 
-        const users = guildUsersData
-            .filter((user) => user.discord_id.toString() !== user_id)
-            .map((user) => user.anilist?.username)
-            .filter(Boolean) as string[];
+        if (currentUserData) {
+            allPotentialUsers = [
+                currentUserData.username,
+                ...allPotentialUsers.filter((username) => username !== currentUserData.username),
+            ];
+        }
 
-        const shuffled = users.sort(() => 0.5 - Math.random());
-        allUsers.push(...shuffled);
+        const startIndex = (pageOptions.page - 1) * pageOptions.limit;
+        allUsers = allPotentialUsers.slice(startIndex, startIndex + pageOptions.limit);
+    } else if (currentUserData) {
+        allUsers.push(currentUserData.username);
     }
-
-    allUsers = allUsers.slice(0, 15);
 
     if (allUsers.length !== 0) {
         const maxLength = Math.max(...allUsers.map((user: any) => user.length + 2));
@@ -171,5 +169,9 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
     return {
         description: filtered,
         userResults,
+        pagination: {
+            currentPage: pageOptions.page,
+            totalPages: pageOptions.limit,
+        },
     };
 };

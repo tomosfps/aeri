@@ -217,10 +217,18 @@ type Media = {
             volumes: number;
             status: MediaListStatus;
         }>;
+        pagination: {
+            currentPage: number;
+            totalPages: number;
+        };
     };
     transformer_args: {
         user_id: string;
         guild_id: string | undefined;
+        pageOptions: {
+            page: number;
+            limit: number;
+        };
     };
 };
 

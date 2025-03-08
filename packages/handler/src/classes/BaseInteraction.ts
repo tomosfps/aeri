@@ -66,6 +66,12 @@ export class BaseInteraction {
         return this.api.guilds;
     }
 
+    get message_components() {
+        return this.interaction.message?.components?.map((component) => {
+            return component;
+        });
+    }
+
     get can_embed() {
         const permissions = BigInt(this.interaction.app_permissions);
 
