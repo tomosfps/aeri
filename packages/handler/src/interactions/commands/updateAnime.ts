@@ -57,13 +57,6 @@ export const interaction: ChatInputCommand = {
             option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
-        if (interaction.guild_id === undefined) {
-            return interaction.reply({
-                content: "This command can only be used in a server.",
-                ephemeral: true,
-            });
-        }
-
         const name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) as string;
         const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const status = getCommandOption("status", ApplicationCommandOptionType.String, interaction.options);
