@@ -24,7 +24,7 @@ export type BaseCommand = {
     data: {
         toJSON(): CommandData;
     };
-    page?: (pageNumber: number, interaction: ChatInputInteraction) => Promise<{ embeds: any[] }>;
+    pageLimit?: number;
 };
 
 export type BaseComponent = {
@@ -37,6 +37,7 @@ export type BaseComponent = {
 
 export interface ChatInputCommand extends BaseCommand {
     data: SlashCommandBuilder;
+    page?: (pageNumber: number, interaction: ChatInputInteraction) => Promise<{ embeds: any[] }>;
     execute: (interaction: ChatInputInteraction) => void;
 }
 
@@ -60,11 +61,13 @@ export interface Modal<T = undefined> {
 
 export interface MessageContextCommand extends BaseCommand {
     data: ContextMenuCommandBuilder;
+    page?: (pageNumber: number, interaction: MessageContextInteraction) => Promise<{ embeds: any[] }>;
     execute: (interaction: MessageContextInteraction) => void;
 }
 
 export interface UserContextCommand extends BaseCommand {
     data: ContextMenuCommandBuilder;
+    page?: (pageNumber: number, interaction: UserContextInteraction) => Promise<{ embeds: any[] }>;
     execute: (interaction: UserContextInteraction) => void;
 }
 

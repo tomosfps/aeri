@@ -225,10 +225,12 @@ type Media = {
     transformer_args: {
         user_id: string;
         guild_id: string | undefined;
-        pageOptions: {
-            page: number;
-            limit: number;
-        };
+        pageOptions?:
+            | {
+                  page: number;
+                  limit: number;
+              }
+            | undefined;
     };
 };
 
@@ -372,6 +374,18 @@ type Affinity = {
     };
     transformed: {
         description: string;
+        pagination: {
+            currentPage: number;
+            totalPages: number;
+        };
+    };
+    transformer_args: {
+        pageOptions?:
+            | {
+                  page: number;
+                  limit: number;
+              }
+            | undefined;
     };
 };
 
@@ -427,6 +441,18 @@ type WatchList = {
     };
     transformed: {
         description: string;
+        pagination: {
+            currentPage: number;
+            totalPages: number;
+        };
+    };
+    transformer_args: {
+        pageOptions?:
+            | {
+                  page: number;
+                  limit: number;
+              }
+            | undefined;
     };
 };
 

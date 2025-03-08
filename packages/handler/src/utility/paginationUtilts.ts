@@ -4,7 +4,10 @@ import { ButtonStyle } from "discord-api-types/v10";
 import { Logger } from "logger";
 import type { ButtonInteraction } from "../classes/ButtonInteraction.js";
 import { ChatInputInteraction } from "../classes/ChatInputCommandInteraction.js";
+import type { MessageComponentInteraction } from "../classes/MessageComponentInteraction.js";
+import { MessageContextInteraction } from "../classes/MessageContextInteraction.js";
 import type { SelectMenuInteraction } from "../classes/SelectMenuInteraction.js";
+import { UserContextInteraction } from "../classes/UserContextInteraction.js";
 
 const logger = new Logger();
 const redis = await getRedis();
@@ -18,17 +21,30 @@ interface PaginationOptions {
 }
 
 export function determineInteractionType(
-    interaction: ChatInputInteraction | SelectMenuInteraction | ButtonInteraction,
+    interaction:
+        | ChatInputInteraction
+        | SelectMenuInteraction
+        | ButtonInteraction
+        | UserContextInteraction
+        | MessageComponentInteraction,
     commandID: string,
 ) {
     const commandData = interaction.client.commands.get(commandID);
     const selectMenuData = interaction.client.selectMenus.get(commandID);
     const buttonData = interaction.client.buttons.get(commandID);
-    return commandData || selectMenuData || buttonData;
+    const userContextData = interaction.client.userContextCommands.get(commandID);
+    const messageContextData = interaction.client.messageContextCommands.get(commandID);
+
+    return commandData || selectMenuData || buttonData || userContextData || messageContextData;
 }
 
 export async function createPage(
-    interaction: ChatInputInteraction | SelectMenuInteraction | ButtonInteraction,
+    interaction:
+        | ChatInputInteraction
+        | SelectMenuInteraction
+        | ButtonInteraction
+        | UserContextInteraction
+        | MessageComponentInteraction,
     options: PaginationOptions,
     getPageContent: (page: number) => Promise<{ embeds: EmbedBuilder[] }>,
 ): Promise<void> {
@@ -56,7 +72,11 @@ export async function createPage(
             ),
     );
     try {
-        if (interaction instanceof ChatInputInteraction) {
+        if (
+            interaction instanceof ChatInputInteraction ||
+            interaction instanceof UserContextInteraction ||
+            interaction instanceof MessageContextInteraction
+        ) {
             await interaction.reply({
                 embeds: content.embeds,
                 components: [...filteredComponents, row.toJSON()],
@@ -163,17 +183,10 @@ export async function handlePagination(
         }
 
         if (newPage !== currentPage) {
-            logger.debug("Changing page", "Pagination", { from: currentPage, to: newPage });
             await redis.hset(paginationKey, { currentPage: newPage });
 
             try {
-                logger.debug("Fetching page content", "Pagination", { page: newPage });
                 const content = await getPageContent(newPage);
-
-                logger.debug("Received page content", "Pagination", {
-                    hasEmbeds: !!content?.embeds,
-                    embedCount: content?.embeds?.length || 0,
-                });
 
                 const currentComponents = interaction.message_components || [];
                 const filteredComponents = currentComponents.filter(

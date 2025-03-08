@@ -135,7 +135,6 @@ pub fn get_query(query_name: &str) -> String {
     let studio: &str = "
     query Studio($search: String) {
     Studio(search: $search) {
-
         favourites
         id
         isAnimationStudio

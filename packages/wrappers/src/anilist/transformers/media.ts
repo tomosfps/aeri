@@ -42,6 +42,13 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
     let allUsers: string[] = [];
     const currentUserData = await dbFetchAnilistUser(user_id);
 
+    if (!pageOptions) {
+        pageOptions = {
+            page: 1,
+            limit: 15,
+        };
+    }
+
     if (guild_id) {
         const guildUsersData = await dbFetchGuildUsers(guild_id);
         let allPotentialUsers = guildUsersData.map((user) => user.anilist?.username).filter(Boolean) as string[];

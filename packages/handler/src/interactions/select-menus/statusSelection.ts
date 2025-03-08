@@ -1,8 +1,10 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { getRedis } from "core";
 import { Logger } from "logger";
-import { type MediaType, Routes, api } from "wrappers/anilist";
-import { type MediaListStatus, mediaListStatusString } from "../../../../wrappers/dist/anilist/enums.js";
+import { type MediaListStatus, type MediaType, Routes, api } from "wrappers/anilist";
+import { mediaListStatusString } from "../../../../wrappers/dist/anilist/enums.js";
 import type { SelectMenu } from "../../services/commands.js";
+import { createPage } from "../../utility/paginationUtilts.js";
 
 type SelectMenuData = {
     userName: string;
@@ -11,12 +13,14 @@ type SelectMenuData = {
 };
 
 const logger = new Logger();
+const redis = await getRedis();
 
 export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "status_selection",
     cooldown: 1,
     toggleable: true,
     timeout: 900,
+    pageLimit: 15,
     parse(data) {
         if (!data[0] || !data[1] || !data[2]) {
             throw new Error("Invalid Select Menu Data");
@@ -24,28 +28,118 @@ export const interaction: SelectMenu<SelectMenuData> = {
         return { userName: data[0], mediaType: data[1], userId: data[2] };
     },
     async execute(interaction, data): Promise<void> {
-        const type = data.mediaType as MediaType;
-        const username = data.userName;
-        const status = interaction.menuValues[0] as MediaListStatus;
+        try {
+            const type = data.mediaType as MediaType;
+            const username = data.userName;
+            const status = interaction.menuValues[0] as MediaListStatus;
+            const statusKey = `status:${interaction.user_id}:selection`;
 
-        const { result, error } = await api.fetch(Routes.WatchList, { username, status, type });
-
-        if (error || !result) {
-            logger.error("Error while fetching data from the API.", "Anilist", { error });
-
-            return interaction.reply({
-                content:
-                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                ephemeral: true,
+            await redis.hmset(statusKey, {
+                username,
+                media_type: type.toString(),
+                status,
             });
+            await redis.expire(statusKey, this.timeout);
+
+            const { result, error } = await api.fetch(
+                Routes.WatchList,
+                {
+                    username,
+                    status,
+                    type,
+                },
+                {
+                    pageOptions: {
+                        page: 1,
+                        // biome-ignore lint/style/noNonNullAssertion: This is safe as we ensure pageLimit exists
+                        limit: this.pageLimit!,
+                    },
+                },
+            );
+
+            if (error || !result) {
+                logger.error("Error while fetching data from the API.", "Anilist", { error });
+
+                return interaction.reply({
+                    content:
+                        "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
+                    ephemeral: true,
+                });
+            }
+
+            await createPage(
+                interaction,
+                {
+                    userID: interaction.user_id,
+                    commandID: "status_selection",
+                    totalPages: result.pagination.totalPages,
+                },
+                async (page: number) => (this.page ? await this.page(page, interaction) : { embeds: [] }),
+            );
+        } catch (error: any) {
+            logger.error("Error in execute", "StatusSelection", error);
+            await interaction
+                .reply({
+                    content: "An error occurred while processing your request.",
+                    ephemeral: true,
+                })
+                .catch(() => {});
         }
+    },
 
-        const embed = new EmbedBuilder()
-            .setTitle(`${result.user.name}'s ${mediaListStatusString(status)} List`)
-            .setColor(interaction.base_colour)
-            .setDescription(result.description)
-            .setFooter({ text: result.footer });
+    async page(page, interaction) {
+        try {
+            const statusKey = `status:${interaction.user_id}:selection`;
+            const statusData = await redis.hgetall(statusKey);
 
-        await interaction.edit({ embeds: [embed] });
+            if (!statusData || !statusData["username"] || !statusData["status"] || !statusData["media_type"]) {
+                logger.warnSingle("No status data found in Redis", "StatusSelection");
+                return {
+                    embeds: [
+                        new EmbedBuilder().setDescription("Session expired. Please try again.").setColor(0xff0000),
+                    ],
+                };
+            }
+
+            const { result, error } = await api.fetch(
+                Routes.WatchList,
+                {
+                    username: statusData["username"],
+                    status: statusData["status"] as MediaListStatus,
+                    type: statusData["media_type"] as MediaType,
+                },
+                {
+                    pageOptions: {
+                        page,
+                        // biome-ignore lint/style/noNonNullAssertion: This is safe as we ensure pageLimit exists
+                        limit: this.pageLimit!,
+                    },
+                },
+            );
+
+            if (error || !result) {
+                logger.error("API fetch error", "StatusSelection", { error });
+                return {
+                    embeds: [new EmbedBuilder().setDescription("Failed to load this page.").setColor(0xff0000)],
+                };
+            }
+
+            const embed = new EmbedBuilder()
+                .setTitle(
+                    `${result.user.name}'s ${mediaListStatusString(statusData["status"] as MediaListStatus)} List`,
+                )
+                .setColor(interaction.base_colour || 0x2f3136)
+                .setDescription(result.description)
+                .setFooter({ text: result.footer });
+
+            return { embeds: [embed] };
+        } catch (err: any) {
+            logger.error("Error in page method", "StatusSelection", err);
+            return {
+                embeds: [
+                    new EmbedBuilder().setDescription("An error occurred while loading this page.").setColor(0xff0000),
+                ],
+            };
+        }
     },
 };

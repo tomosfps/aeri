@@ -91,12 +91,6 @@ export const interaction: SelectMenu<SelectMenuData> = {
             const media_type = mediaData["media_type"] === "ANIME" ? MediaType.Anime : MediaType.Manga;
             const media_id = Number(mediaData["media_id"]);
 
-            logger.debug("Fetching media page", "MediaPage", {
-                media_id,
-                media_type,
-                page,
-            });
-
             const { result, error } = await api.fetch(
                 Routes.Media,
                 { media_type, media_id },
@@ -105,7 +99,8 @@ export const interaction: SelectMenu<SelectMenuData> = {
                     guild_id: interaction.guild_id,
                     pageOptions: {
                         page,
-                        limit: this.pageLimit ?? 15,
+                        // biome-ignore lint/style/noNonNullAssertion: This is safe as we ensure pageLimit exists
+                        limit: this.pageLimit!,
                     },
                 },
             );

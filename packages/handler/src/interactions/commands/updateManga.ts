@@ -17,7 +17,7 @@ export const interaction: ChatInputCommand = {
         .setDescription("Update an manga entry on your Anilist account.")
         .setCooldown(5)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
-        .setContexts(InteractionContextType.Guild)
+        .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .addExample("/update-manga name:Berserk score:10 status:Current progress:153 volumes:40")
         .addExample("/update-manga name:One Piece score:10")
         .addExample("/update-manga name:One Piece status:Paused")
@@ -105,7 +105,7 @@ export const interaction: ChatInputCommand = {
         const { result, error } = await api.fetch(
             Routes.Media,
             { media_type: MediaType.Manga, media_id: Number(name) },
-            { user_id: interaction.user_id, guild_id: interaction.guild_id, pageOptions: { page: 1, limit: 1 } },
+            { user_id: interaction.user_id, guild_id: interaction.guild_id },
         );
 
         if (error || result === null) {
