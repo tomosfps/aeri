@@ -75,6 +75,9 @@ export class BaseInteraction {
     get can_embed() {
         const permissions = BigInt(this.interaction.app_permissions);
 
+        if (!this.guild_id) {
+            return true;
+        }
         return Boolean(
             permissions & PermissionFlagsBits.EmbedLinks &&
                 permissions & PermissionFlagsBits.SendMessages &&

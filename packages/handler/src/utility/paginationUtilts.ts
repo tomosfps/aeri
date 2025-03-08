@@ -3,7 +3,7 @@ import { getRedis } from "core";
 import { ButtonStyle } from "discord-api-types/v10";
 import { Logger } from "logger";
 import type { ButtonInteraction } from "../classes/ButtonInteraction.js";
-import type { ChatInputInteraction } from "../classes/ChatInputCommandInteraction.js";
+import { ChatInputInteraction } from "../classes/ChatInputCommandInteraction.js";
 import type { SelectMenuInteraction } from "../classes/SelectMenuInteraction.js";
 
 const logger = new Logger();
@@ -15,6 +15,16 @@ interface PaginationOptions {
     totalPages: number;
     initalPage?: number;
     timeout?: number;
+}
+
+export function determineInteractionType(
+    interaction: ChatInputInteraction | SelectMenuInteraction | ButtonInteraction,
+    commandID: string,
+) {
+    const commandData = interaction.client.commands.get(commandID);
+    const selectMenuData = interaction.client.selectMenus.get(commandID);
+    const buttonData = interaction.client.buttons.get(commandID);
+    return commandData || selectMenuData || buttonData;
 }
 
 export async function createPage(
@@ -45,11 +55,27 @@ export async function createPage(
                 (c) => "custom_id" in c && typeof c.custom_id === "string" && c.custom_id.startsWith("pagination:"),
             ),
     );
-
-    await interaction.updateMessage({
-        embeds: content.embeds,
-        components: [...filteredComponents, row.toJSON()],
-    });
+    try {
+        if (interaction instanceof ChatInputInteraction) {
+            await interaction.reply({
+                embeds: content.embeds,
+                components: [...filteredComponents, row.toJSON()],
+            });
+        } else {
+            await interaction.updateMessage({
+                embeds: content.embeds,
+                components: [...filteredComponents, row.toJSON()],
+            });
+        }
+    } catch (error: any) {
+        logger.error("Error creating pagination", "Pagination", error);
+        await interaction
+            .reply({
+                content: "An error occurred while creating the pagination.",
+                ephemeral: true,
+            })
+            .catch(() => {});
+    }
 }
 
 export function createPageButtons(currentPage: number, maxPages: number, commandID: string, userID: string) {
@@ -149,9 +175,23 @@ export async function handlePagination(
                     embedCount: content?.embeds?.length || 0,
                 });
 
+                const currentComponents = interaction.message_components || [];
+                const filteredComponents = currentComponents.filter(
+                    (component) =>
+                        !component.components?.some(
+                            (c) =>
+                                "custom_id" in c &&
+                                typeof c.custom_id === "string" &&
+                                c.custom_id.startsWith("pagination:"),
+                        ),
+                );
+
                 await interaction.updateMessage({
                     embeds: content.embeds,
-                    components: [createPageButtons(newPage, totalPages, commandID, userID)],
+                    components: [
+                        ...filteredComponents,
+                        createPageButtons(newPage, totalPages, commandID, userID).toJSON(),
+                    ],
                 });
 
                 logger.debug("Updated message successfully", "Pagination");

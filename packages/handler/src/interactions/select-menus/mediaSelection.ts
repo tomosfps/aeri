@@ -18,7 +18,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
     custom_id: "media_selection",
     cooldown: 1,
     toggleable: true,
-    timeout: 3600,
+    timeout: 900,
     pageLimit: 15,
     parse(data) {
         if (!data[0] || !data[1]) {
@@ -58,7 +58,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
                 interaction,
                 {
                     userID: interaction.user_id,
-                    commandID: interaction.custom_id,
+                    commandID: "media_selection",
                     totalPages: totalPages,
                 },
                 async (page: number) => (this.page ? await this.page(page, interaction) : { embeds: [] }),

@@ -37,7 +37,7 @@ export const handler: MessageContextHandler = async (interaction, api, client) =
     }
 
     const redisKey = `${interaction.data.name}:${memberId}`;
-    const timeout = context.data.cooldown ?? 3600;
+    const timeout = context.data.cooldown ?? 900;
     const check = await checkCommandCooldown(redisKey, memberId, timeout);
     if (!check.canUse) {
         return api.interactions.reply(interaction.id, interaction.token, {

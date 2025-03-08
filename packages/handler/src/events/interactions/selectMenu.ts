@@ -29,7 +29,7 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
     }
 
     const redisKey = `${selectId}:${interaction.token}:${userId}`;
-    const timeout = selectMenu.cooldown ?? 3600;
+    const timeout = selectMenu.cooldown ?? 900;
     const check = await checkCommandCooldown(redisKey, userId, timeout);
 
     if (!check.canUse) {

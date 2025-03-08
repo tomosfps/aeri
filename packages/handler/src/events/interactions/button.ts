@@ -28,7 +28,7 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
     }
 
     const redisKey = `${buttonId}:${interaction.token}:${userId}`;
-    const timeout = button.cooldown ?? 3600;
+    const timeout = button.cooldown ?? 900;
     const check = await checkCommandCooldown(redisKey, userId, timeout);
 
     if (!check.canUse) {

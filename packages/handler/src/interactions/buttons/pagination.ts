@@ -1,6 +1,6 @@
 import { Logger } from "logger";
 import type { Button } from "../../services/commands.js";
-import { handlePagination } from "../../utility/paginationUtilts.js";
+import { determineInteractionType, handlePagination } from "../../utility/paginationUtilts.js";
 
 const logger = new Logger();
 
@@ -21,11 +21,7 @@ export const interaction: Button<PaginationData> = {
         return { action, commandID };
     },
     async execute(interaction, data: PaginationData): Promise<void> {
-        const commandData = interaction.client.commands.get(data.commandID);
-        const selectMenuData = interaction.client.selectMenus.get(data.commandID);
-        const buttonData = interaction.client.buttons.get(data.commandID);
-        const commandType = commandData || selectMenuData || buttonData;
-
+        const commandType = determineInteractionType(interaction, data.commandID);
         logger.debug("Pagination data", "execute", { data, commandType });
 
         if (!commandType || !commandType.page) {
