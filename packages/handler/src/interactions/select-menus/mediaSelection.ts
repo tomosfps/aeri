@@ -19,7 +19,7 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
     cooldown: 1,
     toggleable: true,
     timeout: 900,
-    pageLimit: 1,
+    pageLimit: 15,
     parse(data) {
         if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");
@@ -66,7 +66,7 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
                     content: "An error occurred while processing your request.",
                     ephemeral: true,
                 })
-                .catch(() => {});
+                .catch(() => { });
         }
     },
     async page(page, interaction) {
