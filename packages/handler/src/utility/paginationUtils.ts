@@ -4,10 +4,22 @@ import { type APIEmbed, ButtonStyle } from "discord-api-types/v10";
 import { Logger } from "logger";
 import type { ButtonInteraction } from "../classes/ButtonInteraction.js";
 import { ChatInputInteraction } from "../classes/ChatInputCommandInteraction.js";
-import type { MessageComponentInteraction } from "../classes/MessageComponentInteraction.js";
+import type { HandlerClient } from "../classes/HandlerClient.js";
 import { MessageContextInteraction } from "../classes/MessageContextInteraction.js";
 import type { SelectMenuInteraction } from "../classes/SelectMenuInteraction.js";
 import { UserContextInteraction } from "../classes/UserContextInteraction.js";
+import type {
+    Button,
+    ChatInputCommand,
+    MessageContextCommand,
+    PaginatedButton,
+    PaginatedChatInputCommand,
+    PaginatedMessageContextCommand,
+    PaginatedSelectMenu,
+    PaginatedUserContextCommand,
+    SelectMenu,
+    UserContextCommand,
+} from "../services/commands.js";
 
 const logger = new Logger();
 const redis = await getRedis();
@@ -20,33 +32,51 @@ interface PaginationOptions {
     timeout?: number;
 }
 
-export function determineInteractionType(
-    interaction:
-        | ChatInputInteraction
-        | SelectMenuInteraction
-        | ButtonInteraction
-        | UserContextInteraction
-        | MessageComponentInteraction,
-    commandID: string,
-) {
-    const commandData = interaction.client.commands.get(commandID);
-    const selectMenuData = interaction.client.selectMenus.get(commandID);
-    const buttonData = interaction.client.buttons.get(commandID);
-    const userContextData = interaction.client.userContextCommands.get(commandID);
-    const messageContextData = interaction.client.messageContextCommands.get(commandID);
+export type paginationSupportedInteractions =
+    | ChatInputInteraction
+    | SelectMenuInteraction
+    | ButtonInteraction
+    | UserContextInteraction
+    | MessageContextInteraction;
+export type paginationSupportedCommands =
+    | ChatInputCommand
+    | PaginatedChatInputCommand
+    | Button
+    | PaginatedButton
+    | UserContextCommand
+    | PaginatedUserContextCommand
+    | MessageContextCommand
+    | PaginatedMessageContextCommand
+    | SelectMenu
+    | PaginatedSelectMenu;
+export type paginationCommands =
+    | PaginatedChatInputCommand
+    | PaginatedButton
+    | PaginatedUserContextCommand
+    | PaginatedMessageContextCommand
+    | PaginatedSelectMenu;
 
-    return commandData || selectMenuData || buttonData || userContextData || messageContextData;
+export function isPaginatedCommand(command: paginationSupportedCommands): command is paginationCommands {
+    return "page" in command;
 }
 
-export async function createPage(
-    interaction:
-        | ChatInputInteraction
-        | SelectMenuInteraction
-        | ButtonInteraction
-        | UserContextInteraction
-        | MessageComponentInteraction,
+export function getPaginatedCommandById(client: HandlerClient, commandID: string) {
+    return (
+        client.commands.get(commandID) ||
+        client.selectMenus.get(commandID) ||
+        client.buttons.get(commandID) ||
+        client.userContextCommands.get(commandID) ||
+        client.messageContextCommands.get(commandID)
+    );
+}
+
+export async function createPage<T extends paginationSupportedInteractions>(
+    interaction: T,
     options: PaginationOptions,
-    getPageContent: (page: number) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>,
+    getPageContent: (
+        page: number,
+        interaction: T | ButtonInteraction,
+    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>,
 ): Promise<void> {
     const { userID, commandID, initalPage = 1, totalPages, timeout = 3600 } = options;
     const key = `pagination:${userID}:${commandID}`;
@@ -59,7 +89,7 @@ export async function createPage(
 
     await redis.expire(key, timeout);
 
-    const content = await getPageContent(initalPage);
+    const content = await getPageContent(initalPage, interaction);
     const row = createPageButtons(initalPage, totalPages, commandID, userID);
 
     logger.debug("Creating pagination", "Pagination", { key, initalPage, totalPages });
@@ -142,11 +172,13 @@ export async function handlePagination(
     interaction: ButtonInteraction,
     action: string,
     commandID: string,
-    targetUserID: string,
-    getPageContent: (page: number) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>,
+    getPageContent: (
+        page: number,
+        interaction: ButtonInteraction,
+    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>,
 ): Promise<void> {
     try {
-        logger.debug("Starting handlePagination", "Pagination", { action, commandID, targetUserID });
+        logger.debug("Starting handlePagination", "Pagination", { action, commandID });
 
         const userID = interaction.user_id;
         const paginationKey = `pagination:${userID}:${commandID}`;
@@ -186,7 +218,7 @@ export async function handlePagination(
             await redis.hset(paginationKey, { currentPage: newPage });
 
             try {
-                const content = await getPageContent(newPage);
+                const content = await getPageContent(newPage, interaction);
 
                 const currentComponents = interaction.message_components || [];
                 const filteredComponents = currentComponents.filter(

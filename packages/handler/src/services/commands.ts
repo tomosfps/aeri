@@ -19,15 +19,23 @@ import type { ModalInteraction } from "../classes/ModalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/SelectMenuInteraction.js";
 import type { SlashCommandBuilder } from "../classes/SlashCommandBuilder.js";
 import type { UserContextInteraction } from "../classes/UserContextInteraction.js";
+import type { paginationSupportedInteractions } from "../utility/paginationUtils.js";
 
 const redis = await getRedis();
 
-export type BaseCommand = {
+export interface BaseCommand {
     data: {
         toJSON(): CommandData;
     };
-    pageLimit?: number;
-};
+}
+
+export interface PaginatedCommand<T extends paginationSupportedInteractions> {
+    pageLimit: number;
+    page: (
+        pageNumber: number,
+        interaction: T | ButtonInteraction,
+    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
+}
 
 export type BaseComponent = {
     custom_id: string;
@@ -39,27 +47,24 @@ export type BaseComponent = {
 
 export interface ChatInputCommand extends BaseCommand {
     data: SlashCommandBuilder;
-    page?: (
-        pageNumber: number,
-        interaction: ChatInputInteraction,
-    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
     execute: (interaction: ChatInputInteraction) => void;
 }
 
+export type PaginatedChatInputCommand = ChatInputCommand & PaginatedCommand<ChatInputInteraction>;
+
 export interface Button<T = undefined> extends BaseComponent {
     parse?: (data: string[]) => T;
-    page?: (pageNumber: number, interaction: ButtonInteraction) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
     execute: (interaction: ButtonInteraction, data: T) => void;
 }
 
+export type PaginatedButton<T = undefined> = Button<T> & PaginatedCommand<ButtonInteraction>;
+
 export interface SelectMenu<T = undefined> extends BaseComponent {
     parse?: (data: string[]) => T;
-    page?: (
-        pageNumber: number,
-        interaction: SelectMenuInteraction,
-    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
     execute: (interaction: SelectMenuInteraction, data: T) => void;
 }
+
+export type PaginatedSelectMenu<T = undefined> = SelectMenu<T> & PaginatedCommand<SelectMenuInteraction>;
 
 export interface Modal<T = undefined> {
     custom_id: string;
@@ -69,27 +74,23 @@ export interface Modal<T = undefined> {
 
 export interface MessageContextCommand extends BaseCommand {
     data: ContextMenuCommandBuilder;
-    page?: (
-        pageNumber: number,
-        interaction: MessageContextInteraction,
-    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
     execute: (interaction: MessageContextInteraction) => void;
 }
 
+export type PaginatedMessageContextCommand = MessageContextCommand & PaginatedCommand<MessageContextInteraction>;
+
 export interface UserContextCommand extends BaseCommand {
     data: ContextMenuCommandBuilder;
-    page?: (
-        pageNumber: number,
-        interaction: UserContextInteraction,
-    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
     execute: (interaction: UserContextInteraction) => void;
 }
+
+export type PaginatedUserContextCommand = UserContextCommand & PaginatedCommand<UserContextInteraction>;
 
 export interface AutoCompleteCommand<T extends string | number = string | number> {
     command?: string;
     option: string;
     execute: (
-        interaction: AutoCompleteInteraction,
+        interaction: AutoCompleteInteraction | ButtonInteraction,
         option: { name: string; value: T extends string ? string : string | number },
     ) => Promise<{ name: string; value: T }[]>;
 }

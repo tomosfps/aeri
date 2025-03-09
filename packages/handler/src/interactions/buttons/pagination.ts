@@ -1,6 +1,6 @@
 import { Logger } from "logger";
 import type { Button } from "../../services/commands.js";
-import { determineInteractionType, handlePagination } from "../../utility/paginationUtilts.js";
+import { getPaginatedCommandById, handlePagination, isPaginatedCommand } from "../../utility/paginationUtils.js";
 
 const logger = new Logger();
 
@@ -21,26 +21,18 @@ export const interaction: Button<PaginationData> = {
         return { action, commandID };
     },
     async execute(interaction, data: PaginationData): Promise<void> {
-        const commandType = determineInteractionType(interaction, data.commandID);
-        logger.debug("Pagination data", "execute", { data, commandType });
+        const command = getPaginatedCommandById(interaction.client, data.commandID);
+        logger.debug("Pagination data", "execute", { data, command });
 
-        if (!commandType || !commandType.page) {
+        if (!command || !isPaginatedCommand(command)) {
+            logger.warn("Pagination button executed on command that does not support it", "execute", { command });
+
             return interaction.reply({
                 content: "This command does not support pagination",
                 ephemeral: true,
             });
         }
 
-        const getPageContent = async (page: number) => {
-            const pages = await commandType.page?.(page, interaction as any);
-
-            if (!pages) {
-                throw new Error("Failed to get page content");
-            }
-
-            return pages;
-        };
-
-        await handlePagination(interaction, data.action, data.commandID, interaction.user.id, getPageContent);
+        await handlePagination(interaction, data.action, data.commandID, command.page);
     },
 };

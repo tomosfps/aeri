@@ -3,8 +3,8 @@ import { getRedis } from "core";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
-import type { SelectMenu } from "../../services/commands.js";
-import { createPage } from "../../utility/paginationUtilts.js";
+import type { PaginatedSelectMenu } from "../../services/commands.js";
+import { createPage } from "../../utility/paginationUtils.js";
 
 type SelectMenuData = {
     custom_id: string;
@@ -14,7 +14,7 @@ type SelectMenuData = {
 const redis = await getRedis();
 const logger = new Logger();
 
-export const interaction: SelectMenu<SelectMenuData> = {
+export const interaction: PaginatedSelectMenu<SelectMenuData> = {
     custom_id: "media_selection",
     cooldown: 1,
     toggleable: true,
@@ -61,7 +61,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
                     commandID: "media_selection",
                     totalPages: totalPages,
                 },
-                async (page: number) => (this.page ? await this.page(page, interaction) : { embeds: [] }),
+                this.page,
             );
         } catch (error: any) {
             logger.error("Error in execute", "MediaSelection", error);
@@ -73,7 +73,6 @@ export const interaction: SelectMenu<SelectMenuData> = {
                 .catch(() => {});
         }
     },
-
     async page(page, interaction) {
         try {
             const mediaKey = `media:${interaction.user_id}:selection`;
@@ -99,8 +98,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
                     guild_id: interaction.guild_id,
                     pageOptions: {
                         page,
-                        // biome-ignore lint/style/noNonNullAssertion: This is safe as we ensure pageLimit exists
-                        limit: this.pageLimit!,
+                        limit: this.pageLimit,
                     },
                 },
             );

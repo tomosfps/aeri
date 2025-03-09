@@ -6,14 +6,14 @@ import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
-import type { ChatInputCommand } from "../../services/commands.js";
+import type { PaginatedChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
-import { createPage } from "../../utility/paginationUtilts.js";
+import { createPage } from "../../utility/paginationUtils.js";
 
 const logger = new Logger();
 const redis = await getRedis();
 
-export const interaction: ChatInputCommand = {
+export const interaction: PaginatedChatInputCommand = {
     data: new SlashCommandBuilder()
         .setName("affinity")
         .setDescription("Compare your affinity with server members!")
@@ -62,8 +62,7 @@ export const interaction: ChatInputCommand = {
             guildMembers,
         });
 
-        // biome-ignore lint/style/noNonNullAssertion: filtered above
-        const maxPages = Math.ceil(guildMembers.length / this.pageLimit!);
+        const maxPages = Math.ceil(guildMembers.length / this.pageLimit);
         const affinityKey = `affinity:${interaction.user_id}:${interaction.guild_id}`;
 
         await redis.hmset(affinityKey, {
@@ -79,20 +78,17 @@ export const interaction: ChatInputCommand = {
                 commandID: interaction.data.name,
                 totalPages: maxPages,
             },
-            async (page: number) => (this.page ? await this.page(page, interaction) : { embeds: [] }),
+            this.page,
         );
     },
-
     async page(pageNumber, interaction) {
         const affinityKey = `affinity:${interaction.user_id}:${interaction.guild_id}`;
         const affinityData = await redis.hgetall(affinityKey);
         // biome-ignore lint/style/noNonNullAssertion: filtered above
         const guildMembers = JSON.parse(affinityData["guildMembers"]!);
 
-        // biome-ignore lint/style/noNonNullAssertion: filtered above
-        const startingIdx = (pageNumber - 1) * this.pageLimit!;
-        // biome-ignore lint/style/noNonNullAssertion: filtered above
-        const pageUsers = guildMembers.slice(startingIdx, startingIdx + this.pageLimit!);
+        const startingIdx = (pageNumber - 1) * this.pageLimit;
+        const pageUsers = guildMembers.slice(startingIdx, startingIdx + this.pageLimit);
 
         const { result: affinity, error } = await api.fetch(
             Routes.Affinity,
@@ -101,8 +97,7 @@ export const interaction: ChatInputCommand = {
                 username: affinityData["username"]!,
                 other_users: pageUsers,
             },
-            // biome-ignore lint/style/noNonNullAssertion: filtered above
-            { pageOptions: { page: pageNumber, limit: this.pageLimit! } },
+            { pageOptions: { page: pageNumber, limit: this.pageLimit } },
         );
 
         if (error || !affinity) {

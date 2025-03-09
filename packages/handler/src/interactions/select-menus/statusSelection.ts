@@ -3,8 +3,8 @@ import { getRedis } from "core";
 import { Logger } from "logger";
 import { type MediaListStatus, type MediaType, Routes, api } from "wrappers/anilist";
 import { mediaListStatusString } from "../../../../wrappers/dist/anilist/enums.js";
-import type { SelectMenu } from "../../services/commands.js";
-import { createPage } from "../../utility/paginationUtilts.js";
+import type { PaginatedSelectMenu } from "../../services/commands.js";
+import { createPage } from "../../utility/paginationUtils.js";
 
 type SelectMenuData = {
     userName: string;
@@ -15,7 +15,7 @@ type SelectMenuData = {
 const logger = new Logger();
 const redis = await getRedis();
 
-export const interaction: SelectMenu<SelectMenuData> = {
+export const interaction: PaginatedSelectMenu<SelectMenuData> = {
     custom_id: "status_selection",
     cooldown: 1,
     toggleable: true,
@@ -51,8 +51,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
                 {
                     pageOptions: {
                         page: 1,
-                        // biome-ignore lint/style/noNonNullAssertion: This is safe as we ensure pageLimit exists
-                        limit: this.pageLimit!,
+                        limit: this.pageLimit,
                     },
                 },
             );
@@ -74,7 +73,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
                     commandID: "status_selection",
                     totalPages: result.pagination.totalPages,
                 },
-                async (page: number) => (this.page ? await this.page(page, interaction) : { embeds: [] }),
+                this.page,
             );
         } catch (error: any) {
             logger.error("Error in execute", "StatusSelection", error);
@@ -86,7 +85,6 @@ export const interaction: SelectMenu<SelectMenuData> = {
                 .catch(() => {});
         }
     },
-
     async page(page, interaction) {
         try {
             const statusKey = `status:${interaction.user_id}:selection`;
@@ -111,8 +109,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
                 {
                     pageOptions: {
                         page,
-                        // biome-ignore lint/style/noNonNullAssertion: This is safe as we ensure pageLimit exists
-                        limit: this.pageLimit!,
+                        limit: this.pageLimit,
                     },
                 },
             );

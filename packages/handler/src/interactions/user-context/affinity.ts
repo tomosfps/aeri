@@ -6,13 +6,13 @@ import { ApplicationCommandType, ApplicationIntegrationType } from "discord-api-
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { ContextMenuCommandBuilder } from "../../classes/ContextMenuCommandBuilder.js";
-import type { UserContextCommand } from "../../services/commands.js";
-import { createPage } from "../../utility/paginationUtilts.js";
+import type { PaginatedUserContextCommand } from "../../services/commands.js";
+import { createPage } from "../../utility/paginationUtils.js";
 
 const logger = new Logger();
 const redis = await getRedis();
 
-export const interaction: UserContextCommand = {
+export const interaction: PaginatedUserContextCommand = {
     data: new ContextMenuCommandBuilder()
         .setName("user affinity")
         .setType(ApplicationCommandType.User)
@@ -58,8 +58,7 @@ export const interaction: UserContextCommand = {
             guildMembers,
         });
 
-        // biome-ignore lint/style/noNonNullAssertion: filtered above
-        const maxPages = Math.ceil(guildMembers.length / this.pageLimit!);
+        const maxPages = Math.ceil(guildMembers.length / this.pageLimit);
         const affinityKey = `user affinity:${interaction.user_id}:user-affinity`;
 
         await redis.hmset(affinityKey, {
@@ -77,7 +76,7 @@ export const interaction: UserContextCommand = {
                 commandID: "user affinity",
                 totalPages: maxPages,
             },
-            async (page: number) => (this.page ? await this.page(page, interaction) : { embeds: [] }),
+            this.page,
         );
     },
 
@@ -88,10 +87,8 @@ export const interaction: UserContextCommand = {
         // biome-ignore lint/style/noNonNullAssertion: filtered above
         const guildMembers = JSON.parse(affinityData["guildMembers"]!);
 
-        // biome-ignore lint/style/noNonNullAssertion: filtered above
-        const startingIdx = (pageNumber - 1) * this.pageLimit!;
-        // biome-ignore lint/style/noNonNullAssertion: filtered above
-        const pageUsers = guildMembers.slice(startingIdx, startingIdx + this.pageLimit!);
+        const startingIdx = (pageNumber - 1) * this.pageLimit;
+        const pageUsers = guildMembers.slice(startingIdx, startingIdx + this.pageLimit);
 
         const { result: affinity, error } = await api.fetch(
             Routes.Affinity,
@@ -100,8 +97,7 @@ export const interaction: UserContextCommand = {
                 username: affinityData["username"]!,
                 other_users: pageUsers,
             },
-            // biome-ignore lint/style/noNonNullAssertion: filtered above
-            { pageOptions: { page: pageNumber, limit: this.pageLimit! } },
+            { pageOptions: { page: pageNumber, limit: this.pageLimit } },
         );
 
         if (error || !affinity) {
