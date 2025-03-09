@@ -37,6 +37,11 @@ export class MetricsClient {
         help: "Total number of users",
     });
 
+    public command_counter = new Gauge({
+        name: "handler_interaction_commands_total",
+        help: "Total number of interaction commands received",
+    });
+
     public async mergeGatewayMetrics(data: SerializedWorkerMetrics) {
         for (const item of data.values) {
             this.gateway_events.inc(item.labels, item.value);

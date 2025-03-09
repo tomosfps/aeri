@@ -6,6 +6,11 @@ import type {
     ChatInputCommand,
     MessageContextCommand,
     Modal,
+    PaginatedButton,
+    PaginatedChatInputCommand,
+    PaginatedMessageContextCommand,
+    PaginatedSelectMenu,
+    PaginatedUserContextCommand,
     SelectMenu,
     UserContextCommand,
 } from "../services/commands.js";
@@ -23,12 +28,12 @@ export interface HandlerClientOptions extends ClientOptions {
 
 export class HandlerClient extends Client {
     public metricsClient: HandlerMetricsClient;
-    public commands: Map<string, ChatInputCommand>;
-    public buttons: Map<string, Button>;
+    public commands: Map<string, ChatInputCommand | PaginatedChatInputCommand>;
+    public buttons: Map<string, Button | PaginatedButton>;
     public modals: Map<string, Modal>;
-    public selectMenus: Map<string, SelectMenu>;
-    public messageContextCommands: Map<string, MessageContextCommand>;
-    public userContextCommands: Map<string, UserContextCommand>;
+    public selectMenus: Map<string, SelectMenu | PaginatedSelectMenu>;
+    public messageContextCommands: Map<string, MessageContextCommand | PaginatedMessageContextCommand>;
+    public userContextCommands: Map<string, UserContextCommand | PaginatedUserContextCommand>;
     public autoCompleteCommands: Map<string, AutoCompleteCommand>;
 
     constructor(public options: HandlerClientOptions) {

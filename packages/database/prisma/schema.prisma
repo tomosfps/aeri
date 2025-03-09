@@ -21,6 +21,14 @@ model Guild {
   users         User[]  @relation("UserGuilds")
 }
 
+model Statistics {
+  id            String @id @default("global")
+  commands_used BigInt @default(0)
+  guilds_total  BigInt @default(0)
+  users_total   BigInt @default(0)
+  updated_at    DateTime @updatedAt
+}
+
 model Anilist {
   id            BigInt  @id
   username      String

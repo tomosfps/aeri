@@ -25,13 +25,12 @@ const logger = new Logger();
 export default event(Events.InteractionCreate, async ({ data: interaction, api, client }) => {
     logger.debugSingle(`Received interaction: ${interaction.id}`, "Handler");
     const type = determineInteractionType(interaction);
-    const transformedInteraction = interactionTransformer(interaction, api, client);
+    const transformedInteraction = await interactionTransformer(interaction, api, client);
     interactionHandlers[type](transformedInteraction, api, client);
 });
 
-const interactionTransformer = (interaction: any, api: API, client: HandlerClient) => {
+const interactionTransformer = async (interaction: any, api: API, client: HandlerClient) => {
     const type = determineInteractionType(interaction);
-
     client.metricsClient.interaction_types.inc({ type: type });
 
     switch (type) {

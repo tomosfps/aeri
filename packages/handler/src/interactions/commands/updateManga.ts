@@ -17,7 +17,7 @@ export const interaction: ChatInputCommand = {
         .setDescription("Update an manga entry on your Anilist account.")
         .setCooldown(5)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
-        .setContexts(InteractionContextType.Guild)
+        .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .addExample("/update-manga name:Berserk score:10 status:Current progress:153 volumes:40")
         .addExample("/update-manga name:One Piece score:10")
         .addExample("/update-manga name:One Piece status:Paused")
@@ -61,13 +61,6 @@ export const interaction: ChatInputCommand = {
             option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
-        if (interaction.guild_id === undefined) {
-            return interaction.reply({
-                content: "This command can only be used in a server.",
-                ephemeral: true,
-            });
-        }
-
         const name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) as string;
         const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const status = getCommandOption("status", ApplicationCommandOptionType.String, interaction.options);

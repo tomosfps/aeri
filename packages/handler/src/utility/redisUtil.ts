@@ -35,7 +35,9 @@ export async function handleComponentExpiry(interactionToken: string): Promise<v
         });
         logger.debugSingle("Removed component from message", "Redis");
     } catch (error: any) {
-        if (error.rawError.code !== 50006) {
+        if (error.rawError && (error.rawError.code === 50006 || error.rawError.code === 50027)) {
+            logger.errorSingle(`Component already expired or invalid token (${error.rawError.code})`, "Redis");
+        } else {
             logger.error("Error while removing component", "Redis", error);
         }
     }
@@ -43,6 +45,6 @@ export async function handleComponentExpiry(interactionToken: string): Promise<v
 
 export async function setComponentExpiry(customId: string, interactionToken: string, userId: string): Promise<void> {
     const expireKey = `component:${customId}:${interactionToken}:${userId}`;
-    await redis.setex(expireKey, 3600, "");
+    await redis.setex(expireKey, 900, "");
     logger.debugSingle(`Set component expiry for ${customId} for ${userId}`, "Redis");
 }

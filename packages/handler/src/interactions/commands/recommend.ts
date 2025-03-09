@@ -158,7 +158,6 @@ export const interaction: ChatInputCommand = {
         }
 
         const media_id = Number(recommendation.id);
-
         const { result: mediaResult, error: mediaError } = await api.fetch(
             Routes.Media,
             { media_type, media_id },

@@ -66,9 +66,18 @@ export class BaseInteraction {
         return this.api.guilds;
     }
 
+    get message_components() {
+        return this.interaction.message?.components?.map((component) => {
+            return component;
+        });
+    }
+
     get can_embed() {
         const permissions = BigInt(this.interaction.app_permissions);
 
+        if (!this.guild_id) {
+            return true;
+        }
         return Boolean(
             permissions & PermissionFlagsBits.EmbedLinks &&
                 permissions & PermissionFlagsBits.SendMessages &&
@@ -79,7 +88,7 @@ export class BaseInteraction {
     public async reply(
         options: {
             content?: string;
-            embeds?: EmbedBuilder[] | APIEmbed[];
+            embeds?: Array<EmbedBuilder | APIEmbed>;
             components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
             ephemeral?: boolean;
         } = {},
@@ -107,7 +116,7 @@ export class BaseInteraction {
     public async edit(
         options: {
             content?: string;
-            embeds?: EmbedBuilder[] | APIEmbed[];
+            embeds?: Array<EmbedBuilder | APIEmbed>;
             components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
             ephemeral?: boolean;
         } = {},
@@ -135,7 +144,7 @@ export class BaseInteraction {
     public async editReply(
         options: {
             content?: string;
-            embeds?: EmbedBuilder[] | APIEmbed[];
+            embeds?: Array<EmbedBuilder | APIEmbed>;
             components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
             ephemeral?: boolean;
         } = {},
@@ -160,10 +169,38 @@ export class BaseInteraction {
         });
     }
 
+    public async updateMessage(
+        options: {
+            content?: string;
+            embeds?: Array<EmbedBuilder | APIEmbed>;
+            components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
+            ephemeral?: boolean;
+        } = {},
+    ) {
+        const flags: number = options.ephemeral ? MessageFlags.Ephemeral : this.can_embed ? 0 : MessageFlags.Ephemeral;
+
+        await this.api.interactions.updateMessage(this.id, this.token, {
+            content: options.content,
+            embeds: options.embeds?.map((embed) => {
+                if (embed instanceof EmbedBuilder) {
+                    return embed.toJSON();
+                }
+                return embed;
+            }),
+            components: options.components?.map((component) => {
+                if (component instanceof ActionRowBuilder) {
+                    return component.toJSON();
+                }
+                return component;
+            }),
+            flags,
+        });
+    }
+
     public async followUp(
         options: {
             content?: string;
-            embeds?: EmbedBuilder[] | APIEmbed[];
+            embeds?: Array<EmbedBuilder | APIEmbed>;
             components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
             ephemeral?: boolean;
         } = {},

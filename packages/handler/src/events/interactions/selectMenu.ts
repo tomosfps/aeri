@@ -19,7 +19,6 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
     const userId = interaction.user.id;
     const toggleable = selectMenu.toggleable ?? false;
 
-    logger.debug("Checking if command is toggleable", "Handler", { toggleable, userId, data });
     if (toggleable && !data.includes(userId)) {
         await api.interactions.reply(interaction.id, interaction.token, {
             content: "Only the user who toggled this command can use it",
@@ -29,7 +28,7 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
     }
 
     const redisKey = `${selectId}:${interaction.token}:${userId}`;
-    const timeout = selectMenu.cooldown ?? 3600;
+    const timeout = selectMenu.cooldown ?? 900;
     const check = await checkCommandCooldown(redisKey, userId, timeout);
 
     if (!check.canUse) {

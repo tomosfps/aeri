@@ -100,6 +100,9 @@ importers:
       core:
         specifier: workspace:*
         version: link:../core
+      database:
+        specifier: workspace:*
+        version: link:../database
       discord-api-types:
         specifier: ^0.37.118
         version: 0.37.118

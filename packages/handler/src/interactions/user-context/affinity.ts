@@ -1,20 +1,24 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { getRedis } from "core";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
 import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationCommandType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { ContextMenuCommandBuilder } from "../../classes/ContextMenuCommandBuilder.js";
-import type { UserContextCommand } from "../../services/commands.js";
+import type { PaginatedUserContextCommand } from "../../services/commands.js";
+import { createPage } from "../../utility/paginationUtils.js";
 
 const logger = new Logger();
+const redis = await getRedis();
 
-export const interaction: UserContextCommand = {
+export const interaction: PaginatedUserContextCommand = {
     data: new ContextMenuCommandBuilder()
-        .setName("affinity")
+        .setName("user affinity")
         .setType(ApplicationCommandType.User)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
         .setContexts(InteractionContextType.Guild),
+    pageLimit: 1,
     async execute(interaction) {
         if (!interaction.guild_id) {
             return interaction.reply({
@@ -54,19 +58,57 @@ export const interaction: UserContextCommand = {
             guildMembers,
         });
 
-        const { result: affinity, error } = await api.fetch(Routes.Affinity, {
-            username: user.username,
-            other_users: guildMembers,
-        });
+        const maxPages = Math.ceil(guildMembers.length / this.pageLimit);
+        const affinityKey = `user affinity:${interaction.user_id}:user-affinity`;
 
-        if (error || affinity === null) {
+        await redis.hmset(affinityKey, {
+            username: user.username,
+            guildMembers: JSON.stringify(guildMembers),
+            target_id: interaction.target_id,
+            guild_id: interaction.guild_id,
+        });
+        await redis.expire(affinityKey, 900);
+
+        await createPage(this, interaction, {
+            userID: interaction.user_id,
+            commandID: "user affinity",
+            totalPages: maxPages,
+        });
+    },
+
+    async page(pageNumber, interaction) {
+        const affinityKey = `user affinity:${interaction.user_id}:user-affinity`;
+        const affinityData = await redis.hgetall(affinityKey);
+
+        // biome-ignore lint/style/noNonNullAssertion: filtered above
+        const guildMembers = JSON.parse(affinityData["guildMembers"]!);
+
+        const startingIdx = (pageNumber - 1) * this.pageLimit;
+        const pageUsers = guildMembers.slice(startingIdx, startingIdx + this.pageLimit);
+
+        const { result: affinity, error } = await api.fetch(
+            Routes.Affinity,
+            {
+                // biome-ignore lint/style/noNonNullAssertion: filtered above
+                username: affinityData["username"]!,
+                other_users: pageUsers,
+            },
+            { pageOptions: { page: pageNumber, limit: this.pageLimit } },
+        );
+
+        if (error || !affinity) {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
 
-            return interaction.reply({
-                content:
+            const errorEmbed = new EmbedBuilder()
+                .setTitle("Error")
+                .setDescription(
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                ephemeral: true,
-            });
+                )
+                .setColor(interaction.base_colour);
+
+            return {
+                embeds: [errorEmbed],
+            };
         }
 
         const embed = new EmbedBuilder()
@@ -75,8 +117,10 @@ export const interaction: UserContextCommand = {
             .setThumbnail(affinity.comparedAgainst.avatar.large)
             .setDescription(affinity.description)
             .setColor(interaction.base_colour)
-            .setFooter({ text: affinity.footer });
+            .setFooter({
+                text: `${affinity.footer}\nIf you believe the calculations are wrong, head over to GitHub and open an issue.`,
+            });
 
-        await interaction.reply({ embeds: [embed] });
+        return { embeds: [embed] };
     },
 };

@@ -1,11 +1,12 @@
 import { MessageFlags } from "@discordjs/core";
-import { env } from "core";
+import { env, getRedis } from "core";
 import { dbUpdateGuild } from "database";
 import { Logger } from "logger";
 import type { ChatInputHandler } from "../../classes/ChatInputCommandInteraction.js";
 import { checkCommandCooldown } from "../../utility/redisUtil.js";
 
 const logger = new Logger();
+const redis = await getRedis();
 
 export const handler: ChatInputHandler = async (interaction, api, client) => {
     logger.debugSingle(`Received chat input interaction: ${interaction.data.name}`, "Handler");
@@ -37,7 +38,7 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
     }
 
     const redisKey = `${interaction.data.name}:${memberId}`;
-    const timeout = command.data.cooldown ?? 3600;
+    const timeout = command.data.cooldown ?? 900;
     const check = await checkCommandCooldown(redisKey, memberId, timeout);
     if (!check.canUse) {
         return api.interactions.reply(interaction.id, interaction.token, {
@@ -45,6 +46,10 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
             flags: MessageFlags.Ephemeral,
         });
     }
+
+    await redis.hincrby("statistics", "commands", 1).catch((err: any) => {
+        logger.error("Failed to update commands count in Redis", "Handler", err);
+    });
 
     try {
         logger.infoSingle(`Executing command: ${command.data.name}`, "Handler");

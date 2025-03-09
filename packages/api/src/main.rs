@@ -32,6 +32,7 @@ use crate::routes::commands::commands;
 use crate::routes::metrics::metrics;
 use crate::routes::remove_user::remove_user;
 use crate::routes::shards::shards;
+use crate::routes::statistics::statistics;
 
 lazy_static! {
     static ref logger: Logger = Logger::default();
@@ -93,6 +94,7 @@ async fn main() -> std::io::Result<()> {
             .service(commands)
             .service(shards)
             .service(metrics)
+            .service(statistics)
             .route("/watchlist", web::post().to(WatchList::route))
             .route("/oauth/updateMedia", web::post().to(UpdateMediaMutation::route))
             .route("/studio", web::post().to(Studio::route))
