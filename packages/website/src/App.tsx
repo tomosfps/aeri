@@ -35,7 +35,7 @@ function App() {
         fetchShards();
         return () => { isMounted = false; };
     }, []);
-    
+
     return (
         <>
             <main className="h-full w-screen overflow-x-hidden">
@@ -44,27 +44,27 @@ function App() {
                 <section className="relative min-h-[90vh] w-full flex flex-col justify-center items-center text-ctext-light p-4 overflow-hidden">
                     {/* Animated background elements */}
                     <div className="absolute inset-0 -z-10 overflow-hidden">
-                        <motion.div 
-                            animate={{ 
-                                x: [0, 15, 0], 
+                        <motion.div
+                            animate={{
+                                x: [0, 15, 0],
                                 y: [0, -15, 0],
                                 opacity: [0.5, 0.7, 0.5]
                             }}
-                            transition={{ 
-                                repeat: Infinity, 
+                            transition={{
+                                repeat: Infinity,
                                 duration: 10,
                                 ease: "easeInOut"
                             }}
                             className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-cprimary-light/10 blur-3xl"
                         />
-                        <motion.div 
-                            animate={{ 
-                                x: [0, -20, 0], 
+                        <motion.div
+                            animate={{
+                                x: [0, -20, 0],
                                 y: [0, 20, 0],
                                 opacity: [0.4, 0.6, 0.4]
                             }}
-                            transition={{ 
-                                repeat: Infinity, 
+                            transition={{
+                                repeat: Infinity,
                                 duration: 12,
                                 ease: "easeInOut",
                                 delay: 1
@@ -72,10 +72,10 @@ function App() {
                             className="absolute top-1/2 -right-32 w-96 h-96 rounded-full bg-csecondary-light/10 blur-3xl"
                         />
                     </div>
-                    
+
                     <div className="container mx-auto max-w-7xl flex flex-col lg:flex-row items-center">
                         {/* Hero Content */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}
@@ -84,61 +84,61 @@ function App() {
                             <div className="inline-block mb-4 px-4 py-2 rounded-full bg-cprimary-light/10 text-cprimary-light font-medium text-sm">
                                 The Ultimate Anime & Manga Discord Bot
                             </div>
-                            
+
                             <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold leading-tight mb-6">
                                 Bringing <span className="text-cprimary-light bg-cprimary-light/5 px-2 rounded-md">Anime</span> & <span className="text-csecondary-light bg-csecondary-light/5 px-2 rounded-md">Manga</span> to Your Discord
                             </h1>
-                            
+
                             <p className="text-ctext-light/80 text-lg mb-8 max-w-xl mx-auto lg:mx-0">
                                 Enhance your server with detailed information on series, characters, and studios. Track your AniList progress and discover new favorites, all without leaving Discord.
                             </p>
-                            
+
                             {/* Hero Buttons */}
                             <div className="flex flex-col sm:flex-row items-center sm:space-x-4 space-y-4 sm:space-y-0 mb-12 justify-center lg:justify-start">
-                                <Link to="https://discord.com/oauth2/authorize?client_id=795916241193140244" 
+                                <Link to="https://discord.com/oauth2/authorize?client_id=795916241193140244"
                                     className="w-full sm:w-auto hover:text-black/50 font-bold transition-all duration-300 bg-cprimary-light hover:bg-cprimary-light/90 text-white px-8 py-3 rounded-xl text-lg shadow-lg flex items-center justify-center">
                                     <img src={discord} alt="Discord Logo" className="mr-2 h-5 w-5 brightness-0 invert " />
                                     Add To Discord
                                 </Link>
-                                
-                                <Link to="commands" 
+
+                                <Link to="commands"
                                     className="w-full sm:w-auto font-semibold transition-all duration-300 hover:bg-csecondary-light hover:text-white border-2 border-csecondary-light text-csecondary-light px-8 py-3 rounded-xl text-lg">
                                     Explore Commands
                                 </Link>
                             </div>
-                            
+
                             {/* Stats Section */}
                             {loading ? (
                                 <div className="flex justify-center mt-4">
-                                    <LoadingSpinner fullScreen={false} message="Loading Statistics"/>
+                                    <LoadingSpinner fullScreen={false} message="Loading Statistics" />
                                 </div>
                             ) : (
                                 <div className="flex flex-row justify-around md:grid md:grid-cols-3 md:gap-4 mt-4">
                                     {stats.length > 0 && (
-                                            <>
-                                                <StatisticDisplay value={stats[0] ?? 0} label="Guilds"/>
-                                                <StatisticDisplay value={stats[1] ?? 0} label="User Installs"/>
-                                                <StatisticDisplay value={stats[2] ?? 0} label="Commands"/>
-                                            </>
-                                        )}
+                                        <>
+                                            <StatisticDisplay value={stats[0] ?? 0} label="Guilds" />
+                                            <StatisticDisplay value={stats[1] ?? 0} label="User Installs" />
+                                            <StatisticDisplay value={stats[2] ?? 0} label="Commands Used" />
+                                        </>
+                                    )}
                                 </div>
                             )}
                         </motion.div>
-                        
+
                         {/* Hero Image */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
                             className="lg:w-1/2 mt-12 lg:mt-0"
                         >
                             <div className="relative">
-                                <img 
-                                    src={mediaSearchOpen} 
-                                    alt="Aeri Discord Bot Interface" 
-                                    className="rounded-2xl shadow-2xl border border-white/10 max-w-full mx-auto" 
+                                <img
+                                    src={mediaSearchOpen}
+                                    alt="Aeri Discord Bot Interface"
+                                    className="rounded-2xl shadow-2xl border border-white/10 max-w-full mx-auto"
                                 />
-                                
+
                                 {/* Floating elements */}
                                 <div className="absolute -right-6 -top-6 bg-csecondary-light/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 shadow-lg hidden md:block">
                                     <div className="text-sm font-medium">Browse Anime</div>
@@ -147,15 +147,15 @@ function App() {
                             </div>
                         </motion.div>
                     </div>
-                    
+
                     {/* Scroll indicator */}
-                    <motion.div 
+                    <motion.div
                         animate={{ y: [0, 10, 0] }}
                         transition={{ repeat: Infinity, duration: 1.5 }}
                         className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden md:block"
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 5L12 19M12 19L19 12M12 19L5 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 5L12 19M12 19L19 12M12 19L5 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </motion.div>
                 </section>
@@ -167,7 +167,7 @@ function App() {
                         <div className="absolute top-1/3 -left-36 w-72 h-72 rounded-full bg-cprimary-light/5 blur-3xl"></div>
                         <div className="absolute bottom-1/3 -right-36 w-72 h-72 rounded-full bg-csecondary-light/5 blur-3xl"></div>
                     </div>
-                    
+
                     <div className="max-w-7xl mx-auto mb-16 text-center">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -186,9 +186,9 @@ function App() {
                             </p>
                         </motion.div>
                     </div>
-                    
+
                     <div className="relative z-10 max-w-7xl mx-auto">
-                        <Features 
+                        <Features
                             title="Rich Media Search"
                             description="Get detailed information on anime, manga, characters, studios, and staff with beautiful embeds and interactive components."
                             image={mediaSearchOpen}
@@ -200,8 +200,8 @@ function App() {
                             animationDirection="left"
                             titleColor="text-cprimary-light"
                         />
-                        
-                        <Features 
+
+                        <Features
                             title="User Profiles & Stats"
                             description="View detailed AniList profiles, compare taste with friends, and get personalized recommendations based on your watch history."
                             image={userSearch}
@@ -213,8 +213,8 @@ function App() {
                             animationDirection="right"
                             titleColor="text-csecondary-light"
                         />
-                        
-                        <Features 
+
+                        <Features
                             title="AniList Integration"
                             description="Update your watching status, scores, and progress directly through Discord without switching between apps."
                             image={updatedStatus}
@@ -228,14 +228,14 @@ function App() {
                         />
                     </div>
 
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                         viewport={{ once: true, margin: "-50px" }}
                         className="pt-16 flex justify-center"
                     >
-                        <Link to="commands" 
+                        <Link to="commands"
                             className="group relative hover:text-black/50 inline-flex items-center justify-center transition-all duration-300 bg-cprimary-light/90 hover:bg-cprimary-light text-white rounded-xl px-8 py-4 text-lg font-bold shadow-lg hover:shadow-cprimary-light/20 hover:shadow-2xl"
                         >
                             Explore All Commands
@@ -249,7 +249,7 @@ function App() {
 
                 {/* FAQ Section */}
                 <section className="py-16 px-4">
-                    <FAQ 
+                    <FAQ
                         items={[
                             {
                                 question: "Is Aeri free to use?",
@@ -279,33 +279,33 @@ function App() {
                 <section className="relative py-24">
                     <div className="absolute inset-0 -z-10 overflow-hidden">
                         <motion.div
-                            animate={{ 
+                            animate={{
                                 scale: [1, 1.05, 1],
                                 opacity: [0.5, 0.7, 0.5]
                             }}
-                            transition={{ 
-                                repeat: Infinity, 
+                            transition={{
+                                repeat: Infinity,
                                 duration: 8,
                                 ease: "easeInOut"
-                            }} 
-                            className="absolute bottom-0 left-1/4 w-96 h-96 rounded-full bg-cprimary-light/10 blur-3xl" 
+                            }}
+                            className="absolute bottom-0 left-1/4 w-96 h-96 rounded-full bg-cprimary-light/10 blur-3xl"
                         />
                         <motion.div
-                            animate={{ 
+                            animate={{
                                 scale: [1, 1.1, 1],
                                 opacity: [0.4, 0.6, 0.4]
                             }}
-                            transition={{ 
-                                repeat: Infinity, 
+                            transition={{
+                                repeat: Infinity,
                                 duration: 10,
                                 ease: "easeInOut",
                                 delay: 1
-                            }} 
-                            className="absolute -bottom-32 right-1/4 w-96 h-96 rounded-full bg-csecondary-light/10 blur-3xl" 
+                            }}
+                            className="absolute -bottom-32 right-1/4 w-96 h-96 rounded-full bg-csecondary-light/10 blur-3xl"
                         />
                     </div>
-                    
-                    <motion.div 
+
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
@@ -316,15 +316,15 @@ function App() {
                         <p className="text-ctext-light/80 mb-10 text-lg max-w-3xl mx-auto">
                             Join the community of Aeri to ehance your server with the best anime and manga bot on Discord.
                         </p>
-                        
-                        <Link to="https://discord.com/oauth2/authorize?client_id=795916241193140244" 
+
+                        <Link to="https://discord.com/oauth2/authorize?client_id=795916241193140244"
                             className="group relative inline-flex items-center justify-center transition-all duration-300 bg-gradient-to-r from-cprimary-light to-csecondary-light text-white font-bold px-10 py-5 rounded-xl text-xl shadow-lg hover:text-black/50 hover:shadow-cprimary-light/20 hover:shadow-2xl">
                             <span className="flex items-center">
                                 Add Aeri to Discord
-                                <img 
-                                    src={discord} 
-                                    alt="Discord Logo" 
-                                    className="ml-3 h-6 w-6 brightness-0 invert" 
+                                <img
+                                    src={discord}
+                                    alt="Discord Logo"
+                                    className="ml-3 h-6 w-6 brightness-0 invert"
                                 />
                             </span>
                             <span className="absolute -bottom-1 left-1/2 w-0 h-1 bg-white rounded-full group-hover:w-4/5 -translate-x-1/2 transition-all duration-300"></span>
