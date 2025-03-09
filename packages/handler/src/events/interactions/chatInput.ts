@@ -1,6 +1,6 @@
 import { MessageFlags } from "@discordjs/core";
 import { env, getRedis } from "core";
-import { dbIncrementCommands, dbUpdateGuild } from "database";
+import { dbUpdateGuild } from "database";
 import { Logger } from "logger";
 import type { ChatInputHandler } from "../../classes/ChatInputCommandInteraction.js";
 import { checkCommandCooldown } from "../../utility/redisUtil.js";
@@ -46,10 +46,6 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
             flags: MessageFlags.Ephemeral,
         });
     }
-
-    await dbIncrementCommands().catch((err: any) => {
-        logger.error("Failed to increment command count in database", "Handler", err);
-    });
 
     await redis.hincrby("statistics", "commands", 1).catch((err: any) => {
         logger.error("Failed to update commands count in Redis", "Handler", err);

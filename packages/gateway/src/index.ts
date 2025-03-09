@@ -2,7 +2,7 @@ import { REST } from "@discordjs/rest";
 import { SimpleIdentifyThrottler, WebSocketManager, WebSocketShardEvents, WorkerShardingStrategy } from "@discordjs/ws";
 import { Cache } from "cache";
 import { env, getRedis } from "core";
-import { dbGetCommandCount } from "database";
+import { dbGetCommandCount, dbIncrementCommands } from "database";
 import {
     ActivityType,
     GatewayIntentBits,
@@ -108,15 +108,28 @@ async function updateGuildUserMetrics() {
     const application = (await rest.get(Routes.currentApplication())) as RESTGetCurrentApplicationResult;
 
     if (application.approximate_guild_count && application.approximate_user_install_count) {
-        const getCommandTotal = await dbGetCommandCount();
+        const dbCommandCount = await dbGetCommandCount();
+        const redisStats = (await redis.hgetall("statistics")) || {};
+        const redisCommandCount = Number.parseInt(redisStats["commands"] || "0", 10);
+
+        let newCommandCount = 0n;
+
+        if (redisCommandCount < dbCommandCount) {
+            newCommandCount = dbCommandCount + BigInt(redisCommandCount);
+            await dbIncrementCommands(Number(newCommandCount));
+        } else {
+            newCommandCount = dbCommandCount + BigInt(redisCommandCount);
+            await dbIncrementCommands(Number(newCommandCount));
+        }
+
         metricsClient.guild_count.set(application.approximate_guild_count);
         metricsClient.user_install_counter.set(application.approximate_user_install_count);
-        metricsClient.command_counter.set(Number(getCommandTotal));
+        metricsClient.command_counter.set(Number(newCommandCount));
 
         await redis.hmset("statistics", {
             guilds: application.approximate_guild_count.toString(),
             userInstalls: application.approximate_user_install_count.toString(),
-            commands: getCommandTotal.toString(),
+            commands: newCommandCount.toString(),
         });
     }
 }

@@ -60,11 +60,5 @@ export class MetricsClient {
         for (const item of data.interactionTypes.values) {
             this.interaction_types.inc(item.labels, item.value);
         }
-
-        if (data.commandCounter?.values) {
-            for (const item of data.commandCounter.values) {
-                this.command_counter.inc(item.value);
-            }
-        }
     }
 }
