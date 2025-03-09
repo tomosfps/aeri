@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import GetStats, { Statistics } from "./components/requests/getStats";
 import LoadingSpinner from "./components/ui/loadingSpinner";
 import { FAQ } from "./components/ui/FAQ";
+import { StatisticDisplay } from "./components/ui/statisticDisplay";
 
 function App() {
     const [stats, setStats] = useState<Statistics[]>([]);
@@ -34,7 +35,7 @@ function App() {
         fetchShards();
         return () => { isMounted = false; };
     }, []);
-
+    
     return (
         <>
             <main className="h-full w-screen overflow-x-hidden">
@@ -114,21 +115,12 @@ function App() {
                             ) : (
                                 <div className="flex flex-row justify-around md:grid md:grid-cols-3 md:gap-4 mt-4">
                                     {stats.length > 0 && (
-                                        <>
-                                            <div className="text-center">
-                                                <p className="text-lg md:text-3xl font-bold text-cprimary-light">{typeof stats[0] === 'object' ? stats[0]?.guilds : (typeof stats[0] === 'number' ? stats[0] : '0')}</p>
-                                                <p className="text-xs md:text-sm text-ctext-light/60">Guilds</p>
-                                            </div>
-                                            <div className="text-center">
-                                                <p className="text-lg md:text-3xl font-bold text-cprimary-light">{typeof stats[1] === 'object' ? stats[1]?.userInstalls : (typeof stats[1] === 'number' ? stats[1] : '0')}</p>
-                                                <p className="text-xs md:text-sm text-ctext-light/60">User Installs</p>
-                                            </div>
-                                            <div className="text-center">
-                                                <p className="text-lg md:text-3xl font-bold text-cprimary-light">{typeof stats[2] === 'object' ? stats[2]?.commands : (typeof stats[2] === 'number' ? stats[2] : '0')}</p>
-                                                <p className="text-xs md:text-sm text-ctext-light/60">Commands</p>
-                                            </div>
-                                        </>
-                                    )}
+                                            <>
+                                                <StatisticDisplay value={stats[0] ?? 0} label="Guilds"/>
+                                                <StatisticDisplay value={stats[1] ?? 0} label="User Installs"/>
+                                                <StatisticDisplay value={stats[2] ?? 0} label="Commands"/>
+                                            </>
+                                        )}
                                 </div>
                             )}
                         </motion.div>
@@ -270,7 +262,15 @@ function App() {
                             {
                                 question: "Does Aeri work in DMs?",
                                 answer: "Yes, Aeri works in both server channels and direct messages."
-                            }
+                            },
+                            {
+                                question: "How can I suggest a feature or report a bug?",
+                                answer: "You may join our support server and submit a feature request or bug report in the appropriate channel."
+                            },
+                            {
+                                question: "How can I invite Aeri to my server?",
+                                answer: "You may invite Aeri to your server by clicking the 'Add to Discord' button on this page."
+                            },
                         ]}
                     />
                 </section>

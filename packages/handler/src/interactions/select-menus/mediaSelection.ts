@@ -113,14 +113,21 @@ export const interaction: SelectMenu<SelectMenuData> = {
             }
 
             const title = (result.title.romaji || result.title.english || result.title.native) as string;
+
+            interaction.client.metricsClient.media_commands.inc({
+                media_type: media_type,
+                media_id: media_id,
+                media_name: title,
+            });
+
             const embed = new EmbedBuilder()
                 .setTitle(title)
                 .setURL(result.siteUrl)
                 .setImage(result.banner)
                 .setThumbnail(result.cover)
                 .setDescription(result.description || "No description available.")
-                .setColor(interaction.base_colour || 0x2f3136)
-                .setFooter({ text: result.footer || `Page ${page}` });
+                .setColor(interaction.base_colour)
+                .setFooter({ text: result.footer });
 
             return { embeds: [embed] };
         } catch (err: any) {
