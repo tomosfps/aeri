@@ -37,7 +37,7 @@ export class MetricsClient {
         help: "Total number of users",
     });
 
-    public command_counter = new Counter({
+    public command_counter = new Gauge({
         name: "handler_interaction_commands_total",
         help: "Total number of interaction commands received",
     });

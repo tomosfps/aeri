@@ -6,6 +6,8 @@ import { dbFetchAnilistUser } from "./utility/dbFetchAnilistUser.js";
 import { dbFetchDiscordUser } from "./utility/dbFetchDiscordUser.js";
 import { dbFetchGuildUser } from "./utility/dbFetchGuildUser.js";
 import { dbFetchGuildUsers } from "./utility/dbFetchGuildUsers.js";
+import { dbGetCommandCount } from "./utility/dbGetCommandCount.js";
+import { dbIncrementCommands } from "./utility/dbIncrementCommands.js";
 import { dbRemoveFromGuild } from "./utility/dbRemoveFromGuild.js";
 import { dbUpdateGuild } from "./utility/dbUpdateGuild.js";
 
@@ -19,6 +21,8 @@ export {
     dbRemoveFromGuild,
     dbDeleteAnilistUser,
     dbCreateGuild,
+    dbIncrementCommands,
+    dbGetCommandCount,
 };
 const prisma = connectPrisma();
 export default prisma;

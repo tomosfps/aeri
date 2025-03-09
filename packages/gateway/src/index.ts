@@ -2,6 +2,7 @@ import { REST } from "@discordjs/rest";
 import { SimpleIdentifyThrottler, WebSocketManager, WebSocketShardEvents, WorkerShardingStrategy } from "@discordjs/ws";
 import { Cache } from "cache";
 import { env, getRedis } from "core";
+import { dbGetCommandCount } from "database";
 import {
     ActivityType,
     GatewayIntentBits,
@@ -107,12 +108,15 @@ async function updateGuildUserMetrics() {
     const application = (await rest.get(Routes.currentApplication())) as RESTGetCurrentApplicationResult;
 
     if (application.approximate_guild_count && application.approximate_user_install_count) {
+        const getCommandTotal = await dbGetCommandCount();
         metricsClient.guild_count.set(application.approximate_guild_count);
         metricsClient.user_install_counter.set(application.approximate_user_install_count);
+        metricsClient.command_counter.set(Number(getCommandTotal));
 
         await redis.hmset("statistics", {
             guilds: application.approximate_guild_count.toString(),
             userInstalls: application.approximate_user_install_count.toString(),
+            commands: getCommandTotal.toString(),
         });
     }
 }
@@ -130,7 +134,6 @@ function updatePresences() {
 }
 
 await manager.connect();
-
 await updateGuildUserMetrics().catch();
 updatePresences();
 
