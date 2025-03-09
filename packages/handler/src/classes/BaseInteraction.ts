@@ -88,7 +88,7 @@ export class BaseInteraction {
     public async reply(
         options: {
             content?: string;
-            embeds?: EmbedBuilder[] | APIEmbed[];
+            embeds?: Array<EmbedBuilder | APIEmbed>;
             components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
             ephemeral?: boolean;
         } = {},
@@ -116,7 +116,7 @@ export class BaseInteraction {
     public async edit(
         options: {
             content?: string;
-            embeds?: EmbedBuilder[] | APIEmbed[];
+            embeds?: Array<EmbedBuilder | APIEmbed>;
             components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
             ephemeral?: boolean;
         } = {},
@@ -144,7 +144,7 @@ export class BaseInteraction {
     public async editReply(
         options: {
             content?: string;
-            embeds?: EmbedBuilder[] | APIEmbed[];
+            embeds?: Array<EmbedBuilder | APIEmbed>;
             components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
             ephemeral?: boolean;
         } = {},
@@ -172,7 +172,7 @@ export class BaseInteraction {
     public async updateMessage(
         options: {
             content?: string;
-            embeds?: EmbedBuilder[] | APIEmbed[];
+            embeds?: Array<EmbedBuilder | APIEmbed>;
             components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
             ephemeral?: boolean;
         } = {},
@@ -200,7 +200,7 @@ export class BaseInteraction {
     public async followUp(
         options: {
             content?: string;
-            embeds?: EmbedBuilder[] | APIEmbed[];
+            embeds?: Array<EmbedBuilder | APIEmbed>;
             components?: APIActionRowComponent<any>[] | ActionRowBuilder<any>[];
             ephemeral?: boolean;
         } = {},

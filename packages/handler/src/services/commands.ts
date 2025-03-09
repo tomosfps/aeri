@@ -1,8 +1,10 @@
 import { readdir } from "node:fs/promises";
 import { URL } from "node:url";
+import type { EmbedBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
 import { env, getRedis } from "core";
 import {
+    type APIEmbed,
     type RESTPostAPIApplicationCommandsJSONBody as CommandData,
     type RESTPutAPIApplicationCommandsResult,
     Routes,
@@ -37,19 +39,25 @@ export type BaseComponent = {
 
 export interface ChatInputCommand extends BaseCommand {
     data: SlashCommandBuilder;
-    page?: (pageNumber: number, interaction: ChatInputInteraction) => Promise<{ embeds: any[] }>;
+    page?: (
+        pageNumber: number,
+        interaction: ChatInputInteraction,
+    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
     execute: (interaction: ChatInputInteraction) => void;
 }
 
 export interface Button<T = undefined> extends BaseComponent {
     parse?: (data: string[]) => T;
-    page?: (pageNumber: number, interaction: ButtonInteraction) => Promise<{ embeds: any[] }>;
+    page?: (pageNumber: number, interaction: ButtonInteraction) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
     execute: (interaction: ButtonInteraction, data: T) => void;
 }
 
 export interface SelectMenu<T = undefined> extends BaseComponent {
     parse?: (data: string[]) => T;
-    page?: (pageNumber: number, interaction: SelectMenuInteraction) => Promise<{ embeds: any[] }>;
+    page?: (
+        pageNumber: number,
+        interaction: SelectMenuInteraction,
+    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
     execute: (interaction: SelectMenuInteraction, data: T) => void;
 }
 
@@ -61,13 +69,19 @@ export interface Modal<T = undefined> {
 
 export interface MessageContextCommand extends BaseCommand {
     data: ContextMenuCommandBuilder;
-    page?: (pageNumber: number, interaction: MessageContextInteraction) => Promise<{ embeds: any[] }>;
+    page?: (
+        pageNumber: number,
+        interaction: MessageContextInteraction,
+    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
     execute: (interaction: MessageContextInteraction) => void;
 }
 
 export interface UserContextCommand extends BaseCommand {
     data: ContextMenuCommandBuilder;
-    page?: (pageNumber: number, interaction: UserContextInteraction) => Promise<{ embeds: any[] }>;
+    page?: (
+        pageNumber: number,
+        interaction: UserContextInteraction,
+    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
     execute: (interaction: UserContextInteraction) => void;
 }
 

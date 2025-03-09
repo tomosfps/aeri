@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, type EmbedBuilder } from "@discordjs/builders";
 import { getRedis } from "core";
-import { ButtonStyle } from "discord-api-types/v10";
+import { type APIEmbed, ButtonStyle } from "discord-api-types/v10";
 import { Logger } from "logger";
 import type { ButtonInteraction } from "../classes/ButtonInteraction.js";
 import { ChatInputInteraction } from "../classes/ChatInputCommandInteraction.js";
@@ -46,7 +46,7 @@ export async function createPage(
         | UserContextInteraction
         | MessageComponentInteraction,
     options: PaginationOptions,
-    getPageContent: (page: number) => Promise<{ embeds: EmbedBuilder[] }>,
+    getPageContent: (page: number) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>,
 ): Promise<void> {
     const { userID, commandID, initalPage = 1, totalPages, timeout = 3600 } = options;
     const key = `pagination:${userID}:${commandID}`;
@@ -143,7 +143,7 @@ export async function handlePagination(
     action: string,
     commandID: string,
     targetUserID: string,
-    getPageContent: (page: number) => Promise<{ embeds: EmbedBuilder[] }>,
+    getPageContent: (page: number) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>,
 ): Promise<void> {
     try {
         logger.debug("Starting handlePagination", "Pagination", { action, commandID, targetUserID });
