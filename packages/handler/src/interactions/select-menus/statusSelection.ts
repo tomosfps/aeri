@@ -1,8 +1,7 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { getRedis } from "core";
 import { Logger } from "logger";
-import { type MediaListStatus, type MediaType, Routes, api } from "wrappers/anilist";
-import { mediaListStatusString } from "../../../../wrappers/dist/anilist/enums.js";
+import { type MediaListStatus, type MediaType, Routes, api, mediaListStatusString } from "wrappers/anilist";
 import type { PaginatedSelectMenu } from "../../services/commands.js";
 import { createPage } from "../../utility/paginationUtils.js";
 
