@@ -19,7 +19,7 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
     cooldown: 1,
     toggleable: true,
     timeout: 900,
-    pageLimit: 15,
+    pageLimit: 1,
     parse(data) {
         if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");
@@ -54,15 +54,11 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
             }
             const totalPages = Math.ceil(allPotentialUsers.length / (this.pageLimit ?? 15));
 
-            await createPage(
-                interaction,
-                {
-                    userID: interaction.user_id,
-                    commandID: "media_selection",
-                    totalPages: totalPages,
-                },
-                this.page,
-            );
+            await createPage(this, interaction, {
+                userID: interaction.user_id,
+                commandID: "media_selection",
+                totalPages: totalPages,
+            });
         } catch (error: any) {
             logger.error("Error in execute", "MediaSelection", error);
             await interaction

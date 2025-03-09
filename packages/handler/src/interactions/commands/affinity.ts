@@ -71,15 +71,11 @@ export const interaction: PaginatedChatInputCommand = {
         });
         await redis.expire(affinityKey, 900);
 
-        await createPage(
-            interaction,
-            {
-                userID: interaction.user_id,
-                commandID: interaction.data.name,
-                totalPages: maxPages,
-            },
-            this.page,
-        );
+        await createPage(this, interaction, {
+            userID: interaction.user_id,
+            commandID: interaction.data.name,
+            totalPages: maxPages,
+        });
     },
     async page(pageNumber, interaction) {
         const affinityKey = `affinity:${interaction.user_id}:${interaction.guild_id}`;

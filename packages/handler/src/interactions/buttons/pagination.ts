@@ -22,7 +22,6 @@ export const interaction: Button<PaginationData> = {
     },
     async execute(interaction, data: PaginationData): Promise<void> {
         const command = getPaginatedCommandById(interaction.client, data.commandID);
-        logger.debug("Pagination data", "execute", { data, command });
 
         if (!command || !isPaginatedCommand(command)) {
             logger.warn("Pagination button executed on command that does not support it", "execute", { command });
@@ -33,6 +32,6 @@ export const interaction: Button<PaginationData> = {
             });
         }
 
-        await handlePagination(interaction, data.action, data.commandID, command.page);
+        await handlePagination(interaction, command, data.action, data.commandID);
     },
 };

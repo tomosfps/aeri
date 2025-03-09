@@ -69,15 +69,11 @@ export const interaction: PaginatedUserContextCommand = {
         });
         await redis.expire(affinityKey, 900);
 
-        await createPage(
-            interaction,
-            {
-                userID: interaction.user_id,
-                commandID: "user affinity",
-                totalPages: maxPages,
-            },
-            this.page,
-        );
+        await createPage(this, interaction, {
+            userID: interaction.user_id,
+            commandID: "user affinity",
+            totalPages: maxPages,
+        });
     },
 
     async page(pageNumber, interaction) {

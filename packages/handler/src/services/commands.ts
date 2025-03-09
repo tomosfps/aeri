@@ -19,7 +19,7 @@ import type { ModalInteraction } from "../classes/ModalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/SelectMenuInteraction.js";
 import type { SlashCommandBuilder } from "../classes/SlashCommandBuilder.js";
 import type { UserContextInteraction } from "../classes/UserContextInteraction.js";
-import type { paginationSupportedInteractions } from "../utility/paginationUtils.js";
+import type { PaginationSupportedInteraction } from "../utility/paginationUtils.js";
 
 const redis = await getRedis();
 
@@ -29,7 +29,7 @@ export interface BaseCommand {
     };
 }
 
-export interface PaginatedCommand<T extends paginationSupportedInteractions> {
+export interface PaginatedCommand<T extends PaginationSupportedInteraction> {
     pageLimit: number;
     page: (
         pageNumber: number,

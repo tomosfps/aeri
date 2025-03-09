@@ -66,15 +66,11 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
                 });
             }
 
-            await createPage(
-                interaction,
-                {
-                    userID: interaction.user_id,
-                    commandID: "status_selection",
-                    totalPages: result.pagination.totalPages,
-                },
-                this.page,
-            );
+            await createPage(this, interaction, {
+                userID: interaction.user_id,
+                commandID: "status_selection",
+                totalPages: result.pagination.totalPages,
+            });
         } catch (error: any) {
             logger.error("Error in execute", "StatusSelection", error);
             await interaction
