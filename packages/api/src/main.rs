@@ -16,6 +16,7 @@ mod structs;
 mod entities;
 
 use routes::recommend::recommend;
+use routes::random::random;
 
 use crate::entities::{
     affinity::Affinity, character::Character,
@@ -87,6 +88,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .wrap(cors)
             .wrap(MetricsMiddleware::new(metrics_data.clone()))
+            .service(random)
             .service(recommend)
             .service(anilist_oauth)
             .service(viewer)

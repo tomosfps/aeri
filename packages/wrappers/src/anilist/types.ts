@@ -14,6 +14,7 @@ export enum Routes {
     UpdateMedia = "oauth/updateMedia",
     RefreshUser = "remove-user",
     WatchList = "watchlist",
+    Random = "random",
 }
 
 type WatchListInfo = {
@@ -349,6 +350,16 @@ type Studio = {
     };
 };
 
+type Random = {
+    body: {
+        media: MediaType;
+        formats: MediaFormat[];
+    };
+    response: BaseResponse & {
+        id: number;
+    };
+};
+
 type Recommend = {
     body: {
         media: MediaType;
@@ -470,4 +481,5 @@ export type RouteMap = {
     [Routes.UpdateMedia]: MediaUpdated;
     [Routes.RefreshUser]: RefreshUser;
     [Routes.WatchList]: WatchList;
+    [Routes.Random]: Random;
 };

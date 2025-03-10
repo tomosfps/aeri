@@ -164,19 +164,13 @@ export const interaction: ChatInputCommand = {
             { user_id: interaction.user_id, guild_id: interaction.guild_id },
         );
 
-        if (mediaError) {
-            logger.error("Error while fetching Media data from the API.", "Anilist", mediaError);
+        if (mediaError || !mediaResult) {
+            logger.error("Error while fetching Media data from the API.", "Anilist", { mediaError });
 
             return interaction.followUp({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
                 ephemeral: true,
-            });
-        }
-
-        if (!mediaResult) {
-            return interaction.followUp({
-                content: `Could not find ${dbUser.username} in Anilist.\nIf you've changed your name please do ${await getCommandAsMention("unlink")} and ${await getCommandAsMention("link")} again.`,
             });
         }
 

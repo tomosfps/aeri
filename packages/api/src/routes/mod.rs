@@ -6,3 +6,4 @@ pub mod commands;
 pub mod shards;
 pub mod metrics;
 pub mod statistics;
+pub mod random;

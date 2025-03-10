@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, inlineCode } from "@discordjs/builders";
+import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
 import { InteractionContextType } from "discord-api-types/v9";
 import { ApplicationIntegrationType } from "discord-api-types/v10";
@@ -29,20 +29,12 @@ export const interaction: ChatInputCommand = {
 
         const { result: character, error } = await api.fetch(Routes.Character, { character_name });
 
-        if (error) {
-            logger.error("Error while fetching data from the API.", "Anilist", error);
+        if (error || !character) {
+            logger.error("Error while fetching data from the API.", "Anilist", { error });
 
             return interaction.reply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                ephemeral: true,
-            });
-        }
-
-        if (character === null) {
-            logger.debugSingle("Character could not be found within the Anilist API", "Anilist");
-            return interaction.reply({
-                content: `Could not find ${inlineCode(character_name)} within the Anilist API`,
                 ephemeral: true,
             });
         }

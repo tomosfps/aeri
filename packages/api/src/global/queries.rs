@@ -323,30 +323,30 @@ pub fn get_query(query_name: &str) -> String {
     }
     ";
 
-    let recommendation_amount: &str =  "
-        query ($page: Int, $perPage: Int) {
-        Page(page: $page, perPage: $perPage) {
-            pageInfo {
-                hasNextPage,
-                lastPage,
-            }
-            media {
-                id
-            }
+    let random: &str = "
+    query ($formats: [MediaFormat], $type: MediaType, $page: Int, $perPage: Int) {
+    Page(page: $page, perPage: $perPage) {
+    pageInfo {
+        hasNextPage,
+        lastPage,
         }
-        }";
+    media(type: $type, format_in: $formats, sort: POPULARITY_DESC, genre_not_in: [\"Hentai\"]) {
+        id
+        }
+    }
+    }";
 
     let recommendation: &str =  "
         query ($genres: [String], $type: MediaType, $page: Int, $perPage: Int) {
         Page(page: $page, perPage: $perPage) {
-            pageInfo {
-                hasNextPage,
-                lastPage,
+        pageInfo {
+            hasNextPage,
+            lastPage,
             }
-            media(type: $type, genre_in: $genres, sort: ID) {
-                id
+        media(type: $type, genre_in: $genres, sort: ID, genre_not_in: [\"Hentai\"]) {
+            id
             }
-            }
+        }
         }";
 
     let viewer: &str = "
@@ -366,11 +366,11 @@ pub fn get_query(query_name: &str) -> String {
         "user_list" => user_list.to_string(),
         "affinity" => affinity.to_string(),
         "recommendation" => recommendation.to_string(),
-        "recommendations" => recommendation_amount.to_string(),
         "staff" => staff.to_string(),
         "character" => character.to_string(),
         "studio" => studio.to_string(),
         "viewer" => viewer.to_string(),
+        "random" => random.to_string(),
         _ => panic!("Invalid Query Name"),
     }
 }

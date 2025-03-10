@@ -223,7 +223,7 @@ pub struct GenreDistribution {
     pub chapters_read:   i32,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PageInfo {
     pub last_page:  Option<i32>,
