@@ -12,7 +12,7 @@ interface PaginationData {
 export const interaction: Button<PaginationData> = {
     custom_id: "pagination",
     toggleable: true,
-    timeout: 3600,
+    timeout: 900,
     parse(data: string[]): PaginationData {
         if (!data[0] || !data[1]) {
             throw new Error("Invalid pagination data");
