@@ -22,24 +22,12 @@ jobs:
           cache-to: type=gha,mode=max
 
   build_node_images:
-    name: Build and push Docker images based on Node.JS
+    name: Build and push Docker image
     needs: build_base_layers
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          -
-            target: handler
-            tags: r2.ecchi.cloud/aeri_handler
-          -
-            target: gateway
-            tags: r2.ecchi.cloud/aeri_gateway
-          -
-            target: database-setup
-            tags: r2.ecchi.cloud/aeri_database-setup
-          -
-            target: website
-            tags: r2.ecchi.cloud/aeri_website
+        target: [handler, gateway, database-setup, website]
     steps:
       -
         name: Setup Docker Buildx
@@ -57,7 +45,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           push: true
-          tags: ${{ matrix.tags }}
+          tags: r2.ecchi.cloud/aeri_${{ matrix.target }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
