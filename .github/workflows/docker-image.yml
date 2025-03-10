@@ -6,112 +6,81 @@ on:
       - 'main'
 
 jobs:
-  build_handler:
-    name: Build And Push Handler image
+  build_base_layers:
+    name: Build Docker base layers for caching
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      -
+        name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Build base layers
+        uses: docker/build-push-action@v6
+        with:
+          target: build
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Login to docker registry
+  build_node_images:
+    name: Build and push Docker images based on Node.JS
+    needs: build_base_layers
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          -
+            target: handler
+            tags: r2.ecchi.cloud/aeri_handler
+          -
+            target: gateway
+            tags: r2.ecchi.cloud/aeri_gateway
+          -
+            target: database-setup
+            tags: r2.ecchi.cloud/aeri_database-setup
+          -
+            target: website
+            tags: r2.ecchi.cloud/aeri_website
+    steps:
+      -
+        name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Login to docker registry
         uses: docker/login-action@v3
         with:
           registry: r2.ecchi.cloud
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Build and push
+      -
+        name: Build and push ${{ matrix.target }} image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          target: ${{ matrix.target }}
           push: true
-          tags: r2.ecchi.cloud/aeri_handler
-          target: handler
+          tags: ${{ matrix.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-  build_gateway:
-    name: Build And Push Gateway image
+  build_api_image:
+    name: Build and push Rust API image
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Login to docker registry
+      -
+        name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Login to docker registry
         uses: docker/login-action@v3
         with:
           registry: r2.ecchi.cloud
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Build and push
+      -
+        name: Build and push API image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          push: true
-          tags: r2.ecchi.cloud/aeri_gateway
-          target: gateway
-
-  build_database_setup:
-    name: Build And Push Database Setup image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Login to docker registry
-        uses: docker/login-action@v3
-        with:
-          registry: r2.ecchi.cloud
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: r2.ecchi.cloud/aeri_database-setup
-          target: database-setup
-    
-  build_website:
-    name: Build And Push Website image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Login to docker registry
-        uses: docker/login-action@v3
-        with:
-          registry: r2.ecchi.cloud
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: r2.ecchi.cloud/aeri_website
-          target: website
-    
-  build_api:
-    name: Build And Push API image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Login to docker registry
-        uses: docker/login-action@v3
-        with:
-          registry: r2.ecchi.cloud
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
           file: ./Dockerfile.api
           push: true
           tags: r2.ecchi.cloud/aeri_api
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
