@@ -21,7 +21,7 @@ RUN find ./packages -type d -empty -delete
 FROM base AS deps
 WORKDIR /app
 COPY --from=packages /app .
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,target=/pnpm/store pnpm install --frozen-lockfile
 
 FROM deps AS build
 WORKDIR /app
