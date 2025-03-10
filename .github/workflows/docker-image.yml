@@ -44,7 +44,6 @@ jobs:
         name: Build and push ${{ matrix.target }} image
         uses: docker/build-push-action@v6
         with:
-          context: .
           target: ${{ matrix.target }}
           push: true
           tags: r2.ecchi.cloud/aeri_${{ matrix.target }}
@@ -69,7 +68,6 @@ jobs:
         name: Build and push API image
         uses: docker/build-push-action@v6
         with:
-          context: .
           file: ./Dockerfile.api
           push: true
           tags: r2.ecchi.cloud/aeri_api
