@@ -44,6 +44,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           target: build
+          push: true
+          tags: r2.ecchi.cloud/aeri_base
           cache-from: type=registry,ref=r2.ecchi.cloud/aeri_base_cache
           cache-to: type=registry,ref=r2.ecchi.cloud/aeri_base_cache,mode=max
 
