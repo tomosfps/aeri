@@ -46,8 +46,8 @@ jobs:
           target: build
           push: true
           tags: r2.ecchi.cloud/aeri_base
-          cache-from: type=registry,ref=r2.ecchi.cloud/aeri_base_cache
-          cache-to: type=registry,ref=r2.ecchi.cloud/aeri_base_cache,mode=max
+          cache-from: type=registry,ref=r2.ecchi.cloud/aeri_base
+          cache-to: type=inline
 
   build_node_images:
     name: Build and push Docker image
@@ -74,8 +74,8 @@ jobs:
           target: ${{ matrix.target }}
           push: true
           tags: r2.ecchi.cloud/aeri_${{ matrix.target }}
-          cache-from: type=registry,ref=r2.ecchi.cloud/aeri_${{ matrix.target }}_cache
-          cache-to: type=registry,ref=r2.ecchi.cloud/aeri_${{ matrix.target }}_cache,mode=max
+          cache-from: type=registry,ref=r2.ecchi.cloud/aeri_${{ matrix.target }}
+          cache-to: type=inline
 
   build_api_image:
     name: Build and push Rust API image
@@ -98,5 +98,5 @@ jobs:
           file: ./Dockerfile.api
           push: true
           tags: r2.ecchi.cloud/aeri_api
-          cache-from: type=registry,ref=r2.ecchi.cloud/aeri_api_cache
-          cache-to: type=registry,ref=r2.ecchi.cloud/aeri_api_cache,mode=max
+          cache-from: type=registry,ref=r2.ecchi.cloud/aeri_api
+          cache-to: type=inline
