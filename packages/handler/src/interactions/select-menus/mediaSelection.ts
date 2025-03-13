@@ -66,7 +66,7 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
                     content: "An error occurred while processing your request.",
                     ephemeral: true,
                 })
-                .catch(() => { });
+                .catch(() => {});
         }
     },
     async page(page, interaction) {
