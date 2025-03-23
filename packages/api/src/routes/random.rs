@@ -9,21 +9,19 @@ use std::sync::Arc;
 
 #[derive(Deserialize)]
 pub struct RandomRequest {
-    media: String,
     formats: Vec<String>,
 }
 
 #[post("/random")]
 async fn random(req: web::Json<RandomRequest>, metrics: web::Data<Arc<Metrics>>) -> impl Responder {
-    if req.media.is_empty() {
-        return HttpResponse::NotFound().json(json!({"error": "No Media Type was included"}));
+    if req.formats.is_empty() {
+        return HttpResponse::BadRequest().json(json!({"error": "No formats were included"}));
     }
 
     let mut rng = rand::rng();
     let mut client = Client::new_proxied(metrics.clone()).await;
 
     let variables = json!({
-        "type": req.media,
         "formats": req.formats,
         "page": 1,
         "perPage": 50 
@@ -59,5 +57,6 @@ async fn random(req: web::Json<RandomRequest>, metrics: web::Data<Arc<Metrics>>)
     
     HttpResponse::Ok().json(json!({
         "id": chosen_media["id"],
+        "media_type": chosen_media["type"],
     }))
 }

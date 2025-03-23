@@ -352,10 +352,10 @@ type Studio = {
 
 type Random = {
     body: {
-        media: MediaType;
         formats: MediaFormat[];
     };
     response: BaseResponse & {
+        media_type: MediaType;
         id: number;
     };
 };

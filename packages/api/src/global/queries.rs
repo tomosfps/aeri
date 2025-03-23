@@ -324,14 +324,15 @@ pub fn get_query(query_name: &str) -> String {
     ";
 
     let random: &str = "
-    query ($formats: [MediaFormat], $type: MediaType, $page: Int, $perPage: Int) {
+    query ($formats: [MediaFormat], $page: Int, $perPage: Int) {
     Page(page: $page, perPage: $perPage) {
     pageInfo {
-        hasNextPage,
-        lastPage,
+            hasNextPage,
+            lastPage,
         }
-    media(type: $type, format_in: $formats, sort: POPULARITY_DESC, genre_not_in: [\"Hentai\"]) {
-        id
+    media(format_in: $formats, sort: POPULARITY_DESC, genre_not_in: [\"Hentai\"]) {
+            id
+            type
         }
     }
     }";
