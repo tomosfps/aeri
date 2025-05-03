@@ -1,0 +1,32 @@
+.home-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-element {
+    position: absolute;
+    color: var(--pastel-lavender);
+    font-size: 1.5rem;
+    opacity: 0.6;
+    animation: float-animation infinite alternate ease-in-out;
+    z-index: 1;
+}
+
+@keyframes float-animation {
+    0% {
+        transform: translateY(0) rotate(0);
+    }
+    100% {
+        transform: translateY(-20px) rotate(20deg);
+    }
+}

@@ -11,7 +11,8 @@
         "handler": "pnpm --filter handler build && pnpm --filter wrappers build && dotenv -- pnpm --filter handler start ",
         "database-setup": "dotenv -- pnpm --filter database generate && pnpm --filter database build && dotenv -- pnpm --filter database generate && dotenv -- pnpm --filter database push",
         "api": "dotenv -- cargo run --manifest-path ./packages/api/Cargo.toml",
-        "website": "pnpm --filter website build && dotenv -- pnpm --filter website dev"
+        "website": "dotenv -- pnpm --filter website dev",
+        "website-serve": "dotenv -- pnpm --filter website build && dotenv -- pnpm --filter website start"
     },
     "license": "MIT",
     "devDependencies": {

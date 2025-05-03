@@ -1,0 +1,43 @@
+.nav-sparkle-burst {
+  position: absolute;
+  font-size: 1.5rem;
+  top: -10px;
+  right: -15px;
+  animation: sparkle-burst 1s forwards;
+  color: var(--pastel-blue);
+  z-index: 5;
+  pointer-events: none;
+}
+
+@keyframes sparkle-burst {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.5); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+.kawaii-letter {
+  display: inline-block;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.logo-bounce {
+  animation: logo-bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes logo-bounce {
+  0%, 100% { transform: scale(1) rotate(0); }
+  30% { transform: scale(1.2) rotate(5deg); }
+  60% { transform: scale(0.9) rotate(-5deg); }
+  80% { transform: scale(1.1) rotate(2deg); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+.aeri-name-wrapper {
+  position: relative;
+  display: inline-flex;
+}
