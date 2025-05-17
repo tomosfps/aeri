@@ -152,9 +152,10 @@
 
 .nav-right {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .nav-right a {
@@ -164,8 +165,9 @@
   transition: all 0.3s ease;
   white-space: nowrap;
   position: relative;
-  padding: 0.4rem 0.8rem;
-  border-radius: 10px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
 }
 
 .nav-right a.active {
@@ -186,8 +188,8 @@
 }
 
 .nav-link-icon {
-  margin-right: 6px;
-  font-size: 1.1em;
+  margin-right: 5px;
+  font-size: 1em;
   transition: all 0.3s ease;
   color: var(--pastel-lavender);
   display: inline-block;
@@ -202,13 +204,14 @@
 .nav-special-link {
   background: var(--pastel-blue);
   color: white !important;
-  border-radius: 20px;
-  padding: 0.4rem 1.2rem !important;
+  border-radius: 16px;
+  padding: 0.3rem 1rem !important;
   box-shadow: 0 5px 15px rgba(166, 202, 240, 0.3);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
   border: none;
   position: relative;
   overflow: hidden;
+  font-size: 0.95rem;
 }
 
 .nav-special-link:before {
@@ -309,8 +312,8 @@
     width: 70%;
     max-width: 300px;
     flex-direction: column;
-    gap: 1.8rem;
-    padding: 5rem 2rem 2rem;
+    gap: 1rem;
+    padding: 4.5rem 1.5rem 2rem;
     background-color: var(--background-alt);
     border-left: 3px dotted var(--pastel-blue);
     box-shadow: -5px 0 20px rgba(216, 191, 216, 0.4);
@@ -325,10 +328,10 @@
   }
   
   .nav-right a {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     width: 100%;
     padding: 0.6rem;
-    border-radius: 10px;
+    border-radius: 8px;
     transition: all 0.3s ease;
   }
   
@@ -371,6 +374,8 @@
 
   .nav-link-icon {
     display: inline-block;
+    margin-right: 6px;
+    font-size: 0.95em;
   }
   
   .nav-left {
@@ -383,6 +388,16 @@
   
   .nav-right {
     width: 80%;
-    padding: 5rem 1.5rem 2rem;
+    gap: 0.8rem;
+    padding: 4rem 1.2rem 2rem;
+  }
+  
+  .nav-right a {
+    font-size: 1.05rem;
+    padding: 0.5rem;
+  }
+  
+  .nav-special-link {
+    padding: 0.4rem 1rem !important;
   }
 }

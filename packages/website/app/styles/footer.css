@@ -62,6 +62,7 @@
 }
 
 .footer-title .kawaii-letter {
+  color: var(--pastel-blue);
   display: inline-block;
   transition: transform 0.3s ease, color 0.3s ease;
 }

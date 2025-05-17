@@ -595,13 +595,6 @@
   to { transform: rotate(360deg); }
 }
 
-.kawaii-footer-decoration {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-}
-
 .kawaii-footer-icon {
   font-size: 1.5rem;
   display: inline-block;

@@ -310,7 +310,7 @@
   transition: all 0.2s ease;
   cursor: pointer;
   position: relative;
-  padding-right: 2.5rem; 
+  padding-right: 3.5rem;
 }
 
 .feature-showcase-command code:hover {
@@ -321,7 +321,7 @@
 
 .copy-button {
   position: absolute;
-  right: 10px;
+  right: 20px;
   top: 50%;
   transform: translateY(-50%);
   background: none;

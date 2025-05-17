@@ -1,6 +1,6 @@
 import "~/styles/root.css";
-import Navigation from "./components/Navigation";
-import Footer from "./components/Footer";
+import Navigation from "./components/common/Navigation";
+import Footer from "./components/common/Footer";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, } from "react-router";
 
 export function Layout({ children }: { children: React.ReactNode }) {

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import '~/styles/invite.css';
 import '~/styles/animations.css';
 import { useEffect, useState, useRef, useMemo } from 'react';
-import DiscordEmbed from '../common/Embed';
+import Embed from '../common/Embed';
 import { BOT_INVITE_URL } from '~/utils/constant';
 import { botCommands, embedFields } from '~/utils/invite';
 
@@ -119,14 +119,14 @@ export default function Invite() {
         
         <div className="invite-preview animate-in">
           <div className="discord-embed-showcase">
-            <DiscordEmbed
+            <Embed
               title="Aeri Bot"
               description="Your ultimate anime companion! Track your watching history, discover new anime and manga, and connect with other fans."
               thumbnail="/images/logo.png"
               fields={embedFields}
               color="var(--pastel-pink)"
               type="user"
-              footer="Add Aeri to enhance your Discord experience"
+              footer="Add Aeri to enhance your Discord experience and vote for her to help her grow!"
             />
             
             <div className="preview-decoration bot-tag">
@@ -135,7 +135,7 @@ export default function Invite() {
             </div>
             
             <div className="preview-decoration command-bubble">
-              <span className="command-text">anime</span>
+              <span className="command-text">vote</span>
             </div>
           </div>
         </div>

@@ -145,11 +145,6 @@ export default function StatusPage() {
                 <span className="update-icon">🔄</span>
                 Updates automatically every 10 seconds
             </div>
-            <div className="kawaii-footer-decoration">
-                <span className="kawaii-footer-icon">✨</span>
-                <span className="kawaii-footer-icon">💖</span>
-                <span className="kawaii-footer-icon">✨</span>
-            </div>
             </div>
         </div>
         <div className="status-decoration-bottom"></div>

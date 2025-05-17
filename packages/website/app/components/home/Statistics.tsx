@@ -19,7 +19,6 @@ export default function Statistics() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const statsRefs = useRef<HTMLDivElement[]>([]);
   const numbersRefs = useRef<HTMLHeadingElement[]>([]);
-  const counterValues = useRef<number[]>([]);
   const [stats, setStats] = useState<StatsData[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [animatedStats, setAnimatedStats] = useState<StatItem[]>([]);
@@ -70,9 +69,6 @@ export default function Statistics() {
     ];
 
     setAnimatedStats(initialStats);
-    counterValues.current = initialStats.map(item => 
-      typeof item.value === 'number' ? 0 : item.isPercentage ? 0 : 0
-    );
   }, [stats, loading]);
   
   useEffect(() => {

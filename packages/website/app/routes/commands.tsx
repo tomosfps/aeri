@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import GetCommands, { type Command } from "~/requests/getCommands";
-import { ChevronDownIcon, ClockIcon, HeartIcon, ZapIcon } from "~/components/icons";
+import { ChevronDownIcon, ClockIcon, ZapIcon } from "~/components/icons";
 import "~/styles/commands.css";
 import { categoryIcons, mascotEmojis, alphabetEmojis } from "~/utils/commands";
 
@@ -330,15 +330,6 @@ export default function Commands() {
             )}
           </div>
         )}
-
-        <div className="kawaii-footer">
-          <div className="kawaii-footer-decoration">
-            <span className="kawaii-footer-icon">✿</span>
-            <span className="kawaii-footer-icon">❀</span>
-            <span className="kawaii-footer-icon">✿</span>
-          </div>
-          <p>Made with <HeartIcon size={14} className="heart-icon" /> by Aeri</p>
-        </div>
       </div>
     </div>
   );

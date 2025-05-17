@@ -1,0 +1,330 @@
+.tos-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  color: var(--text-dark);
+}
+
+.tos-header {
+  margin-bottom: 3rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1.5rem;
+}
+
+.tos-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tos-last-updated {
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+.tos-toc {
+  background-color: var(--background-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  box-shadow: var(--kawaii-shadow);
+}
+
+.tos-toc-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
+}
+
+.tos-toc-list {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.75rem;
+  list-style-type: none;
+}
+
+@media (min-width: 768px) {
+  .tos-toc-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tos-toc-item a {
+  display: flex;
+  align-items: center;
+  color: var(--primary-dark);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.tos-toc-item a:hover {
+  text-decoration: underline;
+}
+
+.tos-toc-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.75rem;
+  background-color: var(--pastel-blue);
+  color: var(--text-dark);
+  border-radius: 9999px;
+  margin-right: 0.5rem;
+  font-weight: bold;
+}
+
+.tos-section {
+  background-color: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.tos-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.tos-section-title:after {
+  display: none;
+}
+
+.tos-section-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.875rem;
+  background-color: var(--pastel-blue);
+  color: var(--text-dark);
+  border-radius: 9999px;
+  margin-right: 0.75rem;
+  font-weight: bold;
+}
+
+.tos-text {
+  line-height: 1.6;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+}
+
+.tos-list {
+  margin-top: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.tos-list-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.tos-bullet {
+  display: none;
+}
+
+.numbered-list .tos-list-item {
+  counter-increment: item;
+}
+
+.numbered-list .tos-list-item:before {
+  content: counter(item) ".";
+  font-weight: bold;
+  margin-right: 0.5rem;
+  color: var(--primary-dark);
+}
+
+.tos-alert {
+  background-color: rgba(255, 250, 205, 0.4);
+  border: 1px solid rgba(255, 218, 185, 0.5);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+
+.tos-alert-warn:before {
+  content: "⚠️";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  background-color: var(--pastel-yellow);
+  color: var(--text-dark);
+  border-radius: 9999px;
+  margin-right: 0.75rem;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.tos-alert-danger {
+  background-color: rgba(255, 182, 193, 0.2);
+  border: 1px solid rgba(255, 182, 193, 0.4);
+  position: relative;
+}
+
+.tos-alert-danger:before {
+  content: "❗";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  background-color: var(--pastel-pink);
+  color: var(--text-dark);
+  border-radius: 9999px;
+  margin-right: 0.75rem;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.tos-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .tos-columns {
+    flex-direction: row;
+    gap: 1rem;
+  }
+  
+  .tos-column {
+    width: 50%;
+  }
+}
+
+.tos-panel {
+  background-color: var(--background-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  height: 100%;
+}
+
+.tos-panel-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  margin-bottom: 0.5rem;
+}
+
+.tos-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .tos-contact {
+    flex-direction: row;
+  }
+}
+
+.tos-contact-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text-dark);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.tos-contact-link:hover {
+  color: var(--text-dark);
+  text-decoration: none;
+}
+
+.tos-contact-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  margin-right: 0.75rem;
+}
+
+.tos-discord {
+  background-color: rgba(88, 101, 242, 0.15);
+  border: 1px solid rgba(88, 101, 242, 0.4);
+}
+
+.tos-discord:hover {
+  background-color: rgba(88, 101, 242, 0.25);
+}
+
+.tos-discord .tos-contact-icon {
+  color: #5865F2;
+}
+
+.tos-github {
+  background-color: rgba(51, 51, 51, 0.15);
+  border: 1px solid rgba(125, 125, 125, 0.4);
+}
+
+.tos-github:hover {
+  background-color: rgba(51, 51, 51, 0.25);
+}
+
+.tos-github .tos-contact-icon {
+  color: #333;
+}
+
+.tos-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-light);
+  font-size: 0.875rem;
+}
+
+.tos-footer p {
+  margin-bottom: 1rem;
+}
+
+.tos-footer a {
+  color: var(--primary-dark);
+  text-decoration: none;
+}
+
+.tos-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Link styling within TOS content */
+.tos-link {
+  color: var(--pastel-lavender);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tos-link:hover {
+  color: var(--pastel-blue);
+  text-decoration: underline;
+}
+
+/* Add some kawaii styling to sections on hover */
+.tos-section:hover {
+  border-color: var(--pastel-blue);
+  box-shadow: var(--kawaii-shadow);
+  transition: all 0.3s ease;
+}

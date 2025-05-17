@@ -17,7 +17,7 @@ interface EmbedProps {
   type: string;
 }
 
-const DiscordEmbed: React.FC<EmbedProps> = ({ 
+const Embed: React.FC<EmbedProps> = ({ 
   title, 
   description, 
   thumbnail,
@@ -26,7 +26,6 @@ const DiscordEmbed: React.FC<EmbedProps> = ({
   footer,
   type
 }) => {
-  // Helper function to determine what emoji to show in decoration badge
   const getDecorationEmoji = () => {
     switch(type) {
       case 'anime': return '🎬';
@@ -36,7 +35,6 @@ const DiscordEmbed: React.FC<EmbedProps> = ({
     }
   };
 
-  // Generate random pastel sparkles
   const sparkles = Array(5).fill(0).map((_) => ({
     top: `${Math.random() * 100}%`,
     left: `${Math.random() * 100}%`,
@@ -46,25 +44,21 @@ const DiscordEmbed: React.FC<EmbedProps> = ({
 
   return (
     <div className="discord-embed-container">
-      {/* Floating kawaii decoration */}
       <div className="discord-embed-kawaii-decoration">
         {type === 'anime' ? '🌸' : type === 'manga' ? '✨' : '💫'}
       </div>
       
       <div className="discord-embed" style={{ borderColor: color }} data-type={type}>
-        {/* Decorative badge at top */}
         <div className="discord-embed-decoration">
           {getDecorationEmoji()}
         </div>
         
-        {/* Cute bubbles in background */}
         <div className="discord-embed-bubbles">
           <div className="discord-embed-bubble"></div>
           <div className="discord-embed-bubble"></div>
           <div className="discord-embed-bubble"></div>
         </div>
         
-        {/* Sparkle effects */}
         <div className="discord-embed-sparkles">
           {sparkles.map((sparkle, i) => (
             <div 
@@ -119,4 +113,4 @@ const DiscordEmbed: React.FC<EmbedProps> = ({
   );
 };
 
-export default DiscordEmbed;
+export default Embed;

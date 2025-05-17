@@ -96,20 +96,6 @@ export default function Navigation() {
             <span className="nav-link-icon">📊</span> Status
           </Link>
           <Link 
-            to="/playground" 
-            onClick={handleLinkClick}
-            className={isActive('/playground') ? 'active' : ''}
-          >
-            <span className="nav-link-icon">✨</span> Playground
-          </Link>
-          <Link 
-            to="/dashboard" 
-            onClick={handleLinkClick}
-            className={isActive('/dashboard') ? 'active' : ''}
-          >
-            <span className="nav-link-icon">⚙️</span> Dashboard
-          </Link>
-          <Link 
             to="/invite" 
             onClick={handleLinkClick} 
             className={`nav-special-link ${isActive('/invite') ? 'active' : ''}`}

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import '~/styles/footer.css';
+import { BOT_INVITE_URL } from '~/utils/constant';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -24,7 +25,7 @@ export default function Footer() {
         <div className="footer-section">
           <h4>Links <span className="kawaii-emoji">🔗</span></h4>
           <ul className="footer-links">
-            <li><Link to="/" className="footer-link-item">Home</Link></li>
+            <li><Link to="" className="footer-link-item">Home</Link></li>
             <li><Link to="/privacy" className="footer-link-item">Privacy Policy</Link></li>
             <li><Link to="/terms" className="footer-link-item">Terms of Service</Link></li>
           </ul>
@@ -34,7 +35,7 @@ export default function Footer() {
           <h4>Connect <span className="kawaii-emoji">🌟</span></h4>
           <div className="footer-social">
             <a 
-              href="https://discord.gg/invite" 
+              href={BOT_INVITE_URL} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="social-icon"
@@ -42,7 +43,7 @@ export default function Footer() {
               <span>Discord</span>
             </a>
             <a 
-              href="https://github.com/aeri-bot" 
+              href="https://github.com/tomosfps/aeri" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="social-icon"
