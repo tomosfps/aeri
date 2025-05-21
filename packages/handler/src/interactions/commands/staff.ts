@@ -1,7 +1,11 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, inlineCode } from "@discordjs/builders";
-import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationIntegrationType } from "discord-api-types/v10";
+import {
+    ApplicationCommandOptionType,
+    ApplicationIntegrationType,
+    ButtonStyle,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -35,7 +39,7 @@ export const interaction: ChatInputCommand = {
             return interaction.reply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -44,7 +48,7 @@ export const interaction: ChatInputCommand = {
 
             return interaction.reply({
                 content: `Could not find ${inlineCode(staff_name)} within the Anilist API`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -53,16 +57,16 @@ export const interaction: ChatInputCommand = {
             .setURL(staff.siteUrl)
             .setDescription(staff.description)
             .setThumbnail(staff.image)
-            .setColor(interaction.base_colour)
+            .setColor(interaction.baseColour)
             .setFooter({ text: staff.footer });
 
         const animeButton = new ButtonBuilder()
-            .setCustomId(`staffShow:${staff_name}:ANIME:${interaction.user.id}`)
+            .setCustomId(`staff:${staff_name}:ANIME:${interaction.user.id}`)
             .setLabel("See Anime Within/Worked On")
             .setStyle(ButtonStyle.Primary);
 
         const mangaButton = new ButtonBuilder()
-            .setCustomId(`staffShow:${staff_name}:MANGA:${interaction.user.id}`)
+            .setCustomId(`staff:${staff_name}:MANGA:${interaction.user.id}`)
             .setLabel("See Manga Created")
             .setStyle(ButtonStyle.Secondary);
 
@@ -70,7 +74,7 @@ export const interaction: ChatInputCommand = {
         return interaction.reply({
             embeds: [embed],
             components: [row],
-            ephemeral: hidden,
+            flags: hidden ? MessageFlags.Ephemeral : undefined,
         });
     },
 };

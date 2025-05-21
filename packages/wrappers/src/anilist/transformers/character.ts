@@ -1,4 +1,4 @@
-import { bold, formatEmoji, inlineCode } from "@discordjs/formatters";
+import { bold, inlineCode } from "@discordjs/formatters";
 import { capitalise } from "core";
 import type { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
@@ -14,14 +14,14 @@ export const characterTransformer: TransformersType[Routes.Character] = (data) =
             : "None";
 
     const descriptionBuilder = [
-        `${formatEmoji("1344752792140513342")} ${inlineCode("Age               :")} ${data.age}\n`,
-        `${formatEmoji("1344752784544628798")} ${inlineCode("Gender            :")} ${data.gender}\n`,
-        `${formatEmoji("1344752996965154917")} ${inlineCode("Date Of Birth     :")} ${data.dateOfBirth}\n`,
-        `${formatEmoji("1344752948055642142")} ${inlineCode("Favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1344752820875825282")} ${inlineCode("Alternative Names :")} ${alternativeNames}\n`,
+        `${inlineCode("Age               :")} ${data.age}\n`,
+        `${inlineCode("Gender            :")} ${data.gender}\n`,
+        `${inlineCode("Date Of Birth     :")} ${data.dateOfBirth}\n`,
+        `${inlineCode("Favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
+        `${inlineCode("Alternative Names :")} ${alternativeNames}\n`,
     ];
 
-    const addOnDescription = `${formatEmoji("1344752799317102593")} ${inlineCode("Description       :")}\n${data.description}\n`;
+    const addOnDescription = `${inlineCode("Description       :")}\n${data.description}\n`;
     const filteredAddOn = filteredDescription(addOnDescription, true);
 
     const filtered = filteredDescription(descriptionBuilder.join(""), false);
@@ -80,7 +80,7 @@ export const characterTransformer: TransformersType[Routes.Character] = (data) =
     return {
         description: filtered,
         addOnDescription: `\n${filteredAddOn}`,
-        animeDescription: `\n${formatEmoji("1344752979236094024")} ${inlineCode("Anime List        :")}\n${animeListString}`,
-        mangaDescription: `\n${formatEmoji("1344752859702366311")} ${inlineCode("Manga List        :")}\n${mangaListString}`,
+        animeDescription: `\n${inlineCode("Anime List        :")}\n${animeListString}`,
+        mangaDescription: `\n${inlineCode("Manga List        :")}\n${mangaListString}`,
     };
 };

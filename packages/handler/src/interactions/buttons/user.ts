@@ -1,4 +1,5 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { MessageFlags } from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import type { Button } from "../../services/commands.js";
@@ -14,7 +15,7 @@ type ButtonData = {
 };
 
 export const interaction: Button<ButtonData> = {
-    custom_id: "userShow",
+    custom_id: "user",
     toggleable: true,
     timeout: 900,
     parse(data) {
@@ -24,9 +25,7 @@ export const interaction: Button<ButtonData> = {
         return { anilistUsername: data[0], type: data[1] as DescriptionType, userId: data[2] };
     },
     async execute(interaction, data): Promise<void> {
-        const anilistUsername = data.anilistUsername;
-
-        const { result: user, error } = await api.fetch(Routes.User, { username: anilistUsername });
+        const { result: user, error } = await api.fetch(Routes.User, { username: data.anilistUsername });
 
         if (error) {
             logger.error("Error while fetching data from the API.", "Anilist", error);
@@ -34,14 +33,14 @@ export const interaction: Button<ButtonData> = {
             return interaction.reply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
         if (user === null) {
             return interaction.reply({
                 content: `Could not find ${user} within the Anilist API`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -66,7 +65,7 @@ export const interaction: Button<ButtonData> = {
             .setImage(user.banner)
             .setFooter({ text: user.footer });
 
-        await interaction.edit({
+        await interaction.updateMessage({
             embeds: [embed],
         });
     },

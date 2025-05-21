@@ -1,5 +1,5 @@
+import type { APIUser, GatewayGuildMemberRemoveDispatchData } from "@discordjs/core";
 import { dbFetchDiscordUser, dbFetchGuildUser, dbRemoveFromGuild, dbUpdateGuild } from "database";
-import type { APIUser, GatewayGuildMemberRemoveDispatchData } from "discord-api-types/v10";
 import { Logger } from "logger";
 
 const logger = new Logger();

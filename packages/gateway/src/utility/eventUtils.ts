@@ -1,4 +1,4 @@
-import { GatewayDispatchEvents } from "discord-api-types/v10";
+import { GatewayDispatchEvents } from "@discordjs/core";
 
 export function isUnwantedEvent(event: GatewayDispatchEvents): boolean {
     switch (event) {

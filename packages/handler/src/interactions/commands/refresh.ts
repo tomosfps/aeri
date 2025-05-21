@@ -1,6 +1,5 @@
+import { ApplicationIntegrationType, InteractionContextType, MessageFlags } from "@discordjs/core";
 import { dbFetchAnilistUser } from "database";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -20,14 +19,14 @@ export const interaction: ChatInputCommand = {
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM),
     async execute(interaction): Promise<void> {
-        const anilistUser = await dbFetchAnilistUser(interaction.user_id);
+        const anilistUser = await dbFetchAnilistUser(interaction.userID);
         const userId = anilistUser ? anilistUser.id : null;
         const username = anilistUser ? anilistUser.username : null;
 
         if (username === null || userId === null) {
             return interaction.reply({
                 content: `You must link your Anilist account to use this command. You can do so by using the ${await getCommandAsMention("link")} command.`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -41,10 +40,10 @@ export const interaction: ChatInputCommand = {
 
             return interaction.reply({
                 content: "There was a problem trying to refresh your scores.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
-        await interaction.reply({ content: "Sucessfully removed your scores!", ephemeral: true });
+        await interaction.reply({ content: "Sucessfully removed your scores!", flags: MessageFlags.Ephemeral });
     },
 };

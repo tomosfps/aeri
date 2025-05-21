@@ -4,7 +4,7 @@ use prometheus_client::encoding::text::encode;
 use prometheus_client::registry::Registry;
 
 #[get("/metrics")]
-async fn metrics(metrics_registry: web::Data<Arc<Registry>>) -> impl Responder {
+async fn metrics_viewer(metrics_registry: web::Data<Arc<Registry>>) -> impl Responder {
     let mut buffer = String::new();
     encode(&mut buffer, metrics_registry.as_ref()).unwrap();
 

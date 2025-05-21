@@ -1,8 +1,12 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import {
+    ApplicationCommandType,
+    ApplicationIntegrationType,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { getRedis } from "core";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationCommandType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { ContextMenuCommandBuilder } from "../../classes/ContextMenuCommandBuilder.js";
@@ -18,26 +22,26 @@ export const interaction: PaginatedUserContextCommand = {
         .setType(ApplicationCommandType.User)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
         .setContexts(InteractionContextType.Guild),
-    pageLimit: 1,
+    pageLimit: 15,
     async execute(interaction) {
-        if (!interaction.guild_id) {
+        if (!interaction.guildID) {
             return interaction.reply({
                 content: "This command can only be used in a server.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
-        logger.debug("Fetching user data", "User", { user: interaction.target_id });
+        logger.debug("Fetching user data", "User", { user: interaction.targetID });
         const user = await dbFetchAnilistUser(interaction.target.id);
 
         if (!user) {
             return interaction.reply({
                 content: "This user hasn't set up their anilist account yet!",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
-        const guildMembers = (await dbFetchGuildUsers(interaction.guild_id))
+        const guildMembers = (await dbFetchGuildUsers(interaction.guildID))
             .filter((user) => user.anilist !== null)
             // biome-ignore lint/style/noNonNullAssertion: filtered above
             .map((user) => user.anilist!.username);
@@ -49,7 +53,7 @@ export const interaction: PaginatedUserContextCommand = {
         if (guildMembers.length === 0) {
             return interaction.reply({
                 content: "There must be at least 1 other member in the server to use this command!",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -59,25 +63,25 @@ export const interaction: PaginatedUserContextCommand = {
         });
 
         const maxPages = Math.ceil(guildMembers.length / this.pageLimit);
-        const affinityKey = `user affinity:${interaction.user_id}:user-affinity`;
+        const affinityKey = `user affinity:${interaction.userID}:user-affinity`;
 
         await redis.hmset(affinityKey, {
             username: user.username,
             guildMembers: JSON.stringify(guildMembers),
-            target_id: interaction.target_id,
-            guild_id: interaction.guild_id,
+            target_id: interaction.targetID,
+            guild_id: interaction.guildID,
         });
         await redis.expire(affinityKey, 900);
 
         await createPage(this, interaction, {
-            userID: interaction.user_id,
+            userID: interaction.userID,
             commandID: "user affinity",
             totalPages: maxPages,
         });
     },
 
     async page(pageNumber, interaction) {
-        const affinityKey = `user affinity:${interaction.user_id}:user-affinity`;
+        const affinityKey = `user affinity:${interaction.userID}:user-affinity`;
         const affinityData = await redis.hgetall(affinityKey);
 
         // biome-ignore lint/style/noNonNullAssertion: filtered above
@@ -104,7 +108,7 @@ export const interaction: PaginatedUserContextCommand = {
                 .setDescription(
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 )
-                .setColor(interaction.base_colour);
+                .setColor(interaction.baseColour);
 
             return {
                 embeds: [errorEmbed],
@@ -116,7 +120,7 @@ export const interaction: PaginatedUserContextCommand = {
             .setURL(affinity.comparedAgainst.siteUrl)
             .setThumbnail(affinity.comparedAgainst.avatar.large)
             .setDescription(affinity.description)
-            .setColor(interaction.base_colour)
+            .setColor(interaction.baseColour)
             .setFooter({
                 text: `${affinity.footer}\nIf you believe the calculations are wrong, head over to GitHub and open an issue.`,
             });

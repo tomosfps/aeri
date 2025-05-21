@@ -1,13 +1,7 @@
 use crate::cache::redis::Redis;
 use actix_web::{post, web, HttpResponse, Responder};
-use colourful_logger::Logger;
-use lazy_static::lazy_static;
 use serde::Deserialize;
 use serde_json::json;
-
-lazy_static! {
-    static ref logger: Logger = Logger::default();
-}
 
 #[derive(Deserialize)]
 struct UserExpireRequest {

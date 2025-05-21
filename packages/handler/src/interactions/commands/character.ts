@@ -1,7 +1,11 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
-import { ApplicationCommandOptionType, ButtonStyle } from "@discordjs/core";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationIntegrationType } from "discord-api-types/v10";
+import {
+    ApplicationCommandOptionType,
+    ApplicationIntegrationType,
+    ButtonStyle,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -26,7 +30,7 @@ export const interaction: ChatInputCommand = {
         ),
     async execute(interaction): Promise<void> {
         const character_name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";
-
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const { result: character, error } = await api.fetch(Routes.Character, { character_name });
 
         if (error || !character) {
@@ -35,7 +39,7 @@ export const interaction: ChatInputCommand = {
             return interaction.reply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -45,22 +49,22 @@ export const interaction: ChatInputCommand = {
             .setURL(character.siteUrl)
             .setDescription(character.description + character.addOnDescription)
             .setThumbnail(character.image)
-            .setColor(interaction.base_colour)
+            .setColor(interaction.baseColour)
             .setFooter({ text: character.footer });
 
         const descriptionButton = new ButtonBuilder()
-            .setCustomId(`characterShow:${character_name}:DESCRIPTION:${interaction.user.id}`)
+            .setCustomId(`character:${character_name}:DESCRIPTION:${interaction.user.id}`)
             .setLabel("See Character Description")
             .setStyle(ButtonStyle.Primary);
 
         const animeButton = new ButtonBuilder()
-            .setCustomId(`characterShow:${character_name}:ANIME:${interaction.user.id}`)
+            .setCustomId(`character:${character_name}:ANIME:${interaction.user.id}`)
             .setLabel("See Anime Show Appearances")
             .setDisabled(character.animeDescription.length <= minDescriptionLength)
             .setStyle(ButtonStyle.Secondary);
 
         const mangaButton = new ButtonBuilder()
-            .setCustomId(`characterShow:${character_name}:MANGA:${interaction.user.id}`)
+            .setCustomId(`character:${character_name}:MANGA:${interaction.user.id}`)
             .setLabel("See Manga Character Appearances")
             .setDisabled(character.mangaDescription.length <= minDescriptionLength)
             .setStyle(ButtonStyle.Secondary);
@@ -70,6 +74,7 @@ export const interaction: ChatInputCommand = {
         return interaction.reply({
             embeds: [embed],
             components: [row],
+            flags: hidden ? MessageFlags.Ephemeral : undefined,
         });
     },
 };

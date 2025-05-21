@@ -5,7 +5,7 @@ import Hero from '~/components/home/Hero';
 import Features from '~/components/home/Features';
 
 export function meta() {
-  return [{ title: "Aeri | Your Anime Discord Companion" }];
+  return [{ title: "Your Anime Companion | Aeri" }];
 }
 
 export default function Home() {

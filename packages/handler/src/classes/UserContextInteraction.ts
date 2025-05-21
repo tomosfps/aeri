@@ -1,5 +1,4 @@
-import type { API } from "@discordjs/core";
-import type { APIUser, APIUserApplicationCommandInteraction } from "discord-api-types/v10";
+import type { API, APIUser, APIUserApplicationCommandInteraction } from "@discordjs/core";
 import { BaseInteraction } from "./BaseInteraction.js";
 import type { HandlerClient } from "./HandlerClient.js";
 
@@ -26,11 +25,11 @@ export class UserContextInteraction extends BaseInteraction {
         return this.interaction.data.name;
     }
 
-    get target_id() {
+    get targetID() {
         return this.interaction.data.target_id;
     }
 
     get target() {
-        return this.data.resolved.users[this.target_id] as APIUser;
+        return this.data.resolved.users[this.targetID] as APIUser;
     }
 }

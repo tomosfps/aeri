@@ -1,7 +1,12 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
+import {
+    ApplicationCommandOptionType,
+    ApplicationIntegrationType,
+    ButtonStyle,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { dbFetchAnilistUser } from "database";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationCommandOptionType, ApplicationIntegrationType, ButtonStyle } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -29,12 +34,12 @@ export const interaction: ChatInputCommand = {
         if (username === null) {
             logger.debug("Attempting fetching user from database", "User");
 
-            const dbUser = await dbFetchAnilistUser(interaction.user_id);
+            const dbUser = await dbFetchAnilistUser(interaction.userID);
 
             if (!dbUser) {
                 return interaction.reply({
                     content: `Please setup your account with ${await getCommandAsMention("link")}`,
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
 
@@ -44,7 +49,7 @@ export const interaction: ChatInputCommand = {
         if (!username) {
             return interaction.reply({
                 content: `Please provide a username, or setup your account with ${await getCommandAsMention("link")}`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -56,29 +61,29 @@ export const interaction: ChatInputCommand = {
             return interaction.reply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
         if (user === null) {
             return interaction.reply({
                 content: "User could not be found. Are you sure you have the correct username?",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
         const informationButton = new ButtonBuilder()
-            .setCustomId(`userShow:${user.name}:INFORMATION:${interaction.user.id}`)
+            .setCustomId(`user:${user.name}:INFORMATION:${interaction.user.id}`)
             .setLabel("Main Information")
             .setStyle(ButtonStyle.Primary);
 
         const animeButton = new ButtonBuilder()
-            .setCustomId(`userShow:${user.name}:ANIME:${interaction.user.id}`)
+            .setCustomId(`user:${user.name}:ANIME:${interaction.user.id}`)
             .setLabel("Favourite Anime")
             .setStyle(ButtonStyle.Secondary);
 
         const mangaButton = new ButtonBuilder()
-            .setCustomId(`userShow:${user.name}:MANGA:${interaction.user.id}`)
+            .setCustomId(`user:${user.name}:MANGA:${interaction.user.id}`)
             .setLabel("Favourite Manga")
             .setStyle(ButtonStyle.Secondary);
 
@@ -89,7 +94,7 @@ export const interaction: ChatInputCommand = {
             .setDescription(user.description)
             .setThumbnail(user.avatar)
             .setImage(user.banner)
-            .setColor(interaction.base_colour)
+            .setColor(interaction.baseColour)
             .setFooter({ text: user.footer });
 
         return interaction.reply({

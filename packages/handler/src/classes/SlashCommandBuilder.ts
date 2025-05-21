@@ -8,6 +8,8 @@ import {
     type SlashCommandNumberOption,
     type SlashCommandRoleOption,
     type SlashCommandStringOption,
+    type SlashCommandSubcommandBuilder,
+    type SlashCommandSubcommandsOnlyBuilder,
     type SlashCommandUserOption,
 } from "@discordjs/builders";
 
@@ -15,7 +17,7 @@ export class SlashCommandBuilder extends SlashCommandBuilderOriginal {
     cooldown = 0;
     category = "";
     examples: string[] = [];
-    owner_only = false;
+    ownerOnly = false;
 
     setCooldown(cooldown: number): this {
         this.cooldown = cooldown;
@@ -27,13 +29,13 @@ export class SlashCommandBuilder extends SlashCommandBuilderOriginal {
         return this;
     }
 
-    addExample(example_string: string): this {
-        this.examples.push(example_string);
+    addExample(exampleString: string): this {
+        this.examples.push(exampleString);
         return this;
     }
 
-    setOwnerOnly(owner_only: boolean): this {
-        this.owner_only = owner_only;
+    setOwnerOnly(ownerOnly: boolean): this {
+        this.ownerOnly = ownerOnly;
         return this;
     }
 
@@ -99,6 +101,15 @@ export class SlashCommandBuilder extends SlashCommandBuilderOriginal {
         input: SlashCommandNumberOption | ((builder: SlashCommandNumberOption) => SlashCommandNumberOption),
     ) {
         super.addNumberOption(input);
+        return this;
+    }
+
+    override addSubcommand(
+        input:
+            | SlashCommandSubcommandBuilder
+            | ((subcommandGroup: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder),
+    ): SlashCommandSubcommandsOnlyBuilder {
+        super.addSubcommand(input);
         return this;
     }
 }

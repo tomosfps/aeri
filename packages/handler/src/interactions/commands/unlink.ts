@@ -1,6 +1,5 @@
+import { ApplicationIntegrationType, InteractionContextType, MessageFlags } from "@discordjs/core";
 import { dbDeleteAnilistUser, dbFetchAnilistUser } from "database";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
@@ -14,26 +13,26 @@ export const interaction: ChatInputCommand = {
         .addExample("/unlink")
         .setCategory("Anime/Manga"),
     async execute(interaction): Promise<void> {
-        const isInDatabase = await dbFetchAnilistUser(interaction.user_id);
+        const isInDatabase = await dbFetchAnilistUser(interaction.userID);
 
         if (isInDatabase === null) {
             return interaction.reply({
                 content: `You do not have an anilist account linked. Use ${await getCommandAsMention("link")} to link your account.`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
-        const deleteAccount = await dbDeleteAnilistUser(interaction.user_id);
+        const deleteAccount = await dbDeleteAnilistUser(interaction.userID);
         if (deleteAccount) {
             return interaction.reply({
                 content: "Your anilist account has been unlinked.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
         return interaction.reply({
             content: "An error occurred while unlinking your account.",
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     },
 };

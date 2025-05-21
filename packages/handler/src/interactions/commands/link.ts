@@ -1,7 +1,11 @@
 import { EmbedBuilder, inlineCode } from "@discordjs/builders";
+import {
+    ApplicationCommandOptionType,
+    ApplicationIntegrationType,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { dbCreateAnilistUser, dbFetchAnilistUser } from "database";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -28,7 +32,7 @@ export const interaction: ChatInputCommand = {
             ApplicationCommandOptionType.String,
             interaction.options,
         ) as string;
-        const isInDatabase = await dbFetchAnilistUser(interaction.user_id);
+        const isInDatabase = await dbFetchAnilistUser(interaction.userID);
         if (!isInDatabase) {
             const { result: user, error } = await api.fetch(Routes.User, { username });
 
@@ -38,35 +42,35 @@ export const interaction: ChatInputCommand = {
                 return interaction.reply({
                     content:
                         "An error occurred while fetching your Anilist account.\nPlease try again later. If the issue persists, contact the bot owner.",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
 
             if (!user) {
                 return interaction.reply({
                     content: `Could not find user with username ${inlineCode(username)}`,
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
 
-            await dbCreateAnilistUser(interaction.user_id, user.id, user.name, interaction.guild_id);
+            await dbCreateAnilistUser(interaction.userID, user.id, user.name, interaction.guildID);
 
             const embed = new EmbedBuilder()
                 .setTitle(`Anilist Account Linked | ${user.name}`)
                 .setDescription(user.description)
                 .setThumbnail(user.avatar)
-                .setColor(interaction.base_colour);
+                .setColor(interaction.baseColour);
 
             return interaction.reply({
                 embeds: [embed],
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
         return interaction.reply({
             content:
                 "You already have an anilist account linked to your discord account. Use `/unlink` to unlink your account.",
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     },
 };

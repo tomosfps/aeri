@@ -1,16 +1,13 @@
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 use crate::cache::redis::Redis;
 use actix_web::http::StatusCode;
 use actix_web::{web, HttpResponse};
 use colourful_logger::Logger;
-use lazy_static::lazy_static;
 use reqwest::{Proxy, Response};
 use serde_json::{json, Value};
 use crate::global::metrics::Metrics;
 
-lazy_static! {
-    static ref logger: Logger = Logger::default();
-}
+static LOGGER: std::sync::LazyLock<Logger> = LazyLock::new(Logger::default);
 
 #[derive(Debug, Clone)]
 pub struct Client {
@@ -123,17 +120,17 @@ impl Client {
         let proxy = match proxy {
             Some(proxy) => proxy,
             None => {
-                logger.error_single("Failed to find a proxy", "Proxy");
+                LOGGER.error_single("Failed to find a proxy", "Proxy");
                 return Err("No proxies found".into());
             }
         };
 
-        logger.debug("Returning random proxy in redis", "Proxy", false, proxy.clone());
+        LOGGER.debug("Returning random proxy in redis", "Proxy", false, proxy.clone());
         Ok(proxy)
     }
 
     pub async fn remove_proxy(&self) -> Result<(), Box<dyn std::error::Error>> {
-        logger.debug_single(&format!("Removing proxy: {}", self.current_proxy), "Proxy");
+        LOGGER.debug_single(&format!("Removing proxy: {}", self.current_proxy), "Proxy");
         let _ = self.redis.srem("proxies", &self.current_proxy).await;
         Ok(())
     }

@@ -1,6 +1,10 @@
 import { EmbedBuilder } from "@discordjs/builders";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
+import {
+    ApplicationCommandOptionType,
+    ApplicationIntegrationType,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { Logger } from "logger";
 import { MediaFormat, Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -45,25 +49,27 @@ export const interaction: ChatInputCommand = {
         ) as string;
         const format = [formatStr] as MediaFormat[];
         const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+        await interaction.defer(hidden);
+
         const { result, error } = await api.fetch(Routes.Random, { formats: format });
 
         if (error || !result) {
-            return interaction.reply({ content: "Failed to fetch random media", ephemeral: true });
+            return interaction.reply({ content: "Failed to fetch random media", flags: MessageFlags.Ephemeral });
         }
 
         const { result: mediaResult, error: mediaError } = await api.fetch(
             Routes.Media,
             { media_type: result.media_type, media_id: result.id },
-            { user_id: interaction.user_id, guild_id: interaction.guild_id },
+            { user_id: interaction.userID, guild_id: interaction.guildID },
         );
 
         if (mediaError || !mediaResult) {
             logger.error("Error while fetching Media data from the API.", "Anilist", { mediaError });
 
-            return interaction.followUp({
+            return interaction.editReply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -73,9 +79,9 @@ export const interaction: ChatInputCommand = {
             .setImage(mediaResult.banner)
             .setThumbnail(mediaResult.cover)
             .setDescription(mediaResult.description)
-            .setColor(interaction.base_colour)
+            .setColor(interaction.baseColour)
             .setFooter({ text: mediaResult.footer });
 
-        await interaction.reply({ embeds: [embed], ephemeral: hidden });
+        await interaction.followUp({ embeds: [embed], flags: hidden ? MessageFlags.Ephemeral : undefined });
     },
 };

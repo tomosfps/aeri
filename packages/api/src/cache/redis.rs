@@ -1,13 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 use colourful_logger::Logger as Logger;
-use lazy_static::lazy_static;
 use redis::{Client, AsyncCommands, RedisResult, ToRedisArgs, FromRedisValue, AsyncIter};
 use std::env;
 use redis::aio::MultiplexedConnection;
 
-lazy_static! {
-    static ref logger: Logger = Logger::default();
-}
+static LOGGER: std::sync::LazyLock<Logger> = LazyLock::new(Logger::default);
 
 #[derive(Debug, Clone)]
 pub struct Redis {
@@ -17,7 +14,7 @@ pub struct Redis {
 impl Redis {
     pub async fn new() -> Self {
         let redis_url = env::var("REDIS_URL").unwrap_or("redis://localhost:6379".to_string()).to_string();
-        logger.debug_single(format!("Created Client with URL : {}", redis_url).as_str(), "Redis");
+        LOGGER.debug_single(format!("Created Client with URL : {}", redis_url).as_str(), "Redis");
 
         let client = Client::open(redis_url).unwrap();
         let connection = client.get_multiplexed_tokio_connection().await.unwrap();
@@ -27,7 +24,7 @@ impl Redis {
 
     pub async fn get<K: ToRedisArgs + Send + Sync, RV: FromRedisValue>(&self, key: K) -> Option<RV> {
         self.connection.clone().get::<_, Option<RV>>(key).await.unwrap_or_else(|e| {
-            logger.error("GET", "Redis", false, format!("{:?}", e));
+            LOGGER.error("GET", "Redis", false, format!("{:?}", e));
             None
         })
     }
@@ -36,7 +33,7 @@ impl Redis {
         match self.connection.clone().set_ex::<_, _, ()>(key, value, seconds).await {
             Ok(_) => true,
             Err(e) => {
-                logger.error("SETEX", "Redis", false, format!("{:?}", e));
+                LOGGER.error("SETEX", "Redis", false, format!("{:?}", e));
                 false
             }
         }
@@ -46,7 +43,7 @@ impl Redis {
         match self.connection.clone().ttl(key).await {
             Ok(data) => Some(data),
             Err(e) => {
-                logger.error("TTL", "Redis", false, format!("{:?}", e));
+                LOGGER.error("TTL", "Redis", false, format!("{:?}", e));
                 None
             }
         }
@@ -56,7 +53,7 @@ impl Redis {
         match self.connection.clone().del::<_, ()>(key).await {
             Ok(_) => true,
             Err(e) => {
-                logger.error("DEL", "Redis", false, format!("{:?}", e));
+                LOGGER.error("DEL", "Redis", false, format!("{:?}", e));
                 false
             }
         }
@@ -70,7 +67,7 @@ impl Redis {
         match conn.xadd::<_, _, _, _, ()>(stream, "*", &[(field, data)]).await {
             Ok(_) => Some(()),
             Err(e) => {
-                logger.error("XADD", "Redis", false, format!("{:?}", e));
+                LOGGER.error("XADD", "Redis", false, format!("{:?}", e));
                 None
             }
         }
@@ -80,7 +77,7 @@ impl Redis {
         match self.connection.clone().sadd::<_, _, ()>(key, value).await {
             Ok(_) => Some(()),
             Err(e) => {
-                logger.error("SADD", "Redis", false, format!("{:?}", e));
+                LOGGER.error("SADD", "Redis", false, format!("{:?}", e));
                 None
             }
         }
@@ -90,7 +87,7 @@ impl Redis {
         match self.connection.clone().srem::<_, _, ()>(key, value).await {
             Ok(_) => Some(()),
             Err(e) => {
-                logger.error("SREM", "Redis", false, format!("{:?}", e));
+                LOGGER.error("SREM", "Redis", false, format!("{:?}", e));
                 None
             }
         }
@@ -100,7 +97,7 @@ impl Redis {
         match self.connection.clone().srandmember(key).await {
             Ok(data) => Some(data),
             Err(e) => {
-                logger.error("SRANDMEMBER", "Redis", false, format!("{:?}", e));
+                LOGGER.error("SRANDMEMBER", "Redis", false, format!("{:?}", e));
                 None
             }
         }
@@ -110,7 +107,7 @@ impl Redis {
         match self.connection.clone().hvals(key).await {
             Ok(data) => Some(data),
             Err(e) => {
-                logger.error("HVALS", "Redis", false, format!("{:?}", e));
+                LOGGER.error("HVALS", "Redis", false, format!("{:?}", e));
                 None
             }
         }

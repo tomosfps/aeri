@@ -81,6 +81,27 @@ pub enum Type {
     Manga,
 }
 
+impl FromStr for Type {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_uppercase().as_str() {
+            "ANIME" => Ok(Self::Anime),
+            "MANGA" => Ok(Self::Manga),
+            _ => Err(()),
+        }
+    }
+}
+
+impl ToString for Type {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Anime => "ANIME".into(),
+            Self::Manga => "MANGA".into(),
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct Favourites {
     pub anime:  MediaNodes,
@@ -227,6 +248,29 @@ pub struct GenreDistribution {
 #[serde(rename_all = "camelCase")]
 pub struct PageInfo {
     pub last_page:  Option<i32>,
+}
+
+pub enum URLType {
+    Anilist,
+    FindSauce,
+}
+
+impl ToString for URLType {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Anilist => "https://graphql.anilist.co".to_string(),
+            Self::FindSauce => "https://api.trace.moe/search?cutBorders&url=".to_string(),
+        }
+    }
+}
+
+impl URLType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Anilist => "https://graphql.anilist.co",
+            Self::FindSauce => "https://api.trace.moe/search?cutBorders&url=",
+        }
+    }
 }
 
 pub enum DataFrom {

@@ -1,5 +1,4 @@
-import type { API } from "@discordjs/core";
-import type { APIMessageComponentInteraction } from "discord-api-types/v10";
+import type { API, APIMessageComponentInteraction } from "@discordjs/core";
 import { BaseInteraction } from "./BaseInteraction.js";
 import type { HandlerClient } from "./HandlerClient.js";
 
@@ -12,7 +11,7 @@ export class MessageComponentInteraction extends BaseInteraction {
         super(interaction, api, client);
     }
 
-    get custom_id() {
+    get customID() {
         return this.interaction.data.custom_id;
     }
 

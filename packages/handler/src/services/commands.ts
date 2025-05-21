@@ -1,21 +1,20 @@
 import { readdir } from "node:fs/promises";
 import { URL } from "node:url";
 import type { EmbedBuilder } from "@discordjs/builders";
-import { REST } from "@discordjs/rest";
-import { env, getRedis } from "core";
 import {
     type APIEmbed,
-    type RESTPostAPIApplicationCommandsJSONBody as CommandData,
+    type RESTPostAPIApplicationCommandsJSONBody,
     type RESTPutAPIApplicationCommandsResult,
     Routes,
-} from "discord-api-types/v10";
+} from "@discordjs/core";
+import { REST } from "@discordjs/rest";
+import { env, getRedis } from "core";
 import { Logger } from "logger";
 import type { AutoCompleteInteraction } from "../classes/AutoCompleteInteraction.js";
 import type { ButtonInteraction } from "../classes/ButtonInteraction.js";
 import type { ChatInputInteraction } from "../classes/ChatInputCommandInteraction.js";
 import type { ContextMenuCommandBuilder } from "../classes/ContextMenuCommandBuilder.js";
 import type { MessageContextInteraction } from "../classes/MessageContextInteraction.js";
-import type { ModalInteraction } from "../classes/ModalInteraction.js";
 import type { SelectMenuInteraction } from "../classes/SelectMenuInteraction.js";
 import type { SlashCommandBuilder } from "../classes/SlashCommandBuilder.js";
 import type { UserContextInteraction } from "../classes/UserContextInteraction.js";
@@ -25,7 +24,7 @@ const redis = await getRedis();
 
 export interface BaseCommand {
     data: {
-        toJSON(): CommandData;
+        toJSON(): RESTPostAPIApplicationCommandsJSONBody;
     };
 }
 
@@ -65,13 +64,6 @@ export interface SelectMenu<T = undefined> extends BaseComponent {
 }
 
 export type PaginatedSelectMenu<T = undefined> = SelectMenu<T> & PaginatedCommand<SelectMenuInteraction>;
-
-export interface Modal<T = undefined> {
-    custom_id: string;
-    parse?: (data: string[]) => T;
-    execute: (interaction: ModalInteraction, data: T) => void;
-}
-
 export interface MessageContextCommand extends BaseCommand {
     data: ContextMenuCommandBuilder;
     execute: (interaction: MessageContextInteraction) => void;
@@ -98,7 +90,7 @@ export interface AutoCompleteCommand<T extends string | number = string | number
 const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
 const logger = new Logger();
 
-export async function deployCommands(commands: CommandData[]) {
+export async function deployCommands(commands: RESTPostAPIApplicationCommandsJSONBody[]) {
     logger.infoSingle("Started deploying application (/) commands.", "Commands");
 
     try {
@@ -133,7 +125,6 @@ export enum FileType {
     Commands = "commands",
     Buttons = "buttons",
     SelectMenus = "select-menus",
-    Modals = "modals",
     MessageContext = "message-context",
     UserContext = "user-context",
     AutoComplete = "auto-complete",
@@ -143,7 +134,6 @@ type InteractionUnion =
     | ChatInputCommand
     | Button
     | SelectMenu
-    | Modal
     | MessageContextCommand
     | UserContextCommand
     | AutoCompleteCommand;
@@ -155,7 +145,6 @@ function isChatInputCommand(type: FileType, _interaction: InteractionUnion): _in
 export async function load<T = ChatInputCommand>(type: FileType.Commands): Promise<Map<string, T>>;
 export async function load<T = Button>(type: FileType.Buttons): Promise<Map<string, T>>;
 export async function load<T = SelectMenu>(type: FileType.SelectMenus): Promise<Map<string, T>>;
-export async function load<T = Modal>(type: FileType.Modals): Promise<Map<string, T>>;
 export async function load<T = MessageContextCommand>(type: FileType.MessageContext): Promise<Map<string, T>>;
 export async function load<T = UserContextCommand>(type: FileType.UserContext): Promise<Map<string, T>>;
 export async function load<T = AutoCompleteCommand>(type: FileType.AutoComplete): Promise<Map<string, T>>;
@@ -178,7 +167,7 @@ export async function load<T extends InteractionUnion>(type: FileType): Promise<
             files.set(getName(interaction), interaction);
 
             if (isChatInputCommand(type, interaction)) {
-                if (interaction.data.owner_only) continue;
+                if (interaction.data.ownerOnly) continue;
 
                 await redis.hset(
                     "commands",
@@ -206,8 +195,7 @@ export async function load<T extends InteractionUnion>(type: FileType): Promise<
 }
 
 function getName(interaction: InteractionUnion): string {
-    if ("data" in interaction) return interaction.data.name;
-
+    if ("data" in interaction) return interaction.data.toJSON().name;
     if ("option" in interaction) {
         return `${interaction.command || ""}:${interaction.option}`;
     }

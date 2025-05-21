@@ -8,7 +8,6 @@ import {
     type APIMessageApplicationCommandInteraction,
     type APIMessageComponentButtonInteraction,
     type APIMessageComponentSelectMenuInteraction,
-    type APIModalSubmitInteraction,
     type APIUserApplicationCommandInteraction,
     ApplicationCommandOptionType,
     ApplicationCommandType,
@@ -106,10 +105,6 @@ export function isChatInputInteraction(
     );
 }
 
-export function isModalInteraction(interaction: APIInteraction): interaction is APIModalSubmitInteraction {
-    return interaction.type === InteractionType.ModalSubmit;
-}
-
 export function isUserContextInteraction(
     interaction: APIInteraction,
 ): interaction is APIUserApplicationCommandInteraction {
@@ -150,7 +145,6 @@ export function isSelectMenuInteraction(
 export enum InteractType {
     Autocomplete = "Autocomplete",
     ChatInput = "ChatInput",
-    Modal = "Modal",
     UserContext = "UserContext",
     MessageContext = "MessageContext",
     Button = "Button",
@@ -161,7 +155,6 @@ export enum InteractType {
 export function determineInteractionType(interaction: APIInteraction): InteractType {
     if (isNotAutoCompleteInteraction(interaction)) return InteractType.Autocomplete;
     if (isChatInputInteraction(interaction)) return InteractType.ChatInput;
-    if (isModalInteraction(interaction)) return InteractType.Modal;
     if (isUserContextInteraction(interaction)) return InteractType.UserContext;
     if (isMessageContextInteraction(interaction)) return InteractType.MessageContext;
     if (isButtonInteraction(interaction)) return InteractType.Button;

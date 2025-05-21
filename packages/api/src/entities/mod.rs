@@ -1,11 +1,8 @@
 use std::sync::Arc;
 use crate::cache::redis::Redis;
 use crate::client::client::Client;
-use crate::global::queries::QUERY_URL;
-use crate::structs::shared::DataFrom;
+use crate::structs::shared::{DataFrom, URLType};
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
-use colourful_logger::Logger;
-use lazy_static::lazy_static;
 use reqwest::Response;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -23,22 +20,33 @@ pub mod affinity;
 pub mod format;
 pub mod update_entry;
 pub mod watch_list;
-
-lazy_static! {
-    static ref logger: Logger = Logger::default();
-}
+pub mod recommend;
+pub mod random;
+pub mod find_sauce;
 
 pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
     fn entity_name() -> String;
 
     fn data_index() -> Vec<String> {
-        vec!["data".to_string(), Self::entity_name()]
+        if Self::url_type() == URLType::FindSauce.to_string() {
+            vec![]
+        } else {
+            vec!["data".to_string(), Self::entity_name()]
+        }
     }
 
     async fn format(self, request: &R, metrics: web::Data<Arc<Metrics>>) -> Result<F, HttpResponse>;
 
     fn auth_required() -> bool {
         false
+    }
+
+    fn url_type() -> String {
+        URLType::Anilist.to_string()
+    }
+
+    fn url(_request: &R) -> String {
+        Self::url_type()
     }
 
     fn token(request: &HttpRequest) -> Option<&str> {
@@ -71,7 +79,6 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
     }
 
     fn query(request: &R) -> Value;
-
     fn validate_request(request: &R) -> Result<(), String>;
 
     async fn parse_response(response: Response) -> Result<Self, String> {
@@ -114,10 +121,10 @@ pub trait Entity<F: DeserializeOwned + Serialize, R>: DeserializeOwned {
                     return HttpResponse::Unauthorized().json(json!({"error": "No token was included in the request"}));
                 }
             };
+            client.post_with_auth(Self::url(&body).as_str(), &Self::query(&body), token).await.unwrap()
 
-            client.post_with_auth(QUERY_URL, &Self::query(&body), token).await.unwrap()
         } else {
-            client.post(QUERY_URL, &Self::query(&body)).await.unwrap()
+            client.post(Self::url(&body).as_str(), &Self::query(&body)).await.unwrap()
         };
 
         if response.status().as_u16() != 200 {

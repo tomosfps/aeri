@@ -1,4 +1,5 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { MessageFlags } from "@discordjs/core";
 import { getRedis } from "core";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
 import { Logger } from "logger";
@@ -15,7 +16,7 @@ const redis = await getRedis();
 const logger = new Logger();
 
 export const interaction: PaginatedSelectMenu<SelectMenuData> = {
-    custom_id: "media_selection",
+    custom_id: "media",
     cooldown: 1,
     toggleable: true,
     timeout: 900,
@@ -31,7 +32,7 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
             const media_type = data.custom_id === "anime" ? MediaType.Anime : MediaType.Manga;
             const media_id = Number(interaction.menuValues[0]);
 
-            const mediaKey = `media:${interaction.user_id}:selection`;
+            const mediaKey = `media:${interaction.userID}:selection`;
             await redis.hmset(mediaKey, {
                 media_type: media_type.toString(),
                 media_id: media_id.toString(),
@@ -39,10 +40,10 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
             });
             await redis.expire(mediaKey, this.timeout);
 
-            const currentUserData = await dbFetchAnilistUser(interaction.user_id);
+            const currentUserData = await dbFetchAnilistUser(interaction.userID);
             let allPotentialUsers: string[] = [];
-            if (interaction.guild_id) {
-                const guildUsersData = await dbFetchGuildUsers(interaction.guild_id);
+            if (interaction.guildID) {
+                const guildUsersData = await dbFetchGuildUsers(interaction.guildID);
                 allPotentialUsers = guildUsersData.map((user) => user.anilist?.username).filter(Boolean) as string[];
 
                 if (currentUserData) {
@@ -55,8 +56,8 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
             const totalPages = Math.ceil(allPotentialUsers.length / (this.pageLimit ?? 15));
 
             await createPage(this, interaction, {
-                userID: interaction.user_id,
-                commandID: "media_selection",
+                userID: interaction.userID,
+                commandID: "media",
                 totalPages: totalPages,
             });
         } catch (error: any) {
@@ -64,14 +65,14 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
             await interaction
                 .reply({
                     content: "An error occurred while processing your request.",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 })
                 .catch(() => {});
         }
     },
     async page(page, interaction) {
         try {
-            const mediaKey = `media:${interaction.user_id}:selection`;
+            const mediaKey = `media:${interaction.userID}:selection`;
             const mediaData = await redis.hgetall(mediaKey);
 
             if (!mediaData || !mediaData["media_id"]) {
@@ -90,8 +91,8 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
                 Routes.Media,
                 { media_type, media_id },
                 {
-                    user_id: interaction.user_id,
-                    guild_id: interaction.guild_id,
+                    user_id: interaction.userID,
+                    guild_id: interaction.guildID,
                     pageOptions: {
                         page,
                         limit: this.pageLimit,
@@ -120,7 +121,7 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
                 .setImage(result.banner)
                 .setThumbnail(result.cover)
                 .setDescription(result.description || "No description available.")
-                .setColor(interaction.base_colour)
+                .setColor(interaction.baseColour)
                 .setFooter({ text: result.footer });
 
             return { embeds: [embed] };

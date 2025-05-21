@@ -1,6 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, bold, inlineCode } from "@discordjs/builders";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationIntegrationType, ButtonStyle } from "discord-api-types/v10";
+import { ApplicationIntegrationType, ButtonStyle, InteractionContextType } from "@discordjs/core";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
@@ -37,12 +36,12 @@ export const interaction: ChatInputCommand = {
         ];
 
         const inviteButton = new ButtonBuilder()
-            .setCustomId("infoAdd:INVITE:${interaction.user.id}")
+            .setCustomId("information:INVITE:${interaction.user.id}")
             .setLabel("Invite Bot")
             .setStyle(ButtonStyle.Primary);
 
         const supportButton = new ButtonBuilder()
-            .setCustomId("infoAdd:SUPPORT")
+            .setCustomId("information:SUPPORT")
             .setLabel("Support Server")
             .setStyle(ButtonStyle.Secondary);
 
@@ -53,7 +52,7 @@ export const interaction: ChatInputCommand = {
             .setURL("https://github.com/tomosfps/aeri")
             .setDescription(descriptionBuilder.join("\n"))
             .setThumbnail("https://cdn.aeri.live/bot_pfp.png")
-            .setColor(interaction.base_colour);
+            .setColor(interaction.baseColour);
 
         await interaction.reply({ embeds: [embed], components: [row] });
     },

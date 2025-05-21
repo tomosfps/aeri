@@ -1,4 +1,8 @@
-import type { API, APIChatInputApplicationCommandInteraction } from "@discordjs/core";
+import {
+    type API,
+    type APIChatInputApplicationCommandInteraction,
+    ApplicationCommandOptionType,
+} from "@discordjs/core";
 import { BaseInteraction } from "./BaseInteraction.js";
 import type { HandlerClient } from "./HandlerClient.js";
 
@@ -23,5 +27,13 @@ export class ChatInputInteraction extends BaseInteraction {
 
     get options() {
         return this.interaction.data.options;
+    }
+
+    get subcommand() {
+        return (
+            this.interaction.data.options?.filter(
+                (option) => option.type === ApplicationCommandOptionType.Subcommand,
+            )[0]?.name || null
+        );
     }
 }

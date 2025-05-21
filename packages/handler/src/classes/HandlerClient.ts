@@ -5,7 +5,6 @@ import type {
     Button,
     ChatInputCommand,
     MessageContextCommand,
-    Modal,
     PaginatedButton,
     PaginatedChatInputCommand,
     PaginatedMessageContextCommand,
@@ -19,7 +18,6 @@ export interface HandlerClientOptions extends ClientOptions {
     metricsClient: HandlerMetricsClient;
     commands: Map<string, ChatInputCommand>;
     buttons: Map<string, Button>;
-    modals: Map<string, Modal>;
     selectMenus: Map<string, SelectMenu>;
     messageContextCommands: Map<string, MessageContextCommand>;
     userContextCommands: Map<string, UserContextCommand>;
@@ -30,7 +28,6 @@ export class HandlerClient extends Client {
     public metricsClient: HandlerMetricsClient;
     public commands: Map<string, ChatInputCommand | PaginatedChatInputCommand>;
     public buttons: Map<string, Button | PaginatedButton>;
-    public modals: Map<string, Modal>;
     public selectMenus: Map<string, SelectMenu | PaginatedSelectMenu>;
     public messageContextCommands: Map<string, MessageContextCommand | PaginatedMessageContextCommand>;
     public userContextCommands: Map<string, UserContextCommand | PaginatedUserContextCommand>;
@@ -45,7 +42,6 @@ export class HandlerClient extends Client {
         this.metricsClient = options.metricsClient;
         this.commands = options.commands;
         this.buttons = options.buttons;
-        this.modals = options.modals;
         this.selectMenus = options.selectMenus;
         this.messageContextCommands = options.messageContextCommands;
         this.userContextCommands = options.userContextCommands;

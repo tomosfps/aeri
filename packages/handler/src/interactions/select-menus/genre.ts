@@ -1,16 +1,17 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { MessageFlags } from "@discordjs/core";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
 import type { SelectMenu } from "../../services/commands.js";
 
 const logger = new Logger();
 type SelectMenuData = {
-    custom_id: string;
-    userId: string;
+    type: string;
+    userID: string;
 };
 
 export const interaction: SelectMenu<SelectMenuData> = {
-    custom_id: "genre_selection",
+    custom_id: "genre",
     cooldown: 1,
     toggleable: true,
     timeout: 900,
@@ -18,38 +19,38 @@ export const interaction: SelectMenu<SelectMenuData> = {
         if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");
         }
-        return { custom_id: data[0], userId: data[1] };
+        return { type: data[0], userID: data[1] };
     },
     async execute(interaction, data): Promise<void> {
-        const media_type = data.custom_id === "ANIME" ? MediaType.Anime : MediaType.Manga;
+        const mediaType = data.type === "ANIME" ? MediaType.Anime : MediaType.Manga;
         const genres = interaction.menuValues;
 
         await interaction.deferUpdate();
 
         const { result: recommendation, error: recommendationsError } = await api.fetch(Routes.Recommend, {
-            media: media_type,
+            media: mediaType,
             genres: genres,
         });
 
         if (recommendationsError) {
             logger.error("Error while fetching recommendations from the API.", "Anilist", recommendationsError);
 
-            return interaction.followUp({
+            return interaction.editReply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
         if (!recommendation) {
-            return interaction.followUp({ content: "User not found" });
+            return interaction.editReply({ content: "User not found" });
         }
 
-        const media_id = Number(recommendation.id);
+        const mediaID = Number(recommendation.id);
         const { result: media, error: mediaError } = await api.fetch(
             Routes.Media,
-            { media_type, media_id },
-            { user_id: interaction.user_id, guild_id: interaction.guild_id },
+            { media_type: mediaType, media_id: mediaID },
+            { user_id: interaction.userID, guild_id: interaction.guildID },
         );
 
         if (mediaError || !media) {
@@ -58,7 +59,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
             return interaction.editReply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -68,7 +69,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
             .setImage(media.banner)
             .setThumbnail(media.cover)
             .setDescription(media.description)
-            .setColor(interaction.base_colour)
+            .setColor(interaction.baseColour)
             .setFooter({
                 text: media.footer,
             });

@@ -1,7 +1,11 @@
 import { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
+import {
+    ApplicationCommandOptionType,
+    ApplicationIntegrationType,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { dbFetchAnilistUser } from "database";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { MediaListStatus, MediaType } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -42,12 +46,12 @@ export const interaction: ChatInputCommand = {
         if (username === null) {
             logger.debug("Attempting fetching user from database", "User");
 
-            const dbUser = await dbFetchAnilistUser(interaction.user_id);
+            const dbUser = await dbFetchAnilistUser(interaction.userID);
 
             if (!dbUser) {
                 return interaction.reply({
                     content: `Please setup your account with ${await getCommandAsMention("link")} or parse a username with the command.`,
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
 
@@ -57,12 +61,12 @@ export const interaction: ChatInputCommand = {
         if (!username) {
             return interaction.reply({
                 content: `Please provide a username, or setup your account with ${await getCommandAsMention("link")}`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId(`status_selection:${username}:${type}:${interaction.user_id}`)
+            .setCustomId(`status:${username}:${type}:${interaction.userID}`)
             .setPlaceholder("Choose A Media...")
             .setMinValues(1)
             .setMaxValues(1)
@@ -73,6 +77,6 @@ export const interaction: ChatInputCommand = {
             );
 
         const row = new ActionRowBuilder().addComponents(select);
-        await interaction.reply({ components: [row], ephemeral: hidden });
+        await interaction.reply({ components: [row], flags: hidden ? MessageFlags.Ephemeral : undefined });
     },
 };

@@ -1,9 +1,13 @@
 import { randomBytes } from "node:crypto";
 import { EventEmitter } from "node:events";
 import { PubSubRedisBroker } from "@discordjs/brokers";
-import type { GatewayDispatchPayload, GatewaySendPayload, Gateway as IGateway } from "@discordjs/core";
+import type {
+    GatewayDispatchPayload,
+    GatewaySendPayload,
+    Gateway as IGateway,
+    RESTPostAPIApplicationCommandsJSONBody,
+} from "@discordjs/core";
 import type { Environment } from "core/dist/env.js";
-import type { RESTPostAPIApplicationCommandsJSONBody as CommandData } from "discord-api-types/v10";
 import type { Redis } from "ioredis";
 import { Logger } from "logger";
 import { HandlerMetricsClient } from "metrics";
@@ -19,13 +23,13 @@ type eventPayload = {
 export type gatewayOptions = {
     redis: Redis;
     env: Environment;
-    commands: CommandData[];
+    commands: RESTPostAPIApplicationCommandsJSONBody[];
 };
 
 export class Gateway extends EventEmitter implements IGateway {
     private readonly pubSubBroker: PubSubRedisBroker<Record<string, any>>;
     private readonly env: Environment;
-    private readonly commands: CommandData[];
+    private readonly commands: RESTPostAPIApplicationCommandsJSONBody[];
     public metricsClient: HandlerMetricsClient;
 
     constructor({ redis, env, commands }: gatewayOptions) {

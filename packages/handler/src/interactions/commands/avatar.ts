@@ -1,10 +1,14 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
-import { ButtonStyle } from "@discordjs/core";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationCommandOptionType, ApplicationIntegrationType } from "discord-api-types/v10";
+import { ContainerBuilder, MediaGalleryItemBuilder } from "@discordjs/builders";
+import {
+    ApplicationCommandOptionType,
+    ApplicationIntegrationType,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { Logger } from "logger";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
+import { getUserAvatar, getUserGuildAvatar } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
@@ -22,60 +26,52 @@ export const interaction: ChatInputCommand = {
         ),
     async execute(interaction): Promise<void> {
         const targetUserId = getCommandOption("target", ApplicationCommandOptionType.User, interaction.options);
-
         if (!targetUserId) {
             await interaction.reply({
                 content: "Please provide a valid user to view their avatar.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
 
         const user = await interaction.api.users.get(targetUserId).catch(() => null);
-
         if (!user) {
             await interaction.reply({
                 content: "Could not fetch user information. The user may not exist.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
 
         let guildAvatar: string | undefined = undefined;
-        const userAvatar = user.avatar
-            ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=1024`
-            : `https://cdn.discordapp.com/embed/avatars/${(Number(user.id) >> 22) % 6}.png?size=1024`;
-
-        if (interaction.guild_id) {
+        if (interaction.guildID) {
             try {
-                const memberData = await interaction.guilds.getMember(interaction.guild_id, targetUserId);
+                const memberData = await interaction.guilds.getMember(interaction.guildID, targetUserId);
                 if (memberData?.avatar) {
-                    guildAvatar = `https://cdn.discordapp.com/guilds/${interaction.guild_id}/users/${targetUserId}/avatars/${memberData.avatar}.png?size=1024`;
+                    guildAvatar = getUserGuildAvatar(interaction.guildID, memberData.user.id, memberData.avatar);
                 }
             } catch (error) {
                 logger.error("Error occured", "Avatar", { error });
             }
         }
 
-        const guildButton = new ButtonBuilder()
-            .setCustomId(`showAvatar:${targetUserId}:GUILD:${interaction.user.id}`)
-            .setLabel("Guild Avatar")
-            .setDisabled(guildAvatar === undefined)
-            .setStyle(ButtonStyle.Primary);
+        const container = new ContainerBuilder()
+            .setAccentColor(interaction.baseColour)
+            .addMediaGalleryComponents((builder) =>
+                builder.addItems(
+                    new MediaGalleryItemBuilder()
+                        .setDescription(`${user.username}'s Avatar`)
+                        .setURL(getUserAvatar(user.id, user.avatar)),
+                    ...(guildAvatar
+                        ? [
+                              new MediaGalleryItemBuilder()
+                                  .setDescription(`${user.username}'s Guild Avatar`)
+                                  .setURL(guildAvatar),
+                          ]
+                        : []),
+                ),
+            );
 
-        const defaultButton = new ButtonBuilder()
-            .setCustomId(`showAvatar:${targetUserId}:DEFAULT:${interaction.user.id}`)
-            .setLabel("Default Avatar")
-            .setDisabled(guildAvatar === undefined)
-            .setStyle(ButtonStyle.Secondary);
-
-        const row = new ActionRowBuilder().addComponents(defaultButton, guildButton);
-
-        const embed = new EmbedBuilder()
-            .setTitle(`${user.username}'s Avatar`)
-            .setImage(userAvatar)
-            .setColor(interaction.base_colour);
-
-        await interaction.reply({ embeds: [embed], components: [row] });
+        await interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 });
     },
 };

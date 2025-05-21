@@ -1,7 +1,10 @@
 import { EmbedBuilder, inlineCode } from "@discordjs/builders";
-import { ApplicationCommandOptionType } from "@discordjs/core";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationIntegrationType } from "discord-api-types/v10";
+import {
+    ApplicationCommandOptionType,
+    ApplicationIntegrationType,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -37,7 +40,7 @@ export const interaction: ChatInputCommand = {
             return interaction.reply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -46,7 +49,7 @@ export const interaction: ChatInputCommand = {
 
             return interaction.reply({
                 content: `Could not find ${inlineCode(studio_name)} within the Anilist API`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -54,12 +57,12 @@ export const interaction: ChatInputCommand = {
             .setTitle(studio.name)
             .setURL(studio.siteUrl)
             .setDescription(studio.description + studio.animeDescription)
-            .setColor(interaction.base_colour)
+            .setColor(interaction.baseColour)
             .setFooter({ text: studio.footer });
 
         return interaction.reply({
             embeds: [embed],
-            ephemeral: hidden,
+            flags: hidden ? MessageFlags.Ephemeral : undefined,
         });
     },
 };

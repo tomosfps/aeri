@@ -1,8 +1,6 @@
-import { Logger } from "logger";
+import { MessageFlags } from "@discordjs/core";
 import type { Button } from "../../services/commands.js";
 import { getPaginatedCommandById, handlePagination, isPaginatedCommand } from "../../utility/paginationUtils.js";
-
-const logger = new Logger();
 
 interface PaginationData {
     action: string;
@@ -24,11 +22,9 @@ export const interaction: Button<PaginationData> = {
         const command = getPaginatedCommandById(interaction.client, data.commandID);
 
         if (!command || !isPaginatedCommand(command)) {
-            logger.warn("Pagination button executed on command that does not support it", "execute", { command });
-
             return interaction.reply({
                 content: "This command does not support pagination",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 

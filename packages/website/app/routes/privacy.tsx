@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 import "~/styles/privacy.css";
 
+export function meta() {
+  return [{ title: "Privacy Policy | Aeri" }];
+}
+
 export default function PrivacyPolicy() {
   return (
     <main className="privacy-container">

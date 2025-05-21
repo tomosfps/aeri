@@ -1,16 +1,13 @@
-use std::sync::Arc;
-use crate::client::client::Client;
-use crate::global::queries::{get_query, QUERY_URL};
+use std::sync::{Arc, LazyLock};
+use crate::{client::client::Client, structs::shared::URLType};
+use crate::global::queries::get_query;
 use crate::structs::oauth::Viewer;
 use actix_web::{post, web, HttpRequest, HttpResponse, Responder};
 use colourful_logger::Logger;
-use lazy_static::lazy_static;
 use serde_json::{json, Value};
 use crate::global::metrics::Metrics;
 
-lazy_static! {
-    static ref logger: Logger = Logger::default();
-}
+static LOGGER: std::sync::LazyLock<Logger> = LazyLock::new(Logger::default);
 
 #[post("/viewer")]
 async fn viewer(req: HttpRequest, metrics: web::Data<Arc<Metrics>>) -> impl Responder {
@@ -35,7 +32,7 @@ async fn viewer(req: HttpRequest, metrics: web::Data<Arc<Metrics>>) -> impl Resp
 
     let mut client = Client::new_proxied(metrics).await;
     let json = json!({"query": get_query("viewer")});
-    let response = client.post_with_auth(QUERY_URL, &json, auth).await.unwrap();
+    let response = client.post_with_auth(URLType::Anilist.as_str(), &json, auth).await.unwrap();
 
     if response.status().as_u16() != 200 { return Client::error_response(response).await; }
 
@@ -44,7 +41,7 @@ async fn viewer(req: HttpRequest, metrics: web::Data<Arc<Metrics>>) -> impl Resp
     let user: Viewer  = match serde_json::from_value(response["data"]["Viewer"].clone()) {
         Ok(user) => user,
         Err(err) => {
-            logger.error_single(&format!("Error parsing user: {}", err), "User");
+            LOGGER.error_single(&format!("Error parsing user: {}", err), "User");
             return HttpResponse::InternalServerError().json(json!({"error": "Failed to parse user"}));
         }
     };

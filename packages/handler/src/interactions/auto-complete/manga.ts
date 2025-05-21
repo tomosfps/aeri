@@ -5,7 +5,7 @@ import type { AutoCompleteCommand } from "../../services/commands.js";
 const logger = new Logger();
 
 export const interaction: AutoCompleteCommand<string> = {
-    command: "update-manga",
+    command: "manga",
     option: "name",
     async execute(interaction, option) {
         if (!option.value) {
@@ -18,7 +18,7 @@ export const interaction: AutoCompleteCommand<string> = {
                 media_name: option.value as string,
                 media_type: MediaType.Manga,
             },
-            { isNotAutoComplete: interaction.nsfw },
+            { isNSFWChannel: interaction.isNSFW },
         );
 
         if (error) {

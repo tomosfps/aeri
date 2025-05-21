@@ -1,13 +1,14 @@
+import { MessageFlags } from "@discordjs/core";
 import type { Button } from "../../services/commands.js";
 
-type DescriptionType = "INVITE" | "SUPPORT";
+type DescriptionType = "INVITE" | "SUPPORT" | "WEBSITE";
 
 type ButtonData = {
     type: DescriptionType;
 };
 
 export const interaction: Button<ButtonData> = {
-    custom_id: "infoAdd",
+    custom_id: "information",
     toggleable: false,
     timeout: 900,
     parse(data) {
@@ -25,11 +26,14 @@ export const interaction: Button<ButtonData> = {
             case "SUPPORT":
                 description = "https://discord.com/invite/kKqsaKYUfz";
                 break;
+            case "WEBSITE":
+                description = "https://www.aeri.live";
+                break;
         }
 
-        await interaction.reply({
+        await interaction.updateMessage({
             content: description,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     },
 };

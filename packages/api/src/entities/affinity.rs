@@ -1,8 +1,8 @@
 use crate::client::client::Client;
 use crate::entities::Entity;
 use crate::global::pearson_correlation::pearson;
-use crate::global::queries::{get_query, QUERY_URL};
-use crate::structs::shared::{Avatar, MediaListStatus};
+use crate::global::queries::get_query;
+use crate::structs::shared::{Avatar, MediaListStatus, URLType};
 use actix_web::{web, HttpResponse};
 use futures::future::join_all;
 use serde::{Deserialize, Serialize};
@@ -77,7 +77,7 @@ impl Entity<FormattedAffinity, AffinityRequest> for Affinity {
             let self_ref = &self;
 
             async move {
-                let response = client.post(QUERY_URL, &query).await.unwrap();
+                let response = client.post(URLType::Anilist.as_str(), &query).await.unwrap();
 
                 if response.status().as_u16() != 200 {
                     return Err(Client::error_response(response).await);

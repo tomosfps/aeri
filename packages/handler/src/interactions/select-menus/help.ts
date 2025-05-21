@@ -2,11 +2,11 @@ import { EmbedBuilder, inlineCode } from "@discordjs/builders";
 import type { ChatInputCommand, SelectMenu } from "../../services/commands.js";
 
 type SelectMenuData = {
-    userId: string;
+    userID: string;
 };
 
 export const interaction: SelectMenu<SelectMenuData> = {
-    custom_id: "help_selection",
+    custom_id: "help",
     cooldown: 1,
     toggleable: true,
     timeout: 900,
@@ -14,7 +14,7 @@ export const interaction: SelectMenu<SelectMenuData> = {
         if (!data[0]) {
             throw new Error("Invalid Select Menu Data");
         }
-        return { userId: data[0] };
+        return { userID: data[0] };
     },
     async execute(interaction, _data): Promise<void> {
         const category = interaction.menuValues[0];
@@ -35,8 +35,8 @@ export const interaction: SelectMenu<SelectMenuData> = {
         const embed = new EmbedBuilder()
             .setTitle(inlineCode(` ${category} commands `.padEnd(categoryMaxLength).padStart(categoryMaxLength + 3)))
             .setDescription(commandNames)
-            .setColor(interaction.base_colour);
+            .setColor(interaction.baseColour);
 
-        await interaction.edit({ embeds: [embed] });
+        await interaction.updateMessage({ embeds: [embed] });
     },
 };

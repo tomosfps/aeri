@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 import "~/styles/tos.css";
 
+export function meta() {
+  return [{ title: "Terms of Service | Aeri" }];
+}
+
 export default function TermsOfService() {
   return (
     <main className="tos-container">
@@ -311,7 +315,8 @@ export default function TermsOfService() {
                 <h3 className="tos-panel-title">Your Rights</h3>
                 <p className="tos-text">
                   You may remove the bot from your Discord server at any time. Your server-specific settings
-                  will be retained for 30 days, after which they may be deleted.
+                  will be deleted upon removal. You may also unlink your AniList account
+                  through the bot's commands or by revoking access through your AniList account settings.
                 </p>
               </div>
             </div>

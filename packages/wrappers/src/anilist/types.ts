@@ -15,7 +15,19 @@ export enum Routes {
     RefreshUser = "remove-user",
     WatchList = "watchlist",
     Random = "random",
+    Sauce = "sauce",
 }
+
+type SauceData = {
+    anilist: number;
+    filename: string;
+    episode: number;
+    from: number;
+    to: number;
+    similarity: number;
+    video: string;
+    image: string;
+};
 
 type WatchListInfo = {
     id: number;
@@ -177,7 +189,7 @@ type Relations = {
         }[];
     };
     transformer_args: {
-        isNotAutoComplete: boolean;
+        isNSFWChannel: boolean | undefined;
     };
 };
 
@@ -467,6 +479,17 @@ type WatchList = {
     };
 };
 
+type Sauce = {
+    body: {
+        url: string;
+    };
+    response: BaseResponse & {
+        frameCount: number;
+        error: string | null;
+        result: SauceData[];
+    };
+};
+
 export type RouteMap = {
     [Routes.Relations]: Relations;
     [Routes.User]: User;
@@ -482,4 +505,5 @@ export type RouteMap = {
     [Routes.RefreshUser]: RefreshUser;
     [Routes.WatchList]: WatchList;
     [Routes.Random]: Random;
+    [Routes.Sauce]: Sauce;
 };

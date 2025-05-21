@@ -1,5 +1,4 @@
-import type { API } from "@discordjs/core";
-import type { APIMessage, APIMessageApplicationCommandInteraction } from "discord-api-types/v10";
+import type { API, APIMessage, APIMessageApplicationCommandInteraction } from "@discordjs/core";
 import { BaseInteraction } from "./BaseInteraction.js";
 import type { HandlerClient } from "./HandlerClient.js";
 
@@ -26,11 +25,11 @@ export class MessageContextInteraction extends BaseInteraction {
         return this.interaction.data.name;
     }
 
-    get target_id() {
+    get targetID() {
         return this.interaction.data.target_id;
     }
 
     get target() {
-        return this.interaction.data.resolved.messages[this.target_id] as APIMessage;
+        return this.interaction.data.resolved.messages[this.targetID] as APIMessage;
     }
 }

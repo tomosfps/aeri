@@ -9,7 +9,7 @@ export default redisEvent("pmessage", "__keyevent@0__:expired", async ({ channel
         const [prefix, customId, interactionToken, userId] = message.split(":") as [string, string, string, string];
 
         if (prefix === "component") {
-            logger.debug("Component expired", "Redis", { customId, userId });
+            logger.debugSingle(`Component expired: ${customId}:${userId}`, "Redis");
             await handleComponentExpiry(interactionToken);
         }
     }

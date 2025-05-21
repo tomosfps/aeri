@@ -1,4 +1,4 @@
-import { bold, formatEmoji, inlineCode } from "@discordjs/formatters";
+import { bold, inlineCode } from "@discordjs/formatters";
 import { capitalise } from "core";
 import type { Routes } from "../types.js";
 import type { TransformersType } from "./index.js";
@@ -8,8 +8,8 @@ const MAX_DESCRIPTION_LENGTH = 4096;
 
 export const studioTransformer: TransformersType[Routes.Studio] = (data) => {
     const descriptionBuilder = [
-        `${formatEmoji("1344752868753801336")} ${inlineCode("Type Of Studio    :")} ${data.isAnimationStudio ? "Animation Studio" : "Production Studio"}\n`,
-        `${formatEmoji("1344752948055642142")} ${inlineCode("Favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
+        `${inlineCode("Type Of Studio    :")} ${data.isAnimationStudio ? "Animation Studio" : "Production Studio"}\n`,
+        `${inlineCode("Favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
     ];
 
     const filtered = filteredDescription(descriptionBuilder.join(""), false);
@@ -41,6 +41,6 @@ export const studioTransformer: TransformersType[Routes.Studio] = (data) => {
 
     return {
         description: filtered,
-        animeDescription: `\n${formatEmoji("1344752979236094024")} ${inlineCode("Anime List        :")}\n${animeListString}`,
+        animeDescription: `\n${inlineCode("Anime List        :")}\n${animeListString}`,
     };
 };

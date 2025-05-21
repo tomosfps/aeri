@@ -4,13 +4,15 @@ import {
     StringSelectMenuBuilder,
     bold,
     codeBlock,
-    formatEmoji,
     inlineCode,
 } from "@discordjs/builders";
-import { ApplicationCommandOptionType } from "@discordjs/core";
+import {
+    ApplicationCommandOptionType,
+    ApplicationIntegrationType,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { formatSeconds } from "core";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
@@ -68,12 +70,12 @@ export const interaction: ChatInputCommand = {
                     .join("\n");
 
                 const descriptionBuilder = [
-                    `${formatEmoji("1344752820875825282")} ${inlineCode("name             :")} ${command.data.name}\n`,
-                    `${formatEmoji("1344752908679516233")} ${inlineCode("cooldown         :")} ${cooldownTimer}\n`,
-                    `${formatEmoji("1344752859702366311")} ${inlineCode("description      :")} ${command.data.description}\n\n`,
-                    `${formatEmoji("1344752926308171859")} ${inlineCode("options          :")} \n${optionDetails}\n\n`,
-                    `${formatEmoji("1344752808351498322")} ${inlineCode("choices          :")} \n${choiceDetails}\n\n`,
-                    `${formatEmoji("1344752799317102593")} ${inlineCode("examples         :")} \n${codeBlock("js", exampleDetails)}\n`,
+                    `${inlineCode("name             :")} ${command.data.name}\n`,
+                    `${inlineCode("cooldown         :")} ${cooldownTimer}\n`,
+                    `${inlineCode("description      :")} ${command.data.description}\n\n`,
+                    `${inlineCode("options          :")} \n${optionDetails}\n\n`,
+                    `${inlineCode("choices          :")} \n${choiceDetails}\n\n`,
+                    `${inlineCode("examples         :")} \n${codeBlock("js", exampleDetails)}\n`,
                 ];
 
                 const filteredDescription = descriptionBuilder.filter((line) => {
@@ -89,10 +91,10 @@ export const interaction: ChatInputCommand = {
 
                 const embed = new EmbedBuilder()
                     .setDescription(filteredDescription.join(""))
-                    .setColor(interaction.base_colour);
+                    .setColor(interaction.baseColour);
                 return await interaction.reply({ embeds: [embed] });
             }
-            return await interaction.reply({ content: "Command not found", ephemeral: true });
+            return await interaction.reply({ content: "Command not found", flags: MessageFlags.Ephemeral });
         }
 
         const uniqueCategories = new Set();
@@ -104,7 +106,6 @@ export const interaction: ChatInputCommand = {
                 };
             })
             .filter((option) => {
-                // Only keep the first occurrence of each category
                 if (!uniqueCategories.has(option.value)) {
                     uniqueCategories.add(option.value);
                     return true;
@@ -114,13 +115,13 @@ export const interaction: ChatInputCommand = {
             .sort((a, b) => a.label.localeCompare(b.label));
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId(`help_selection:${interaction.user_id}`)
+            .setCustomId(`help:${interaction.userID}`)
             .setPlaceholder("Choose A Category...")
             .setMinValues(1)
             .setMaxValues(1)
             .addOptions(categoryOptions);
 
         const row = new ActionRowBuilder().addComponents(select);
-        await interaction.reply({ components: [row], ephemeral: hidden });
+        await interaction.reply({ components: [row], flags: hidden ? MessageFlags.Ephemeral : undefined });
     },
 };

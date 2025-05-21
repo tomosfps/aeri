@@ -4,8 +4,12 @@ import {
     StringSelectMenuOptionBuilder,
     inlineCode,
 } from "@discordjs/builders";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationCommandType, ApplicationIntegrationType } from "discord-api-types/v10";
+import {
+    ApplicationCommandType,
+    ApplicationIntegrationType,
+    InteractionContextType,
+    MessageFlags,
+} from "@discordjs/core";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
 import { ContextMenuCommandBuilder } from "../../classes/ContextMenuCommandBuilder.js";
@@ -28,7 +32,7 @@ export const interaction: MessageContextCommand = {
                 media_name: manga,
                 media_type: MediaType.Manga,
             },
-            { isNotAutoComplete: true },
+            { isNSFWChannel: interaction.isNSFW },
         );
 
         if (error || result === null) {
@@ -37,29 +41,29 @@ export const interaction: MessageContextCommand = {
             return interaction.reply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
         const nsfwMediaCount = result.relations.filter((relation) => relation.isNSFW).length;
-        const filteredRelations = result.relations.filter((relation) => !relation.isNSFW || interaction.nsfw);
+        const filteredRelations = result.relations.filter((relation) => !relation.isNSFW || interaction.isNSFW);
 
-        if (nsfwMediaCount > 0 && !interaction.nsfw && filteredRelations.length === 0) {
+        if (nsfwMediaCount > 0 && !interaction.isNSFW && filteredRelations.length === 0) {
             return interaction.reply({
                 content: `NSFW media was filtered out and no other media was found close to ${inlineCode(manga)}\nTo view them, use this command in a NSFW channel.`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
         if (filteredRelations.length === 0) {
             return interaction.reply({
                 content: `Could not find a relation close to ${inlineCode(manga)}`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId(`media_selection:manga:${interaction.user_id}`)
+            .setCustomId(`media:manga:${interaction.userID}`)
             .setPlaceholder("Choose A Media...")
             .setMinValues(1)
             .setMaxValues(1)

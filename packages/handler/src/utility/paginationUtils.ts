@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder } from "@discordjs/builders";
+import { ButtonStyle, MessageFlags } from "@discordjs/core";
 import { getRedis } from "core";
-import { ButtonStyle } from "discord-api-types/v10";
 import { Logger } from "logger";
 import type { ButtonInteraction } from "../classes/ButtonInteraction.js";
 import { ChatInputInteraction } from "../classes/ChatInputCommandInteraction.js";
@@ -94,11 +94,14 @@ export async function createPage(
 
     logger.debug("Creating pagination", "Pagination", { key, initalPage, totalPages });
 
-    const currentComponents = interaction.message_components || [];
+    const currentComponents = interaction.messageComponents || [];
     const filteredComponents = currentComponents.filter(
         (component) =>
-            !component.components?.some(
-                (c) => "custom_id" in c && typeof c.custom_id === "string" && c.custom_id.startsWith("pagination:"),
+            !(
+                "components" in component &&
+                component.components?.some(
+                    (c) => "custom_id" in c && typeof c.custom_id === "string" && c.custom_id.startsWith("pagination:"),
+                )
             ),
     );
     try {
@@ -122,7 +125,7 @@ export async function createPage(
         await interaction
             .reply({
                 content: "An error occurred while creating the pagination.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             })
             .catch(() => {});
     }
@@ -177,7 +180,7 @@ export async function handlePagination(
     try {
         logger.debug("Starting handlePagination", "Pagination", { action, commandID });
 
-        const userID = interaction.user_id;
+        const userID = interaction.userID;
         const paginationKey = `pagination:${userID}:${commandID}`;
         const paginationData = await redis.hgetall(paginationKey);
 
@@ -185,7 +188,7 @@ export async function handlePagination(
             logger.error("Missing pagination data", "Pagination", { paginationData });
             return interaction.reply({
                 content: "This pagination has expired. Please run the command again.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -217,14 +220,17 @@ export async function handlePagination(
             try {
                 const content = await command.page(newPage, interaction);
 
-                const currentComponents = interaction.message_components || [];
+                const currentComponents = interaction.messageComponents || [];
                 const filteredComponents = currentComponents.filter(
                     (component) =>
-                        !component.components?.some(
-                            (c) =>
-                                "custom_id" in c &&
-                                typeof c.custom_id === "string" &&
-                                c.custom_id.startsWith("pagination:"),
+                        !(
+                            "components" in component &&
+                            component.components?.some(
+                                (c) =>
+                                    "custom_id" in c &&
+                                    typeof c.custom_id === "string" &&
+                                    c.custom_id.startsWith("pagination:"),
+                            )
                         ),
                 );
 
@@ -242,7 +248,7 @@ export async function handlePagination(
                 await interaction
                     .reply({
                         content: "Error loading page content. Please try again.",
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral,
                     })
                     .catch(() => {});
             }
@@ -254,7 +260,7 @@ export async function handlePagination(
         await interaction
             .reply({
                 content: "An error occurred while handling the pagination button.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             })
             .catch(() => {});
     }

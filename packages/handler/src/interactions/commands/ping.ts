@@ -1,5 +1,4 @@
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationIntegrationType } from "discord-api-types/v10";
+import { ApplicationIntegrationType, InteractionContextType } from "@discordjs/core";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 

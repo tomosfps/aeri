@@ -1,4 +1,5 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { MessageFlags } from "@discordjs/core";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
 import type { Button } from "../../services/commands.js";
@@ -6,7 +7,6 @@ import type { Button } from "../../services/commands.js";
 const logger = new Logger();
 
 type DescriptionType = "ANIME" | "MANGA";
-
 type ButtonData = {
     staffName: string;
     type: DescriptionType;
@@ -14,7 +14,7 @@ type ButtonData = {
 };
 
 export const interaction: Button<ButtonData> = {
-    custom_id: "staffShow",
+    custom_id: "staff",
     toggleable: true,
     timeout: 900,
     parse(data) {
@@ -24,15 +24,13 @@ export const interaction: Button<ButtonData> = {
         return { staffName: data[0], type: data[1] as DescriptionType, userId: data[2] };
     },
     async execute(interaction, data): Promise<void> {
-        const staffName = data.staffName;
-
         const { result: animeResult, error: animeError } = await api.fetch(Routes.Staff, {
-            staff_name: staffName,
+            staff_name: data.staffName,
             media_type: MediaType.Anime,
         });
 
         const { result: mangaResult, error: mangaError } = await api.fetch(Routes.Staff, {
-            staff_name: staffName,
+            staff_name: data.staffName,
             media_type: MediaType.Manga,
         });
 
@@ -42,7 +40,7 @@ export const interaction: Button<ButtonData> = {
             return interaction.reply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -52,7 +50,7 @@ export const interaction: Button<ButtonData> = {
             return interaction.reply({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner..",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -73,7 +71,7 @@ export const interaction: Button<ButtonData> = {
             .setThumbnail(animeResult.image)
             .setFooter({ text: animeResult.footer });
 
-        await interaction.edit({
+        await interaction.updateMessage({
             embeds: [embed],
         });
     },

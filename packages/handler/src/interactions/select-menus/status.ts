@@ -1,4 +1,5 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { MessageFlags } from "@discordjs/core";
 import { getRedis } from "core";
 import { Logger } from "logger";
 import { type MediaListStatus, type MediaType, Routes, api, mediaListStatusString } from "wrappers/anilist";
@@ -15,7 +16,7 @@ const logger = new Logger();
 const redis = await getRedis();
 
 export const interaction: PaginatedSelectMenu<SelectMenuData> = {
-    custom_id: "status_selection",
+    custom_id: "status",
     cooldown: 1,
     toggleable: true,
     timeout: 900,
@@ -31,7 +32,7 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
             const type = data.mediaType as MediaType;
             const username = data.userName;
             const status = interaction.menuValues[0] as MediaListStatus;
-            const statusKey = `status:${interaction.user_id}:selection`;
+            const statusKey = `status:${interaction.userID}:selection`;
 
             await redis.hmset(statusKey, {
                 username,
@@ -61,13 +62,13 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
                 return interaction.reply({
                     content:
                         "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
 
             await createPage(this, interaction, {
-                userID: interaction.user_id,
-                commandID: "status_selection",
+                userID: interaction.userID,
+                commandID: "status",
                 totalPages: result.pagination.totalPages,
             });
         } catch (error: any) {
@@ -75,14 +76,14 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
             await interaction
                 .reply({
                     content: "An error occurred while processing your request.",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 })
                 .catch(() => {});
         }
     },
     async page(page, interaction) {
         try {
-            const statusKey = `status:${interaction.user_id}:selection`;
+            const statusKey = `status:${interaction.userID}:selection`;
             const statusData = await redis.hgetall(statusKey);
 
             if (!statusData || !statusData["username"] || !statusData["status"] || !statusData["media_type"]) {
@@ -120,7 +121,7 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
                 .setTitle(
                     `${result.user.name}'s ${mediaListStatusString(statusData["status"] as MediaListStatus)} List`,
                 )
-                .setColor(interaction.base_colour || 0x2f3136)
+                .setColor(interaction.baseColour || 0x2f3136)
                 .setDescription(result.description)
                 .setFooter({ text: result.footer });
 

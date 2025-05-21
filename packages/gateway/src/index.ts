@@ -1,8 +1,3 @@
-import { REST } from "@discordjs/rest";
-import { SimpleIdentifyThrottler, WebSocketManager, WebSocketShardEvents, WorkerShardingStrategy } from "@discordjs/ws";
-import { Cache } from "cache";
-import { env, getRedis } from "core";
-import { dbGetCommandCount, dbSetCommandsUsed } from "database";
 import {
     ActivityType,
     GatewayIntentBits,
@@ -10,7 +5,12 @@ import {
     PresenceUpdateStatus,
     type RESTGetCurrentApplicationResult,
     Routes,
-} from "discord-api-types/v10";
+} from "@discordjs/core";
+import { REST } from "@discordjs/rest";
+import { SimpleIdentifyThrottler, WebSocketManager, WebSocketShardEvents, WorkerShardingStrategy } from "@discordjs/ws";
+import { Cache } from "cache";
+import { env, getRedis } from "core";
+import { dbGetCommandCount, dbSetCommandsUsed } from "database";
 import { Logger } from "logger";
 import { MetricsClient } from "metrics";
 import { aggregateHandlerMetrics } from "./services/metricsAggregator.js";

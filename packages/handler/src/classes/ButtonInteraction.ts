@@ -17,7 +17,7 @@ export class ButtonInteraction extends MessageComponentInteraction {
         return this.interaction.data;
     }
 
-    get embed_data() {
+    get embedData() {
         return this.interaction.message.embeds[0];
     }
 }

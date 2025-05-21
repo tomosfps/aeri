@@ -11,21 +11,21 @@
     "license": "MIT",
     "dependencies": {
         "@discordjs/brokers": "^1.0.0",
-        "@discordjs/rest": "^2.4.2",
-        "@discordjs/ws": "^2.0.1",
+        "@discordjs/rest": "^2.5.0",
+        "@discordjs/ws": "^2.0.2",
+        "@discordjs/core": "^2.1.0",
         "bufferutil": "^4.0.9",
         "cache": "workspace:*",
         "core": "workspace:*",
-        "discord-api-types": "^0.37.118",
+        "database": "workspace:*",
         "handler": "workspace:*",
-        "ioredis": "^5.4.2",
+        "ioredis": "^5.6.1",
         "logger": "workspace:*",
         "metrics": "workspace:*",
-        "database": "workspace:*",
         "prom-client": "^15.1.3"
     },
     "devDependencies": {
-        "@types/node": "^22.12.0"
+        "@types/node": "^22.15.19"
     },
     "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
 }

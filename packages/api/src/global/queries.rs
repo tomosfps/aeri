@@ -1,5 +1,3 @@
-pub const QUERY_URL: &str = "https://graphql.anilist.co";
-
 pub fn get_query(query_name: &str) -> String {
     let search: &str = "
     query ($id: Int, $search: String, $type: MediaType) {
@@ -324,30 +322,22 @@ pub fn get_query(query_name: &str) -> String {
     ";
 
     let random: &str = "
-    query ($formats: [MediaFormat], $page: Int, $perPage: Int) {
-    Page(page: $page, perPage: $perPage) {
-    pageInfo {
-            hasNextPage,
-            lastPage,
+    query ($formats: [MediaFormat]) {
+    Page(page: 1, perPage: 50) {
+        media(format_in: $formats, sort: POPULARITY_DESC, genre_not_in: [\"Hentai\"]) {
+                id
+                type
+            }
         }
-    media(format_in: $formats, sort: POPULARITY_DESC, genre_not_in: [\"Hentai\"]) {
-            id
-            type
-        }
-    }
     }";
 
     let recommendation: &str =  "
-        query ($genres: [String], $type: MediaType, $page: Int, $perPage: Int) {
-        Page(page: $page, perPage: $perPage) {
-        pageInfo {
-            hasNextPage,
-            lastPage,
+        query ($genres: [String], $type: MediaType) {
+        Page(page: 1, perPage: 50) {
+            media(type: $type, genre_in: $genres, sort: POPULARITY_DESC, genre_not_in: [\"Hentai\"]) {
+                id
+                }
             }
-        media(type: $type, genre_in: $genres, sort: ID, genre_not_in: [\"Hentai\"]) {
-            id
-            }
-        }
         }";
 
     let viewer: &str = "

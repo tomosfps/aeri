@@ -1,4 +1,4 @@
-import { formatEmoji, inlineCode } from "@discordjs/formatters";
+import { inlineCode } from "@discordjs/formatters";
 import { formatSeconds } from "core";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
 import { mediaStatusString } from "../enums.js";
@@ -130,45 +130,35 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
     }
 
     const descriptionBuilder = [
-        `${formatEmoji("1344752868753801336")} ${inlineCode("total episodes    :")} ${data.episodes?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1344752971816112158")} ${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1344752908679516233")} ${inlineCode("next airing       :")} ${nextEpisode}\n`,
-        `${formatEmoji("1344752987582496829")} ${inlineCode("chapters          :")} ${data.chapters?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1344752859702366311")} ${inlineCode("volumes           :")} ${data.volumes?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1344752878794838016")} ${inlineCode("status            :")} ${mediaStatusString(data.status)}\n`,
-        `${formatEmoji("1344753004443734017")} ${inlineCode("average score     :")} ${data.averageScore}%\n`,
-        `${formatEmoji("1344752918041067635")} ${inlineCode("mean score        :")} ${data.meanScore}%\n`,
-        `${formatEmoji("1344752971816112158")} ${inlineCode("popularity        :")} ${data.popularity?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1344752948055642142")} ${inlineCode("favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
-        `${formatEmoji("1344752996965154917")} ${inlineCode("start date        :")} ${data.startDate}\n`,
-        `${formatEmoji("1344752996965154917")} ${inlineCode("end date          :")} ${data.endDate}\n`,
-        `${formatEmoji("1344752926308171859")} ${inlineCode("genres            :")} ${genresDisplay}\n\n`,
+        `${inlineCode("total episodes    :")} ${data.episodes?.toLocaleString("en-US")}\n`,
+        `${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString("en-US")}\n`,
+        `${inlineCode("next airing       :")} ${nextEpisode}\n`,
+        `${inlineCode("chapters          :")} ${data.chapters?.toLocaleString("en-US")}\n`,
+        `${inlineCode("volumes           :")} ${data.volumes?.toLocaleString("en-US")}\n`,
+        `${inlineCode("status            :")} ${mediaStatusString(data.status)}\n`,
+        `${inlineCode("average score     :")} ${data.averageScore}%\n`,
+        `${inlineCode("mean score        :")} ${data.meanScore}%\n`,
+        `${inlineCode("popularity        :")} ${data.popularity?.toLocaleString("en-US")}\n`,
+        `${inlineCode("favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
+        `${inlineCode("start date        :")} ${data.startDate}\n`,
+        `${inlineCode("end date          :")} ${data.endDate}\n`,
+        `${inlineCode("genres            :")} ${genresDisplay}\n\n`,
     ];
 
     if (userData.completed.length > 0) {
-        descriptionBuilder.push(
-            `${formatEmoji("1344753004443734017")} ${inlineCode("completed         :")}\n${userData.completed.join("")}\n`,
-        );
+        descriptionBuilder.push(`${inlineCode("completed         :")}\n${userData.completed.join("")}\n`);
     }
     if (userData.current.length > 0) {
-        descriptionBuilder.push(
-            `${formatEmoji("1344752979236094024")} ${inlineCode("current           :")}\n${userData.current.join("")}\n`,
-        );
+        descriptionBuilder.push(`${inlineCode("current           :")}\n${userData.current.join("")}\n`);
     }
     if (userData.planning.length > 0) {
-        descriptionBuilder.push(
-            `${formatEmoji("1344752889003773994")} ${inlineCode("planning          :")}\n${userData.planning.join("")}\n`,
-        );
+        descriptionBuilder.push(`${inlineCode("planning          :")}\n${userData.planning.join("")}\n`);
     }
     if (userData.dropped.length > 0) {
-        descriptionBuilder.push(
-            `${formatEmoji("1344752960705400933")} ${inlineCode("dropped           :")}\n${userData.dropped.join("")}\n`,
-        );
+        descriptionBuilder.push(`${inlineCode("dropped           :")}\n${userData.dropped.join("")}\n`);
     }
     if (userData.paused.length > 0) {
-        descriptionBuilder.push(
-            `${formatEmoji("1344752900328525926")} ${inlineCode("paused            :")}\n${userData.paused.join("")}\n`,
-        );
+        descriptionBuilder.push(`${inlineCode("paused            :")}\n${userData.paused.join("")}\n`);
     }
 
     const filtered = filteredDescription(descriptionBuilder, false);

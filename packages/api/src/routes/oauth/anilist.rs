@@ -3,18 +3,15 @@ use crate::client::client::Client;
 use actix_web::web::Redirect;
 use actix_web::{get, web, Responder};
 use colourful_logger::Logger;
-use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::env;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 use crate::global::metrics::Metrics;
 
-lazy_static! {
-    static ref logger: Logger = Logger::default();
-    static ref oauth_success_url: String = format!("{}{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_SUCCESS_PATH").unwrap());
-    static ref oauth_fail_url: String = format!("{}{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_FAIL_PATH").unwrap());
-}
+static LOGGER: std::sync::LazyLock<Logger> = LazyLock::new(Logger::default);
+static OAUTH_SUCCESS_URL: std::sync::LazyLock<String> = LazyLock::new(|| format!("{}{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_SUCCESS_PATH").unwrap()));
+static OAUTH_FAIL_URL: std::sync::LazyLock<String> = LazyLock::new(|| format!("{}{}", env::var("WEBSITE_URL").unwrap(), env::var("OAUTH_FAIL_PATH").unwrap()));
 
 #[derive(Deserialize)]
 struct OauthParams {
@@ -56,8 +53,8 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Red
     let response = match response {
         Ok(response) => response,
         Err(err) => {
-            logger.error_single(&format!("Error getting response: {}", err), "Anilist");
-            return Redirect::to(oauth_fail_url.clone());
+            LOGGER.error_single(&format!("Error getting response: {}", err), "Anilist");
+            return Redirect::to(OAUTH_FAIL_URL.clone());
         }
     };
 
@@ -65,9 +62,9 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Red
         let code = response.status().as_u16();
         let error = response.text().await.unwrap();
 
-        logger.error(&format!("Error getting token ({})", code), "Anilist", false, error.clone());
+        LOGGER.error(&format!("Error getting token ({})", code), "Anilist", false, error.clone());
 
-        return Redirect::to(oauth_fail_url.clone());
+        return Redirect::to(OAUTH_FAIL_URL.clone());
     }
 
     let params: Vec<&str> = params.state.split("_").collect();
@@ -77,8 +74,8 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Red
     let response_json = match response_json {
         Ok(response_json) => response_json,
         Err(err) => {
-            logger.error_single(&format!("Error parsing response: {}", err), "Anilist");
-            return Redirect::to(oauth_fail_url.clone());
+            LOGGER.error_single(&format!("Error parsing response: {}", err), "Anilist");
+            return Redirect::to(OAUTH_FAIL_URL.clone());
         }
     };
 
@@ -91,5 +88,5 @@ pub async fn anilist_oauth(params: web::Query<OauthParams>, redis: web::Data<Red
 
     redis.xadd("oauth_token", "data", serde_json::to_string(&token_data).unwrap()).await.unwrap();
 
-    Redirect::to(oauth_success_url.clone())
+    Redirect::to(OAUTH_SUCCESS_URL.clone())
 }

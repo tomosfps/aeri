@@ -1,4 +1,5 @@
 import { MessageFlags } from "@discordjs/core";
+import { TimestampStyles, time } from "@discordjs/formatters";
 import { Logger } from "logger";
 import type { ButtonHandler } from "../../classes/ButtonInteraction.js";
 import { checkCommandCooldown, setComponentExpiry } from "../../utility/redisUtil.js";
@@ -6,8 +7,6 @@ import { checkCommandCooldown, setComponentExpiry } from "../../utility/redisUti
 const logger = new Logger();
 
 export const handler: ButtonHandler = async (interaction, api, client) => {
-    logger.debugSingle(`Received button interaction: ${interaction.data.custom_id}`, "Handler");
-
     const [buttonId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
     const button = client.buttons.get(buttonId);
 
@@ -16,32 +15,28 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
         return;
     }
 
-    const userId = interaction.user.id;
-
-    const toggleable = button.toggleable ?? false;
-    if (toggleable && !data.includes(userId)) {
+    if (!button.toggleable && !data.includes(interaction.user.id)) {
         await api.interactions.reply(interaction.id, interaction.token, {
-            content: "Only the user who toggled this command can use it",
+            content: "You cannot use this button. The toggleable button was set to false.",
             flags: MessageFlags.Ephemeral,
         });
         return;
     }
 
-    const redisKey = `${buttonId}:${interaction.token}:${userId}`;
+    const redisKey = `${buttonId}:${interaction.token}:${interaction.user.id}`;
     const timeout = button.cooldown ?? 900;
-    const check = await checkCommandCooldown(redisKey, userId, timeout);
+    const check = await checkCommandCooldown(redisKey, interaction.user.id, timeout);
 
     if (!check.canUse) {
         return api.interactions.reply(interaction.id, interaction.token, {
-            content: `You may use this command again in <t:${check.expirationTime}:R>`,
+            content: `You may use this command again in ${time(check.expirationTime, TimestampStyles.RelativeTime)}`,
             flags: MessageFlags.Ephemeral,
         });
     }
-
-    await setComponentExpiry(buttonId, interaction.token, userId);
+    await setComponentExpiry(buttonId, interaction.token, interaction.user.id);
 
     try {
-        logger.infoSingle(`Executing button: ${buttonId}`, "Handler");
+        logger.debugSingle(`Executing button: ${buttonId}`, "Handler");
         button.execute(interaction, button.parse?.(data));
     } catch (error: any) {
         logger.error("Button execution error:", "Handler", error);

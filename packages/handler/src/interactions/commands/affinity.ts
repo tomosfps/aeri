@@ -1,8 +1,7 @@
 import { EmbedBuilder } from "@discordjs/builders";
+import { ApplicationIntegrationType, InteractionContextType, MessageFlags } from "@discordjs/core";
 import { getRedis } from "core";
 import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
-import { InteractionContextType } from "discord-api-types/v9";
-import { ApplicationIntegrationType } from "discord-api-types/v10";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
@@ -24,24 +23,22 @@ export const interaction: PaginatedChatInputCommand = {
         .addExample("/affinity"),
     pageLimit: 20,
     async execute(interaction): Promise<void> {
-        if (!interaction.guild_id) {
+        if (!interaction.guildID) {
             return interaction.reply({
                 content: "This command can only be used in a server.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
-        logger.debug("Fetching user data", "User", { user: interaction.user_id });
-        const user = await dbFetchAnilistUser(interaction.user_id);
-
+        const user = await dbFetchAnilistUser(interaction.userID);
         if (!user) {
             return interaction.reply({
                 content: `You must link your Anilist account to use this command!\nUse ${await getCommandAsMention("link")} to link your account.`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
-        const guildMembers = (await dbFetchGuildUsers(interaction.guild_id))
+        const guildMembers = (await dbFetchGuildUsers(interaction.guildID))
             .filter((user) => user.anilist !== null)
             // biome-ignore lint/style/noNonNullAssertion: filtered above
             .map((user) => user.anilist!.username);
@@ -53,17 +50,12 @@ export const interaction: PaginatedChatInputCommand = {
         if (guildMembers.length === 0) {
             return interaction.reply({
                 content: "There must be at least 1 other member in the server to use this command.",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
-        logger.debug(`Fetching affinity for ${user.username} against ${guildMembers.length} users`, "Anilist", {
-            username: user.username,
-            guildMembers,
-        });
-
         const maxPages = Math.ceil(guildMembers.length / this.pageLimit);
-        const affinityKey = `affinity:${interaction.user_id}:${interaction.guild_id}`;
+        const affinityKey = `affinity:${interaction.userID}:${interaction.guildID}`;
 
         await redis.hmset(affinityKey, {
             username: user.username,
@@ -72,13 +64,13 @@ export const interaction: PaginatedChatInputCommand = {
         await redis.expire(affinityKey, 900);
 
         await createPage(this, interaction, {
-            userID: interaction.user_id,
+            userID: interaction.userID,
             commandID: interaction.data.name,
             totalPages: maxPages,
         });
     },
     async page(pageNumber, interaction) {
-        const affinityKey = `affinity:${interaction.user_id}:${interaction.guild_id}`;
+        const affinityKey = `affinity:${interaction.userID}:${interaction.guildID}`;
         const affinityData = await redis.hgetall(affinityKey);
         // biome-ignore lint/style/noNonNullAssertion: filtered above
         const guildMembers = JSON.parse(affinityData["guildMembers"]!);
@@ -104,7 +96,7 @@ export const interaction: PaginatedChatInputCommand = {
                 .setDescription(
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 )
-                .setColor(interaction.base_colour);
+                .setColor(interaction.baseColour);
 
             return {
                 embeds: [errorEmbed],
@@ -116,7 +108,7 @@ export const interaction: PaginatedChatInputCommand = {
             .setURL(affinity.comparedAgainst.siteUrl)
             .setThumbnail(affinity.comparedAgainst.avatar.large)
             .setDescription(affinity.description)
-            .setColor(interaction.base_colour)
+            .setColor(interaction.baseColour)
             .setFooter({
                 text: `${affinity.footer}\nIf you believe the calculations are wrong, head over to GitHub and open an issue.`,
             });
