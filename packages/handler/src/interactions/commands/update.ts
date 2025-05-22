@@ -69,7 +69,10 @@ export const interaction: ChatInputCommand = {
                                 .setRequired(false),
                         )
                         .addBooleanOption((option) =>
-                            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
+                            option
+                                .setName("hidden")
+                                .setDescription("Hide the interaction from appearing in chat")
+                                .setRequired(false),
                         ),
                 ),
         )
@@ -121,7 +124,10 @@ export const interaction: ChatInputCommand = {
                                 .setRequired(false),
                         )
                         .addBooleanOption((option) =>
-                            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
+                            option
+                                .setName("hidden")
+                                .setDescription("Hide the interaction from appearing in chat")
+                                .setRequired(false),
                         ),
                 ),
         ) as SlashCommandBuilder,

@@ -39,7 +39,7 @@ export const interaction: ChatInputCommand = {
                 ),
         )
         .addBooleanOption((option) =>
-            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
+            option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         const formatStr = getCommandOption(

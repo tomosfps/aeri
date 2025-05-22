@@ -25,7 +25,7 @@ export const interaction: ChatInputCommand = {
             option.setName("studio_name").setDescription("The name of the studio").setRequired(true),
         )
         .addBooleanOption((option) =>
-            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
+            option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         const studio_name =

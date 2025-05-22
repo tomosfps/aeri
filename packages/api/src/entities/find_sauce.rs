@@ -7,6 +7,14 @@ use serde_json::{json, Value};
 use crate::global::metrics::Metrics;
 
 #[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum EpisodeValue {
+    Number(u32),
+    String(String),
+    Array(Vec<u32>),
+}
+
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FindSauce {
     frame_count: u32,
@@ -18,7 +26,7 @@ pub struct FindSauce {
 pub struct FindSauceInformation {
     anilist: Option<u32>,
     filename: String,
-    episode: Option<u32>,
+    episode: Option<EpisodeValue>,
     from: f32,
     to: f32,
     similarity: f64,

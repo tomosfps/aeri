@@ -12,6 +12,7 @@ import {
 } from "@discordjs/core";
 import { ChannelType } from "@discordjs/core";
 import { env } from "core";
+import { ContainerManager } from "wrappers/discord";
 import type { HandlerClient } from "./HandlerClient.js";
 
 export type ContentOptions = {
@@ -32,6 +33,22 @@ export class BaseInteraction {
         public api: API,
         public client: HandlerClient,
     ) {}
+    private container: ContainerManager | null = null;
+
+    public getContainer(): ContainerManager {
+        if (!this.container) {
+            this.container = new ContainerManager({ accentColor: this.baseColour });
+            if (this.interaction.message?.components) {
+                this.extractContainers();
+            }
+        }
+        return this.container;
+    }
+
+    private extractContainers() {
+        if (!this.interaction.message?.components) return;
+        this.container?.extractFromMessage(this.interaction.message.components);
+    }
 
     get baseColour() {
         return 0xffb6c1;
@@ -94,6 +111,22 @@ export class BaseInteraction {
                 permissions & PermissionFlagsBits.SendMessages &&
                 permissions & PermissionFlagsBits.SendMessagesInThreads,
         );
+    }
+
+    public async replyContainer(hidden = false): Promise<void> {
+        const container = this.getContainer().build();
+        await this.reply({
+            components: [container],
+            flags: hidden ? MessageFlags.Ephemeral | MessageFlags.IsComponentsV2 : MessageFlags.IsComponentsV2,
+        });
+    }
+
+    public async updateContainer(): Promise<void> {
+        const container = this.getContainer().build();
+        await this.updateMessage({
+            components: [container],
+            flags: MessageFlags.IsComponentsV2,
+        });
     }
 
     public async reply(options: ContentOptions) {

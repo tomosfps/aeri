@@ -26,7 +26,7 @@ export const interaction: ChatInputCommand = {
             option.setName("name").setDescription("The name of the character").setRequired(true),
         )
         .addBooleanOption((option) =>
-            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
+            option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         const character_name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) || "";

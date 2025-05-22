@@ -1,28 +1,16 @@
 import { readdir } from "node:fs/promises";
-import type { GatewayDispatchEvents, MappedEvents as OriginalMappedEvents } from "@discordjs/core";
+import type { GatewayDispatchEvents, MappedEvents } from "@discordjs/core";
 import { Logger } from "logger";
 import type { HandlerClient } from "../classes/HandlerClient.js";
 
-interface MappedEvents extends OriginalMappedEvents {
-    GUILD_SOUNDBOARD_SOUNDS_UPDATE: any;
-    GUILD_SOUNDBOARD_SOUND_CREATE: any;
-    GUILD_SOUNDBOARD_SOUND_DELETE: any;
-    GUILD_SOUNDBOARD_SOUND_UPDATE: any;
-    SOUNDBOARD_SOUNDS: any;
-    SUBSCRIPTION_CREATE: any;
-    SUBSCRIPTION_DELETE: any;
-    SUBSCRIPTION_UPDATE: any;
-    VOICE_CHANNEL_EFFECT_SEND: any;
-}
-
-export interface Event<T extends GatewayDispatchEvents> {
+export interface Event<T extends GatewayDispatchEvents & keyof MappedEvents> {
     name: T;
     on: (data: MappedEvents[T][0] & { client: HandlerClient }) => Promise<void>;
 }
 
 const logger = new Logger();
 
-export function event<T extends GatewayDispatchEvents>(
+export function event<T extends GatewayDispatchEvents & keyof MappedEvents>(
     name: T,
     handler: (data: MappedEvents[T][0] & { client: HandlerClient }) => Promise<void>,
 ): Event<T> {
@@ -41,13 +29,13 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
         throw new Error("Failed to find events (📝)");
     }
 
-    const events = new Map<string, Event<GatewayDispatchEvents>>();
+    const events = new Map<string, Event<GatewayDispatchEvents & keyof MappedEvents>>();
     const jsFiles = allFiles.filter((file) => file.endsWith(".js"));
 
     for (const file of jsFiles) {
         try {
             const eventModule = await import(`../events/${file}`);
-            const event = eventModule.default as Event<GatewayDispatchEvents>;
+            const event = eventModule.default as Event<GatewayDispatchEvents & keyof MappedEvents>;
 
             if (!event || !event.name || !event.on) {
                 logger.error(`Failed to load event (📝) file: ${file}`, "Files", {
@@ -57,7 +45,7 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
                 continue;
             }
 
-            client.on(event.name, (data: MappedEvents[GatewayDispatchEvents][0]) => {
+            client.on(event.name, (data: MappedEvents[typeof event.name][0]) => {
                 logger.debugSingle(`Received event: ${event.name}`, "Files");
                 event.on({ ...data, client });
             });

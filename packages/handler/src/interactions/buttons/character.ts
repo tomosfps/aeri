@@ -7,7 +7,6 @@ import type { Button } from "../../services/commands.js";
 const logger = new Logger();
 
 type DescriptionType = "ANIME" | "MANGA" | "DESCRIPTION";
-
 type ButtonData = {
     characterName: string;
     type: DescriptionType;

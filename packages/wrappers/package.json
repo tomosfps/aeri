@@ -7,10 +7,13 @@
         "start": "node dist/index.js"
     },
     "exports": {
-        "./anilist": "./dist/anilist/index.js"
+        "./anilist": "./dist/anilist/index.js",
+        "./discord": "./dist/discord/index.js"
     },
     "license": "MIT",
     "dependencies": {
+        "@discordjs/core": "^2.1.0",
+        "@discordjs/builders": "^1.11.2",
         "@discordjs/formatters": "^0.6.1",
         "core": "workspace:*",
         "database": "workspace:*"

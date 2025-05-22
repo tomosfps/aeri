@@ -53,7 +53,7 @@ export const interaction: ChatInputCommand = {
                 .addChoices({ name: "Anime", value: "ANIME" }, { name: "Manga", value: "MANGA" }),
         )
         .addBooleanOption((option) =>
-            option.setName("hidden").setDescription("Hide the input or not").setRequired(false),
+            option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";

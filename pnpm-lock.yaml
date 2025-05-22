@@ -258,6 +258,12 @@ importers:
 
   packages/wrappers:
     dependencies:
+      '@discordjs/builders':
+        specifier: ^1.11.2
+        version: 1.11.2
+      '@discordjs/core':
+        specifier: ^2.1.0
+        version: 2.1.0(bufferutil@4.0.9)
       '@discordjs/formatters':
         specifier: ^0.6.1
         version: 0.6.1

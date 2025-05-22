@@ -20,34 +20,33 @@ export const interaction: MessageContextCommand = {
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM),
     async execute(interaction) {
         const media = interaction.target.attachments;
+        let imageUrl: string | undefined;
+        await interaction.defer();
 
-        if (!media[0]) {
-            await interaction.editReply({ content: "No media found.", flags: MessageFlags.Ephemeral });
-            return;
+        if (media[0]?.url) {
+            imageUrl = media[0].url;
+        } else if (interaction.target.content) {
+            const content = interaction.target.content.trim();
+
+            if (content.startsWith("http")) {
+                imageUrl = content;
+            }
         }
 
-        if (!media[0].url) {
-            await interaction.editReply({ content: "No media URL found.", flags: MessageFlags.Ephemeral });
-            return;
-        }
-
-        const validImageExtensions = [".jpg", ".jpeg", ".png", ".webp"];
-        const fileExtension = media[0].url.toLowerCase().match(/\.[^.]*$/)?.[0];
-
-        if (!fileExtension || !validImageExtensions.includes(fileExtension)) {
-            await interaction.editReply({
-                content: "The attachment must be a supported image format (jpg, png, gif, etc.).",
+        if (!imageUrl) {
+            await interaction.followUp({
+                content: "No valid image URL found. Please provide an image attachment or a direct URL.",
                 flags: MessageFlags.Ephemeral,
             });
             return;
         }
 
-        const { result, error } = await api.fetch(Routes.Sauce, { url: media[0]?.url });
+        const { result, error } = await api.fetch(Routes.Sauce, { url: encodeURIComponent(imageUrl) });
 
         if (error || !result) {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
 
-            return interaction.reply({
+            return interaction.followUp({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 flags: MessageFlags.Ephemeral,
@@ -64,7 +63,7 @@ export const interaction: MessageContextCommand = {
         if (mediaError || !mediaResult) {
             logger.error("Error while fetching data from the API.", "Anilist", { error: mediaError });
 
-            return interaction.reply({
+            return interaction.followUp({
                 content:
                     "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
                 flags: MessageFlags.Ephemeral,
@@ -79,8 +78,10 @@ export const interaction: MessageContextCommand = {
             .setThumbnail(mediaResult.cover)
             .setDescription(mediaResult.description || "No description available.")
             .setColor(interaction.baseColour)
-            .setFooter({ text: mediaResult.footer });
+            .setFooter({
+                text: `${mediaResult.footer} | ${(result.result[0]?.similarity || 0 * 100).toFixed(2)}% similarity`,
+            });
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.followUp({ embeds: [embed] });
     },
 };
