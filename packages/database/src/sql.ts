@@ -22,7 +22,7 @@ export async function connectPrisma() {
     });
 
     prisma.$on("info", (e: any) => {
-        logger.info("Info", "Prisma", { message: e.message, timestamp: e.timestamp });
+        logger.info("Info", "Prisma", { message: e.message });
     });
 
     prisma.$on("warn", (e: any) => {

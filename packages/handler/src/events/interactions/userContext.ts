@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
 import { TimestampStyles, time } from "@discordjs/formatters";
 import { env } from "core";
-import { dbUpdateGuild } from "database";
+import { updateGuild } from "database";
 import { Logger } from "logger";
 import type { UserContextHandler } from "../../classes/UserContextInteraction.js";
 import { checkCommandCooldown } from "../../utility/redisUtil.js";
@@ -32,7 +32,7 @@ export const handler: UserContextHandler = async (interaction, api, client) => {
     }
 
     if (interaction.guildID) {
-        await dbUpdateGuild(interaction.guildID, interaction.member?.user.id);
+        await updateGuild(interaction.guildID, interaction.member?.user.id);
     }
 
     const redisKey = `${interaction.data.name}:${interaction.member?.user.id}`;

@@ -1,28 +1,28 @@
 import { connectPrisma } from "./sql.js";
-import { dbCreateAnilistUser } from "./utility/dbCreateAnilistUser.js";
-import { dbCreateGuild } from "./utility/dbCreateGuild.js";
-import { dbDeleteAnilistUser } from "./utility/dbDeleteUser.js";
-import { dbFetchAnilistUser } from "./utility/dbFetchAnilistUser.js";
-import { dbFetchDiscordUser } from "./utility/dbFetchDiscordUser.js";
-import { dbFetchGuildUser } from "./utility/dbFetchGuildUser.js";
-import { dbFetchGuildUsers } from "./utility/dbFetchGuildUsers.js";
-import { dbGetCommandCount } from "./utility/dbGetCommandCount.js";
-import { dbRemoveFromGuild } from "./utility/dbRemoveFromGuild.js";
-import { dbSetCommandsUsed } from "./utility/dbSetCommandsUsed.js";
-import { dbUpdateGuild } from "./utility/dbUpdateGuild.js";
+import { createAnilistUser } from "./utility/createAnilistUser.js";
+import { createGuild } from "./utility/createGuild.js";
+import { deleteAnilistUser } from "./utility/deleteAnilistUser.js";
+import { fetchAnilistUser } from "./utility/fetchAnilistUser.js";
+import { fetchDiscordUser } from "./utility/fetchDiscordUser.js";
+import { fetchGuildUser } from "./utility/fetchGuildUser.js";
+import { fetchGuildUsers } from "./utility/fetchGuildUsers.js";
+import { getCommandCount } from "./utility/getCommandCount.js";
+import { removeUser } from "./utility/removeUser.js";
+import { setCommandCount } from "./utility/setCommandCount.js";
+import { updateGuild } from "./utility/updateGuild.js";
 
 export {
-    dbFetchDiscordUser,
-    dbCreateAnilistUser,
-    dbFetchGuildUsers,
-    dbFetchGuildUser,
-    dbUpdateGuild,
-    dbFetchAnilistUser,
-    dbRemoveFromGuild,
-    dbDeleteAnilistUser,
-    dbCreateGuild,
-    dbSetCommandsUsed,
-    dbGetCommandCount,
+    fetchDiscordUser,
+    fetchGuildUsers,
+    fetchGuildUser,
+    updateGuild,
+    fetchAnilistUser,
+    removeUser,
+    createAnilistUser,
+    createGuild,
+    setCommandCount,
+    getCommandCount,
+    deleteAnilistUser,
 };
 const prisma = connectPrisma();
 export default prisma;

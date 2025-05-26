@@ -1,7 +1,7 @@
 import { MessageFlags } from "@discordjs/core";
 import { TimestampStyles, time } from "@discordjs/formatters";
 import { env, getRedis } from "core";
-import { dbUpdateGuild } from "database";
+import { updateGuild } from "database";
 import { Logger } from "logger";
 import type { ChatInputHandler } from "../../classes/ChatInputCommandInteraction.js";
 import { checkCommandCooldown } from "../../utility/redisUtil.js";
@@ -29,7 +29,7 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
     }
 
     if (interaction.guildID) {
-        await dbUpdateGuild(interaction.guildID, interaction.user.id);
+        await updateGuild(interaction.guildID, interaction.user.id);
     }
 
     const redisKey = `${interaction.data.name}:${interaction.user.id}`;

@@ -21,7 +21,6 @@ export function event<T extends GatewayDispatchEvents & keyof MappedEvents>(
 }
 
 export async function registerEvents(client: HandlerClient): Promise<void> {
-    logger.infoSingle("Started loading event (📝) files.", "Files");
     const allFiles = await readdir(new URL("../events/", import.meta.url));
 
     if (!allFiles) {
@@ -54,8 +53,5 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
             logger.error(`Failed to load event (📝) file: ${file}`, "Files", error);
         }
     }
-    logger.info("Successfully registered events (📝) files.", "Files", {
-        events: Array.from(events.keys()),
-        count: events.size,
-    });
+    logger.info("Successfully registered events (📝) files.", "Files", { count: events.size });
 }

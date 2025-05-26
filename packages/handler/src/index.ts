@@ -1,4 +1,4 @@
-import type { RESTPostAPIApplicationCommandsJSONBody } from "@discordjs/core";
+import { type APIUser, type RESTPostAPIApplicationCommandsJSONBody, Routes } from "@discordjs/core";
 import { REST } from "@discordjs/rest";
 import { getRedis } from "core";
 import { env } from "core/dist/env.js";
@@ -7,7 +7,6 @@ import { Gateway } from "./gateway.js";
 import { FileType, load } from "./services/commands.js";
 import { registerEvents } from "./services/events.js";
 import { OauthTokenHandler } from "./services/oauthTokenHandler.js";
-import { registerRedisEvents } from "./services/redisEvents.js";
 
 const redis = await getRedis();
 const rest = new REST().setToken(env.DISCORD_TOKEN);
@@ -18,6 +17,7 @@ const selectMenus = await load(FileType.SelectMenus);
 const messageContextCommands = await load(FileType.MessageContext);
 const userContextCommands = await load(FileType.UserContext);
 const autoCompleteCommands = await load(FileType.AutoComplete);
+const bot = (await rest.get(Routes.user("@me"))) as APIUser;
 
 const commands: RESTPostAPIApplicationCommandsJSONBody[] = [
     ...chatInputCommands.values().map((c) => c.data.toJSON()),
@@ -36,6 +36,7 @@ const client = new HandlerClient({
     messageContextCommands,
     userContextCommands,
     autoCompleteCommands,
+    bot,
 });
 
 const oauthTokenHandler = new OauthTokenHandler(redis);
@@ -43,4 +44,3 @@ void oauthTokenHandler.listen();
 
 await gateway.connect();
 await registerEvents(client);
-await registerRedisEvents();

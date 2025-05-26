@@ -5,10 +5,10 @@ import {
     InteractionContextType,
     MessageFlags,
 } from "@discordjs/core";
-import { dbCreateAnilistUser, dbFetchAnilistUser } from "database";
+import { createAnilistUser, fetchAnilistUser } from "database";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
@@ -25,14 +25,18 @@ export const interaction: ChatInputCommand = {
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addStringOption((option) =>
             option.setName("username").setDescription("Your Anilist username").setRequired(true),
+        )
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const username = getCommandOption(
             "username",
             ApplicationCommandOptionType.String,
             interaction.options,
         ) as string;
-        const isInDatabase = await dbFetchAnilistUser(interaction.userID);
+        const isInDatabase = await fetchAnilistUser(interaction.userID);
         if (!isInDatabase) {
             const { result: user, error } = await api.fetch(Routes.User, { username });
 
@@ -53,7 +57,7 @@ export const interaction: ChatInputCommand = {
                 });
             }
 
-            await dbCreateAnilistUser(interaction.userID, user.id, user.name, interaction.guildID);
+            await createAnilistUser(interaction.userID, user.id, user.name, interaction.guildID);
 
             const embed = new EmbedBuilder()
                 .setTitle(`Anilist Account Linked | ${user.name}`)
@@ -63,7 +67,7 @@ export const interaction: ChatInputCommand = {
 
             return interaction.reply({
                 embeds: [embed],
-                flags: MessageFlags.Ephemeral,
+                flags: hidden ? MessageFlags.Ephemeral : undefined,
             });
         }
 

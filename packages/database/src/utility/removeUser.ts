@@ -1,6 +1,6 @@
 import prisma from "../index.js";
 
-export async function dbRemoveFromGuild(discord_id: string, guild_id: string) {
+export async function removeUser(discord_id: string, guild_id: string) {
     const db = await prisma;
 
     const discord_id_bigint = BigInt(discord_id);

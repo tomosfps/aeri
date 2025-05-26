@@ -1,6 +1,6 @@
 import prisma from "../index.js";
 
-export async function dbFetchDiscordUser(id: string) {
+export async function fetchDiscordUser(id: string) {
     const db = await prisma;
 
     return db.user.findUnique({

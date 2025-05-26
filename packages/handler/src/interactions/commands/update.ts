@@ -5,10 +5,10 @@ import {
     InteractionContextType,
     MessageFlags,
 } from "@discordjs/core";
-import { dbFetchAnilistUser } from "database";
+import { fetchAnilistUser } from "database";
 import { Logger } from "logger";
 import { MediaListStatus, MediaType, Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
@@ -142,7 +142,7 @@ export const interaction: ChatInputCommand = {
             command === MediaType.Manga
                 ? getCommandOption("volumes", ApplicationCommandOptionType.Number, interaction.options)
                 : null;
-        const inDatabase = await dbFetchAnilistUser(interaction.userID);
+        const inDatabase = await fetchAnilistUser(interaction.userID);
 
         if (!inDatabase || inDatabase.token === null) {
             return interaction.reply({

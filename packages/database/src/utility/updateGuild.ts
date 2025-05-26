@@ -1,8 +1,7 @@
 import prisma from "../index.js";
 
-export async function dbUpdateGuild(guild_id: string, discord_id: string) {
+export async function updateGuild(guild_id: string, discord_id: string) {
     const db = await prisma;
-
     const guild_id_bigint = BigInt(guild_id);
     const discord_id_bigint = BigInt(discord_id);
 

@@ -1,11 +1,10 @@
 import { ApplicationIntegrationType, InteractionContextType, MessageFlags } from "@discordjs/core";
-import { dbFetchAnilistUser } from "database";
+import { fetchAnilistUser } from "database";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
-
 const logger = new Logger();
 
 export const interaction: ChatInputCommand = {
@@ -17,9 +16,12 @@ export const interaction: ChatInputCommand = {
         .setCategory("Anime/Manga")
         .setCooldown(1800)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
-        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM),
+        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
+        ),
     async execute(interaction): Promise<void> {
-        const anilistUser = await dbFetchAnilistUser(interaction.userID);
+        const anilistUser = await fetchAnilistUser(interaction.userID);
         const userId = anilistUser ? anilistUser.id : null;
         const username = anilistUser ? anilistUser.username : null;
 

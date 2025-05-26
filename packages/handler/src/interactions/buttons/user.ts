@@ -11,18 +11,16 @@ const logger = new Logger();
 type ButtonData = {
     anilistUsername: string;
     type: DescriptionType;
-    userId: string;
+    userID: string;
 };
 
 export const interaction: Button<ButtonData> = {
-    custom_id: "user",
-    toggleable: true,
-    timeout: 900,
+    data: { custom_id: "user" },
     parse(data) {
         if (!data[0] || !data[1] || !data[2]) {
             throw new Error("Invalid button data");
         }
-        return { anilistUsername: data[0], type: data[1] as DescriptionType, userId: data[2] };
+        return { anilistUsername: data[0], type: data[1] as DescriptionType, userID: data[2] };
     },
     async execute(interaction, data): Promise<void> {
         const { result: user, error } = await api.fetch(Routes.User, { username: data.anilistUsername });

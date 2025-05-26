@@ -1,6 +1,6 @@
 import prisma from "../index.js";
 
-export async function dbFetchAnilistUser(discord_id: string) {
+export async function fetchAnilistUser(discord_id: string) {
     const db = await prisma;
 
     return db.anilist.findUnique({

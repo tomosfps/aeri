@@ -2,7 +2,7 @@ import { MessageFlags } from "@discordjs/core";
 import { TimestampStyles, time } from "@discordjs/formatters";
 import { Logger } from "logger";
 import type { ButtonHandler } from "../../classes/ButtonInteraction.js";
-import { checkCommandCooldown, setComponentExpiry } from "../../utility/redisUtil.js";
+import { checkCommandCooldown } from "../../utility/redisUtil.js";
 
 const logger = new Logger();
 
@@ -15,17 +15,16 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
         return;
     }
 
-    if (!button.toggleable && !data.includes(interaction.user.id)) {
+    if (button.data.toggleable && !data.includes(interaction.user.id)) {
         await api.interactions.reply(interaction.id, interaction.token, {
-            content: "You cannot use this button. The toggleable button was set to false.",
+            content: "This button is not toggleable and cannot be used by you.",
             flags: MessageFlags.Ephemeral,
         });
         return;
     }
 
     const redisKey = `${buttonId}:${interaction.token}:${interaction.user.id}`;
-    const timeout = button.cooldown ?? 900;
-    const check = await checkCommandCooldown(redisKey, interaction.user.id, timeout);
+    const check = await checkCommandCooldown(redisKey, interaction.user.id, button.data.cooldown);
 
     if (!check.canUse) {
         return api.interactions.reply(interaction.id, interaction.token, {
@@ -33,7 +32,6 @@ export const handler: ButtonHandler = async (interaction, api, client) => {
             flags: MessageFlags.Ephemeral,
         });
     }
-    await setComponentExpiry(buttonId, interaction.token, interaction.user.id);
 
     try {
         logger.debugSingle(`Executing button: ${buttonId}`, "Handler");

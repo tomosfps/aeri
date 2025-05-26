@@ -8,7 +8,7 @@ import {
 } from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 

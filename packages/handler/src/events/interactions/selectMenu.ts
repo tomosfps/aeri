@@ -2,7 +2,7 @@ import { MessageFlags } from "@discordjs/core";
 import { TimestampStyles, time } from "@discordjs/formatters";
 import { Logger } from "logger";
 import type { SelectMenuHandler } from "../../classes/SelectMenuInteraction.js";
-import { checkCommandCooldown, setComponentExpiry } from "../../utility/redisUtil.js";
+import { checkCommandCooldown } from "../../utility/redisUtil.js";
 
 const logger = new Logger();
 
@@ -19,17 +19,16 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
         return;
     }
 
-    if (!selectMenu.toggleable && !data.includes(interaction.user.id)) {
+    if (selectMenu.data.toggleable && !data.includes(interaction.user.id)) {
         await api.interactions.reply(interaction.id, interaction.token, {
-            content: "Only the user who toggled this command can use it",
+            content: "This select menu is not toggleable and cannot be used by you.",
             flags: MessageFlags.Ephemeral,
         });
         return;
     }
 
     const redisKey = `${selectId}:${interaction.token}:${interaction.user.id}`;
-    const timeout = selectMenu.cooldown ?? 900;
-    const check = await checkCommandCooldown(redisKey, interaction.user.id, timeout);
+    const check = await checkCommandCooldown(redisKey, interaction.user.id, selectMenu.data.cooldown);
 
     if (!check.canUse) {
         return api.interactions.reply(interaction.id, interaction.token, {
@@ -37,8 +36,6 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
             flags: MessageFlags.Ephemeral,
         });
     }
-
-    await setComponentExpiry(selectId, interaction.token, interaction.user.id);
 
     try {
         logger.debugSingle(`Executing select menu: ${selectId}`, "Handler");

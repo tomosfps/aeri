@@ -1,4 +1,4 @@
-import { ButtonBuilder, bold, inlineCode } from "@discordjs/builders";
+import { ButtonBuilder, SectionBuilder, ThumbnailBuilder, bold, inlineCode } from "@discordjs/builders";
 import {
     ApplicationCommandOptionType,
     ApplicationIntegrationType,
@@ -7,8 +7,9 @@ import {
     SeparatorSpacingSize,
 } from "@discordjs/core";
 import { env } from "core";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
+import { getUserAvatar } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 export const interaction: ChatInputCommand = {
@@ -47,18 +48,22 @@ export const interaction: ChatInputCommand = {
             `${inlineCode("trace.moe     :")} [Anime scene search API](https://soruly.github.io/trace.moe-api/) for image recognition`,
         ];
 
-        interaction
-            .getContainer()
-            .updateSection("text", descriptionBuilder.join("\n"))
-            .updateSection("separator", { divider: true, spacing: SeparatorSpacingSize.Large })
-            .updateSection("actionRow", [
-                new ButtonBuilder()
-                    .setCustomId(`information:INVITE:${interaction.user.id}`)
-                    .setLabel("Invite Bot")
-                    .setStyle(ButtonStyle.Primary),
+        const container = interaction.getContainer();
+        const getBotAvatar = getUserAvatar(interaction.client.bot.id, interaction.client.bot.avatar);
+
+        const section = new SectionBuilder()
+            .addTextDisplayComponents((builder) => builder.setContent(descriptionBuilder.join("\n")))
+            .setThumbnailAccessory(new ThumbnailBuilder().setURL(getBotAvatar));
+
+        container
+            .setComponentOrder(["section", "actionRow"])
+            .setComponent("section", [section])
+            .setComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
+            .setComponent("actionRow", [
+                new ButtonBuilder().setCustomId("info:INVITE").setLabel("Invite Bot").setStyle(ButtonStyle.Primary),
 
                 new ButtonBuilder()
-                    .setCustomId(`information:SUPPORT:${interaction.user.id}`)
+                    .setCustomId("info:SUPPORT")
                     .setLabel("Support Server")
                     .setStyle(ButtonStyle.Secondary),
 

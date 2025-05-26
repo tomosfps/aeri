@@ -1,6 +1,6 @@
 import prisma from "../index.js";
 
-export async function dbGetCommandCount(): Promise<bigint> {
+export async function getCommandCount(): Promise<bigint> {
     const db = await prisma;
     const stats = await db.statistics.findUnique({
         where: { id: "global" },

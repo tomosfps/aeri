@@ -5,10 +5,10 @@ import {
     InteractionContextType,
     MessageFlags,
 } from "@discordjs/core";
-import { dbFetchAnilistUser } from "database";
+import { fetchAnilistUser } from "database";
 import { Logger } from "logger";
 import { MediaListStatus, MediaType } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
@@ -46,7 +46,7 @@ export const interaction: ChatInputCommand = {
         if (username === null) {
             logger.debug("Attempting fetching user from database", "User");
 
-            const dbUser = await dbFetchAnilistUser(interaction.userID);
+            const dbUser = await fetchAnilistUser(interaction.userID);
 
             if (!dbUser) {
                 return interaction.reply({

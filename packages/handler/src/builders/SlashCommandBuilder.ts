@@ -16,11 +16,17 @@ import {
 export class SlashCommandBuilder extends SlashCommandBuilderOriginal {
     cooldown = 0;
     category = "";
+    comment = "";
     examples: string[] = [];
     ownerOnly = false;
 
     setCooldown(cooldown: number): this {
         this.cooldown = cooldown;
+        return this;
+    }
+
+    setComment(comment: string): this {
+        this.comment = comment;
         return this;
     }
 

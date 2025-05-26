@@ -1,6 +1,6 @@
 import prisma from "../index.js";
 
-export async function dbSetCommandsUsed(count: number) {
+export async function setCommandCount(count: number) {
     const db = await prisma;
 
     return db.statistics.upsert({

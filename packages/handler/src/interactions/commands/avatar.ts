@@ -6,7 +6,7 @@ import {
     MessageFlags,
 } from "@discordjs/core";
 import { Logger } from "logger";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getUserAvatar, getUserGuildAvatar } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
@@ -23,9 +23,14 @@ export const interaction: ChatInputCommand = {
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addUserOption((option) =>
             option.setName("target").setDescription("The user/bot to view their avatar").setRequired(true),
+        )
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
         const targetUserId = getCommandOption("target", ApplicationCommandOptionType.User, interaction.options);
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+
         if (!targetUserId) {
             await interaction.reply({
                 content: "Please provide a valid user to view their avatar.",
@@ -72,6 +77,9 @@ export const interaction: ChatInputCommand = {
                 ),
             );
 
-        await interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 });
+        await interaction.reply({
+            components: [container],
+            flags: hidden ? MessageFlags.Ephemeral | MessageFlags.IsComponentsV2 : MessageFlags.IsComponentsV2,
+        });
     },
 };

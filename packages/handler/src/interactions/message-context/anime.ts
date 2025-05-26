@@ -12,7 +12,7 @@ import {
 } from "@discordjs/core";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
-import { ContextMenuCommandBuilder } from "../../classes/ContextMenuCommandBuilder.js";
+import { ContextMenuCommandBuilder } from "../../builders/ContextMenuCommandBuilder.js";
 import type { MessageContextCommand } from "../../services/commands.js";
 
 const logger = new Logger();

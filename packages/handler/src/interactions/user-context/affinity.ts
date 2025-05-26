@@ -6,10 +6,10 @@ import {
     MessageFlags,
 } from "@discordjs/core";
 import { getRedis } from "core";
-import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
+import { fetchAnilistUser, fetchGuildUsers } from "database";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { ContextMenuCommandBuilder } from "../../classes/ContextMenuCommandBuilder.js";
+import { ContextMenuCommandBuilder } from "../../builders/ContextMenuCommandBuilder.js";
 import type { PaginatedUserContextCommand } from "../../services/commands.js";
 import { createPage } from "../../utility/paginationUtils.js";
 
@@ -32,7 +32,7 @@ export const interaction: PaginatedUserContextCommand = {
         }
 
         logger.debug("Fetching user data", "User", { user: interaction.targetID });
-        const user = await dbFetchAnilistUser(interaction.target.id);
+        const user = await fetchAnilistUser(interaction.target.id);
 
         if (!user) {
             return interaction.reply({
@@ -41,7 +41,7 @@ export const interaction: PaginatedUserContextCommand = {
             });
         }
 
-        const guildMembers = (await dbFetchGuildUsers(interaction.guildID))
+        const guildMembers = (await fetchGuildUsers(interaction.guildID))
             .filter((user) => user.anilist !== null)
             // biome-ignore lint/style/noNonNullAssertion: filtered above
             .map((user) => user.anilist!.username);

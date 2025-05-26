@@ -1,6 +1,6 @@
 import prisma from "../index.js";
 
-export async function dbCreateAnilistUser(
+export async function createAnilistUser(
     discord_id: string,
     anilist_id: number,
     anilist_username: string,

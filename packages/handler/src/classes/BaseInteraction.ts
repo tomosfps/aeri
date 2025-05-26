@@ -47,7 +47,12 @@ export class BaseInteraction {
 
     private extractContainers() {
         if (!this.interaction.message?.components) return;
-        this.container?.extractFromMessage(this.interaction.message.components);
+
+        if (!this.container) {
+            this.container = new ContainerManager({ accentColor: this.baseColour });
+        }
+
+        this.container.extractFromMessage(this.interaction.message.components);
     }
 
     get baseColour() {
@@ -122,9 +127,23 @@ export class BaseInteraction {
     }
 
     public async updateContainer(): Promise<void> {
-        const container = this.getContainer().build();
+        const container = this.getContainer();
+        const builtContainer = container.build();
+        const containerData = builtContainer.toJSON();
+
+        if (!containerData.components || containerData.components.length === 0) {
+            container.updateComponent("text", "Could not display the container");
+            const updatedContainer = container.build();
+
+            await this.updateMessage({
+                components: [updatedContainer],
+                flags: MessageFlags.IsComponentsV2,
+            });
+            return;
+        }
+
         await this.updateMessage({
-            components: [container],
+            components: [builtContainer],
             flags: MessageFlags.IsComponentsV2,
         });
     }

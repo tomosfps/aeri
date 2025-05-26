@@ -10,13 +10,13 @@ import {
 import { REST } from "@discordjs/rest";
 import { env, getRedis } from "core";
 import { Logger } from "logger";
+import type { ContextMenuCommandBuilder } from "../builders/ContextMenuCommandBuilder.js";
+import type { SlashCommandBuilder } from "../builders/SlashCommandBuilder.js";
 import type { AutoCompleteInteraction } from "../classes/AutoCompleteInteraction.js";
 import type { ButtonInteraction } from "../classes/ButtonInteraction.js";
 import type { ChatInputInteraction } from "../classes/ChatInputCommandInteraction.js";
-import type { ContextMenuCommandBuilder } from "../classes/ContextMenuCommandBuilder.js";
 import type { MessageContextInteraction } from "../classes/MessageContextInteraction.js";
 import type { SelectMenuInteraction } from "../classes/SelectMenuInteraction.js";
-import type { SlashCommandBuilder } from "../classes/SlashCommandBuilder.js";
 import type { UserContextInteraction } from "../classes/UserContextInteraction.js";
 import type { PaginationSupportedInteraction } from "../utility/paginationUtils.js";
 
@@ -28,6 +28,13 @@ export interface BaseCommand {
     };
 }
 
+export type BaseComponent = {
+    custom_id: string;
+    cooldown?: number;
+    pageLimit?: number;
+    toggleable?: boolean;
+};
+
 export interface PaginatedCommand<T extends PaginationSupportedInteraction> {
     pageLimit: number;
     page: (
@@ -36,14 +43,6 @@ export interface PaginatedCommand<T extends PaginationSupportedInteraction> {
     ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
 }
 
-export type BaseComponent = {
-    custom_id: string;
-    cooldown?: number;
-    pageLimit?: number;
-    toggleable?: boolean;
-    timeout: number;
-};
-
 export interface ChatInputCommand extends BaseCommand {
     data: SlashCommandBuilder;
     execute: (interaction: ChatInputInteraction) => void;
@@ -51,14 +50,16 @@ export interface ChatInputCommand extends BaseCommand {
 
 export type PaginatedChatInputCommand = ChatInputCommand & PaginatedCommand<ChatInputInteraction>;
 
-export interface Button<T = undefined> extends BaseComponent {
+export interface Button<T = undefined> {
+    data: BaseComponent;
     parse?: (data: string[]) => T;
     execute: (interaction: ButtonInteraction, data: T) => void;
 }
 
 export type PaginatedButton<T = undefined> = Button<T> & PaginatedCommand<ButtonInteraction>;
 
-export interface SelectMenu<T = undefined> extends BaseComponent {
+export interface SelectMenu<T = undefined> {
+    data: BaseComponent;
     parse?: (data: string[]) => T;
     execute: (interaction: SelectMenuInteraction, data: T) => void;
 }
@@ -87,7 +88,7 @@ export interface AutoCompleteCommand<T extends string | number = string | number
     ) => Promise<{ name: string; value: T }[]>;
 }
 
-const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
+const rest = new REST().setToken(env.DISCORD_TOKEN);
 const logger = new Logger();
 
 export async function deployCommands(commands: RESTPostAPIApplicationCommandsJSONBody[]) {
@@ -149,8 +150,6 @@ export async function load<T = MessageContextCommand>(type: FileType.MessageCont
 export async function load<T = UserContextCommand>(type: FileType.UserContext): Promise<Map<string, T>>;
 export async function load<T = AutoCompleteCommand>(type: FileType.AutoComplete): Promise<Map<string, T>>;
 export async function load<T extends InteractionUnion>(type: FileType): Promise<Map<string, T>> {
-    logger.infoSingle(`Started loading ${type} (📝) files.`, "Files");
-
     const files = new Map<string, T>();
     const allFiles = await readdir(new URL(`../interactions/${type}/`, import.meta.url));
 
@@ -187,18 +186,20 @@ export async function load<T extends InteractionUnion>(type: FileType): Promise<
         }
     }
 
-    logger.info(`Successfully imported ${type} (📝) files.`, "Files", {
-        files: Array.from(files.keys()),
-        count: files.size,
-    });
+    logger.info(`Successfully imported ${type} (📝) files.`, "Files", { count: files.size });
     return files;
 }
 
 function getName(interaction: InteractionUnion): string {
-    if ("data" in interaction) return interaction.data.toJSON().name;
+    if ("data" in interaction && "toJSON" in interaction.data) return interaction.data.toJSON().name;
+
     if ("option" in interaction) {
         return `${interaction.command || ""}:${interaction.option}`;
     }
 
-    return interaction.custom_id;
+    if ("custom_id" in interaction.data) {
+        return interaction.data.custom_id || "";
+    }
+
+    throw new Error("Unable to determine interaction name");
 }

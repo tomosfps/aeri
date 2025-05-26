@@ -1,6 +1,6 @@
-import { inlineCode } from "@discordjs/formatters";
+import { bold, inlineCode } from "@discordjs/formatters";
 import { formatSeconds } from "core";
-import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
+import { fetchAnilistUser, fetchGuildUsers } from "database";
 import { mediaStatusString } from "../enums.js";
 import { MediaListStatus, api } from "../index.js";
 import { Routes } from "../types.js";
@@ -40,7 +40,7 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
     }[] = [];
 
     let allUsers: string[] = [];
-    const currentUserData = await dbFetchAnilistUser(user_id);
+    const currentUserData = await fetchAnilistUser(user_id);
 
     if (!pageOptions) {
         pageOptions = {
@@ -50,7 +50,7 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
     }
 
     if (guild_id) {
-        const guildUsersData = await dbFetchGuildUsers(guild_id);
+        const guildUsersData = await fetchGuildUsers(guild_id);
         let allPotentialUsers = guildUsersData.map((user) => user.anilist?.username).filter(Boolean) as string[];
 
         if (currentUserData) {
@@ -93,34 +93,34 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
             switch (userScore?.status) {
                 case "REPEATING":
                     userData.current.push(
-                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10 (${userScore.repeat}) `)}\n`,
+                        `> ${bold(inlineCode(`${userScore.username.padEnd(maxLength)}:`))} ${inlineCode(` ${formatProgress} | ${formatScore}/10 (${userScore.repeat}) `)}\n`,
                     );
                     break;
                 case "CURRENT": {
                     const userRepeats = userScore.repeat && userScore.repeat > 0 ? `(${userScore.repeat})` : "";
                     userData.current.push(
-                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10 ${userRepeats}`)}\n`,
+                        `> ${bold(inlineCode(`${userScore.username.padEnd(maxLength)}:`))} ${inlineCode(` ${formatProgress} | ${formatScore}/10 ${userRepeats}`)}\n`,
                     );
                     break;
                 }
                 case "COMPLETED": {
                     const userRepeats = userScore.repeat && userScore.repeat > 0 ? `(${userScore.repeat})` : "";
                     userData.completed.push(
-                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatScore}/10 ${userRepeats}`)}\n`,
+                        `> ${bold(inlineCode(`${userScore.username.padEnd(maxLength)}:`))} ${inlineCode(` ${formatScore}/10 ${userRepeats}`)}\n`,
                     );
                     break;
                 }
                 case "PLANNING":
-                    userData.planning.push(`> ${inlineCode(userScore.username)}\n`);
+                    userData.planning.push(`> ${bold(inlineCode(userScore.username))}\n`);
                     break;
                 case "DROPPED":
                     userData.dropped.push(
-                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10 `)}\n`,
+                        `> ${bold(inlineCode(`${userScore.username.padEnd(maxLength)}:`))} ${inlineCode(` ${formatProgress} | ${formatScore}/10 `)}\n`,
                     );
                     break;
                 case "PAUSED":
                     userData.paused.push(
-                        `> ${inlineCode(`${userScore.username.padEnd(maxLength)}:`)} ${inlineCode(` ${formatProgress} | ${formatScore}/10 `)}\n`,
+                        `> ${bold(inlineCode(`${userScore.username.padEnd(maxLength)}:`))} ${inlineCode(` ${formatProgress} | ${formatScore}/10 `)}\n`,
                     );
                     break;
                 default:
@@ -130,35 +130,35 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
     }
 
     const descriptionBuilder = [
-        `${inlineCode("total episodes    :")} ${data.episodes?.toLocaleString("en-US")}\n`,
-        `${inlineCode("current episode   :")} ${currentEpisode?.toLocaleString("en-US")}\n`,
-        `${inlineCode("next airing       :")} ${nextEpisode}\n`,
-        `${inlineCode("chapters          :")} ${data.chapters?.toLocaleString("en-US")}\n`,
-        `${inlineCode("volumes           :")} ${data.volumes?.toLocaleString("en-US")}\n`,
-        `${inlineCode("status            :")} ${mediaStatusString(data.status)}\n`,
-        `${inlineCode("average score     :")} ${data.averageScore}%\n`,
-        `${inlineCode("mean score        :")} ${data.meanScore}%\n`,
-        `${inlineCode("popularity        :")} ${data.popularity?.toLocaleString("en-US")}\n`,
-        `${inlineCode("favourites        :")} ${data.favourites?.toLocaleString("en-US")}\n`,
-        `${inlineCode("start date        :")} ${data.startDate}\n`,
-        `${inlineCode("end date          :")} ${data.endDate}\n`,
-        `${inlineCode("genres            :")} ${genresDisplay}\n\n`,
+        `${bold(inlineCode("total eps     :"))} ${data.episodes?.toLocaleString("en-US")}\n`,
+        `${bold(inlineCode("current ep    :"))} ${currentEpisode?.toLocaleString("en-US")}\n`,
+        `${bold(inlineCode("next airing   :"))} ${nextEpisode}\n`,
+        `${bold(inlineCode("chapters      :"))} ${data.chapters?.toLocaleString("en-US")}\n`,
+        `${bold(inlineCode("volumes       :"))} ${data.volumes?.toLocaleString("en-US")}\n`,
+        `${bold(inlineCode("status        :"))} ${mediaStatusString(data.status)}\n`,
+        `${bold(inlineCode("average score :"))} ${data.averageScore}%\n`,
+        `${bold(inlineCode("mean score    :"))} ${data.meanScore}%\n`,
+        `${bold(inlineCode("popularity    :"))} ${data.popularity?.toLocaleString("en-US")}\n`,
+        `${bold(inlineCode("favourites    :"))} ${data.favourites?.toLocaleString("en-US")}\n`,
+        `${bold(inlineCode("start date    :"))} ${data.startDate}\n`,
+        `${bold(inlineCode("end date      :"))} ${data.endDate}\n`,
+        `${bold(inlineCode("genres        :"))} ${genresDisplay}\n\n`,
     ];
 
     if (userData.completed.length > 0) {
-        descriptionBuilder.push(`${inlineCode("completed         :")}\n${userData.completed.join("")}\n`);
+        descriptionBuilder.push(`${bold(inlineCode("completed     :"))}\n${userData.completed.join("")}\n`);
     }
     if (userData.current.length > 0) {
-        descriptionBuilder.push(`${inlineCode("current           :")}\n${userData.current.join("")}\n`);
+        descriptionBuilder.push(`${bold(inlineCode("current       :"))}\n${userData.current.join("")}\n`);
     }
     if (userData.planning.length > 0) {
-        descriptionBuilder.push(`${inlineCode("planning          :")}\n${userData.planning.join("")}\n`);
+        descriptionBuilder.push(`${bold(inlineCode("planning      :"))}\n${userData.planning.join("")}\n`);
     }
     if (userData.dropped.length > 0) {
-        descriptionBuilder.push(`${inlineCode("dropped           :")}\n${userData.dropped.join("")}\n`);
+        descriptionBuilder.push(`${bold(inlineCode("dropped       :"))}\n${userData.dropped.join("")}\n`);
     }
     if (userData.paused.length > 0) {
-        descriptionBuilder.push(`${inlineCode("paused            :")}\n${userData.paused.join("")}\n`);
+        descriptionBuilder.push(`${bold(inlineCode("paused        :"))}\n${userData.paused.join("")}\n`);
     }
 
     const filtered = filteredDescription(descriptionBuilder, false);

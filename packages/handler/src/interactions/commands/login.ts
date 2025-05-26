@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
 import { ApplicationIntegrationType, ButtonStyle, InteractionContextType, MessageFlags } from "@discordjs/core";
 import { env, getRedis } from "core";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 
 const redis = await getRedis();

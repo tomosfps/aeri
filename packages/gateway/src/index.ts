@@ -10,7 +10,7 @@ import { REST } from "@discordjs/rest";
 import { SimpleIdentifyThrottler, WebSocketManager, WebSocketShardEvents, WorkerShardingStrategy } from "@discordjs/ws";
 import { Cache } from "cache";
 import { env, getRedis } from "core";
-import { dbGetCommandCount, dbSetCommandsUsed } from "database";
+import { getCommandCount, setCommandCount } from "database";
 import { Logger } from "logger";
 import { MetricsClient } from "metrics";
 import { aggregateHandlerMetrics } from "./services/metricsAggregator.js";
@@ -119,11 +119,11 @@ async function updateMetrics() {
 
     logger.debugSingle("Updating commands used count", "Gateway");
 
-    const dbCommandCount = Number(await dbGetCommandCount());
+    const dbCommandCount = Number(await getCommandCount());
     const redisCommandCount = Number.parseInt((await redis.hget("statistics", "commands")) || "0");
 
     if (redisCommandCount > dbCommandCount) {
-        await dbSetCommandsUsed(redisCommandCount);
+        await setCommandCount(redisCommandCount);
     } else if (dbCommandCount > redisCommandCount) {
         await redis.hset("statistics", "commands", dbCommandCount.toString());
     }

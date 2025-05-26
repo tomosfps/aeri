@@ -1,6 +1,6 @@
 import { ApplicationIntegrationType, InteractionContextType, MessageFlags } from "@discordjs/core";
-import { dbDeleteAnilistUser, dbFetchAnilistUser } from "database";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { deleteAnilistUser, fetchAnilistUser } from "database";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
 
@@ -11,9 +11,12 @@ export const interaction: ChatInputCommand = {
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .addExample("/unlink")
-        .setCategory("Anime/Manga"),
+        .setCategory("Anime/Manga")
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
+        ),
     async execute(interaction): Promise<void> {
-        const isInDatabase = await dbFetchAnilistUser(interaction.userID);
+        const isInDatabase = await fetchAnilistUser(interaction.userID);
 
         if (isInDatabase === null) {
             return interaction.reply({
@@ -22,7 +25,7 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        const deleteAccount = await dbDeleteAnilistUser(interaction.userID);
+        const deleteAccount = await deleteAnilistUser(interaction.userID);
         if (deleteAccount) {
             return interaction.reply({
                 content: "Your anilist account has been unlinked.",

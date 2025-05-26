@@ -1,6 +1,6 @@
 import prisma from "../index.js";
 
-export async function dbCreateGuild(guild_id: string) {
+export async function createGuild(guild_id: string) {
     const db = await prisma;
 
     return db.guild.create({

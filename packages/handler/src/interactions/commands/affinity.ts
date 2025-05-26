@@ -1,10 +1,10 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { ApplicationIntegrationType, InteractionContextType, MessageFlags } from "@discordjs/core";
 import { getRedis } from "core";
-import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
+import { fetchAnilistUser, fetchGuildUsers } from "database";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { PaginatedChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
 import { createPage } from "../../utility/paginationUtils.js";
@@ -20,7 +20,10 @@ export const interaction: PaginatedChatInputCommand = {
         .setCooldown(5)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
         .setContexts(InteractionContextType.Guild)
-        .addExample("/affinity"),
+        .addExample("/affinity")
+        .addBooleanOption((option) =>
+            option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
+        ),
     pageLimit: 20,
     async execute(interaction): Promise<void> {
         if (!interaction.guildID) {
@@ -30,7 +33,7 @@ export const interaction: PaginatedChatInputCommand = {
             });
         }
 
-        const user = await dbFetchAnilistUser(interaction.userID);
+        const user = await fetchAnilistUser(interaction.userID);
         if (!user) {
             return interaction.reply({
                 content: `You must link your Anilist account to use this command!\nUse ${await getCommandAsMention("link")} to link your account.`,
@@ -38,7 +41,7 @@ export const interaction: PaginatedChatInputCommand = {
             });
         }
 
-        const guildMembers = (await dbFetchGuildUsers(interaction.guildID))
+        const guildMembers = (await fetchGuildUsers(interaction.guildID))
             .filter((user) => user.anilist !== null)
             // biome-ignore lint/style/noNonNullAssertion: filtered above
             .map((user) => user.anilist!.username);

@@ -1,6 +1,6 @@
 import prisma from "../index.js";
 
-export async function dbFetchGuildUsers(guild_id: string) {
+export async function fetchGuildUsers(guild_id: string) {
     const db = await prisma;
 
     return db.user.findMany({

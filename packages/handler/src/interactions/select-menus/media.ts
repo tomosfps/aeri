@@ -1,137 +1,67 @@
-import { EmbedBuilder } from "@discordjs/builders";
-import { MessageFlags } from "@discordjs/core";
-import { getRedis } from "core";
-import { dbFetchAnilistUser, dbFetchGuildUsers } from "database";
+import { MediaGalleryItemBuilder, SectionBuilder, ThumbnailBuilder } from "@discordjs/builders";
+import { MessageFlags, SeparatorSpacingSize } from "@discordjs/core";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
-import type { PaginatedSelectMenu } from "../../services/commands.js";
-import { createPage } from "../../utility/paginationUtils.js";
+import type { SelectMenu } from "../../services/commands.js";
 
 type SelectMenuData = {
-    custom_id: string;
+    customID: string;
     userID: string;
 };
 
-const redis = await getRedis();
 const logger = new Logger();
 
-export const interaction: PaginatedSelectMenu<SelectMenuData> = {
-    custom_id: "media",
-    cooldown: 1,
-    toggleable: true,
-    timeout: 900,
-    pageLimit: 15,
+export const interaction: SelectMenu<SelectMenuData> = {
+    data: { custom_id: "media" },
     parse(data) {
         if (!data[0] || !data[1]) {
             throw new Error("Invalid Select Menu Data");
         }
-        return { custom_id: data[0], userID: data[1] };
+        return { customID: data[0], userID: data[1] };
     },
     async execute(interaction, data): Promise<void> {
-        try {
-            const media_type = data.custom_id === "anime" ? MediaType.Anime : MediaType.Manga;
-            const media_id = Number(interaction.menuValues[0]);
+        const mediaType = data.customID === "anime" ? MediaType.Anime : MediaType.Manga;
+        const mediaID = Number(interaction.menuValues[0]);
 
-            const mediaKey = `media:${interaction.userID}:selection`;
-            await redis.hmset(mediaKey, {
-                media_type: media_type.toString(),
-                media_id: media_id.toString(),
-                command_id: data.custom_id,
-            });
-            await redis.expire(mediaKey, this.timeout);
+        const { result, error } = await api.fetch(
+            Routes.Media,
+            { media_type: mediaType, media_id: mediaID },
+            { user_id: interaction.userID, guild_id: interaction.guildID },
+        );
 
-            const currentUserData = await dbFetchAnilistUser(interaction.userID);
-            let allPotentialUsers: string[] = [];
-            if (interaction.guildID) {
-                const guildUsersData = await dbFetchGuildUsers(interaction.guildID);
-                allPotentialUsers = guildUsersData.map((user) => user.anilist?.username).filter(Boolean) as string[];
-
-                if (currentUserData) {
-                    allPotentialUsers = allPotentialUsers.filter((username) => username !== currentUserData.username);
-                    allPotentialUsers.unshift(currentUserData.username);
-                }
-            } else if (currentUserData) {
-                allPotentialUsers.push(currentUserData.username);
-            }
-            const totalPages = Math.ceil(allPotentialUsers.length / (this.pageLimit ?? 15));
-
-            await createPage(this, interaction, {
-                userID: interaction.userID,
-                commandID: "media",
-                totalPages: totalPages,
-            });
-        } catch (error: any) {
-            logger.error("Error in execute", "MediaSelection", error);
-            await interaction
-                .reply({
-                    content: "An error occurred while processing your request.",
-                    flags: MessageFlags.Ephemeral,
-                })
-                .catch(() => {});
+        if (error || !result) {
+            logger.error("API fetch error", "MediaSelection", { error });
+            return interaction.followUp({ content: "Failed to fetch media from API", flags: MessageFlags.Ephemeral });
         }
-    },
-    async page(page, interaction) {
-        try {
-            const mediaKey = `media:${interaction.userID}:selection`;
-            const mediaData = await redis.hgetall(mediaKey);
 
-            if (!mediaData || !mediaData["media_id"]) {
-                logger.warnSingle("No media data found in Redis", "MediaSelection");
-                return {
-                    embeds: [
-                        new EmbedBuilder().setDescription("Session expired. Please search again.").setColor(0xff0000),
-                    ],
-                };
-            }
+        const title = (result.title.romaji || result.title.english || result.title.native) as string;
 
-            const media_type = mediaData["media_type"] === "ANIME" ? MediaType.Anime : MediaType.Manga;
-            const media_id = Number(mediaData["media_id"]);
+        interaction.client.metricsClient.media_commands.inc({
+            media_type: mediaType,
+            media_id: mediaID,
+            media_name: title,
+        });
 
-            const { result, error } = await api.fetch(
-                Routes.Media,
-                { media_type, media_id },
-                {
-                    user_id: interaction.userID,
-                    guild_id: interaction.guildID,
-                    pageOptions: {
-                        page,
-                        limit: this.pageLimit,
-                    },
-                },
-            );
+        const container = interaction.getContainer();
 
-            if (error || !result) {
-                logger.error("API fetch error", "MediaSelection", { error });
-                return {
-                    embeds: [new EmbedBuilder().setDescription("Failed to load this page.").setColor(0xff0000)],
-                };
-            }
-
-            const title = (result.title.romaji || result.title.english || result.title.native) as string;
-
-            interaction.client.metricsClient.media_commands.inc({
-                media_type: media_type,
-                media_id: media_id,
-                media_name: title,
-            });
-
-            const embed = new EmbedBuilder()
-                .setTitle(title)
-                .setURL(result.siteUrl)
-                .setImage(result.banner)
-                .setThumbnail(result.cover)
-                .setDescription(result.description || "No description available.")
-                .setColor(interaction.baseColour)
-                .setFooter({ text: result.footer });
-
-            return { embeds: [embed] };
-        } catch (err: any) {
-            logger.error("Error in page method", "MediaSelection", err);
-            return {
-                embeds: [
-                    new EmbedBuilder().setDescription("An error occurred while loading this page.").setColor(0xff0000),
-                ],
-            };
+        if (result.banner) {
+            container
+                .updateComponent("media", [new MediaGalleryItemBuilder().setURL(result.banner)])
+                .updateComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }]);
+        } else {
+            container.updateComponent("media", []).updateComponent("separator", []);
         }
+
+        const sectionBuilder = new SectionBuilder().addTextDisplayComponents((builder) =>
+            builder.setContent(`## [${title}](${result.siteUrl})\n${result.description}`),
+        );
+
+        if (result.cover) {
+            sectionBuilder.setThumbnailAccessory(new ThumbnailBuilder().setURL(result.cover));
+        }
+
+        container.updateComponent("section", [sectionBuilder]).updateComponent("text", `${result.footer}`);
+
+        await interaction.updateContainer();
     },
 };

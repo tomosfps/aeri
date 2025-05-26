@@ -5,7 +5,7 @@ import {
     InteractionContextType,
     MessageFlags,
 } from "@discordjs/core";
-import { SlashCommandBuilder } from "../../classes/SlashCommandBuilder.js";
+import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 const genreList = [

@@ -1,6 +1,6 @@
 import prisma from "../index.js";
 
-export async function dbFetchGuildUser(guild_id: string, discord_id: string) {
+export async function fetchGuildUser(guild_id: string, discord_id: string) {
     const db = await prisma;
 
     return db.guild.findUnique({

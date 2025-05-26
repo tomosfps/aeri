@@ -1,4 +1,4 @@
-import { Client, type ClientOptions } from "@discordjs/core";
+import { type APIUser, Client, type ClientOptions } from "@discordjs/core";
 import type { HandlerMetricsClient } from "metrics";
 import type {
     AutoCompleteCommand,
@@ -22,6 +22,7 @@ export interface HandlerClientOptions extends ClientOptions {
     messageContextCommands: Map<string, MessageContextCommand>;
     userContextCommands: Map<string, UserContextCommand>;
     autoCompleteCommands: Map<string, AutoCompleteCommand>;
+    bot: APIUser;
 }
 
 export class HandlerClient extends Client {
@@ -32,6 +33,7 @@ export class HandlerClient extends Client {
     public messageContextCommands: Map<string, MessageContextCommand | PaginatedMessageContextCommand>;
     public userContextCommands: Map<string, UserContextCommand | PaginatedUserContextCommand>;
     public autoCompleteCommands: Map<string, AutoCompleteCommand>;
+    public bot: APIUser;
 
     constructor(public options: HandlerClientOptions) {
         super({
@@ -46,5 +48,6 @@ export class HandlerClient extends Client {
         this.messageContextCommands = options.messageContextCommands;
         this.userContextCommands = options.userContextCommands;
         this.autoCompleteCommands = options.autoCompleteCommands;
+        this.bot = options.bot;
     }
 }

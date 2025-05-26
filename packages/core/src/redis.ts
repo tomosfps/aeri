@@ -21,8 +21,6 @@ export async function getRedis(options?: RedisOptions): Promise<Redis> {
     });
 
     await redis.connect();
-    await redis.config("SET", "notify-keyspace-events", "Ex");
-
     redisInstances[optionsString] = redis;
     return redis;
 }

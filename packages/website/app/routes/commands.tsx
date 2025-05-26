@@ -111,7 +111,7 @@ export default function Commands() {
     }
   }, [categorizedCommands, groupedCommands, activeTab]);
 
-  const getCommandsForGroup = useCallback((group: string) => {
+  const fetchGuildUsersForGroup = useCallback((group: string) => {
     if (activeTab === 0) {
       return categorizedCommands[group] || [];
     } else {
@@ -221,7 +221,7 @@ export default function Commands() {
                     </div>
                     
                     <div className="kawaii-commands-list">
-                      {getCommandsForGroup(group).map((command) => (
+                      {fetchGuildUsersForGroup(group).map((command) => (
                         <div 
                           key={command.name} 
                           className="kawaii-command-card" 
