@@ -30,10 +30,12 @@ export type ContainerState = {
     accentColor?: number | undefined;
     text?: string | undefined;
     media?: MediaGalleryItemBuilder[] | undefined;
-    separator?: Array<{
-        divider: boolean;
-        spacing?: SeparatorSpacingSize;
-    }> | undefined;
+    separator?:
+        | Array<{
+              divider: boolean;
+              spacing?: SeparatorSpacingSize;
+          }>
+        | undefined;
     actionRow?: Array<ButtonBuilder[] | StringSelectMenuBuilder[]> | undefined;
     section?: SectionBuilder[] | undefined;
 };
