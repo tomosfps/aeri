@@ -1,5 +1,10 @@
-import { EmbedBuilder } from "@discordjs/builders";
-import { ApplicationIntegrationType, InteractionContextType, MessageFlags } from "@discordjs/core";
+import { SectionBuilder, ThumbnailBuilder } from "@discordjs/builders";
+import {
+    ApplicationIntegrationType,
+    InteractionContextType,
+    MessageFlags,
+    SeparatorSpacingSize,
+} from "@discordjs/core";
 import { getRedis } from "core";
 import { fetchAnilistUser, fetchGuildUsers } from "database";
 import { Logger } from "logger";
@@ -7,12 +12,17 @@ import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { PaginatedChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
-import { createPage } from "../../utility/paginationUtils.js";
+import { createSimplePagination } from "../../utility/paginationUtils.js";
 
 const logger = new Logger();
-const redis = await getRedis();
 
-export const interaction: PaginatedChatInputCommand = {
+interface AffinityItem {
+    username: string;
+    guildID: string;
+    currentUser: string;
+}
+
+export const interaction: PaginatedChatInputCommand<AffinityItem> = {
     data: new SlashCommandBuilder()
         .setName("affinity")
         .setDescription("Compare your affinity with server members!")
@@ -25,20 +35,19 @@ export const interaction: PaginatedChatInputCommand = {
             option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
         ),
     pageLimit: 20,
-    async execute(interaction): Promise<void> {
+
+    async getItems(interaction) {
         if (!interaction.guildID) {
-            return interaction.reply({
-                content: "This command can only be used in a server.",
-                flags: MessageFlags.Ephemeral,
-            });
+            await interaction.followUp({ content: "This command can only be used in a server." });
+            return undefined;
         }
 
         const user = await fetchAnilistUser(interaction.userID);
         if (!user) {
-            return interaction.reply({
+            await interaction.followUp({
                 content: `You must link your Anilist account to use this command!\nUse ${await getCommandAsMention("link")} to link your account.`,
-                flags: MessageFlags.Ephemeral,
             });
+            return undefined;
         }
 
         const guildMembers = (await fetchGuildUsers(interaction.guildID))
@@ -51,71 +60,91 @@ export const interaction: PaginatedChatInputCommand = {
         }
 
         if (guildMembers.length === 0) {
-            return interaction.reply({
-                content: "There must be at least 1 other member in the server to use this command.",
-                flags: MessageFlags.Ephemeral,
+            await interaction.followUp({
+                content:
+                    "There must be at least 1 other member in the server whom have linked their account to use this command.",
             });
+            return undefined;
         }
 
-        const maxPages = Math.ceil(guildMembers.length / this.pageLimit);
-        const affinityKey = `affinity:${interaction.userID}:${interaction.guildID}`;
-
-        await redis.hmset(affinityKey, {
-            username: user.username,
-            guildMembers: JSON.stringify(guildMembers),
-        });
-        await redis.expire(affinityKey, 900);
-
-        await createPage(this, interaction, {
-            userID: interaction.userID,
-            commandID: interaction.data.name,
-            totalPages: maxPages,
-        });
+        return guildMembers.map((username) => ({
+            username,
+            // biome-ignore lint/style/noNonNullAssertion: JUST FOR NOW
+            guildID: interaction.guildID!,
+            currentUser: user.username,
+        }));
     },
-    async page(pageNumber, interaction) {
-        const affinityKey = `affinity:${interaction.userID}:${interaction.guildID}`;
-        const affinityData = await redis.hgetall(affinityKey);
-        // biome-ignore lint/style/noNonNullAssertion: filtered above
-        const guildMembers = JSON.parse(affinityData["guildMembers"]!);
 
-        const startingIdx = (pageNumber - 1) * this.pageLimit;
-        const pageUsers = guildMembers.slice(startingIdx, startingIdx + this.pageLimit);
+    async renderPage(items, pageNumber, _totalPages, interaction) {
+        const container = interaction.getContainer();
+
+        if (items.length === 0) {
+            container.updateComponent("text", "No affinity data to display.");
+            return container;
+        }
+
+        const affinityItem = items[0];
+        if (!affinityItem) {
+            container.updateComponent("text", "No affinity data available.");
+            return container;
+        }
+
+        const redis = await getRedis();
+        const key = `pagination:${interaction.userID}:affinity`;
+        const paginationData = await redis.hgetall(key);
+        const allItems = paginationData["itemsData"] ? JSON.parse(paginationData["itemsData"]) : items;
+        const allUsernames = allItems.map((item: AffinityItem) => item.username);
 
         const { result: affinity, error } = await api.fetch(
             Routes.Affinity,
             {
-                // biome-ignore lint/style/noNonNullAssertion: filtered above
-                username: affinityData["username"]!,
-                other_users: pageUsers,
+                username: affinityItem.currentUser,
+                other_users: allUsernames,
             },
             { pageOptions: { page: pageNumber, limit: this.pageLimit } },
         );
 
         if (error || !affinity) {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
-
-            const errorEmbed = new EmbedBuilder()
-                .setTitle("Error")
-                .setDescription(
-                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                )
-                .setColor(interaction.baseColour);
-
-            return {
-                embeds: [errorEmbed],
-            };
+            container.updateComponent(
+                "text",
+                "An error occurred while fetching affinity data. Please try again later.",
+            );
+            return container;
         }
 
-        const embed = new EmbedBuilder()
-            .setTitle(`${affinity.comparedAgainst.name} affinity`)
-            .setURL(affinity.comparedAgainst.siteUrl)
-            .setThumbnail(affinity.comparedAgainst.avatar.large)
-            .setDescription(affinity.description)
-            .setColor(interaction.baseColour)
-            .setFooter({
-                text: `${affinity.footer}\nIf you believe the calculations are wrong, head over to GitHub and open an issue.`,
-            });
+        const section = new SectionBuilder().addTextDisplayComponents((builder) =>
+            builder.setContent(
+                `## [${affinity.comparedAgainst.name}' Affinity](${affinity.comparedAgainst.siteUrl})\n${affinity.description}`,
+            ),
+        );
 
-        return { embeds: [embed] };
+        if (affinity.comparedAgainst.avatar?.large) {
+            section.setThumbnailAccessory(new ThumbnailBuilder().setURL(affinity.comparedAgainst.avatar.large));
+        }
+
+        container
+            .setComponentOrder(["section", "actionRow", "text"])
+            .updateComponent("section", [section])
+            .updateComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
+            .updateComponent("text", `${affinity.footer}`);
+
+        return container;
+    },
+
+    async execute(interaction) {
+        await interaction.defer();
+
+        try {
+            await createSimplePagination(this, interaction, "affinity");
+        } catch (error: any) {
+            logger.error("Error in affinity command", "AffinityCommand", { error });
+            const errorMessage = error.message || "An error occurred while processing the affinity command.";
+
+            await interaction.followUp({
+                content: errorMessage,
+                flags: MessageFlags.Ephemeral,
+            });
+        }
     },
 };

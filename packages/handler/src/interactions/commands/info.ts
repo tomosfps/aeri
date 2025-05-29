@@ -60,14 +60,16 @@ export const interaction: ChatInputCommand = {
             .setComponent("section", [section])
             .setComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
             .setComponent("actionRow", [
-                new ButtonBuilder().setCustomId("info:INVITE").setLabel("Invite Bot").setStyle(ButtonStyle.Primary),
+                [
+                    new ButtonBuilder().setCustomId("info:INVITE").setLabel("Invite Bot").setStyle(ButtonStyle.Primary),
 
-                new ButtonBuilder()
-                    .setCustomId("info:SUPPORT")
-                    .setLabel("Support Server")
-                    .setStyle(ButtonStyle.Secondary),
+                    new ButtonBuilder()
+                        .setCustomId("info:SUPPORT")
+                        .setLabel("Support Server")
+                        .setStyle(ButtonStyle.Secondary),
 
-                new ButtonBuilder().setLabel("Website").setStyle(ButtonStyle.Link).setURL(env.WEBSITE_URL),
+                    new ButtonBuilder().setLabel("Website").setStyle(ButtonStyle.Link).setURL(env.WEBSITE_URL),
+                ],
             ]);
 
         await interaction.replyContainer(hidden);

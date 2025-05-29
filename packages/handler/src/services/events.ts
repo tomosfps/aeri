@@ -53,5 +53,5 @@ export async function registerEvents(client: HandlerClient): Promise<void> {
             logger.error(`Failed to load event (📝) file: ${file}`, "Files", error);
         }
     }
-    logger.info("Successfully registered events (📝) files.", "Files", { count: events.size });
+    logger.infoSingle(`Successfully registered (${events.size}) events (📝) files.`, "Files");
 }

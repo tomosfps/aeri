@@ -1,31 +1,29 @@
 import { MessageFlags } from "@discordjs/core";
 import type { Button } from "../../services/commands.js";
-import { getPaginatedCommandById, handlePagination, isPaginatedCommand } from "../../utility/paginationUtils.js";
-
+import { Pagination } from "../../utility/paginationUtils.js";
 interface PaginationData {
     action: string;
     commandID: string;
+    userID: string;
 }
 
 export const interaction: Button<PaginationData> = {
     data: { custom_id: "pagination" },
     parse(data: string[]): PaginationData {
-        if (!data[0] || !data[1]) {
-            throw new Error("Invalid pagination data");
+        if (!data[0] || !data[1] || !data[2]) {
+            throw new Error("Invalid auto pagination data");
         }
-        const [action, commandID] = data;
-        return { action, commandID };
+        const [action, commandID, userID] = data;
+        return { action, commandID, userID };
     },
     async execute(interaction, data: PaginationData): Promise<void> {
-        const command = getPaginatedCommandById(interaction.client, data.commandID);
-
-        if (!command || !isPaginatedCommand(command)) {
+        if (data.userID !== interaction.userID) {
             return interaction.reply({
-                content: "This command does not support pagination",
+                content: "You can only interact with your own pagination controls.",
                 flags: MessageFlags.Ephemeral,
             });
         }
 
-        await handlePagination(interaction, command, data.action, data.commandID);
+        await Pagination.handlePaginationAction(interaction, data.action, data.commandID, data.userID);
     },
 };

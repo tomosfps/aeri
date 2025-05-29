@@ -126,6 +126,14 @@ export class BaseInteraction {
         });
     }
 
+    public async followUpContainer(hidden = false): Promise<void> {
+        const container = this.getContainer().build();
+        await this.followUp({
+            components: [container],
+            flags: hidden ? MessageFlags.Ephemeral | MessageFlags.IsComponentsV2 : MessageFlags.IsComponentsV2,
+        });
+    }
+
     public async updateContainer(): Promise<void> {
         const container = this.getContainer();
         const builtContainer = container.build();

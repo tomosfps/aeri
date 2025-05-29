@@ -27,15 +27,15 @@ interface SectionItem {
 }
 
 export type ContainerState = {
-    accentColor?: number;
-    text?: string;
-    media?: MediaGalleryItemBuilder[];
+    accentColor?: number | undefined;
+    text?: string | undefined;
+    media?: MediaGalleryItemBuilder[] | undefined;
     separator?: Array<{
         divider: boolean;
         spacing?: SeparatorSpacingSize;
-    }>;
-    actionRow?: ButtonBuilder[] | StringSelectMenuBuilder[];
-    section?: SectionBuilder[];
+    }> | undefined;
+    actionRow?: Array<ButtonBuilder[] | StringSelectMenuBuilder[]> | undefined;
+    section?: SectionBuilder[] | undefined;
 };
 
 export class ContainerManager {
@@ -96,7 +96,23 @@ export class ContainerManager {
     }
 
     public getState(): ContainerState {
-        return { ...this.state };
+        const synced: ContainerState = { ...this.state };
+        const actionRowItems = this.sectionItems.filter((item) => item.type === "actionRow");
+        const allActionRows: Array<ButtonBuilder[] | StringSelectMenuBuilder[]> = [];
+
+        for (const item of actionRowItems) {
+            if (item.value && Array.isArray(item.value)) {
+                allActionRows.push(item.value as ButtonBuilder[] | StringSelectMenuBuilder[]);
+            }
+        }
+
+        if (allActionRows.length > 0) {
+            synced.actionRow = allActionRows;
+        } else {
+            synced.actionRow = undefined;
+        }
+
+        return synced;
     }
 
     public extractFromMessage(messageComponents: APIMessageTopLevelComponent[]): this {
@@ -211,7 +227,10 @@ export class ContainerManager {
             return comp;
         });
 
-        this.state.actionRow = actionRowComponents as ButtonBuilder[];
+        if (!this.state.actionRow) {
+            this.state.actionRow = [];
+        }
+        this.state.actionRow.push(actionRowComponents as ButtonBuilder[] | StringSelectMenuBuilder[]);
 
         if (actionRowComponents.length > 0) {
             this.sectionItems.push({
@@ -448,6 +467,48 @@ export class ContainerManager {
         return this;
     }
 
+    public removeSeparator(): this {
+        return this.removeComponent("separator");
+    }
+
+    public addActionRow(components: ButtonBuilder[] | StringSelectMenuBuilder[]): this {
+        if (!this.state.actionRow) {
+            this.state.actionRow = [];
+        }
+        this.state.actionRow.push(components);
+
+        this.sectionItems.push({
+            type: "actionRow",
+            value: components,
+            id: this.generateId(),
+        });
+        this.lastInsertPosition = this.sectionItems.length - 1;
+
+        return this;
+    }
+
+    public setActionRow(actionRows: Array<ButtonBuilder[] | StringSelectMenuBuilder[]>): this {
+        this.removeAllComponentsOfType("actionRow");
+        this.state.actionRow = [...actionRows];
+
+        const insertPosition = this.getInsertPosition("actionRow");
+        for (let i = 0; i < actionRows.length; i++) {
+            this.sectionItems.splice(insertPosition + i, 0, {
+                type: "actionRow",
+                value: actionRows[i],
+                id: this.generateId(),
+            });
+        }
+        this.lastInsertPosition = insertPosition + actionRows.length - 1;
+
+        return this;
+    }
+
+    public clearActionRow(): this {
+        this.removeAllComponentsOfType("actionRow");
+        return this;
+    }
+
     private removeAllComponentsOfType(section: ContainerSection): this {
         this.sectionItems = this.sectionItems.filter((item) => item.type !== section);
 
@@ -461,41 +522,6 @@ export class ContainerManager {
 
     public removeComponent(section: ContainerSection): this {
         return this.removeAllComponentsOfType(section);
-    }
-
-    public createSection(): SectionBuilder {
-        const section = new SectionBuilder();
-
-        if (!this.state.section) {
-            this.state.section = [];
-        }
-        this.state.section.push(section);
-
-        this.sectionItems.push({
-            type: "section",
-            value: section,
-            id: this.generateId(),
-        });
-        this.lastInsertPosition = this.sectionItems.length - 1;
-
-        return section;
-    }
-
-    public setSeparator(divider: boolean, spacing?: SeparatorSpacingSize): this {
-        if (!divider && !spacing) {
-            return this.removeComponent("separator");
-        }
-
-        const separatorConfig = {
-            divider,
-            ...(spacing !== undefined ? { spacing } : {}),
-        };
-
-        return this.updateComponent("separator", [separatorConfig]);
-    }
-
-    public removeSeparator(): this {
-        return this.removeComponent("separator");
     }
 
     public build(): ContainerBuilder {

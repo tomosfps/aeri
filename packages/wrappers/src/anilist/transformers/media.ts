@@ -1,5 +1,4 @@
-import { bold, inlineCode } from "@discordjs/formatters";
-import { formatSeconds } from "core";
+import { TimestampStyles, bold, inlineCode, time } from "@discordjs/formatters";
 import { fetchAnilistUser, fetchGuildUsers } from "database";
 import { mediaStatusString } from "../enums.js";
 import { MediaListStatus, api } from "../index.js";
@@ -15,7 +14,9 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
 
     const { nextEpisodeNumber, timeUntilNextEpisode } = getNextAiringEpisode(data.airing);
     const currentEpisode = nextEpisodeNumber ? nextEpisodeNumber - 1 : null;
-    const nextEpisode = timeUntilNextEpisode ? formatSeconds(timeUntilNextEpisode) : null;
+    const nextEpisode = timeUntilNextEpisode
+        ? time(Math.floor(Date.now() / 1000) + timeUntilNextEpisode, TimestampStyles.RelativeTime)
+        : null;
 
     const userData: {
         current: string[];
@@ -40,6 +41,7 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
     }[] = [];
 
     let allUsers: string[] = [];
+    let totalPages = 1;
     const currentUserData = await fetchAnilistUser(user_id);
 
     if (!pageOptions) {
@@ -60,7 +62,12 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
             ];
         }
 
-        const startIndex = (pageOptions.page - 1) * pageOptions.limit;
+        // Calculate pagination for all potential users
+        const totalUsers = allPotentialUsers.length;
+        totalPages = Math.ceil(totalUsers / pageOptions.limit);
+        const currentPage = Math.min(pageOptions.page, totalPages) || 1;
+
+        const startIndex = (currentPage - 1) * pageOptions.limit;
         allUsers = allPotentialUsers.slice(startIndex, startIndex + pageOptions.limit);
     } else if (currentUserData) {
         allUsers.push(currentUserData.username);
@@ -168,7 +175,7 @@ export const mediaTransformer: TransformersType[Routes.Media] = async (data, { u
         userResults,
         pagination: {
             currentPage: pageOptions.page,
-            totalPages: pageOptions.limit,
+            totalPages,
         },
     };
 };

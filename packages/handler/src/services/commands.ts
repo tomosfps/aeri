@@ -1,8 +1,6 @@
 import { readdir } from "node:fs/promises";
 import { URL } from "node:url";
-import type { EmbedBuilder } from "@discordjs/builders";
 import {
-    type APIEmbed,
     type RESTPostAPIApplicationCommandsJSONBody,
     type RESTPutAPIApplicationCommandsResult,
     Routes,
@@ -10,6 +8,7 @@ import {
 import { REST } from "@discordjs/rest";
 import { env, getRedis } from "core";
 import { Logger } from "logger";
+import type { ContainerManager } from "wrappers/discord";
 import type { ContextMenuCommandBuilder } from "../builders/ContextMenuCommandBuilder.js";
 import type { SlashCommandBuilder } from "../builders/SlashCommandBuilder.js";
 import type { AutoCompleteInteraction } from "../classes/AutoCompleteInteraction.js";
@@ -31,16 +30,13 @@ export interface BaseCommand {
 export type BaseComponent = {
     custom_id: string;
     cooldown?: number;
-    pageLimit?: number;
     toggleable?: boolean;
 };
 
-export interface PaginatedCommand<T extends PaginationSupportedInteraction> {
+export interface PaginatedCommand<T extends PaginationSupportedInteraction, TItem = any> {
     pageLimit: number;
-    page: (
-        pageNumber: number,
-        interaction: T | ButtonInteraction,
-    ) => Promise<{ embeds: Array<EmbedBuilder | APIEmbed> }>;
+    getItems: (interaction: T) => Promise<TItem[] | undefined>;
+    renderPage: (items: TItem[], pageNumber: number, totalPages: number, interaction: T) => Promise<ContainerManager>;
 }
 
 export interface ChatInputCommand extends BaseCommand {
@@ -48,7 +44,7 @@ export interface ChatInputCommand extends BaseCommand {
     execute: (interaction: ChatInputInteraction) => void;
 }
 
-export type PaginatedChatInputCommand = ChatInputCommand & PaginatedCommand<ChatInputInteraction>;
+export type PaginatedChatInputCommand<TItem = any> = ChatInputCommand & PaginatedCommand<ChatInputInteraction, TItem>;
 
 export interface Button<T = undefined> {
     data: BaseComponent;
@@ -186,7 +182,7 @@ export async function load<T extends InteractionUnion>(type: FileType): Promise<
         }
     }
 
-    logger.info(`Successfully imported ${type} (📝) files.`, "Files", { count: files.size });
+    logger.infoSingle(`Successfully imported (${files.size}) ${type} (📝) files.`, "Files");
     return files;
 }
 
