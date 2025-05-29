@@ -1,21 +1,33 @@
-import { EmbedBuilder } from "@discordjs/builders";
+import { MediaGalleryItemBuilder, SectionBuilder, ThumbnailBuilder } from "@discordjs/builders";
 import {
     ApplicationCommandOptionType,
     ApplicationIntegrationType,
     InteractionContextType,
     MessageFlags,
+    SeparatorSpacingSize,
 } from "@discordjs/core";
 import { fetchAnilistUser } from "database";
 import { Logger } from "logger";
 import { MediaListStatus, MediaType, Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
-import type { ChatInputCommand } from "../../services/commands.js";
+import type { PaginatedChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
+import { createSimplePagination } from "../../utility/paginationUtils.js";
 
 const logger = new Logger();
 
-export const interaction: ChatInputCommand = {
+interface UpdateItem {
+    mediaId: number;
+    mediaType: MediaType;
+    status?: MediaListStatus | null;
+    score?: number | null;
+    progress?: number | null;
+    volumes?: number | null;
+    token: string;
+}
+
+export const interaction: PaginatedChatInputCommand<UpdateItem> = {
     data: new SlashCommandBuilder()
         .setName("update")
         .setDescription("Update an entry on your Anilist account.")
@@ -131,10 +143,11 @@ export const interaction: ChatInputCommand = {
                         ),
                 ),
         ) as SlashCommandBuilder,
-    async execute(interaction): Promise<void> {
+    pageLimit: 15,
+
+    async getItems(interaction) {
         const command = interaction.subcommand === "anime" ? MediaType.Anime : MediaType.Manga;
         const name = getCommandOption("name", ApplicationCommandOptionType.String, interaction.options) as string;
-        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const status = getCommandOption("status", ApplicationCommandOptionType.String, interaction.options);
         const score = getCommandOption("score", ApplicationCommandOptionType.Number, interaction.options);
         const progress = getCommandOption("progress", ApplicationCommandOptionType.Number, interaction.options);
@@ -145,10 +158,11 @@ export const interaction: ChatInputCommand = {
         const inDatabase = await fetchAnilistUser(interaction.userID);
 
         if (!inDatabase || inDatabase.token === null) {
-            return interaction.reply({
+            await interaction.followUp({
                 content: `You need to setup OAuth first. Use ${await getCommandAsMention("login")} to do so.`,
                 flags: MessageFlags.Ephemeral,
             });
+            return undefined;
         }
 
         const { result: updateMedia, error: updateError } = await api.fetch(Routes.UpdateMedia, {
@@ -162,41 +176,98 @@ export const interaction: ChatInputCommand = {
 
         if (updateError || updateMedia === null) {
             logger.error("Error while fetching data MUTATION from the API.", "Anilist", { updateError });
-
-            return interaction.reply({
+            await interaction.followUp({
                 content:
-                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
+                    "An error occurred while updating your entry on Anilist.\nPlease try again later. If the issue persists, contact the bot owner.",
                 flags: MessageFlags.Ephemeral,
             });
+            return undefined;
+        }
+
+        return [
+            {
+                mediaId: Number(name),
+                mediaType: command,
+                status: status as MediaListStatus,
+                score: score,
+                progress: progress,
+                volumes: volumes,
+                token: inDatabase.token,
+            },
+        ];
+    },
+
+    async renderPage(items, pageNumber, _totalPages, interaction) {
+        const container = interaction.getContainer();
+
+        if (items.length === 0) {
+            container.updateComponent("text", "No update data to display.");
+            return container;
+        }
+
+        const updateItem = items[0];
+        if (!updateItem) {
+            container.updateComponent("text", "No update data available.");
+            return container;
         }
 
         const { result, error } = await api.fetch(
             Routes.Media,
-            { media_type: command, media_id: Number(name) },
-            { user_id: interaction.userID, guild_id: interaction.guildID },
+            { media_type: updateItem.mediaType, media_id: updateItem.mediaId },
+            {
+                user_id: interaction.userID,
+                guild_id: interaction.guildID,
+                pageOptions: { page: pageNumber, limit: this.pageLimit },
+            },
         );
 
         if (error || result === null) {
             logger.error("Error while fetching data MEDIA from the API.", "Anilist", { error });
-
-            return interaction.reply({
-                content:
-                    "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
-                flags: MessageFlags.Ephemeral,
-            });
+            container.setComponent(
+                "error",
+                "An error occurred while fetching data from the API\nPlease try again later. If the issue persists, contact the bot owner.",
+            );
+            return container;
         }
 
-        const embed = new EmbedBuilder()
-            .setTitle(result.title.romaji)
-            .setURL(result.siteUrl)
-            .setImage(result.banner)
-            .setThumbnail(result.cover)
-            .setColor(interaction.baseColour)
-            .setDescription(result.description)
-            .setFooter({
-                text: `${result.footer}\n• If the score doesn't update, use /refresh`,
-            });
+        const title = result.title?.romaji || result.title?.english || result.title?.native || "Unknown Title";
 
-        return interaction.reply({ embeds: [embed], flags: hidden ? MessageFlags.Ephemeral : undefined });
+        if (result.banner) {
+            container
+                .updateComponent("media", [new MediaGalleryItemBuilder().setURL(result.banner)])
+                .updateComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }]);
+        } else {
+            container.updateComponent("media", []).updateComponent("separator", []);
+        }
+
+        if (result.cover) {
+            const section = new SectionBuilder()
+                .addTextDisplayComponents((builder) =>
+                    builder.setContent(`## [${title}](${result.siteUrl})\n${result.description}`),
+                )
+                .setThumbnailAccessory(new ThumbnailBuilder().setURL(result.cover));
+            container.setComponent("section", [section]);
+        } else {
+            container.setComponent("text", `## [${title}](${result.siteUrl})\n${result.description}`);
+        }
+
+        container.setComponent("footer", result.footer);
+        return container;
+    },
+
+    async execute(interaction): Promise<void> {
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+        await interaction.defer(hidden);
+        const container = interaction.getContainer();
+
+        try {
+            await createSimplePagination(this, interaction, "update");
+        } catch (error: any) {
+            logger.error("Error in update command", "UpdateCommand", { error });
+            const errorMessage = error.message || "An error occurred while processing the update command.";
+
+            container.setComponent("error", errorMessage);
+            await interaction.replyContainer(true);
+        }
     },
 };

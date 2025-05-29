@@ -1,9 +1,10 @@
-import { EmbedBuilder } from "@discordjs/builders";
+import { MediaGalleryItemBuilder, SectionBuilder, ThumbnailBuilder } from "@discordjs/builders";
 import {
     ApplicationCommandOptionType,
     ApplicationIntegrationType,
     InteractionContextType,
     MessageFlags,
+    SeparatorSpacingSize,
 } from "@discordjs/core";
 import { Logger } from "logger";
 import { MediaFormat, Routes, api } from "wrappers/anilist";
@@ -54,7 +55,7 @@ export const interaction: ChatInputCommand = {
         const { result, error } = await api.fetch(Routes.Random, { formats: format });
 
         if (error || !result) {
-            return interaction.reply({ content: "Failed to fetch random media", flags: MessageFlags.Ephemeral });
+            return interaction.followUp({ content: "Failed to fetch random media", flags: MessageFlags.Ephemeral });
         }
 
         const { result: mediaResult, error: mediaError } = await api.fetch(
@@ -73,15 +74,32 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        const embed = new EmbedBuilder()
-            .setTitle(mediaResult.title.romaji)
-            .setURL(mediaResult.siteUrl)
-            .setImage(mediaResult.banner)
-            .setThumbnail(mediaResult.cover)
-            .setDescription(mediaResult.description)
-            .setColor(interaction.baseColour)
-            .setFooter({ text: mediaResult.footer });
+        const container = interaction.getContainer().setComponentOrder(["media", "section", "actionRow"]);
 
-        await interaction.followUp({ embeds: [embed], flags: hidden ? MessageFlags.Ephemeral : undefined });
+        const section = new SectionBuilder().addTextDisplayComponents((builder) =>
+            builder.setContent(
+                `# [${mediaResult.title.romaji}](${mediaResult.siteUrl})\n${mediaResult.description || "No description available."}`,
+            ),
+        );
+
+        if (mediaResult.cover) {
+            section.setThumbnailAccessory(new ThumbnailBuilder().setURL(mediaResult.cover));
+        }
+
+        container
+            .setComponent("section", [section])
+            .setComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }]);
+
+        if (mediaResult.banner) {
+            container
+                .setComponent("media", [new MediaGalleryItemBuilder().setURL(mediaResult.banner)])
+                .setComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }]);
+        }
+
+        if (mediaResult.footer) {
+            container.setComponent("footer", mediaResult.footer);
+        }
+
+        await interaction.followUpContainer(hidden);
     },
 };

@@ -10,6 +10,7 @@ const logger = new Logger();
 
 export const handler: UserContextHandler = async (interaction, api, client) => {
     const context = client.userContextCommands.get(interaction.data.name);
+    const container = interaction.getContainer();
 
     if (!context) {
         logger.warn(`Context command not found: ${interaction.data.name}`, "Handler");
@@ -39,10 +40,11 @@ export const handler: UserContextHandler = async (interaction, api, client) => {
     const timeout = context.data.cooldown ?? 900;
     const check = await checkCommandCooldown(redisKey, interaction.member?.user.id, timeout);
     if (!check.canUse) {
-        return api.interactions.reply(interaction.id, interaction.token, {
-            content: `You may use this command again in ${time(check.expirationTime, TimestampStyles.RelativeTime)}`,
-            flags: MessageFlags.Ephemeral,
-        });
+        container.setComponent(
+            "warning",
+            `You may use this command again in ${time(check.expirationTime, TimestampStyles.RelativeTime)}`,
+        );
+        return interaction.replyContainer(true);
     }
 
     try {

@@ -1,4 +1,4 @@
-import { EmbedBuilder } from "@discordjs/builders";
+import { SectionBuilder, ThumbnailBuilder } from "@discordjs/builders";
 import { MessageFlags } from "@discordjs/core";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
@@ -62,15 +62,18 @@ export const interaction: Button<ButtonData> = {
                 break;
         }
 
-        const embed = new EmbedBuilder()
-            .setTitle(animeResult.fullName)
-            .setURL(animeResult.siteUrl)
-            .setDescription(description)
-            .setThumbnail(animeResult.image)
-            .setFooter({ text: animeResult.footer });
+        const container = interaction.getContainer();
 
-        await interaction.updateMessage({
-            embeds: [embed],
-        });
+        const section = new SectionBuilder().addTextDisplayComponents((builder) =>
+            builder.setContent(`# [${animeResult.fullName}](${animeResult.siteUrl})\n${description}`),
+        );
+
+        if (animeResult.image) {
+            section.setThumbnailAccessory(new ThumbnailBuilder().setURL(animeResult.image));
+        }
+
+        container.updateComponent("section", [section]).updateComponent("footer", animeResult.footer);
+
+        await interaction.updateContainer();
     },
 };

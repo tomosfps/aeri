@@ -1,10 +1,5 @@
-import { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
-import {
-    ApplicationCommandOptionType,
-    ApplicationIntegrationType,
-    InteractionContextType,
-    MessageFlags,
-} from "@discordjs/core";
+import { StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
+import { ApplicationCommandOptionType, ApplicationIntegrationType, InteractionContextType } from "@discordjs/core";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
@@ -58,6 +53,7 @@ export const interaction: ChatInputCommand = {
     async execute(interaction): Promise<void> {
         const media = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) || "";
         const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+
         const select = new StringSelectMenuBuilder()
             .setCustomId(`genre:${media}:${media}:${interaction.userID}`)
             .setPlaceholder("Choose Some Genres...")
@@ -72,7 +68,9 @@ export const interaction: ChatInputCommand = {
                 }),
             );
 
-        const row = new ActionRowBuilder().addComponents(select);
-        return await interaction.reply({ components: [row], flags: hidden ? MessageFlags.Ephemeral : undefined });
+        const container = interaction.getContainer().setComponentOrder(["media", "section", "actionRow"]);
+        container.setComponent("actionRow", [[select]]);
+
+        return await interaction.replyContainer(hidden);
     },
 };

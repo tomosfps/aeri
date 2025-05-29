@@ -1,4 +1,4 @@
-import { EmbedBuilder } from "@discordjs/builders";
+import { SectionBuilder, ThumbnailBuilder } from "@discordjs/builders";
 import { MessageFlags } from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
@@ -54,15 +54,18 @@ export const interaction: Button<ButtonData> = {
                 break;
         }
 
-        const embed = new EmbedBuilder()
-            .setTitle(character.fullName)
-            .setURL(character.siteUrl)
-            .setDescription(description)
-            .setThumbnail(character.image)
-            .setFooter({ text: character.footer });
+        const container = interaction.getContainer();
 
-        await interaction.updateMessage({
-            embeds: [embed],
-        });
+        const section = new SectionBuilder().addTextDisplayComponents((builder) =>
+            builder.setContent(`# [${character.fullName}](${character.siteUrl})\n${description}`),
+        );
+
+        if (character.image) {
+            section.setThumbnailAccessory(new ThumbnailBuilder().setURL(character.image));
+        }
+
+        container.updateComponent("section", [section]).updateComponent("footer", character.footer);
+
+        await interaction.updateContainer();
     },
 };

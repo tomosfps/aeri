@@ -1,8 +1,15 @@
-import { ApplicationIntegrationType, InteractionContextType, MessageFlags } from "@discordjs/core";
+import {
+    ApplicationCommandOptionType,
+    ApplicationIntegrationType,
+    InteractionContextType,
+    MessageFlags,
+    SeparatorSpacingSize,
+} from "@discordjs/core";
 import { deleteAnilistUser, fetchAnilistUser } from "database";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
+import { getCommandOption } from "../../utility/interactionUtils.js";
 
 export const interaction: ChatInputCommand = {
     data: new SlashCommandBuilder()
@@ -16,6 +23,7 @@ export const interaction: ChatInputCommand = {
             option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
         ),
     async execute(interaction): Promise<void> {
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
         const isInDatabase = await fetchAnilistUser(interaction.userID);
 
         if (isInDatabase === null) {
@@ -26,15 +34,26 @@ export const interaction: ChatInputCommand = {
         }
 
         const deleteAccount = await deleteAnilistUser(interaction.userID);
+
         if (deleteAccount) {
-            return interaction.reply({
-                content: "Your anilist account has been unlinked.",
-                flags: MessageFlags.Ephemeral,
-            });
+            const container = interaction.getContainer();
+
+            container
+                .setComponent(
+                    "text",
+                    "## Account Unlinked Successfully\nYour AniList account has been successfully unlinked from this Discord account.",
+                )
+                .setComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
+                .setComponent(
+                    "footer",
+                    `-# You can relink your account anytime using ${await getCommandAsMention("link")}`,
+                );
+
+            return interaction.replyContainer(hidden);
         }
 
         return interaction.reply({
-            content: "An error occurred while unlinking your account.",
+            content: "An error occurred while unlinking your account. Please try again later.",
             flags: MessageFlags.Ephemeral,
         });
     },

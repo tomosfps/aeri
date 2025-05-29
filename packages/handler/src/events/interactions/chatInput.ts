@@ -11,6 +11,7 @@ const redis = await getRedis();
 
 export const handler: ChatInputHandler = async (interaction, api, client) => {
     const command = client.commands.get(interaction.data.name);
+    const container = interaction.getContainer();
 
     if (!command) {
         logger.warn(`Command not found: ${interaction.data.name}`, "Handler");
@@ -36,10 +37,11 @@ export const handler: ChatInputHandler = async (interaction, api, client) => {
     const timeout = command.data.cooldown ?? 900;
     const check = await checkCommandCooldown(redisKey, interaction.user.id, timeout);
     if (!check.canUse) {
-        return api.interactions.reply(interaction.id, interaction.token, {
-            content: `You may use this command again in ${time(check.expirationTime, TimestampStyles.RelativeTime)}`,
-            flags: MessageFlags.Ephemeral,
-        });
+        container.setComponent(
+            "warning",
+            `You may use this command again in ${time(check.expirationTime, TimestampStyles.RelativeTime)}`,
+        );
+        return interaction.replyContainer(true);
     }
 
     await redis.hincrby("statistics", "commands", 1).catch((err: any) => {

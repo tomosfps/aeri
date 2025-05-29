@@ -1,20 +1,17 @@
 import {
-    ActionRowBuilder,
-    EmbedBuilder,
+    SectionBuilder,
     StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder,
+    ThumbnailBuilder,
     bold,
     codeBlock,
     inlineCode,
 } from "@discordjs/builders";
-import {
-    ApplicationCommandOptionType,
-    ApplicationIntegrationType,
-    InteractionContextType,
-    MessageFlags,
-} from "@discordjs/core";
+import { ApplicationCommandOptionType, ApplicationIntegrationType, InteractionContextType } from "@discordjs/core";
 import { formatSeconds } from "core";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
+import { getUserAvatar } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 export const interaction: ChatInputCommand = {
@@ -39,7 +36,7 @@ export const interaction: ChatInputCommand = {
             ApplicationCommandOptionType.String,
             interaction.options,
         )?.toLowerCase();
-
+        const container = interaction.getContainer();
         const commands = interaction.client.commands;
         const maxLength = Math.max(...Array.from(commands.values()).map((command: any) => command.data.name.length));
 
@@ -80,7 +77,7 @@ export const interaction: ChatInputCommand = {
 
                 const filteredDescription = descriptionBuilder.filter((line) => {
                     return !(
-                        /^\s*$/.test(line) ||
+                        /^\\s*$/.test(line) ||
                         /null/.test(line) ||
                         /undefined/.test(line) ||
                         line.trim() === "" ||
@@ -89,12 +86,12 @@ export const interaction: ChatInputCommand = {
                     );
                 });
 
-                const embed = new EmbedBuilder()
-                    .setDescription(filteredDescription.join(""))
-                    .setColor(interaction.baseColour);
-                return await interaction.reply({ embeds: [embed] });
+                container.setComponent("text", filteredDescription.join(""));
+                return await interaction.replyContainer(hidden);
             }
-            return await interaction.reply({ content: "Command not found", flags: MessageFlags.Ephemeral });
+
+            container.setComponent("text", "Command not found.");
+            return await interaction.replyContainer(hidden);
         }
 
         const uniqueCategories = new Set();
@@ -114,14 +111,48 @@ export const interaction: ChatInputCommand = {
             })
             .sort((a, b) => a.label.localeCompare(b.label));
 
-        const select = new StringSelectMenuBuilder()
-            .setCustomId(`help:${interaction.userID}`)
-            .setPlaceholder("Choose A Category...")
-            .setMinValues(1)
-            .setMaxValues(1)
-            .addOptions(categoryOptions);
+        const firstCategory = categoryOptions[0]?.value;
+        const firstCategoryCommands = firstCategory
+            ? Array.from(commands.values()).filter((command: any) => command.data.category === firstCategory)
+            : [];
 
-        const row = new ActionRowBuilder().addComponents(select);
-        await interaction.reply({ components: [row], flags: hidden ? MessageFlags.Ephemeral : undefined });
+        const getBotAvatar = getUserAvatar(interaction.client.bot.id, interaction.client.bot.avatar);
+        let initialContent =
+            "## 📚 Help Commands\nSelect a category from the dropdown below to view commands, or see the default category below:\n\n";
+
+        if (firstCategoryCommands.length > 0) {
+            initialContent += `### ${firstCategory} Commands\n`;
+            initialContent += firstCategoryCommands
+                .map(
+                    (command: any) =>
+                        `${bold(inlineCode(`/${command.data.name.padEnd(maxLength)} :`))} ${command.data.description}`,
+                )
+                .join("\n");
+        }
+
+        const section = new SectionBuilder()
+            .addTextDisplayComponents((builder) => builder.setContent(initialContent))
+            .setThumbnailAccessory(new ThumbnailBuilder().setURL(getBotAvatar));
+
+        container
+            .setComponent("actionRow", [
+                [
+                    new StringSelectMenuBuilder()
+                        .setCustomId(`help:${interaction.userID}`)
+                        .setPlaceholder("Choose A Category...")
+                        .setMinValues(1)
+                        .setMaxValues(1)
+                        .addOptions(
+                            ...categoryOptions.map((option) =>
+                                new StringSelectMenuOptionBuilder()
+                                    .setLabel(option.label)
+                                    .setValue(option.value)
+                                    .setDescription(`View all ${option.label.toLowerCase()} commands`),
+                            ),
+                        ),
+                ],
+            ])
+            .setComponent("section", [section]);
+        await interaction.replyContainer(hidden);
     },
 };

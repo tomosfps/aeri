@@ -5,6 +5,8 @@ import {
     SectionBuilder,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
+    TimestampStyles,
+    time,
 } from "@discordjs/builders";
 import {
     type APIActionRowComponent,
@@ -15,10 +17,11 @@ import {
     type APISeparatorComponent,
     type APITextDisplayComponent,
     ComponentType,
-    type SeparatorSpacingSize,
+    SeparatorSpacingSize,
 } from "@discordjs/core";
 
-export type ContainerSection = "text" | "media" | "separator" | "section" | "actionRow";
+export type ContainerResponses = "error" | "success" | "warning";
+export type ContainerSection = "text" | "media" | "separator" | "section" | "actionRow" | "footer" | ContainerResponses;
 
 interface SectionItem {
     type: ContainerSection;
@@ -38,6 +41,10 @@ export type ContainerState = {
         | undefined;
     actionRow?: Array<ButtonBuilder[] | StringSelectMenuBuilder[]> | undefined;
     section?: SectionBuilder[] | undefined;
+    footer?: string | undefined;
+    error?: string | undefined;
+    success?: string | undefined;
+    warning?: string | undefined;
 };
 
 export class ContainerManager {
@@ -53,8 +60,13 @@ export class ContainerManager {
         }
     }
 
-    private generateId(): string {
+    private generateID(): string {
         return `section-${this.nextId++}`;
+    }
+
+    public setAccentColour(color: number): this {
+        this.state.accentColor = color;
+        return this;
     }
 
     public setComponentOrder(order: ContainerSection[]): this {
@@ -72,6 +84,11 @@ export class ContainerManager {
             return this.sectionItems.length;
         }
 
+        if (section === "footer") {
+            const firstFooterIndex = this.sectionItems.findIndex((item) => item.type === "footer");
+            return firstFooterIndex >= 0 ? firstFooterIndex : this.sectionItems.length;
+        }
+
         const componentOrder: ContainerSection[] = this.customComponentOrder || [
             "media",
             "section",
@@ -81,20 +98,24 @@ export class ContainerManager {
         const sectionIndex = componentOrder.indexOf(section);
 
         if (sectionIndex === -1) {
-            return this.sectionItems.length;
+            const firstFooterIndex = this.sectionItems.findIndex((item) => item.type === "footer");
+            return firstFooterIndex >= 0 ? firstFooterIndex : this.sectionItems.length;
         }
 
         for (let i = 0; i < this.sectionItems.length; i++) {
             const currentItem = this.sectionItems[i];
-            if (currentItem && currentItem.type !== "separator") {
+            if (currentItem && currentItem.type !== "separator" && currentItem.type !== "footer") {
                 const currentItemIndex = componentOrder.indexOf(currentItem.type);
                 if (currentItemIndex > sectionIndex) {
                     return i;
                 }
+            } else if (currentItem && currentItem.type === "footer") {
+                return i;
             }
         }
 
-        return this.sectionItems.length;
+        const firstFooterIndex = this.sectionItems.findIndex((item) => item.type === "footer");
+        return firstFooterIndex >= 0 ? firstFooterIndex : this.sectionItems.length;
     }
 
     public getState(): ContainerState {
@@ -160,13 +181,25 @@ export class ContainerManager {
 
     private extractTextDisplay(component: APITextDisplayComponent): void {
         const content = component.content || "";
-        this.state.text = content;
 
-        this.sectionItems.push({
-            type: "text",
-            value: content,
-            id: this.generateId(),
-        });
+        const isFooter = content.startsWith("-#") || content.includes("Data from");
+
+        if (isFooter) {
+            this.state.footer = content;
+            this.sectionItems.push({
+                type: "footer",
+                value: content,
+                id: this.generateID(),
+            });
+        } else {
+            this.state.text = content;
+            this.sectionItems.push({
+                type: "text",
+                value: content,
+                id: this.generateID(),
+            });
+        }
+
         this.lastInsertPosition = this.sectionItems.length - 1;
     }
 
@@ -185,7 +218,7 @@ export class ContainerManager {
             this.sectionItems.push({
                 type: "media",
                 value: mediaItems,
-                id: this.generateId(),
+                id: this.generateID(),
             });
             this.lastInsertPosition = this.sectionItems.length - 1;
         }
@@ -238,7 +271,7 @@ export class ContainerManager {
             this.sectionItems.push({
                 type: "actionRow",
                 value: actionRowComponents as ButtonBuilder[],
-                id: this.generateId(),
+                id: this.generateID(),
             });
             this.lastInsertPosition = this.sectionItems.length - 1;
         }
@@ -258,7 +291,7 @@ export class ContainerManager {
         this.sectionItems.push({
             type: "separator",
             value: separatorConfig,
-            id: this.generateId(),
+            id: this.generateID(),
         });
         this.lastInsertPosition = this.sectionItems.length - 1;
     }
@@ -275,7 +308,7 @@ export class ContainerManager {
             this.sectionItems.push({
                 type: "section",
                 value: sectionBuilder,
-                id: this.generateId(),
+                id: this.generateID(),
             });
             this.lastInsertPosition = this.sectionItems.length - 1;
         } catch (error) {
@@ -326,7 +359,7 @@ export class ContainerManager {
                     this.sectionItems.splice(this.lastInsertPosition + 1 + i, 0, {
                         type: "separator",
                         value: value[i],
-                        id: this.generateId(),
+                        id: this.generateID(),
                     });
                 }
                 this.lastInsertPosition += value.length;
@@ -347,7 +380,7 @@ export class ContainerManager {
                     this.sectionItems.splice(insertPosition + i, 0, {
                         type: "section",
                         value: value[i],
-                        id: this.generateId(),
+                        id: this.generateID(),
                     });
                 }
 
@@ -355,6 +388,27 @@ export class ContainerManager {
                 (this.state as any)[section] = value;
                 return this;
             }
+        }
+
+        if (section === "footer") {
+            const existingIndex = this.sectionItems.findIndex((item) => item.type === "footer");
+            if (existingIndex >= 0) {
+                const item = this.sectionItems[existingIndex];
+                if (item) {
+                    item.value = value;
+                    this.lastInsertPosition = existingIndex;
+                }
+            } else {
+                const insertPosition = this.getInsertPosition("footer");
+                this.sectionItems.splice(insertPosition, 0, {
+                    type: "footer",
+                    value: value,
+                    id: this.generateID(),
+                });
+                this.lastInsertPosition = insertPosition;
+            }
+            (this.state as any)[section] = value;
+            return this;
         }
 
         const existingIndex = this.sectionItems.findIndex((item) => item.type === section);
@@ -370,7 +424,7 @@ export class ContainerManager {
             this.sectionItems.splice(insertPosition, 0, {
                 type: section,
                 value: value,
-                id: this.generateId(),
+                id: this.generateID(),
             });
             this.lastInsertPosition = insertPosition;
         }
@@ -396,7 +450,7 @@ export class ContainerManager {
                     this.sectionItems.splice(this.lastInsertPosition + 1 + i, 0, {
                         type: "separator",
                         value: value[i],
-                        id: this.generateId(),
+                        id: this.generateID(),
                     });
                 }
                 this.lastInsertPosition += value.length;
@@ -417,13 +471,34 @@ export class ContainerManager {
                     this.sectionItems.splice(insertPosition + i, 0, {
                         type: "section",
                         value: value[i],
-                        id: this.generateId(),
+                        id: this.generateID(),
                     });
                 }
                 this.lastInsertPosition = insertPosition + value.length - 1;
                 (this.state as any)[section] = value;
                 return this;
             }
+        }
+
+        if (section === "footer") {
+            const existingIndex = this.sectionItems.findIndex((item) => item.type === "footer");
+            if (existingIndex >= 0) {
+                const item = this.sectionItems[existingIndex];
+                if (item) {
+                    item.value = value;
+                    this.lastInsertPosition = existingIndex;
+                }
+            } else {
+                const insertPosition = this.getInsertPosition("footer");
+                this.sectionItems.splice(insertPosition, 0, {
+                    type: "footer",
+                    value: value,
+                    id: this.generateID(),
+                });
+                this.lastInsertPosition = insertPosition;
+            }
+            (this.state as any)[section] = value;
+            return this;
         }
 
         const existingIndex = this.sectionItems.findIndex((item) => item.type === section);
@@ -440,52 +515,12 @@ export class ContainerManager {
             this.sectionItems.splice(insertPosition, 0, {
                 type: section,
                 value: value,
-                id: this.generateId(),
+                id: this.generateID(),
             });
             this.lastInsertPosition = insertPosition;
         }
 
         (this.state as any)[section] = value;
-        return this;
-    }
-
-    public addSeparator(divider: boolean, spacing?: SeparatorSpacingSize): this {
-        const separatorConfig = {
-            divider,
-            ...(spacing !== undefined ? { spacing } : {}),
-        };
-
-        if (!this.state.separator) {
-            this.state.separator = [];
-        }
-        this.state.separator.push(separatorConfig);
-        this.sectionItems.splice(this.lastInsertPosition + 1, 0, {
-            type: "separator",
-            value: separatorConfig,
-            id: this.generateId(),
-        });
-        this.lastInsertPosition++;
-
-        return this;
-    }
-
-    public removeSeparator(): this {
-        return this.removeComponent("separator");
-    }
-
-    public addActionRow(components: ButtonBuilder[] | StringSelectMenuBuilder[]): this {
-        if (!this.state.actionRow) {
-            this.state.actionRow = [];
-        }
-        this.state.actionRow.push(components);
-
-        this.sectionItems.push({
-            type: "actionRow",
-            value: components,
-            id: this.generateId(),
-        });
-        this.lastInsertPosition = this.sectionItems.length - 1;
-
         return this;
     }
 
@@ -498,7 +533,7 @@ export class ContainerManager {
             this.sectionItems.splice(insertPosition + i, 0, {
                 type: "actionRow",
                 value: actionRows[i],
-                id: this.generateId(),
+                id: this.generateID(),
             });
         }
         this.lastInsertPosition = insertPosition + actionRows.length - 1;
@@ -520,10 +555,6 @@ export class ContainerManager {
             (this.state as any)[section] = undefined;
         }
         return this;
-    }
-
-    public removeComponent(section: ContainerSection): this {
-        return this.removeAllComponentsOfType(section);
     }
 
     public build(): ContainerBuilder {
@@ -591,6 +622,45 @@ export class ContainerManager {
                     if (Array.isArray(item.value) && item.value.length > 0) {
                         container.addActionRowComponents((builder) => builder.addComponents(...item.value));
                     }
+                    break;
+
+                case "footer":
+                    if (item.value !== undefined && item.value !== null) {
+                        container.addTextDisplayComponents((builder) => builder.setContent(item.value));
+                    }
+                    break;
+                case "error":
+                    container.setAccentColor(0xff0000);
+                    container.addTextDisplayComponents((builder) =>
+                        builder.setContent(`## ❌ Oops! An error occurred\n${item.value}`),
+                    );
+                    container.addSeparatorComponents((separator) =>
+                        separator.setDivider(true).setSpacing(SeparatorSpacingSize.Large),
+                    );
+                    container.addTextDisplayComponents((builder) =>
+                        builder.setContent(
+                            `-# Error occurred at ${time(Math.round(Date.now() / 1000), TimestampStyles.LongDateTime)}`,
+                        ),
+                    );
+                    break;
+                case "warning":
+                    container.setAccentColor(0xffa500);
+                    container.addTextDisplayComponents((builder) => builder.setContent(`## ⚠️ Warning\n${item.value}`));
+                    container.addSeparatorComponents((separator) =>
+                        separator.setDivider(true).setSpacing(SeparatorSpacingSize.Large),
+                    );
+                    container.addTextDisplayComponents((builder) =>
+                        builder.setContent(
+                            `-# Warning issued at ${time(Math.round(Date.now() / 1000), TimestampStyles.LongDateTime)}`,
+                        ),
+                    );
+                    break;
+                case "success":
+                    container.setAccentColor(0x00ff00);
+                    container.addTextDisplayComponents((builder) => builder.setContent(`## ✅ Success\n${item.value}`));
+                    break;
+                default:
+                    console.warn(`Unknown section type: ${item.type}.`);
                     break;
             }
         }

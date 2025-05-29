@@ -66,7 +66,8 @@ export interface MessageContextCommand extends BaseCommand {
     execute: (interaction: MessageContextInteraction) => void;
 }
 
-export type PaginatedMessageContextCommand = MessageContextCommand & PaginatedCommand<MessageContextInteraction>;
+export type PaginatedMessageContextCommand<TItem = any> = MessageContextCommand &
+    PaginatedCommand<MessageContextInteraction, TItem>;
 
 export interface UserContextCommand extends BaseCommand {
     data: ContextMenuCommandBuilder;

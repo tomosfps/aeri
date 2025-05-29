@@ -1,8 +1,5 @@
 import { MessageFlags } from "@discordjs/core";
-import { Logger } from "logger";
 import type { Button } from "../../services/commands.js";
-
-const logger = new Logger();
 
 type DescriptionType = "INVITE" | "SUPPORT";
 type ButtonData = {
@@ -10,7 +7,7 @@ type ButtonData = {
 };
 
 export const interaction: Button<ButtonData> = {
-    data: { custom_id: "info", toggleable: true },
+    data: { custom_id: "info" },
     parse(data) {
         if (!data[0]) {
             throw new Error("Invalid button data");
@@ -18,8 +15,6 @@ export const interaction: Button<ButtonData> = {
         return { type: data[0] as DescriptionType };
     },
     async execute(interaction, data): Promise<void> {
-        logger.debugSingle(`Executing info button with data: ${JSON.stringify(data)}`, "Button Interaction");
-
         switch (data.type) {
             case "INVITE":
                 return await interaction.reply({

@@ -326,7 +326,12 @@ export class Pagination<T> {
     }
 
     private static getHandler(interaction: ButtonInteraction, commandID: string): any {
-        return interaction.client.commands.get(commandID) || interaction.client.selectMenus.get(commandID);
+        return (
+            interaction.client.commands.get(commandID) ||
+            interaction.client.selectMenus.get(commandID) ||
+            interaction.client.messageContextCommands.get(commandID) ||
+            interaction.client.userContextCommands.get(commandID)
+        );
     }
 
     private static createRenderInteraction(interaction: ButtonInteraction, context?: any): any {

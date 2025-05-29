@@ -124,10 +124,10 @@ export const interaction: PaginatedChatInputCommand<AffinityItem> = {
         }
 
         container
-            .setComponentOrder(["section", "actionRow", "text"])
+            .setComponentOrder(["section", "actionRow"])
             .updateComponent("section", [section])
             .updateComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
-            .updateComponent("text", `${affinity.footer}`);
+            .updateComponent("footer", `${affinity.footer}`);
 
         return container;
     },

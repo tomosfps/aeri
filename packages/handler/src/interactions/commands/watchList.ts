@@ -1,4 +1,4 @@
-import { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
+import { StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
 import {
     ApplicationCommandOptionType,
     ApplicationIntegrationType,
@@ -9,13 +9,22 @@ import { fetchAnilistUser } from "database";
 import { Logger } from "logger";
 import { MediaListStatus, MediaType } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
-import type { ChatInputCommand } from "../../services/commands.js";
+import type { PaginatedChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
+import { createSimplePagination } from "../../utility/paginationUtils.js";
 
 const logger = new Logger();
 
-export const interaction: ChatInputCommand = {
+interface WatchListItem {
+    username: string;
+    mediaType: MediaType;
+    userID: string;
+}
+
+// TODO: fix this
+
+export const interaction: PaginatedChatInputCommand<WatchListItem> = {
     data: new SlashCommandBuilder()
         .setName("watch-list")
         .setDescription("View one of your lists on Anilist")
@@ -38,8 +47,9 @@ export const interaction: ChatInputCommand = {
         .addBooleanOption((option) =>
             option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
         ),
-    async execute(interaction): Promise<void> {
-        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+    pageLimit: 1,
+
+    async getItems(interaction) {
         const type = getCommandOption("media", ApplicationCommandOptionType.String, interaction.options) as MediaType;
         let username = getCommandOption("username", ApplicationCommandOptionType.String, interaction.options);
 
@@ -49,25 +59,50 @@ export const interaction: ChatInputCommand = {
             const dbUser = await fetchAnilistUser(interaction.userID);
 
             if (!dbUser) {
-                return interaction.reply({
+                await interaction.followUp({
                     content: `Please setup your account with ${await getCommandAsMention("link")} or parse a username with the command.`,
                     flags: MessageFlags.Ephemeral,
                 });
+                return undefined;
             }
 
             username = dbUser.username;
         }
 
         if (!username) {
-            return interaction.reply({
+            await interaction.followUp({
                 content: `Please provide a username, or setup your account with ${await getCommandAsMention("link")}`,
                 flags: MessageFlags.Ephemeral,
             });
+            return undefined;
+        }
+
+        return [
+            {
+                username,
+                mediaType: type,
+                userID: interaction.userID,
+            },
+        ];
+    },
+
+    async renderPage(items, _pageNumber, _totalPages, interaction) {
+        const container = interaction.getContainer();
+
+        if (items.length === 0) {
+            container.updateComponent("text", "No watchlist data to display.");
+            return container;
+        }
+
+        const watchListItem = items[0];
+        if (!watchListItem) {
+            container.updateComponent("text", "No watchlist data available.");
+            return container;
         }
 
         const select = new StringSelectMenuBuilder()
-            .setCustomId(`status:${username}:${type}:${interaction.userID}`)
-            .setPlaceholder("Choose A Media...")
+            .setCustomId(`status:${watchListItem.username}:${watchListItem.mediaType}:${watchListItem.userID}`)
+            .setPlaceholder("Choose A Media Status...")
             .setMinValues(1)
             .setMaxValues(1)
             .addOptions(
@@ -76,7 +111,31 @@ export const interaction: ChatInputCommand = {
                     .map(([key, value]) => new StringSelectMenuOptionBuilder().setLabel(key).setValue(value)),
             );
 
-        const row = new ActionRowBuilder().addComponents(select);
-        await interaction.reply({ components: [row], flags: hidden ? MessageFlags.Ephemeral : undefined });
+        container
+            .setComponentOrder(["text", "actionRow"])
+            .setComponent(
+                "text",
+                `Select a status to view ${watchListItem.username}'s ${watchListItem.mediaType} list:`,
+            )
+            .setComponent("actionRow", [[select]]);
+
+        return container;
+    },
+
+    async execute(interaction) {
+        const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+        await interaction.defer(hidden);
+
+        try {
+            await createSimplePagination(this, interaction, "watch-list");
+        } catch (error: any) {
+            logger.error("Error in watchList command", "WatchListCommand", { error });
+            const errorMessage = error.message || "An error occurred while processing the watchlist command.";
+
+            await interaction.followUp({
+                content: errorMessage,
+                flags: MessageFlags.Ephemeral,
+            });
+        }
     },
 };

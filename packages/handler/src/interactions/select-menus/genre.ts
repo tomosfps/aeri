@@ -1,5 +1,5 @@
-import { EmbedBuilder } from "@discordjs/builders";
-import { MessageFlags } from "@discordjs/core";
+import { MediaGalleryItemBuilder, SectionBuilder, ThumbnailBuilder } from "@discordjs/builders";
+import { MessageFlags, SeparatorSpacingSize } from "@discordjs/core";
 import { Logger } from "logger";
 import { MediaType, Routes, api } from "wrappers/anilist";
 import type { SelectMenu } from "../../services/commands.js";
@@ -60,17 +60,32 @@ export const interaction: SelectMenu<SelectMenuData> = {
             });
         }
 
-        const embed = new EmbedBuilder()
-            .setTitle(media.title.romaji)
-            .setURL(media.siteUrl)
-            .setImage(media.banner)
-            .setThumbnail(media.cover)
-            .setDescription(media.description)
-            .setColor(interaction.baseColour)
-            .setFooter({
-                text: media.footer,
-            });
+        const container = interaction.getContainer();
 
-        await interaction.editReply({ embeds: [embed] });
+        const section = new SectionBuilder().addTextDisplayComponents((builder) =>
+            builder.setContent(
+                `# [${media.title.romaji}](${media.siteUrl})\n${media.description || "No description available."}`,
+            ),
+        );
+
+        if (media.cover) {
+            section.setThumbnailAccessory(new ThumbnailBuilder().setURL(media.cover));
+        }
+
+        container
+            .updateComponent("section", [section])
+            .updateComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }]);
+
+        if (media.banner) {
+            container
+                .updateComponent("media", [new MediaGalleryItemBuilder().setURL(media.banner)])
+                .updateComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }]);
+        }
+
+        if (media.footer) {
+            container.updateComponent("footer", media.footer);
+        }
+
+        await interaction.editReplyContainer();
     },
 };

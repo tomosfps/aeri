@@ -120,7 +120,7 @@ export const interaction: PaginatedChatInputCommand<MangaUserScoreItem> = {
     },
 
     async renderPage(items, pageNumber, _totalPages, interaction) {
-        const container = interaction.getContainer().setComponentOrder(["media", "section", "actionRow", "text"]);
+        const container = interaction.getContainer().setComponentOrder(["media", "section", "actionRow"]);
 
         if (items.length === 0) {
             container.updateComponent("text", "No manga data to display.");
@@ -199,7 +199,7 @@ export const interaction: PaginatedChatInputCommand<MangaUserScoreItem> = {
                         .setMinValues(1)
                         .setMaxValues(1)
                         .addOptions(
-                            filteredRelations.map((relation) => {
+                            filteredRelations.slice(0, 25).map((relation) => {
                                 return new StringSelectMenuOptionBuilder()
                                     .setLabel(
                                         `${relation.english || relation.romaji || relation.native || ""}`.slice(0, 100),
@@ -210,7 +210,7 @@ export const interaction: PaginatedChatInputCommand<MangaUserScoreItem> = {
                         ),
                 ],
             ])
-            .setComponent("text", `${mediaResult.footer}`);
+            .setComponent("footer", mediaResult.footer);
 
         return container;
     },

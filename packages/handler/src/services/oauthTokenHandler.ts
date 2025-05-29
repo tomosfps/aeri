@@ -1,12 +1,12 @@
 import { randomBytes } from "node:crypto";
-import { EmbedBuilder } from "@discordjs/builders";
-import { API } from "@discordjs/core";
+import { API, MessageFlags } from "@discordjs/core";
 import { REST } from "@discordjs/rest";
 import { env } from "core";
 import { createAnilistUser } from "database";
 import { type Redis, ReplyError } from "ioredis";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
+import { ContainerManager } from "wrappers/discord";
 
 const logger = new Logger();
 const rest = new REST().setToken(env.DISCORD_TOKEN);
@@ -86,20 +86,19 @@ export class OauthTokenHandler {
         }
 
         await this.redis.del(`anilist_setup_interaction:${userId}`);
+        const container = new ContainerManager({ accentColor: success ? 0x69ff8c : 0xff5e5e });
 
-        const embed = new EmbedBuilder()
-            .setColor(success ? 0x69ff8c : 0xff5e5e)
-            .setTitle(success ? "Success!" : "Error!")
-            .setDescription(
-                success
-                    ? "Your anilist account has been linked successfully!"
-                    : "An error occurred while linking your account.",
-            );
+        if (success) {
+            container.setComponent("success", "Your Anilist account has been linked successfully!");
+        } else {
+            container.setComponent("error", "An error occurred while linking your account.");
+        }
+
+        const builtContainer = container.build();
 
         await dapi.interactions.editReply(env.DISCORD_APPLICATION_ID, token, {
-            content: "",
-            embeds: [embed.toJSON()],
-            components: [],
+            components: [builtContainer.toJSON()],
+            flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
         });
     }
 
@@ -117,7 +116,6 @@ export class OauthTokenHandler {
         }
 
         await createAnilistUser(userId, currentUser.id, currentUser.name, guildId, token);
-
         return await this.finishInteraction(userId, true);
     }
 }

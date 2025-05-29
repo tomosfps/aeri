@@ -121,7 +121,7 @@ export const interaction: PaginatedChatInputCommand<AnimeUserScoreItem> = {
     },
 
     async renderPage(items, pageNumber, _totalPages, interaction) {
-        const container = interaction.getContainer().setComponentOrder(["media", "section", "actionRow", "text"]);
+        const container = interaction.getContainer().setComponentOrder(["media", "section", "actionRow"]);
 
         if (items.length === 0) {
             container.updateComponent("text", "No anime data to display.");
@@ -194,7 +194,7 @@ export const interaction: PaginatedChatInputCommand<AnimeUserScoreItem> = {
                         .setMinValues(1)
                         .setMaxValues(1)
                         .addOptions(
-                            filteredRelations.map((relation) => {
+                            filteredRelations.slice(0, 25).map((relation) => {
                                 return new StringSelectMenuOptionBuilder()
                                     .setLabel(
                                         `${relation.english || relation.romaji || relation.native || ""}`.slice(0, 100),
@@ -205,7 +205,7 @@ export const interaction: PaginatedChatInputCommand<AnimeUserScoreItem> = {
                         ),
                 ],
             ])
-            .setComponent("text", `${mediaResult.footer}`);
+            .setComponent("footer", mediaResult.footer);
 
         return container;
     },

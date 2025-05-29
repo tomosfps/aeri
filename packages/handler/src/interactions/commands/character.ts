@@ -1,10 +1,11 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
+import { ButtonBuilder, SectionBuilder, ThumbnailBuilder } from "@discordjs/builders";
 import {
     ApplicationCommandOptionType,
     ApplicationIntegrationType,
     ButtonStyle,
     InteractionContextType,
     MessageFlags,
+    SeparatorSpacingSize,
 } from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
@@ -44,37 +45,42 @@ export const interaction: ChatInputCommand = {
         }
 
         const minDescriptionLength = 23;
-        const embed = new EmbedBuilder()
-            .setTitle(character.fullName)
-            .setURL(character.siteUrl)
-            .setDescription(character.description + character.addOnDescription)
-            .setThumbnail(character.image)
-            .setColor(interaction.baseColour)
-            .setFooter({ text: character.footer });
+        const container = interaction.getContainer();
+
+        const section = new SectionBuilder().addTextDisplayComponents((builder) =>
+            builder.setContent(
+                `# [${character.fullName}](${character.siteUrl})\n${character.description}${character.addOnDescription}`,
+            ),
+        );
+
+        if (character.image) {
+            section.setThumbnailAccessory(new ThumbnailBuilder().setURL(character.image));
+        }
 
         const descriptionButton = new ButtonBuilder()
             .setCustomId(`character:${character_name}:DESCRIPTION:${interaction.user.id}`)
-            .setLabel("See Character Description")
+            .setLabel("Description")
             .setStyle(ButtonStyle.Primary);
 
         const animeButton = new ButtonBuilder()
             .setCustomId(`character:${character_name}:ANIME:${interaction.user.id}`)
-            .setLabel("See Anime Show Appearances")
+            .setLabel("Anime Appearances")
             .setDisabled(character.animeDescription.length <= minDescriptionLength)
             .setStyle(ButtonStyle.Secondary);
 
         const mangaButton = new ButtonBuilder()
             .setCustomId(`character:${character_name}:MANGA:${interaction.user.id}`)
-            .setLabel("See Manga Character Appearances")
+            .setLabel("Manga Appearances")
             .setDisabled(character.mangaDescription.length <= minDescriptionLength)
             .setStyle(ButtonStyle.Secondary);
 
-        const row = new ActionRowBuilder().addComponents(descriptionButton, animeButton, mangaButton);
+        container
+            .setComponentOrder(["section", "actionRow"])
+            .setComponent("section", [section])
+            .setComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
+            .setComponent("actionRow", [[descriptionButton, animeButton, mangaButton]])
+            .setComponent("footer", character.footer);
 
-        return interaction.reply({
-            embeds: [embed],
-            components: [row],
-            flags: hidden ? MessageFlags.Ephemeral : undefined,
-        });
+        await interaction.replyContainer(hidden);
     },
 };

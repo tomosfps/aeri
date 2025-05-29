@@ -1,5 +1,5 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
-import { ApplicationIntegrationType, ButtonStyle, InteractionContextType, MessageFlags } from "@discordjs/core";
+import { ButtonBuilder } from "@discordjs/builders";
+import { ApplicationIntegrationType, ButtonStyle, InteractionContextType, SeparatorSpacingSize } from "@discordjs/core";
 import { env, getRedis } from "core";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
@@ -16,20 +16,23 @@ export const interaction: ChatInputCommand = {
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
         .setCategory("OAuth"),
     async execute(interaction): Promise<void> {
-        const embed = new EmbedBuilder()
-            .setDescription("Click the button below to link your Anilist account with the bot.")
-            .setColor(interaction.baseColour);
+        const container = interaction.getContainer();
 
-        const row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setLabel("Link Anilist Account")
-                .setStyle(ButtonStyle.Link)
-                .setURL(
-                    `https://anilist.co/api/v2/oauth/authorize?client_id=${env.ANILIST_CLIENT_ID}&response_type=code&state=${interaction.userID}_${interaction.guildID || ""}`,
-                ),
-        );
+        container
+            .setComponent("text", "Click the button below to link your Anilist account with the bot.")
+            .setComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
+            .setComponent("actionRow", [
+                [
+                    new ButtonBuilder()
+                        .setLabel("Link Anilist Account")
+                        .setStyle(ButtonStyle.Link)
+                        .setURL(
+                            `https://anilist.co/api/v2/oauth/authorize?client_id=${env.ANILIST_CLIENT_ID}&response_type=code&state=${interaction.userID}_${interaction.guildID || ""}`,
+                        ),
+                ],
+            ]);
 
         await redis.set(`anilist_setup_interaction:${interaction.userID}`, interaction.token, "EX", 60 * 15);
-        return await interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
+        await interaction.replyContainer(true);
     },
 };

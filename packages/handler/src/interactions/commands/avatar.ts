@@ -1,10 +1,5 @@
-import { ContainerBuilder, MediaGalleryItemBuilder } from "@discordjs/builders";
-import {
-    ApplicationCommandOptionType,
-    ApplicationIntegrationType,
-    InteractionContextType,
-    MessageFlags,
-} from "@discordjs/core";
+import { MediaGalleryItemBuilder } from "@discordjs/builders";
+import { ApplicationCommandOptionType, ApplicationIntegrationType, InteractionContextType } from "@discordjs/core";
 import { Logger } from "logger";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
@@ -30,22 +25,17 @@ export const interaction: ChatInputCommand = {
     async execute(interaction): Promise<void> {
         const targetUserId = getCommandOption("target", ApplicationCommandOptionType.User, interaction.options);
         const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
+        const container = interaction.getContainer();
 
         if (!targetUserId) {
-            await interaction.reply({
-                content: "Please provide a valid user to view their avatar.",
-                flags: MessageFlags.Ephemeral,
-            });
-            return;
+            container.setComponent("warning", "Please provide a valid user to view their avatar.");
+            return interaction.replyContainer(true);
         }
 
         const user = await interaction.api.users.get(targetUserId).catch(() => null);
         if (!user) {
-            await interaction.reply({
-                content: "Could not fetch user information. The user may not exist.",
-                flags: MessageFlags.Ephemeral,
-            });
-            return;
+            container.setComponent("error", "Could not fetch user information. The user may not exist.");
+            return interaction.replyContainer(true);
         }
 
         let guildAvatar: string | undefined = undefined;
@@ -60,26 +50,15 @@ export const interaction: ChatInputCommand = {
             }
         }
 
-        const container = new ContainerBuilder()
-            .setAccentColor(interaction.baseColour)
-            .addMediaGalleryComponents((builder) =>
-                builder.addItems(
-                    new MediaGalleryItemBuilder()
-                        .setDescription(`${user.username}'s Avatar`)
-                        .setURL(getUserAvatar(user.id, user.avatar)),
-                    ...(guildAvatar
-                        ? [
-                              new MediaGalleryItemBuilder()
-                                  .setDescription(`${user.username}'s Guild Avatar`)
-                                  .setURL(guildAvatar),
-                          ]
-                        : []),
-                ),
-            );
+        container.setComponent("media", [
+            new MediaGalleryItemBuilder()
+                .setDescription(`${user.username}'s Avatar`)
+                .setURL(getUserAvatar(user.id, user.avatar)),
+            ...(guildAvatar
+                ? [new MediaGalleryItemBuilder().setDescription(`${user.username}'s Guild Avatar`).setURL(guildAvatar)]
+                : []),
+        ]);
 
-        await interaction.reply({
-            components: [container],
-            flags: hidden ? MessageFlags.Ephemeral | MessageFlags.IsComponentsV2 : MessageFlags.IsComponentsV2,
-        });
+        await interaction.replyContainer(hidden);
     },
 };

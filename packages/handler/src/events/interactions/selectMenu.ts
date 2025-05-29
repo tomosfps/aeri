@@ -9,6 +9,7 @@ const logger = new Logger();
 export const handler: SelectMenuHandler = async (interaction, api, client) => {
     const [selectId, ...data] = interaction.data.custom_id.split(":") as [string, ...string[]];
     const selectMenu = client.selectMenus.get(selectId);
+    const container = interaction.getContainer();
 
     if (!selectMenu) {
         logger.warnSingle(`Select menu not found: ${selectId}`, "Handler");
@@ -31,10 +32,11 @@ export const handler: SelectMenuHandler = async (interaction, api, client) => {
     const check = await checkCommandCooldown(redisKey, interaction.user.id, selectMenu.data.cooldown);
 
     if (!check.canUse) {
-        return api.interactions.reply(interaction.id, interaction.token, {
-            content: `You may use this command again in ${time(check.expirationTime, TimestampStyles.RelativeTime)}`,
-            flags: MessageFlags.Ephemeral,
-        });
+        container.setComponent(
+            "warning",
+            `You may use this select menu again in ${time(check.expirationTime, TimestampStyles.RelativeTime)}`,
+        );
+        return interaction.replyContainer(true);
     }
 
     try {

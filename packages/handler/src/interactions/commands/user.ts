@@ -1,10 +1,11 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "@discordjs/builders";
+import { ButtonBuilder, MediaGalleryItemBuilder, SectionBuilder, ThumbnailBuilder } from "@discordjs/builders";
 import {
     ApplicationCommandOptionType,
     ApplicationIntegrationType,
     ButtonStyle,
     InteractionContextType,
     MessageFlags,
+    SeparatorSpacingSize,
 } from "@discordjs/core";
 import { fetchAnilistUser } from "database";
 import { Logger } from "logger";
@@ -87,19 +88,27 @@ export const interaction: ChatInputCommand = {
             .setLabel("Favourite Manga")
             .setStyle(ButtonStyle.Secondary);
 
-        const row = new ActionRowBuilder().addComponents(informationButton, animeButton, mangaButton);
-        const embed = new EmbedBuilder()
-            .setTitle(user.name)
-            .setURL(user.siteUrl)
-            .setDescription(user.description)
-            .setThumbnail(user.avatar)
-            .setImage(user.banner)
-            .setColor(interaction.baseColour)
-            .setFooter({ text: user.footer });
+        const container = interaction.getContainer();
 
-        return interaction.reply({
-            embeds: [embed],
-            components: [row],
-        });
+        if (user.banner) {
+            container.updateComponent("media", [new MediaGalleryItemBuilder().setURL(user.banner)]);
+            container.updateComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }]);
+        }
+
+        const section = new SectionBuilder().addTextDisplayComponents((builder) =>
+            builder.setContent(`# [${user.name}](${user.siteUrl})\n${user.description}`),
+        );
+
+        if (user.avatar) {
+            section.setThumbnailAccessory(new ThumbnailBuilder().setURL(user.avatar));
+        }
+
+        container
+            .updateComponent("section", [section])
+            .updateComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
+            .setActionRow([[informationButton, animeButton, mangaButton]])
+            .updateComponent("footer", user.footer);
+
+        return interaction.replyContainer();
     },
 };

@@ -1,10 +1,11 @@
-import { ApplicationIntegrationType, InteractionContextType, MessageFlags } from "@discordjs/core";
+import { ApplicationIntegrationType, InteractionContextType } from "@discordjs/core";
 import { fetchAnilistUser } from "database";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
 import { getCommandAsMention } from "../../utility/formatUtils.js";
+
 const logger = new Logger();
 
 export const interaction: ChatInputCommand = {
@@ -16,20 +17,19 @@ export const interaction: ChatInputCommand = {
         .setCategory("Anime/Manga")
         .setCooldown(1800)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
-        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM)
-        .addBooleanOption((option) =>
-            option.setName("hidden").setDescription("Hide the interaction from appearing in chat").setRequired(false),
-        ),
+        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM),
     async execute(interaction): Promise<void> {
         const anilistUser = await fetchAnilistUser(interaction.userID);
         const userId = anilistUser ? anilistUser.id : null;
         const username = anilistUser ? anilistUser.username : null;
+        const container = interaction.getContainer();
 
         if (username === null || userId === null) {
-            return interaction.reply({
-                content: `You must link your Anilist account to use this command. You can do so by using the ${await getCommandAsMention("link")} command.`,
-                flags: MessageFlags.Ephemeral,
-            });
+            container.setComponent(
+                "warning",
+                `You must link your Anilist account to use this command. You can do so by using the ${await getCommandAsMention("link")} command.`,
+            );
+            return interaction.replyContainer(true);
         }
 
         const { result, error } = await api.fetch(Routes.RefreshUser, {
@@ -40,12 +40,17 @@ export const interaction: ChatInputCommand = {
         if (error || result === null) {
             logger.error("Error while fetching data from the API.", "Anilist", { error });
 
-            return interaction.reply({
-                content: "There was a problem trying to refresh your scores.",
-                flags: MessageFlags.Ephemeral,
-            });
+            container.setComponent(
+                "error",
+                "An error occurred while refreshing your scores.\nPlease try again later. If the issue persists, contact the bot owner.",
+            );
+            return await interaction.replyContainer(true);
         }
 
-        await interaction.reply({ content: "Sucessfully removed your scores!", flags: MessageFlags.Ephemeral });
+        container.setComponent(
+            "success",
+            `Successfully refreshed your scores! You can now use commands like ${await getCommandAsMention("anime")} and ${await getCommandAsMention("manga")} commands to view your scores.`,
+        );
+        await interaction.replyContainer(true);
     },
 };

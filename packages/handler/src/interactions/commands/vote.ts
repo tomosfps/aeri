@@ -1,8 +1,10 @@
+import { ButtonBuilder } from "@discordjs/builders";
 import {
     ApplicationCommandOptionType,
     ApplicationIntegrationType,
+    ButtonStyle,
     InteractionContextType,
-    MessageFlags,
+    SeparatorSpacingSize,
 } from "@discordjs/core";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
@@ -21,9 +23,23 @@ export const interaction: ChatInputCommand = {
         ),
     async execute(interaction): Promise<void> {
         const hidden = getCommandOption("hidden", ApplicationCommandOptionType.Boolean, interaction.options) || false;
-        await interaction.reply({
-            content: "https://top.gg/bot/795916241193140244",
-            flags: hidden ? MessageFlags.Ephemeral : undefined,
-        });
+        const container = interaction.getContainer();
+
+        container
+            .setComponent(
+                "text",
+                "If you enjoy using Aeri, please consider voting for us on Top.gg!\nIt helps us grow and improve the bot.",
+            )
+            .setComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
+            .setComponent("actionRow", [
+                [
+                    new ButtonBuilder()
+                        .setLabel("Vote Here!")
+                        .setStyle(ButtonStyle.Link)
+                        .setURL("https://top.gg/bot/795916241193140244/vote"),
+                ],
+            ]);
+
+        await interaction.replyContainer(hidden);
     },
 };

@@ -118,6 +118,14 @@ export class BaseInteraction {
         );
     }
 
+    public async editReplyContainer(): Promise<void> {
+        const container = this.getContainer().build();
+        await this.editReply({
+            components: [container],
+            flags: MessageFlags.IsComponentsV2,
+        });
+    }
+
     public async replyContainer(hidden = false): Promise<void> {
         const container = this.getContainer().build();
         await this.reply({

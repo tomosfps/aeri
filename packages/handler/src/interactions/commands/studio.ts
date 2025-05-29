@@ -1,9 +1,10 @@
-import { EmbedBuilder, inlineCode } from "@discordjs/builders";
+import { inlineCode } from "@discordjs/builders";
 import {
     ApplicationCommandOptionType,
     ApplicationIntegrationType,
     InteractionContextType,
     MessageFlags,
+    SeparatorSpacingSize,
 } from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
@@ -53,16 +54,14 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        const embed = new EmbedBuilder()
-            .setTitle(studio.name)
-            .setURL(studio.siteUrl)
-            .setDescription(studio.description + studio.animeDescription)
-            .setColor(interaction.baseColour)
-            .setFooter({ text: studio.footer });
+        const container = interaction.getContainer();
 
-        return interaction.reply({
-            embeds: [embed],
-            flags: hidden ? MessageFlags.Ephemeral : undefined,
-        });
+        container
+            .setComponentOrder(["text"])
+            .setComponent("text", `${studio.description}${studio.animeDescription}`)
+            .setComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
+            .setComponent("footer", studio.footer);
+
+        await interaction.replyContainer(hidden);
     },
 };

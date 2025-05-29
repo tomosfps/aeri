@@ -1,15 +1,11 @@
-import { EmbedBuilder, inlineCode } from "@discordjs/builders";
-import {
-    ApplicationCommandOptionType,
-    ApplicationIntegrationType,
-    InteractionContextType,
-    MessageFlags,
-} from "@discordjs/core";
+import { SectionBuilder, ThumbnailBuilder } from "@discordjs/builders";
+import { ApplicationCommandOptionType, ApplicationIntegrationType, InteractionContextType } from "@discordjs/core";
 import { createAnilistUser, fetchAnilistUser } from "database";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
 import { SlashCommandBuilder } from "../../builders/SlashCommandBuilder.js";
 import type { ChatInputCommand } from "../../services/commands.js";
+import { getCommandAsMention } from "../../utility/formatUtils.js";
 import { getCommandOption } from "../../utility/interactionUtils.js";
 
 const logger = new Logger();
@@ -37,44 +33,51 @@ export const interaction: ChatInputCommand = {
             interaction.options,
         ) as string;
         const isInDatabase = await fetchAnilistUser(interaction.userID);
+        const container = interaction.getContainer();
+
         if (!isInDatabase) {
             const { result: user, error } = await api.fetch(Routes.User, { username });
 
-            if (error) {
+            if (error || !user) {
                 logger.error("Error while fetching data from the API.", "Anilist", { error });
-
-                return interaction.reply({
-                    content:
-                        "An error occurred while fetching your Anilist account.\nPlease try again later. If the issue persists, contact the bot owner.",
-                    flags: MessageFlags.Ephemeral,
-                });
-            }
-
-            if (!user) {
-                return interaction.reply({
-                    content: `Could not find user with username ${inlineCode(username)}`,
-                    flags: MessageFlags.Ephemeral,
-                });
+                container.updateComponent(
+                    "error",
+                    "An error occurred while fetching your Anilist account.\nPlease try again later. If the issue persists, contact the bot owner.",
+                );
+                return interaction.replyContainer(true);
             }
 
             await createAnilistUser(interaction.userID, user.id, user.name, interaction.guildID);
 
-            const embed = new EmbedBuilder()
-                .setTitle(`Anilist Account Linked | ${user.name}`)
-                .setDescription(user.description)
-                .setThumbnail(user.avatar)
-                .setColor(interaction.baseColour);
+            if (user.avatar) {
+                const section = new SectionBuilder()
+                    .addTextDisplayComponents((builder) =>
+                        builder.setContent(
+                            `# [${user.name}](${user.siteUrl})\n${user.description || "No description available."}`,
+                        ),
+                    )
+                    .setThumbnailAccessory(new ThumbnailBuilder().setURL(user.avatar));
 
-            return interaction.reply({
-                embeds: [embed],
-                flags: hidden ? MessageFlags.Ephemeral : undefined,
-            });
+                container.setComponent("section", [section]);
+            } else {
+                container.setComponent(
+                    "text",
+                    `# [${user.name}](${user.siteUrl})\n${user.description || "No description available."}`,
+                );
+            }
+
+            container.setComponent(
+                "footer",
+                `-# Account linked!\n-# You can unlink your account anytime using ${await getCommandAsMention("unlink")}`,
+            );
+
+            return interaction.replyContainer(hidden);
         }
 
-        return interaction.reply({
-            content:
-                "You already have an anilist account linked to your discord account. Use `/unlink` to unlink your account.",
-            flags: MessageFlags.Ephemeral,
-        });
+        container.updateComponent(
+            "warning",
+            "You already have an anilist account linked to your discord account. Use `/unlink` to unlink your account.",
+        );
+        return interaction.replyContainer(true);
     },
 };

@@ -1,10 +1,11 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, inlineCode } from "@discordjs/builders";
+import { ButtonBuilder, SectionBuilder, ThumbnailBuilder, inlineCode } from "@discordjs/builders";
 import {
     ApplicationCommandOptionType,
     ApplicationIntegrationType,
     ButtonStyle,
     InteractionContextType,
     MessageFlags,
+    SeparatorSpacingSize,
 } from "@discordjs/core";
 import { Logger } from "logger";
 import { Routes, api } from "wrappers/anilist";
@@ -52,29 +53,33 @@ export const interaction: ChatInputCommand = {
             });
         }
 
-        const embed = new EmbedBuilder()
-            .setTitle(staff.fullName)
-            .setURL(staff.siteUrl)
-            .setDescription(staff.description)
-            .setThumbnail(staff.image)
-            .setColor(interaction.baseColour)
-            .setFooter({ text: staff.footer });
+        const container = interaction.getContainer();
+
+        const section = new SectionBuilder().addTextDisplayComponents((builder) =>
+            builder.setContent(`# [${staff.fullName}](${staff.siteUrl})\n${staff.description}`),
+        );
+
+        if (staff.image) {
+            section.setThumbnailAccessory(new ThumbnailBuilder().setURL(staff.image));
+        }
 
         const animeButton = new ButtonBuilder()
             .setCustomId(`staff:${staff_name}:ANIME:${interaction.user.id}`)
-            .setLabel("See Anime Within/Worked On")
+            .setLabel("Anime Within/Worked On")
             .setStyle(ButtonStyle.Primary);
 
         const mangaButton = new ButtonBuilder()
             .setCustomId(`staff:${staff_name}:MANGA:${interaction.user.id}`)
-            .setLabel("See Manga Created")
+            .setLabel("Manga Created")
             .setStyle(ButtonStyle.Secondary);
 
-        const row = new ActionRowBuilder().addComponents(animeButton, mangaButton);
-        return interaction.reply({
-            embeds: [embed],
-            components: [row],
-            flags: hidden ? MessageFlags.Ephemeral : undefined,
-        });
+        container
+            .setComponentOrder(["section", "actionRow"])
+            .setComponent("section", [section])
+            .setComponent("separator", [{ divider: true, spacing: SeparatorSpacingSize.Large }])
+            .setComponent("actionRow", [[animeButton, mangaButton]])
+            .setComponent("footer", staff.footer);
+
+        await interaction.replyContainer(hidden);
     },
 };

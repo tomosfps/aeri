@@ -125,9 +125,9 @@ export const interaction: PaginatedSelectMenu<SelectMenuData> = {
         }
 
         container
-            .setComponentOrder(["media", "section", "actionRow", "text"])
+            .setComponentOrder(["media", "section", "actionRow"])
             .updateComponent("section", [section])
-            .updateComponent("text", `${media.footer}`);
+            .updateComponent("footer", `${media.footer}`);
         return container;
     },
 
